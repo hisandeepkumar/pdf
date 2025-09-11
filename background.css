@@ -5,3 +5,12 @@ background
 body {
        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://themepack.me/i/c/749x467/media/g/1873/dark-amoled-theme-ie3.jpg');
 }
+
+
+
+
+body {
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
+    background-size: cover;
+    background-position: center;
+}
