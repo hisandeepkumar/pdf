@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Myrtille Industries - Text to PDF Generator</title>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: #f0f0f0;
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 640px;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+
+    .app-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 极.2);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 32px;
+      position: relative;
+    }
+
+    .app-card-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 16px 极.2);
+      text-align: center;
+    }
+
+    .app-card-header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #f0f0f0;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .app-card-header h1 i {
+      color: #5b86e5;
+      font-size: 28px;
+    }
+
+    .app-content {
+      margin-top: 60px;
+    }
+
+    .app-section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 500;
+      color: #f0f0f0;
+    }
+
+    .section-title i {
+      margin-right: 12px;
+      color: #5b86e5;
+      font-size: 20px;
+    }
+
+    .text-area-container {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .text-area-container:focus-within {
+      border-color: #5b86e5;
+      box-shadow: 0 0 20px rgba(91, 134, 229, 0.3);
+    }
+
+    .text-area-container textarea {
+      width: 100%;
+      min-height: 200px;
+      max-height: 600px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      color: #f0f0f0;
+      background: rgba(255, 255, 255, 0.05);
+      resize: none;
+      transition: all 0.3s ease;
+    }
+
+    .text-area-container textarea:focus {
+      outline: none;
+      border-color: #5b86e5;
+      box-shadow: 0 0 0 2px rgba(91, 134, 229, 0.3);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      color: #f极f0f0;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 12px;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4极 15px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn i {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: all 0.5s ease;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(91, 134, 229, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .generate-btn {
+      padding: 14px 32px;
+      font-size: 16px;
+      width: 200px;
+      height: 60px;
+      border-radius: 30px;
+      box-shadow: 0 6px 20px rgba(91, 134, 229, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    }
+
+    .generate-btn i {
+      margin-right: 8px;
+    }
+
+    .watermark-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 16px 0;
+      color: #f0f0f0;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .watermark-toggle label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      flex-direction: row;
+    }
+
+    .watermark-toggle input[type="checkbox"] {
+      display: none;
+    }
+
+    .toggle-switch {
+      width: 60px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      position: relative;
+      transition: background 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 4px 15px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    }
+
+    .toggle-sw极itch::before {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: #f0f0f0;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .watermark-toggle input:checked + .toggle-switch {
+      background: #34c759;
+      border-color: #34c759;
+    }
+
+    .watermark-toggle input:checked + .toggle-switch::before {
+      transform: translateX(30px);
+      background: #ffffff;
+    }
+
+    .toggle-switch:hover {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 6px 20px rgba(91, 134, 229, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+
+    .watermark-toggle input:checked + .toggle-switch:hover {
+      background: #2db44e;
+    }
+
+    .status-area {
+      display: none;
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status-area.active {
+      display: block;
+    }
+
+    .status-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .status-header i {
+      margin-right: 12px;
+      color: #5b86e5;
+      font-size: 20px;
+    }
+
+    .status-header h3 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #f0f0f0;
+    }
+
+    .progress-container {
+      background: rgba(255, 255, 255, 0.极);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #5b86e5, #36d1dc);
+      transition: width 0.3极 ease;
+      border-radius: 4px;
+    }
+
+    .status-message {
+      margin-top: 12px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .success-message, .error-message {
+      display: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    .success-message {
+      background: rgba(52, 199, 89, 0.2);
+      color: #34c759;
+      border: 1px solid rgba(52, 199, 89, 0.3);
+    }
+
+    .error-message {
+      background: rgba(255, 59, 48, 0.2);
+      color极 #ff3b30;
+      border: 1px solid rgba(255, 59, 48, 0.3);
+    }
+
+    .success-message i, .error-message i {
+      margin-right: 8px;
+    }
+    
+    .address-selector {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .address-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .address-header i {
+      margin-right: 12px;
+      color: #5b86e5;
+      font-size: 20px;
+    }
+    
+    .address-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    
+    .address-option {
+      flex: 1;
+      min-width: 250px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .address-option:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-3px);
+    }
+    
+    .address-option.selected {
+      background: rgba(91, 134, 229, 0.25);
+      border-color: #5b86e5;
+      box-shadow: 0 0 15px rgba(91, 134, 229, 0.3);
+    }
+    
+    .address-option h3 {
+      font-size极 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .address-option h3 i {
+      margin-right: 8px;
+      color: #5b86e5;
+    }
+    
+    .address-option p {
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 8px;
+    }
+    
+    .address-option .selected-indicator {
+      display: none;
+      text-align: right;
+      color: #5b86e5;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    
+    .address-option.selected .selected-indicator {
+      display: block;
+    }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      width: 100%;
+    }
+
+    footer a {
+      color: #5b86e5;
+      text-decoration: none;
+      position: relative;
+      display: inline-block;
+    }
+
+    footer a::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      bottom: -2px;
+      left: 0;
+      background: linear-gradient(90deg, #5b86e5, #36d1dc);
+      animation: continuousLine 3s infinite;
+    }
+
+    @keyframes continuousLine {
+      0%   { transform: scaleX(0); transform-origin: bottom left; }
+      50%  { transform: scaleX(1); transform-origin: bottom left; }
+      51%  { transform: scaleX(1); transform-origin: bottom right; }
+      100% { transform: scaleX(0); transform-origin: bottom right; }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+      .app-card {
+        padding: 24px;
+      }
+      .app-card-header {
+        padding: 12px 24px;
+      }
+      .app-card-header h1 {
+        font-size: 20px;
+      }
+      .app-content {
+        margin-top: 50px;
+      }
+      .text-area-container {
+        padding: 20px;
+      }
+      .btn {
+        width: 50px;
+        height: 50px;
+        font-size: 12px;
+      }
+      .generate-btn {
+        width: 180px;
+        height: 50px;
+        font-size: 14px;
+      }
+      .action-buttons {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .address-option {
+        min-width: 100%;
+      }
+      .watermark-toggle {
+        font-size: 14px;
+      }
+      .toggle-switch {
+        width: 50px;
+        height: 25px;
+      }
+      .toggle-switch::before {
+        width: 20px;
+        height: 20px;
+        top: 2.5px;
+        left: 2.5px;
+      }
+      .watermark-toggle input:checked + .toggle-switch::before {
+        transform: translateX(25px);
+      }
+    }
+  </style>
+</head>
+<body>  
+  <main class="container">
+    <section class="app-card" aria-label="Text to PDF Generator">
+      <div class="app-card-header">
+        <h1><i class="fas fa-industry"></i> Myrtille Industries</h1>
+      </div>
+
+      <div class极app-content">
+        <div class="app-section">
+          <h2 class="section-title">
+            <i class="fas fa-edit"></i>
+            Enter Your Document Content
+          </h2>
+          <div class="text-area-container">
+            <textarea id="contentInput" placeholder="Type or paste your document content here... Use **text** to make text bold. Example: **Hello** world" aria-label="Document content input"></textarea>
+            <div class="action-buttons">
+              <button class="btn" id="copyBtn" aria-label="Copy text">
+                <i class="fas fa-copy"></i>
+              </button>
+              <button class="btn" id="clearBtn" aria-label="Clear text">
+                <i class="fas fa-eraser"></i>
+              </button>
+              <button class="btn" id="pasteBtn" aria-label="Paste text">
+                <i class="fas fa-paste"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="app-section">
+          <div class="address-selector">
+            <div class="address-header">
+              <i class="fas极fa-map-marker-alt"></i>
+              <h3>Select Address for Document</h3>
+            </div>
+            <div class="address-options">
+              <div class="address-option" id="oldAddressOption">
+                <h3><i class="fas fa-building"></i> Old Address</h3>
+                <p>92 SURAJ NAGAR (E)</p>
+                <p>CIVIL LINES SODALA</p>
+                <p>JAIPUR (RAJ)</p>
+                <div class="selected-indicator">
+                  <i class="fas fa-check-circle"></i> Selected
+                </div>
+              </div>
+              <div class="address-option selected" id="newAddressOption">
+                <h3><i class="fas fa-home"></i> New Address</h3>
+                <p>Building No./Flat No.: PLOT NO 25</p>
+                <p>Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI</p>
+                <p>City/Town/Village: Jaipur</p>
+                <p>District: Jaipur</p>
+                <p>State: Rajasthan</p>
+                <p>PIN Code: 302019</p>
+                <div class="selected-indicator">
+                  <i class="fas fa-check-circle"></极> Selected
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-section" style="text-align: center;">
+          <div class="watermark-toggle">
+            <label for="watermarkToggle">
+              MYRTILLE INDUSTRIES Watermark
+              <input type="checkbox" id="watermarkToggle" aria-label="Enable Watermark">
+              <span class="toggle-switch"></span>
+            </label>
+          </div>
+          <button class="btn generate-btn" id="generateBtn" aria-label="Generate PDF Document">
+            <i class="fas fa-file-pdf"></i> Generate Document
+          </button>
+
+          <div class="status-area" id="statusArea" aria-live="polite">
+            <div class="status-header">
+              <i class="fas fa-cog fa-spin"></i>
+              <h3>Generating your document...</h3>
+            </div>
+            <div class="progress-container">
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="status-message" id="statusMessage">Preparing PDF...</div>
+          </div>
+
+          <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i> Document generated successfully!
+          </div>
+
+          <div class="error-message" id="errorMessage">
+            <i class="fas fa-exclamation-circle"></i> <span id="errorText">Error generating document</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Secure • Free • Professional | Made with ❤️ by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank">Sandeep</a>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM loaded, initializing...');
+      const contentInput = document.getElementById('contentInput');
+      const generateBtn = document.getElementById('generateBtn');
+      const copyBtn = document.getElementById('copyBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const pasteBtn = document.getElementById('pasteBtn');
+      const statusArea = document.getElementById('statusArea');
+      const progressBar = document.getElementById('progressBar');
+      const statusMessage = document.getElementById('statusMessage');
+      const successMessage = document.getElementById('successMessage');
+      const errorMessage = document.getElementById('errorMessage');
+      const errorText = document.getElementById('errorText');
+      const oldAddressOption = document.getElementById('oldAddressOption');
+      const newAddressOption = document.getElementById('newAddressOption');
+      const watermarkToggle = document.getElementById('watermarkToggle');
+      
+      const addresses = {
+        old: {
+          address: [
+            "92 SURAJ NAGAR (E)",
+            "CIVIL LINES SODALA",
+            "JAIPUR (RAJ)"
+          ],
+          contact: [
+            "+91 9782099489",
+            "anilyadav.bme@gmail.com",
+            "GST: 08AMHPY5013C",
+            "URN-UDYAM-RJ-17-0084962"
+          ]
+        },
+        new: {
+          address: [
+            "Building No./Flat No.: PLOT NO 25",
+            "Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI",
+            "City/Town/Village: Jaipur",
+            "District: Jaipur",
+            "State: Rajasthan",
+            "PIN Code: 302019"
+          ],
+          contact: [
+            "Mobile: +91 9782099489",
+            "Email: myrtilleindia@gmail.com",
+            "GST: 08AMHPY5013C1Z4",
+            "URN: UDYAM-RJ-17-0084962"
+          ]
+        }
+      };
+      
+      let selectedAddress = 'new';
+      
+      oldAddressOption.addEventListener('click', () => {
+        selectedAddress = 'old';
+        oldAddressOption.classList.add('selected');
+        newAddressOption.classList.remove('selected');
+      });
+      
+      newAddressOption.addEventListener('click', () => {
+        selectedAddress = 'new';
+        newAddressOption.classList.add('selected');
+        oldAddressOption.classList.remove('selected');
+      });
+
+      function adjustTextareaHeight() {
+        contentInput.style.height = 'auto';
+        const newHeight = Math.min(contentInput.scrollHeight, 600);
+        contentInput.style.height = `${Math.max(newHeight, 200)}px`;
+      }
+
+      contentInput.addEventListener('input', adjustTextareaHeight);
+      adjustTextareaHeight();
+
+      copyBtn.addEventListener('click', () => {
+        console.log('Copy button clicked');
+        contentInput.select();
+        try {
+          document.execCommand('copy');
+          showSuccess("Text copied to clipboard!");
+        } catch (err) {
+          showError("Failed to copy text: " + err.message);
+        }
+      });
+
+      clearBtn.addEventListener('click', () => {
+        console.log('Clear button clicked');
+        contentInput.value = '';
+        adjustTextareaHeight();
+      });
+
+      pasteBtn.addEventListener('click', async () => {
+        console.log('Paste button clicked');
+        try {
+          const text = await navigator.clipboard.readText();
+          contentInput.value = text;
+          adjustTextareaHeight();
+          showSuccess("Text pasted successfully!");
+        } catch (err) {
+          showError("Failed to paste text: " + err.message);
+        }
+      });
+
+      generateBtn.addEventListener('click', () => {
+        console.log('Generate button clicked');
+        generatePDF();
+      });
+
+      function getFormattedDateTime() {
+        const now = new Date();
+        const date = now.getDate();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = monthNames[now.getMonth()];
+        const year = now.getFullYear();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const formattedHours = hours % 12 || 12;
+        const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+        
+        return `${date}_${month}_${year}_${formattedHours}_${formattedMinutes}${ampm}`;
+      }
+
+      function processFileName(originalName) {
+        // Check if the filename ends with the pattern (one digit followed by two letters before .pdf)
+        const pattern = /\d[AP]M\.pdf$/i;
+        
+        if (pattern.test(originalName)) {
+          // Remove the last 22 characters (before .pdf) if available
+          if (originalName.length >= 22) {
+            return originalName.substring(0, originalName.length - 22) + getFormattedDateTime() + '.pdf';
+          }
+        }
+        
+        // Standard format: originalFileName_Day_Mon_Year_Hour_MinuteAMPM.pdf
+        const baseName = originalName.replace('.pdf', '');
+        return `${baseName}_${getFormattedDateTime()}.pdf`;
+      }
+
+      function processBoldText(text) {
+        console.log('Processing bold text:', text);
+        const parts = [];
+        let lastIndex = 0;
+        let match;
+        const regex = /\*\*(.*?)\*\*/g;
+        
+        while ((match = regex.exec(text)) !== null) {
+          if (match.index > lastIndex) {
+            parts.push({
+              text: text.substring(lastIndex, match.index),
+              bold: false
+            });
+          }
+          
+          parts.push({
+            text: match[1],
+            bold: true
+          });
+          
+          lastIndex = match.index + match[0].length;
+        }
+        
+        if (lastIndex < text.length) {
+          parts.push({
+            text: text.substring(lastIndex),
+            bold极 false
+          });
+        }
+        
+        console.log('Bold parts:', parts);
+        return parts;
+      }
+
+      function sanitizeText(text) {
+        return text.replace(/[^\x20-\x7E]/g, ' ');
+      }
+
+      async function generatePDF() {
+        console.log('Starting PDF generation');
+        const content = contentInput.value.trim();
+
+        if (!content) {
+          console.log('No content entered');
+          showError("Please enter some content before generating");
+          return;
+        }
+
+        successMessage.style.display = 'none';
+        errorMessage.style.display = 'none';
+        statusArea.classList.add('active');
+        statusMessage.textContent = "Creating PDF document...";
+        progressBar.style.width = "10%";
+
+        try {
+          console.log('Creating PDF document');
+          const finalPdf = await PDFLib.PDFDocument.create();
+          console.log('PDF document created');
+          
+          const helveticaFont = await finalPdf.embedFont(PDFLib.StandardFonts.Helvetica);
+          const helveticaBoldFont = await finalPdf.embedFont(PDFLib.StandardFonts.HelveticaBold);
+          console.log('Fonts embedded');
+
+          const a4Width = 595.28;
+          const a4Height = 841.89;
+          const contentAreaWidth = a4Width - 80;
+          const contentAreaHeight = a4Height - 75 - 100 - 40;
+
+          console.log('Splitting content into paragraphs');
+          const paragraphs = content.split('\n\n').map(paragraph => paragraph.split('\n').map(line => processBoldText(line)));
+          const lines = [];
+          paragraphs.forEach((paragraph, pIndex) => {
+            paragraph.forEach((lineParts, lIndex) => {
+              const paragraphLines = splitStyledTextIntoLines(lineParts, helveticaFont, helveticaBoldFont, 12, contentAreaWidth);
+              console.log(`Paragraph ${pIndex}, Line ${lIndex}: ${paragraphLines.length} lines`);
+              lines.push(...paragraphLines);
+            });
+            lines.push([]);
+          });
+          console.log('Total lines:', lines.length);
+          const pages = groupLinesIntoPages(lines, helveticaFont, 12, contentAreaHeight);
+          console.log('Pages created:', pages.length);
+
+          const addressInfo = addresses[selectedAddress];
+          const isNewAddress = selectedAddress === 'new';
+          
+          for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+            console.log(`Generating page ${pageIndex + 1}`);
+            const progress = 10 + (pageIndex / pages.length * 80);
+            progressBar.style.width = `${progress}%`;
+            statusMessage.textContent = `Generating page ${pageIndex + 1} of ${pages.length}...`;
+
+            const newPage = finalPdf.addPage([a4Width, a4Height]);
+
+            // Add watermark if enabled
+            if (watermarkToggle.checked) {
+              console.log('Adding watermark');
+              const watermarkText = "MYRTILLE INDUSTRIES";
+              const font = helveticaBoldFont;
+              const { width, height } = newPage.getSize();
+              const diagonalLength = Math.sqrt(width * width + height * height);
+              const angle = Math.atan2(height, width) * (180 / Math.PI);
+              let fontSize = diagonalLength / 10;
+              let textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+              const maxTextWidth = diagonalLength * 0.8;
+
+              while (textWidth > maxTextWidth && fontSize > 10) {
+                fontSize -= 2;
+                textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+              }
+              if (watermarkText.length <= 10) {
+                fontSize = Math.max(fontSize, diagonalLength / 15);
+                textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+              }
+
+              const xCenter = width / 2 - (textWidth * Math.cos(angle * Math.PI / 180)) / 2;
+              const yCenter = height / 2 - (textWidth * Math.sin(angle * Math.PI / 180)) / 2;
+              newPage.drawText(watermarkText, {
+                x: xCenter,
+                y: yCenter,
+                size: fontSize,
+                font: font,
+                color: PDFLib.rgb(0.231, 0.525, 0.898),
+                opacity: 0.3,
+                rotate: PDFLib.degrees(angle),
+              });
+            }
+
+            newPage.drawRectangle({
+              x: 0,
+              y: a4Height - 75,
+              width: a4Width,
+              height: 75,
+              color: PDFLib.rgb(1, 1, 1),
+            });
+
+            const companyName = "MYRTILLE INDUSTRIES";
+            const textWidth = helveticaBoldFont.widthOfTextAtSize(companyName, 24);
+            newPage.drawText(companyName, {
+              x: a4Width / 2 - textWidth / 2,
+              y: a4Height - 45,
+              size: 24,
+              color: PDFLib.rgb(0, 0, 0),
+              font: helveticaBoldFont,
+            });
+
+            newPage.drawLine({
+              start: { x: 40, y: a4Height - 75 },
+              end: { x: a4Width - 40, y: a4Height - 75 },
+              thickness: 1,
+              color: PDFLib.rgb(0.8, 0.8, 0.8),
+            });
+
+            newPage.drawRectangle({
+              x: 0,
+              y: 0,
+              width: a4Width,
+              height: 100,
+              color: PDFLib.rgb(1, 1, 1),
+            });
+
+            newPage.drawLine({
+              start: { x: 40, y: 100 },
+              end: { x: a4Width - 40, y: 100 },
+              thickness: 1,
+              color: PDFLib.rgb(0.8, 0.8, 0.8),
+            });
+
+            let yPos = isNewAddress ? 90 : 85;
+            const addressFontSize = isNewAddress ? 9 : 10;
+            const addressLineSpacing = isNewAddress ? 10 : 14;
+            
+            addressInfo.address.forEach(line => {
+              newPage.drawText(sanitizeText(line), {
+                x: 40,
+                y: yPos,
+                size: addressFontSize,
+                color: PDFLib.rgb(0.102, 0.322, 0.463),
+                font: helveticaFont,
+              });
+              yPos -= addressLineSpacing;
+            });
+
+            yPos = isNewAddress ? 90 : 85;
+            addressInfo.contact.forEach(line => {
+              newPage.drawText(sanitizeText(line), {
+                x: a4Width - (isNewAddress ? 200 : 180),
+                y: yPos,
+                size: addressFontSize,
+                color: PDFLib.rgb(0.102, 0.322, 0.463),
+                font: helveticaFont,
+              });
+              yPos -= addressLineSpacing;
+            });
+
+            const pageLines = pages[pageIndex];
+            let contentY = a4Height - 75 - 20;
+
+            for (const line of pageLines) {
+              if (line.length === 0) {
+                contentY -= 25;
+                continue;
+              }
+              let xOffset = 40;
+              
+              for (const part of line) {
+                const font = part.bold ? helveticaBoldFont : helveticaFont;
+                const sanitizedText = sanitizeText(part.text);
+                
+                newPage.drawText(sanitizedText, {
+                  x: xOffset,
+                  y: contentY,
+                  size: 12,
+                  color: PDFLib.rgb(0.2, 0.2, 0.2),
+                  font: font,
+                });
+                
+                xOffset += font.widthOfTextAtSize(sanitizedText, 12);
+              }
+              
+              contentY -= 15;
+            }
+          }
+
+          console.log('Finalizing PDF');
+          statusMessage.textContent = "Finalizing document...";
+          progressBar.style.width = "95%";
+
+          const finalPdfBytes = await final极f.save();
+          console.log('PDF bytes generated, size:', finalPdfBytes.length);
+
+          const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
+          console.log('Blob created:', blob);
+
+          if (typeof saveAs === 'undefined') {
+            throw new Error('FileSaver.js saveAs function is not available');
+          }
+
+          // Generate filename with date and time
+          const filename = processFileName("Myrtille_Industries.pdf");
+          
+          saveAs(blob, filename);
+          console.log('PDF download initiated');
+
+          statusMessage.textContent = "Document generated successfully!";
+          progressBar.style.width = "100%";
+
+          setTimeout(() => {
+            statusArea.classList.remove('active');
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+              successMessage.style.display = 'none';
+            }, 4000);
+          }, 1000);
+        } catch (error) {
+          console.error('Error in generatePDF:', error);
+          showError(`Error generating PDF: ${error.message}`);
+        }
+      }
+
+      function splitStyledTextIntoLines(parts, normalFont, boldFont, fontSize, maxWidth) {
+        const lines = [];
+        let currentLine = [];
+        let currentWidth = 0;
+
+        for (const part of parts) {
+          const font = part.bold ? boldFont : normalFont;
+          const words = part.text.split(/(\s+)/);
+
+          for (let i = 0; i < words.length; i++) {
+            const word = words[i];
+            const wordWidth = font.widthOfTextAtSize(word, fontSize);
+
+            if (currentWidth + wordWidth <= maxWidth) {
+              if (currentLine.length > 0 && currentLine[currentLine.length - 1].bold === part.bold && word.match(/\s+/)) {
+                currentLine[currentLine.length - 1].text += word;
+              } else {
+                currentLine.push({
+                  text: word,
+                  bold: part.bold
+                });
+              }
+              currentWidth += wordWidth;
+            } else {
+              if (currentLine.length > 0) {
+                lines.push([...currentLine]);
+              }
+              if (wordWidth > maxWidth) {
+                let remainingWord = word;
+                while (remainingWord.length > 0) {
+                  let tempText = '';
+                  let tempWidth = 0;
+                  for (let j = 0; j < remainingWord.length; j++) {
+                    const char = remainingWord[j];
+                    const charWidth = font.widthOfTextAtSize(char, fontSize);
+                    if (tempWidth + charWidth <= maxWidth) {
+                      tempText += char;
+                      tempWidth += charWidth;
+                    } else {
+                      if (tempText) {
+                        lines.push([{ text: tempText, bold: part.bold }]);
+                      }
+                      remainingWord = remainingWord.slice(j);
+                      tempText = '';
+                      tempWidth = 0;
+                    }
+                  }
+                  if (tempText) {
+                    lines.push([{ text: tempText, bold: part.bold }]);
+                  }
+                  remainingWord = '';
+                }
+                currentLine = [];
+                currentWidth = 0;
+              } else {
+                currentLine = [{ text: word, bold: part.bold }];
+                currentWidth = wordWidth;
+              }
+            }
+          }
+        }
+
+        if (currentLine.length > 0) {
+          lines.push(currentLine);
+        }
+
+        console.log('Lines generated:', lines);
+        return lines;
+      }
+
+      function groupLinesIntoPages(lines, font, fontSize, maxHeight) {
+        const lineHeight = 15;
+        const paragraphSpacing = 25;
+        const pages = [];
+        let currentPage = [];
+        let currentHeight = 0;
+
+        for (const line of lines) {
+          const isParagraphBreak = line.length === 0;
+          const heightToAdd = isParagraphBreak ? paragraphSpacing : lineHeight;
+
+          if (currentHeight + height极Add > maxHeight) {
+            if (currentPage.length > 0) {
+              pages.push([...currentPage]);
+            }
+            currentPage = [line];
+            currentHeight = heightToAdd;
+          } else {
+            currentPage.push(line);
+            currentHeight += heightToAdd;
+          }
+        }
+
+        if (currentPage.length > 0) {
+          pages.push(currentPage);
+        }
+
+        console.log('Pages generated:', pages);
+        return pages;
+      }
+
+      function showError(message) {
+        console.log('Showing error:', message);
+        errorText.textContent = message;
+        errorMessage.style.display = 'block';
+        statusArea.classList.add('active');
+        statusMessage.textContent = message;
+        progressBar.style.width = "100%";
+
+        setTimeout(() => {
+          statusArea.classList.remove('active');
+          errorMessage.style.display = 'none';
+          progressBar.style.width = "0%";
+        }, 4000);
+      }
+
+      function showSuccess(message) {
+        console.log('Showing success:', message);
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        statusArea.classList.add('active');
+        statusMessage.textContent = message;
+        progressBar.style.width = "100%";
+
+        setTimeout(() => {
+          statusArea.classList.remove('active');
+          successMessage.style.display = 'none';
+          progressBar.style.width = "0%";
+        }, 4000);
+      }
+    });
+  </script>
+</body>
+</html>
