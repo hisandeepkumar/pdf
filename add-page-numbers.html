@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Page Number Adder</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      color: white;
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                  url('images/background.jpg');
+      background-size: cover;
+      background-position: center;
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+    input[type="file"] {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #36d1dc;
+      color: white;
+      font-size: 1em;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #5b86e5;
+    }
+    #status {
+      margin-top: 15px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    .footer {
+      text-align:center; 
+      margin-top:30px; 
+      font-size:18px; 
+      font-weight:600; 
+      background: linear-gradient(90deg,#5b86e5,#36d1dc,#5b86e5);
+      -webkit-background-clip: text; 
+      color: transparent; 
+      display:inline-block;
+      animation: moveText 3s linear infinite;
+    }
+    @keyframes moveText {
+      0% { transform: translateX(-10px); opacity:0.8; }
+      50% { transform: translateX(10px); opacity:1; }
+      100% { transform: translateX(-10px); opacity:0.8; }
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>PDF Page Number Adder</h1>
+    <input type="file" id="upload" accept="application/pdf">
+    <br>
+    <button onclick="generatePDF()">Add Page Numbers</button>
+    <div id="status"></div>
+    <div class="footer">Secure • Free • Professional | Made with ❤️ by Sandeep</div>
+  </div>
+
+  <script>
+    async function generatePDF() {
+      const fileInput = document.getElementById('upload');
+      const status = document.getElementById('status');
+
+      if (!fileInput.files.length) {
+        status.textContent = "Please upload a PDF file first.";
+        return;
+      }
+
+      const file = fileInput.files[0];
+      status.textContent = "Processing... Please wait.";
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+      const pages = pdfDoc.getPages();
+      const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+
+      pages.forEach((page, index) => {
+        const { width, height } = page.getSize();
+        const text = `Page ${index + 1} of ${pages.length}`;
+        page.drawText(text, {
+          x: width - 120,
+          y: 20,
+          size: 12,
+          font,
+          color: PDFLib.rgb(0, 0, 0),
+        });
+      });
+
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+
+      const originalName = file.name.replace(/\.pdf$/i, ""); 
+      const finalFileName = `${originalName} with_page_no.pdf`;
+      a.download = finalFileName;
+
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50);
+      }
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      status.textContent = "✅ PDF generated successfully!";
+    }
+  </script>
+</body>
+</html>
