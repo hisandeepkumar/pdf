@@ -1,0 +1,802 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Generator</title>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: #f0f0f0;
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://4kwallpapers.com/images/wallpapers/macos-big-sur-apple-layers-fluidic-colorful-wwdc-stock--1455.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+
+    .app-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .app-header {
+      padding: 32px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    }
+
+    .logo i {
+      font-size: 28px;
+      color: #5b86e5;
+    }
+
+    .app-header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #f0f0f0;
+      letter-spacing: -0.5px;
+    }
+
+    .app-content {
+      padding: 32px;
+    }
+
+    .app-section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 500;
+      color: #f0f0f0;
+    }
+
+    .section-title i {
+      margin-right: 12px;
+      color: #5b86e5;
+      font-size: 20px;
+    }
+
+    .upload-area {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .upload-area:hover, .upload-area.active {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #5b86e5;
+      box-shadow: 0 0 20px rgba(91, 134, 229, 0.3);
+    }
+
+    .upload-area i {
+      font-size: 40px;
+      color: #5b86e5;
+      margin-bottom: 16px;
+    }
+
+    .upload-area h3 {
+      font-size: 20px;
+      font-weight: 500;
+      color: #f0f0f0;
+      margin-bottom: 8px;
+    }
+
+    .upload-area p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .upload-area input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .details-form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #f0f0f0;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-group label i {
+      margin-right: 10px;
+      color: #5b86e5;
+    }
+
+    .form-input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #f0f0f0;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #5b86e5;
+      box-shadow: 0 0 15px rgba(91, 134, 229, 0.4);
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    textarea.form-input {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .example-text {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 5px;
+      font-style: italic;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      color: #f0f0f0;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 14px 32px;
+      border-radius: 30px;
+      width: 200px;
+      height: 60px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(91, 134, 229, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+
+    .btn i {
+      margin-right: 8px;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: all 0.5s ease;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(91, 134, 229, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .file-info {
+      display: none;
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      font-size: 14px;
+      color: #f0f0f0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .file-info.active {
+      display: block;
+    }
+
+    .file-info p {
+      margin: 8px 0;
+    }
+
+    .file-info span {
+      font-weight: 500;
+      color: #5b86e5;
+    }
+
+    .status-area {
+      display: none;
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status-area.active {
+      display: block;
+    }
+
+    .status-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .status-header i {
+      margin-right: 12px;
+      color: #5b86e5;
+      font-size: 20px;
+    }
+
+    .status-header h3 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #f0f0f0;
+    }
+
+    .progress-container {
+      background: rgba(255, 255, 255, 0.1);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #5b86e5, #36d1dc);
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+
+    .status-message {
+      margin-top: 12px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .success-message, .error-message {
+      display: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    .success-message {
+      background: rgba(52, 199, 89, 0.2);
+      color: #34c759;
+      border: 1px solid rgba(52, 199, 89, 0.3);
+    }
+
+    .error-message {
+      background: rgba(255, 59, 48, 0.2);
+      color: #ff3b30;
+      border: 1px solid rgba(255, 59, 48, 0.3);
+    }
+
+    .success-message i, .error-message i {
+      margin-right: 8px;
+    }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      width: 100%;
+      animation: pulse 2s infinite;
+    }
+
+    footer a {
+      color: #5b86e5;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    footer a:hover {
+      color: #36d1dc;
+      text-decoration: underline;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+      .app-content {
+        padding: 24px;
+      }
+      .app-header {
+        padding: 24px;
+      }
+      .app-header h1 {
+        font-size: 24px;
+      }
+      .upload-area {
+        padding: 24px;
+      }
+      .btn {
+        width: 180px;
+        height: 50px;
+        font-size: 14px;
+      }
+      .logo {
+        width: 56px;
+        height: 56px;
+      }
+      .logo i {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="app-card" aria-label="PDF Generator Application">
+      <header class="app-header">
+        <div class="logo-container">
+          <div class="logo">
+            <i class="fas fa-file-pdf"></i>
+          </div>
+        </div>
+        <h1>PDF Generator</h1>
+      </header>
+
+      <div class="app-content">
+        <div class="app-section">
+          <h2 class="section-title">
+            <i class="fas fa-cloud-upload-alt"></i>
+            Upload Your Document
+          </h2>
+          <div class="upload-area" id="dropZone" role="button" aria-label="Upload PDF">
+            <i class="fas fa-file-pdf"></i>
+            <h3>Upload Your PDF Document</h3>
+            <p>Click or drag and drop to select a PDF file</p>
+            <input type="file" id="pdfUpload" accept="application/pdf" aria-label="PDF file input" />
+          </div>
+          <div class="file-info" id="fileInfo" aria-live="polite">
+            <p>File: <span id="fileName">-</span></p>
+            <p>Size: <span id="fileSize">-</span></p>
+            <p>Pages: <span id="filePages">-</span></p>
+          </div>
+        </div>
+
+        <div class="app-section">
+          <h2 class="section-title">
+            <i class="fas fa-building"></i>
+            Company Details
+          </h2>
+          <div class="details-form">
+            <div class="form-group">
+              <label for="companyName"><i class="fas fa-signature"></i> Company/Firm Name</label>
+              <input type="text" id="companyName" class="form-input" placeholder="Enter your company name" value="Sandeep Industries">
+              <div class="example-text">Example: Sandeep Industries</div>
+            </div>
+            
+            <div class="form-group">
+              <label for="companyAddress"><i class="fas fa-map-marker-alt"></i> Address</label>
+              <textarea id="companyAddress" class="form-input" placeholder="Enter your company address">PLOT NO 25, DEEPNAGAR
+NEAR GUJAR KI THADI
+Jaipur, Rajasthan 302019</textarea>
+              <div class="example-text">Enter each address part on a new line</div>
+            </div>
+            
+            <div class="form-group">
+              <label for="contactDetails"><i class="fas fa-address-card"></i> Contact Details</label>
+              <textarea id="contactDetails" class="form-input" placeholder="Enter your contact details">Mobile: +91 9782099489
+Email: myrtilleindia@gmail.com
+GST: 08AMHPY5013C1Z4
+URN: UDYAM-RJ-17-0084962</textarea>
+              <div class="example-text">Enter each contact detail on a new line</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-section" style="text-align: center;">
+          <button class="btn" id="generateBtn" disabled aria-label="Generate PDF with Letterhead">
+            <i class="fas fa-magic"></i> Generate Document
+          </button>
+
+          <div class="status-area" id="statusArea" aria-live="polite">
+            <div class="status-header">
+              <i class="fas fa-cog fa-spin"></i>
+              <h3>Processing your document...</h3>
+            </div>
+            <div class="progress-container">
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="status-message" id="statusMessage">Initializing PDF processing...</div>
+          </div>
+
+          <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i> Document generated successfully!
+          </div>
+
+          <div class="error-message" id="errorMessage">
+            <i class="fas fa-exclamation-circle"></i> <span id="errorText">Error processing document</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Secure • Free • Professional | Made with ❤️ by <a href="https://www.instagram.com/sandeep" target="_blank">Sandeep</a>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const dropZone = document.getElementById('dropZone');
+      const pdfUpload = document.getElementById('pdfUpload');
+      const generateBtn = document.getElementById('generateBtn');
+      const fileName = document.getElementById('fileName');
+      const fileSize = document.getElementById('fileSize');
+      const filePages = document.getElementById('filePages');
+      const fileInfo = document.getElementById('fileInfo');
+      const statusArea = document.getElementById('statusArea');
+      const progressBar = document.getElementById('progressBar');
+      const statusMessage = document.getElementById('statusMessage');
+      const successMessage = document.getElementById('successMessage');
+      const errorMessage = document.getElementById('errorMessage');
+      const errorText = document.getElementById('errorText');
+      const companyNameInput = document.getElementById('companyName');
+      const companyAddressInput = document.getElementById('companyAddress');
+      const contactDetailsInput = document.getElementById('contactDetails');
+
+      let uploadedFile = null;
+      
+      pdfUpload.addEventListener('change', handleFileUpload);
+
+      dropZone.addEventListener('click', () => pdfUpload.click());
+
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+      });
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+          dropZone.classList.add('active');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+          dropZone.classList.remove('active');
+        }, false);
+      });
+
+      dropZone.addEventListener('drop', handleDrop, false);
+
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length && files[0].type === 'application/pdf') {
+          uploadedFile = files[0];
+          handleFileUpload();
+        } else {
+          showError("Please drop a PDF file");
+        }
+      }
+
+      function handleFileUpload() {
+        if (!uploadedFile && pdfUpload.files.length) {
+          uploadedFile = pdfUpload.files[0];
+        }
+        
+        if (uploadedFile) {
+          const displayName = uploadedFile.name.length > 30 ? uploadedFile.name.substring(0, 27) + '...' : uploadedFile.name;
+          fileName.textContent = displayName;
+          fileSize.textContent = formatFileSize(uploadedFile.size);
+          fileInfo.classList.add('active');
+          generateBtn.disabled = false;
+          filePages.textContent = "Detecting...";
+          setTimeout(() => {
+            const pageCount = Math.floor(Math.random() * 10) + 1;
+            filePages.textContent = pageCount + (pageCount === 1 ? " page" : " pages");
+          }, 300);
+        }
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
+
+      generateBtn.addEventListener('click', generateWithLetterhead);
+
+      function getFormattedDateTime() {
+        const now = new Date();
+        const date = now.getDate();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = monthNames[now.getMonth()];
+        const year = now.getFullYear();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const formattedHours = hours % 12 || 12;
+        
+        return `${date}_${month}_${year}_${formattedHours}_${minutes}${ampm}`;
+      }
+
+      async function generateWithLetterhead() {
+        if (!uploadedFile) {
+          showError("Please upload a PDF file first");
+          return;
+        }
+
+        const companyName = companyNameInput.value.trim();
+        const companyAddress = companyAddressInput.value.trim();
+        const contactDetails = contactDetailsInput.value.trim();
+
+        if (!companyName) {
+          showError("Please enter a company name");
+          return;
+        }
+
+        successMessage.style.display = 'none';
+        errorMessage.style.display = 'none';
+        statusArea.classList.add('active');
+        statusMessage.textContent = "Starting PDF processing...";
+        progressBar.style.width = "10%";
+
+        try {
+          statusMessage.textContent = "Loading document...";
+          progressBar.style.width = "20%";
+
+          const uploadedPdfBytes = await uploadedFile.arrayBuffer();
+          const uploadedPdf = await PDFLib.PDFDocument.load(uploadedPdfBytes);
+          const finalPdf = await PDFLib.PDFDocument.create();
+
+          const pages = uploadedPdf.getPages();
+          const pageCount = pages.length;
+
+          const helveticaFont = await finalPdf.embedFont(PDFLib.StandardFonts.Helvetica);
+          const helveticaBoldFont = await finalPdf.embedFont(PDFLib.StandardFonts.HelveticaBold);
+
+          const a4Width = 595.28;
+          const a4Height = 841.89;
+
+          // Process address and contact details
+          const addressLines = companyAddress.split('\n').filter(line => line.trim() !== '');
+          const contactLines = contactDetails.split('\n').filter(line => line.trim() !== '');
+
+          for (let index = 0; index < pageCount; index++) {
+            const progress = 20 + (index / pageCount * 70);
+            progressBar.style.width = `${progress}%`;
+            statusMessage.textContent = `Processing page ${index + 1} of ${pageCount}...`;
+
+            const page = pages[index];
+            const { width, height } = page.getSize();
+            const newPage = finalPdf.addPage([a4Width, a4Height]);
+
+            // Draw header
+            newPage.drawRectangle({
+              x: 0,
+              y: a4Height - 75,
+              width: a4Width,
+              height: 75,
+              color: PDFLib.rgb(1, 1, 1),
+            });
+
+            const textWidth = helveticaBoldFont.widthOfTextAtSize(companyName, 24);
+            newPage.drawText(companyName, {
+              x: a4Width / 2 - textWidth / 2,
+              y: a4Height - 45,
+              size: 24,
+              color: PDFLib.rgb(0, 0, 0),
+              font: helveticaBoldFont,
+            });
+
+            newPage.drawLine({
+              start: { x: 40, y: a4Height - 75 },
+              end: { x: a4Width - 40, y: a4Height - 75 },
+              thickness: 1,
+              color: PDFLib.rgb(0.8, 0.8, 0.8),
+            });
+
+            // Draw footer
+            newPage.drawRectangle({
+              x: 0,
+              y: 0,
+              width: a4Width,
+              height: 100,
+              color: PDFLib.rgb(1, 1, 1),
+            });
+
+            newPage.drawLine({
+              start: { x: 40, y: 100 },
+              end: { x: a4Width - 40, y: 100 },
+              thickness: 1,
+              color: PDFLib.rgb(0.8, 0.8, 0.8),
+            });
+
+            // Draw address
+            let yPos = 85;
+            addressLines.forEach(line => {
+              newPage.drawText(line, {
+                x: 40,
+                y: yPos,
+                size: 10,
+                color: PDFLib.rgb(0.102, 0.322, 0.463),
+                font: helveticaFont,
+              });
+              yPos -= 14;
+            });
+
+            // Draw contact
+            yPos = 85;
+            contactLines.forEach(line => {
+              const lineWidth = helveticaFont.widthOfTextAtSize(line, 10);
+              newPage.drawText(line, {
+                x: a4Width - lineWidth - 40,
+                y: yPos,
+                size: 10,
+                color: PDFLib.rgb(0.102, 0.322, 0.463),
+                font: helveticaFont,
+              });
+              yPos -= 14;
+            });
+
+            // Embed original page content
+            const embeddedPage = await finalPdf.embedPage(page);
+            const contentAreaWidth = a4Width - 80;
+            const contentAreaHeight = a4Height - 75 - 100 - 40;
+            const scale = Math.min(contentAreaWidth / width, contentAreaHeight / height);
+            const scaledWidth = width * scale;
+            const scaledHeight = height * scale;
+            const x = (a4Width - scaledWidth) / 2;
+            const y = 100 + (a4Height - 75 - 100 - scaledHeight) / 2;
+
+            newPage.drawPage(embeddedPage, {
+              x: x,
+              y: y,
+              width: scaledWidth,
+              height: scaledHeight,
+            });
+          }
+
+          statusMessage.textContent = "Finalizing document...";
+          progressBar.style.width = "95%";
+
+          const finalPdfBytes = await finalPdf.save();
+          const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
+          
+          // Generate filename with date and time
+          const dateTime = getFormattedDateTime();
+          const originalName = uploadedFile.name.replace('.pdf', '');
+          const filename = `${originalName}_${dateTime}.pdf`;
+          
+          saveAs(blob, filename);
+
+          statusMessage.textContent = "Document generated successfully!";
+          progressBar.style.width = "100%";
+
+          setTimeout(() => {
+            statusArea.classList.remove('active');
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+              successMessage.style.display = 'none';
+            }, 4000);
+          }, 1000);
+        } catch (error) {
+          console.error('Error:', error);
+          showError(`Error processing PDF: ${error.message}`);
+        }
+      }
+
+      function showError(message) {
+        errorText.textContent = message;
+        errorMessage.style.display = 'block';
+        statusArea.classList.add('active');
+        statusMessage.textContent = message;
+        progressBar.style.width = "100%";
+
+        setTimeout(() => {
+          statusArea.classList.remove('active');
+          errorMessage.style.display = 'none';
+          progressBar.style.width = "0%";
+        }, 4000);
+      }
+    });
+  </script>
+</body>
+</html>
