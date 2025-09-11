@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="./manifest.json">
   <title>PDF Solutions (Free&Secure)</title>
    <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function() {
-    navigator.serviceWorker.register("/sw.js").then(function(registration) {
+    navigator.serviceWorker.register("./sw.js").then(function(registration) {
       console.log("ServiceWorker registered: ", registration);
     }).catch(function(error) {
       console.log("ServiceWorker registration failed: ", error);
