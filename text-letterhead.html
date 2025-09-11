@@ -23,7 +23,7 @@
       align-items: center;
       padding: 24px;
       color: #f0f0f0;
-      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://4kwallpapers.com/images/wallpapers/macos-big-sur-apple-layers-fluidic-colorful-wwdc-stock-1455.jpg');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -522,29 +522,24 @@
         <div class="app-section">
           <h2 class="section-title">
             <i class="fas fa-building"></i>
-            Company Details
+            Company Details (Optional)
           </h2>
           <div class="details-form">
             <div class="form-group">
               <label for="companyName"><i class="fas fa-signature"></i> Company/Firm Name</label>
-              <input type="text" id="companyName" class="form-input" placeholder="Enter your company name" value="Sandeep">
-              <div class="example-text">Example: Sandeep </div>
+              <input type="text" id="companyName" class="form-input" placeholder="Enter your company name">
+              <div class="example-text">Leave empty for simple PDF</div>
             </div>
             
             <div class="form-group">
               <label for="companyAddress"><i class="fas fa-map-marker-alt"></i> Address</label>
-              <textarea id="companyAddress" class="form-input" placeholder="Enter your company address">PLOT NO 25, DEEPNAGAR
-NEAR PULICE THANA
-KOTPUTLI-BEHROR, Rajasthan 303108</textarea>
+              <textarea id="companyAddress" class="form-input" placeholder="Enter your company address"></textarea>
               <div class="example-text">Enter each address part on a new line</div>
             </div>
             
             <div class="form-group">
               <label for="contactDetails"><i class="fas fa-address-card"></i> Contact Details</label>
-              <textarea id="contactDetails" class="form-input" placeholder="Enter your contact details">Mobile: +91 9542559478
-Email: example@gmail.com
-GST: 08AMHYU1683C1Z4
-URN: UDYAM-RJ-14-0079642</textarea>
+              <textarea id="contactDetails" class="form-input" placeholder="Enter your contact details"></textarea>
               <div class="example-text">Enter each contact detail on a new line</div>
             </div>
           </div>
@@ -681,7 +676,12 @@ URN: UDYAM-RJ-14-0079642</textarea>
       }
 
       function getBaseFilename() {
-        let baseName = companyNameInput.value.trim().replace(/\s+/g, '_');
+        const companyName = companyNameInput.value.trim();
+        if (!companyName) {
+          return "textonpdf";
+        }
+        
+        let baseName = companyName.replace(/\s+/g, '_');
         // Check if the baseName ends with a pattern like "0PM" or "5AM" followed by ".pdf"
         const pattern = /_\d{1,2}_[A-Za-z]{3}_\d{4}_\d{1,2}_\d{2}[ap]m$/;
         
@@ -746,12 +746,6 @@ URN: UDYAM-RJ-14-0079642</textarea>
           return;
         }
 
-        if (!companyName) {
-          console.log('No company name entered');
-          showError("Please enter a company name");
-          return;
-        }
-
         successMessage.style.display = 'none';
         errorMessage.style.display = 'none';
         statusArea.classList.add('active');
@@ -795,108 +789,108 @@ URN: UDYAM-RJ-14-0079642</textarea>
 
             const newPage = finalPdf.addPage([a4Width, a4Height]);
 
-            // Add watermark if enabled
-            if (watermarkToggle.checked) {
+            // Add watermark if enabled and company name is provided
+            if (watermarkToggle.checked && companyName) {
               console.log('Adding watermark');
               const watermarkText = companyName.toUpperCase();
               const font = helveticaBoldFont;
-              const { width, height } = newPage.getSize();
-              const diagonalLength = Math.sqrt(width * width + height * height);
-              const angle = Math.atan2(height, width) * (180 / Math.PI);
-              let fontSize = diagonalLength / 10;
-              let textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-              const maxTextWidth = diagonalLength * 0.8;
-
-              while (textWidth > maxTextWidth && fontSize > 10) {
-                fontSize -= 2;
-                textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-              }
-              if (watermarkText.length <= 10) {
-                fontSize = Math.max(fontSize, diagonalLength / 15);
-                textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-              }
-
-              const xCenter = width / 2 - (textWidth * Math.cos(angle * Math.PI / 180)) / 2;
-              const yCenter = height / 2 - (textWidth * Math.sin(angle * Math.PI / 180)) / 2;
+              
+              // Calculate appropriate font size based on text length
+              let fontSize = 48;
+              if (watermarkText.length > 20) fontSize = 36;
+              if (watermarkText.length > 30) fontSize = 24;
+              if (watermarkText.length > 40) fontSize = 18;
+              
+              const textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+              
+              // Position the watermark in the center of the content area
+              const xCenter = (a4Width - textWidth) / 2;
+              const yCenter = (a4Height - 75 - 100) / 2 + 100;
+              
               newPage.drawText(watermarkText, {
                 x: xCenter,
                 y: yCenter,
                 size: fontSize,
                 font: font,
                 color: PDFLib.rgb(0.231, 0.525, 0.898),
-                opacity: 0.3,
-                rotate: PDFLib.degrees(angle),
+                opacity: 0.2,
               });
             }
 
-            newPage.drawRectangle({
-              x: 0,
-              y: a4Height - 75,
-              width: a4Width,
-              height: 75,
-              color: PDFLib.rgb(1, 1, 1),
-            });
-
-            const textWidth = helveticaBoldFont.widthOfTextAtSize(companyName, 24);
-            newPage.drawText(companyName, {
-              x: a4Width / 2 - textWidth / 2,
-              y: a4Height - 45,
-              size: 24,
-              color: PDFLib.rgb(0, 0, 0),
-              font: helveticaBoldFont,
-            });
-
-            newPage.drawLine({
-              start: { x: 40, y: a4Height - 75 },
-              end: { x: a4Width - 40, y: a4Height - 75 },
-              thickness: 1,
-              color: PDFLib.rgb(0.8, 0.8, 0.8),
-            });
-
-            newPage.drawRectangle({
-              x: 0,
-              y: 0,
-              width: a4Width,
-              height: 100,
-              color: PDFLib.rgb(1, 1, 1),
-            });
-
-            newPage.drawLine({
-              start: { x: 40, y: 100 },
-              end: { x: a4Width - 40, y: 100 },
-              thickness: 1,
-              color: PDFLib.rgb(0.8, 0.8, 0.8),
-            });
-
-            let yPos = 90;
-            const addressFontSize = 9;
-            const addressLineSpacing = 10;
-            
-            companyAddress.forEach(line => {
-              newPage.drawText(sanitizeText(line), {
-                x: 40,
-                y: yPos,
-                size: addressFontSize,
-                color: PDFLib.rgb(0.102, 0.322, 0.463),
-                font: helveticaFont,
+            // Draw header only if company name is provided
+            if (companyName) {
+              newPage.drawRectangle({
+                x: 0,
+                y: a4Height - 75,
+                width: a4Width,
+                height: 75,
+                color: PDFLib.rgb(1, 1, 1),
               });
-              yPos -= addressLineSpacing;
-            });
 
-            yPos = 90;
-            contactDetails.forEach(line => {
-              newPage.drawText(sanitizeText(line), {
-                x: a4Width - 200,
-                y: yPos,
-                size: addressFontSize,
-                color: PDFLib.rgb(0.102, 0.322, 0.463),
-                font: helveticaFont,
+              const textWidth = helveticaBoldFont.widthOfTextAtSize(companyName, 24);
+              newPage.drawText(companyName, {
+                x: a4Width / 2 - textWidth / 2,
+                y: a4Height - 45,
+                size: 24,
+                color: PDFLib.rgb(0, 0, 0),
+                font: helveticaBoldFont,
               });
-              yPos -= addressLineSpacing;
-            });
+
+              newPage.drawLine({
+                start: { x: 40, y: a4Height - 75 },
+                end: { x: a4Width - 40, y: a4Height - 75 },
+                thickness: 1,
+                color: PDFLib.rgb(0.8, 0.8, 0.8),
+              });
+            }
+
+            // Draw footer only if company address or contact details are provided
+            if (companyAddress.length > 0 || contactDetails.length > 0) {
+              newPage.drawRectangle({
+                x: 0,
+                y: 0,
+                width: a4Width,
+                height: 100,
+                color: PDFLib.rgb(1, 1, 1),
+              });
+
+              newPage.drawLine({
+                start: { x: 40, y: 100 },
+                end: { x: a4Width - 40, y: 100 },
+                thickness: 1,
+                color: PDFLib.rgb(0.8, 0.8, 0.8),
+              });
+
+              let yPos = 90;
+              const addressFontSize = 9;
+              const addressLineSpacing = 10;
+              
+              companyAddress.forEach(line => {
+                newPage.drawText(sanitizeText(line), {
+                  x: 40,
+                  y: yPos,
+                  size: addressFontSize,
+                  color: PDFLib.rgb(0.102, 0.322, 0.463),
+                  font: helveticaFont,
+                });
+                yPos -= addressLineSpacing;
+              });
+
+              yPos = 90;
+              contactDetails.forEach(line => {
+                newPage.drawText(sanitizeText(line), {
+                  x: a4Width - 200,
+                  y: yPos,
+                  size: addressFontSize,
+                  color: PDFLib.rgb(0.102, 0.322, 0.463),
+                  font: helveticaFont,
+                });
+                yPos -= addressLineSpacing;
+              });
+            }
 
             const pageLines = pages[pageIndex];
-            let contentY = a4Height - 75 - 20;
+            let contentY = companyName ? a4Height - 75 - 20 : a4Height - 40;
 
             for (const line of pageLines) {
               if (line.length === 0) {
