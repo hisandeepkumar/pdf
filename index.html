@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Solutions (Free&Secure)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: #f0f0f0;
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://4kwallpapers.com/images/wallpapers/macos-big-sur-apple-layers-fluidic-colorful-wwdc-stock--1455.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      overflow-x: hidden;
+      transition: background 0.3s ease;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .app-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 32px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .app-card-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-card-header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #f0f0f0;
+      letter-spacing: -0.5px;
+    }
+
+    .app-card-header h1 i {
+      color: #5b86e5;
+      font-size: 32px;
+    }
+
+    .fullscreen-btn {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .fullscreen-btn:hover {
+      background: rgba(91, 134, 229, 0.3);
+      transform: scale(1.1);
+    }
+
+    .fullscreen-btn i {
+      font-size: 18px;
+      color: #f0f0f0;
+    }
+
+    .app-content {
+      margin-top: 80px;
+      text-align: center;
+    }
+
+    .welcome-section {
+      margin-bottom: 40px;
+      padding: 0 20px;
+    }
+
+    .welcome-section h2 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      background: linear-gradient(90deg, #5b86e5, #36d1dc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome-section p {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.85);
+      max-width: 700px;
+      margin: 0 auto 30px;
+      line-height: 1.6;
+    }
+
+    .solutions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 20px;
+    }
+
+    .subject-button {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 25px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 160px;
+      text-decoration: none;
+      color: #f0f0f0;
+    }
+
+    .subject-button:hover {
+      transform: translateY(-10px);
+      background: rgba(91, 134, 229, 0.15);
+      border-color: rgba(91, 134, 229, 0.4);
+      box-shadow: 0 10px 25px rgba(91, 134, 229, 0.3);
+    }
+
+    .subject-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: 0.5s;
+    }
+
+    .subject-button:hover::before {
+      left: 100%;
+    }
+
+    .button-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(91, 134, 229, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #5b86e5;
+      border: 2px solid rgba(91, 134, 229, 0.3);
+    }
+
+    .subject-button h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .subject-button span {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.5;
+    }
+
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+    }
+
+    /* Fullscreen styles */
+    body:fullscreen {
+      background: #0f172a;
+      padding: 0;
+    }
+    
+    body:fullscreen .container {
+      max-width: 1400px;
+      padding: 40px;
+    }
+    
+    body:fullscreen .app-card {
+      border-radius: 10px;
+    }
+    
+    body:fullscreen .solutions-grid {
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 30px;
+    }
+    
+    body:fullscreen .subject-button {
+      min-height: 180px;
+      padding: 30px 25px;
+    }
+
+    @media (max-width: 992px) {
+      .solutions-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      
+      .app-card {
+        padding: 25px 20px;
+      }
+      
+      .app-card-header h1 {
+        font-size: 22px;
+      }
+      
+      .app-content {
+        margin-top: 70px;
+      }
+      
+      .welcome-section h2 {
+        font-size: 28px;
+      }
+      
+      .welcome-section p {
+        font-size: 16px;
+      }
+      
+      .subject-button {
+        padding: 20px 15px;
+        min-height: 150px;
+      }
+      
+      .button-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+        margin-bottom: 15px;
+      }
+      
+      .subject-button h3 {
+        font-size: 18px;
+      }
+      
+      .fullscreen-btn {
+        width: 36px;
+        height: 36px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .solutions-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .app-card-header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 20px;
+      }
+      
+      .app-card-header h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="app-card" aria-label="Myrtille Industries PDF Solutions">
+      <!-- Company Header with Fullscreen Button -->
+      <div class="app-card-header">
+        <div class="header-left">
+          <i class="fas fa-industry"></i>
+          <h1>PDF Solutions (Free&Secure)</h1>
+        </div>
+        <div class="fullscreen-btn" id="fullscreenBtn" title="Toggle Fullscreen">
+          <i class="fas fa-expand"></i>
+        </div>
+      </div>
+
+      <div class="app-content">
+        <div class="welcome-section">
+          <h2>Advanced PDF Document Processing</h2>
+          <p>Access our comprehensive suite of PDF tools designed to enhance your document workflow. All solutions feature professional letterhead integration and secure processing.</p>
+        </div>
+        
+        <div class="solutions-grid">
+          <!-- PDF Editor -->
+          <a href="https://www.sejda.com/pdf-editor" 
+   target="_blank" 
+   class="subject-button"
+   rel="noopener noreferrer">
+  <div class="button-icon">
+    <i class="fas fa-edit"></i>
+  </div>
+  <h3>PDF Editor</h3>
+  <span>Edit text in existing PDF documents</span>
+          </a>
+          
+          <!-- PDF on Letterhead -->
+          <a href="pdf-letterhead.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-contract"></i>
+            </div>
+            <h3>PDF on Letterhead</h3>
+            <span>Convert documents with professional letterhead</span>
+          </a>
+          
+          <!-- Text on Letterhead -->
+          <a href="text-letterhead.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-font"></i>
+            </div>
+            <h3>Text on Letterhead</h3>
+            <span>Convert text to PDF with letterhead</span>
+          </a>
+          
+          <!-- Merge PDF -->
+          <a href="merge-pdf.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-object-group"></i>
+            </div>
+            <h3>Merge PDF</h3>
+            <span>Combine multiple PDF files into one</span>
+          </a>
+          
+          <!-- Extract Pages -->
+          <a href="extract-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-cut"></i>
+            </div>
+            <h3>Extract Pages</h3>
+            <span>Extract specific pages from PDFs</span>
+          </a>
+          
+          <!-- PDF to Image -->
+          <a href="pdf-to-image.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-image"></i>
+            </div>
+            <h3>PDF to Image</h3>
+            <span>Convert PDF pages to image formats</span>
+          </a>
+          
+          <!-- Image to PDF -->
+          <a href="image-to-pdf.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-pdf"></i>
+            </div>
+            <h3>Image to PDF</h3>
+            <span>Convert images to PDF documents</span>
+          </a>
+          
+          <!-- Add Page Numbers -->
+          <a href="add-page-numbers.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-list-ol"></i>
+            </div>
+            <h3>Add Page Numbers</h3>
+            <span>Insert page numbers into PDFs</span>
+          </a>
+          
+          <!-- Replace Pages -->
+          <a href="replace-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <h3>Replace Pages</h3>
+            <span>Swap pages in PDF documents</span>
+          </a>
+
+
+           <!-- rotate pages in PDF -->
+          <a href="rotate_pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-highlighter"></i>
+            </div>
+            <h3>Rotate pages in PDF</h3>
+            <span>Rotate any page in PDFs</span>
+          </a>
+          
+          <!-- Add Signature -->
+          <a href="add-signature.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-signature"></i>
+            </div>
+            <h3>Add Signature</h3>
+            <span>Digitally sign PDF documents</span>
+          </a>
+          
+          <!-- Delete Pages -->
+          <a href="delete-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-trash-alt"></i>
+            </div>
+            <h3>Delete Pages</h3>
+            <span>Remove pages from PDF files</span>
+          </a>
+          
+          <!-- Reorder Pages -->
+          <a href="reorder-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-sort"></i>
+            </div>
+            <h3>Reorder Pages</h3>
+            <span>Rearrange PDF page order</span>
+          </a>
+          
+          <!-- Mark in PDF -->
+          <a href="mark-pdf.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-highlighter"></i>
+            </div>
+            <h3>Mark in PDF</h3>
+            <span>Highlight and annotate PDFs</span>
+          </a>
+          
+          <!-- Add Watermark -->
+          <a href="add-watermark.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-tint"></i>
+            </div>
+            <h3>Add Watermark</h3>
+            <span>Add text/image watermarks to PDFs</span>
+          </a>
+        </div>
+        
+        <div class="footer">
+          <p>© 2023 Myrtille Industries. All rights reserved. | PDF Solutions Hub v1.0</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <script>
+    // Add animation on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const buttons = document.querySelectorAll('.subject-button');
+      buttons.forEach((button, index) => {
+        button.style.opacity = '0';
+        button.style.transform = 'translateY(20px)';
+        button.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        
+        setTimeout(() => {
+          button.style.opacity = '1';
+          button.style.transform = 'translateY(0)';
+        }, 100 + index * 50);
+      });
+      
+      // Fullscreen functionality
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+      const fullscreenIcon = fullscreenBtn.querySelector('i');
+      
+      fullscreenBtn.addEventListener('click', toggleFullscreen);
+      
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          // Enter fullscreen
+          document.documentElement.requestFullscreen().catch(err => {
+            console.error(`Error attempting to enable fullscreen: ${err.message}`);
+          });
+        } else {
+          // Exit fullscreen
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          }
+        }
+      }
+      
+      // Update icon based on fullscreen state
+      document.addEventListener('fullscreenchange', updateFullscreenIcon);
+      document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+      document.addEventListener('mozfullscreenchange', updateFullscreenIcon);
+      document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
+      
+      function updateFullscreenIcon() {
+        if (document.fullscreenElement || 
+            document.webkitFullscreenElement || 
+            document.mozFullScreenElement ||
+            document.msFullscreenElement) {
+          fullscreenIcon.className = 'fas fa-compress';
+        } else {
+          fullscreenIcon.className = 'fas fa-expand';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
