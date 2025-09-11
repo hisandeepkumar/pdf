@@ -21,7 +21,7 @@
       align-items: center;
       padding: 24px;
       color: #f0f0f0;
-      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://themepack.me/i/c/749x467/media/g/1873/dark-amoled-theme-ie3.jpg');
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://4kwallpapers.com/images/wallpapers/macos-big-sur-apple-layers-fluidic-colorful-wwdc-stock--1455.jpg');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -254,13 +254,14 @@
       margin-top: 15px;
       padding-top: 15px;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.6);
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.9);
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
       gap: 8px;
+      font-weight: 500;
     }
 
     .footer-copyright a {
@@ -282,6 +283,41 @@
       animation: heartbeat 2s infinite;
       display: inline-block;
     }
+
+    /* Apple-style text animation */
+    .animated-text {
+      display: inline-block;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .animated-text span {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: appleTextAnimation 0.8s forwards;
+    }
+    
+    @keyframes appleTextAnimation {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Individual delays for each word */
+    .word1 { animation-delay: 0.1s; }
+    .word2 { animation-delay: 0.2s; }
+    .word3 { animation-delay: 0.3s; }
+    .word4 { animation-delay: 0.4s; }
+    .word5 { animation-delay: 0.5s; }
+    .word6 { animation-delay: 0.6s; }
+    .word7 { animation-delay: 0.7s; }
+    .word8 { animation-delay: 0.8s; }
 
     @keyframes heartbeat {
       0% { transform: scale(1); }
@@ -376,6 +412,7 @@
       .footer-copyright {
         flex-direction: column;
         gap: 5px;
+        font-size: 15px;
       }
     }
 
@@ -400,6 +437,10 @@
       
       .footer-description {
         font-size: 13px;
+      }
+      
+      .footer-copyright {
+        font-size: 14px;
       }
     }
   </style>
@@ -574,8 +615,15 @@
               business and academic applications. Process your documents with confidence knowing that all files 
               are handled client-side for maximum privacy and security.
             </div>
-            <div class="footer-copyright">
-              Secure • Free • Professional Made with <span class="heart">❤️</span> by  <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" rel="noopener noreferrer">Sandeep</a>
+            <div class="footer-copyright animated-text">
+              <span class="word1">Secure</span>
+              <span class="word2"> • </span>
+              <span class="word3">Free</span>
+              <span class="word4"> • </span>
+              <span class="word5">Professional</span>
+              <span class="word6"> | </span>
+              <span class="word7">Made with <span class="heart">❤️</span> by </span>
+              <span class="word8"><a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" rel="noopener noreferrer">Sandeep</a></span>
             </div>
           </div>
         </div>
