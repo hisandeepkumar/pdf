@@ -1,25 +1,25 @@
 const CACHE_NAME = "my-site-cache-v1";
 const urlsToCache = [
- "/pdf/",              
-  "/pdf/index.html",    
-  "/pdf/add-page-numbers.html",    
-  "/pdf/add-signature.html",  
-  "/pdf/add-watermark.html", 
-  "/pdf/background.css",
-  "/pdf/extract-pages.html",
-  "/pdf/image-to-pdf.html",
-  "/pdf/merge-pdf.html",
-  "/pdf/pdf-letterhead.html",
-  "/pdf/pdf-to-image.html",
-  "/pdf/replace-pages.html",
-  "/pdf/rotate_pages.html",
-  "/pdf/text-letterhead.html",
-  "/pdf/delete-pages.html",
-  "/pdf/reorder-pages.html",
-  "/pdf/images/background.jpg",
-  "/pdf/app.js",        
-  "/pdf/icon-192.png",
-  "/pdf/icon-512.png"
+              
+  "/index.html",    
+  "/add-page-numbers.html",    
+  "/add-signature.html",  
+  "/add-watermark.html", 
+  "/background.css",
+  "/extract-pages.html",
+  "/image-to-pdf.html",
+  "/merge-pdf.html",
+  "/pdf-letterhead.html",
+  "/pdf-to-image.html",
+  "/replace-pages.html",
+  "/rotate_pages.html",
+  "/text-letterhead.html",
+  "/delete-pages.html",
+  "/reorder-pages.html",
+  "/images/background.jpg",
+  "/app.js",        
+  "/icon-192.png",
+  "/icon-512.png"
 ];
 
 // Install phase - cache all pages
