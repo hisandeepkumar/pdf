@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Myrtille Industries - Text to PDF Generator</title>
+  <title>Text to PDF Generator</title>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -19,7 +19,6 @@
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       padding: 24px;
@@ -31,16 +30,15 @@
     }
 
     .container {
-      max-width: 640px;
+      max-width: 800px;
       width: 100%;
-      margin-bottom: 30px;
     }
 
     .app-card {
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(16px);
       border-radius: 20px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 极.2);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
       overflow: hidden;
       border: 1px solid rgba(255, 255, 255, 0.2);
       padding: 32px;
@@ -55,7 +53,7 @@
       background: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 16px 极.2);
+      padding: 16px 32px;
       text-align: center;
     }
 
@@ -143,7 +141,7 @@
     .btn {
       background: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(10px);
-      color: #f极f0f0;
+      color: #f0f0f0;
       border: 1px solid rgba(255, 255, 255, 0.3);
       padding: 12px;
       border-radius: 50%;
@@ -156,7 +154,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4极 15px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 15px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
       position: relative;
       overflow: hidden;
     }
@@ -241,7 +239,7 @@
       box-shadow: 0 4px 15px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
     }
 
-    .toggle-sw极itch::before {
+    .toggle-switch::before {
       content: '';
       position: absolute;
       width: 24px;
@@ -305,7 +303,7 @@
     }
 
     .progress-container {
-      background: rgba(255, 255, 255, 0.极);
+      background: rgba(255, 255, 255, 0.1);
       height: 8px;
       border-radius: 4px;
       overflow: hidden;
@@ -315,7 +313,7 @@
       height: 100%;
       width: 0;
       background: linear-gradient(90deg, #5b86e5, #36d1dc);
-      transition: width 0.3极 ease;
+      transition: width 0.3s ease;
       border-radius: 4px;
     }
 
@@ -342,7 +340,7 @@
 
     .error-message {
       background: rgba(255, 59, 48, 0.2);
-      color极 #ff3b30;
+      color: #ff3b30;
       border: 1px solid rgba(255, 59, 48, 0.3);
     }
 
@@ -350,7 +348,7 @@
       margin-right: 8px;
     }
     
-    .address-selector {
+    .details-form {
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(16px);
       border-radius: 12px;
@@ -359,104 +357,80 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
     
-    .address-header {
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
       display: flex;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #f0f0f0;
     }
     
-    .address-header i {
-      margin-right: 12px;
+    .form-group label i {
+      margin-right: 10px;
       color: #5b86e5;
-      font-size: 20px;
     }
     
-    .address-options {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-    
-    .address-option {
-      flex: 1;
-      min-width: 250px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
-      padding: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      cursor: pointer;
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      color: #f0f0f0;
+      background: rgba(255, 255, 255, 0.05);
       transition: all 0.3s ease;
     }
     
-    .address-option:hover {
-      background: rgba(255, 255, 255, 0.15);
-      transform: translateY(-3px);
-    }
-    
-    .address-option.selected {
-      background: rgba(91, 134, 229, 0.25);
+    .form-input:focus {
+      outline: none;
       border-color: #5b86e5;
-      box-shadow: 0 0 15px rgba(91, 134, 229, 0.3);
+      box-shadow: 0 0 0 2px rgba(91, 134, 229, 0.3);
     }
     
-    .address-option h3 {
-      font-size极 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
+    .example-text {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 6px;
     }
     
-    .address-option h3 i {
-      margin-right: 8px;
-      color: #5b86e5;
-    }
-    
-    .address-option p {
-      font-size: 14px;
-      line-height: 1.5;
-      color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 8px;
-    }
-    
-    .address-option .selected-indicator {
-      display: none;
-      text-align: right;
-      color: #5b86e5;
-      font-size: 14px;
-      margin-top: 8px;
-    }
-    
-    .address-option.selected .selected-indicator {
-      display: block;
-    }
-
-    footer {
-      margin-top: auto;
+    .footer {
+      margin-top: 30px;
       text-align: center;
-      padding: 20px;
       color: rgba(255, 255, 255, 0.7);
       font-size: 14px;
-      width: 100%;
+      padding: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
     }
-
-    footer a {
+    
+    .footer-content {
+      display: inline-block;
+      position: relative;
+    }
+    
+    .footer a {
       color: #5b86e5;
       text-decoration: none;
       position: relative;
       display: inline-block;
     }
-
-    footer a::after {
+    
+    .footer a span.underline {
       content: '';
       position: absolute;
       width: 100%;
       height: 2px;
-      bottom: -2px;
+      bottom: -5px;
       left: 0;
       background: linear-gradient(90deg, #5b86e5, #36d1dc);
       animation: continuousLine 3s infinite;
+      display: block;
     }
-
+    
     @keyframes continuousLine {
       0%   { transform: scaleX(0); transform-origin: bottom left; }
       50%  { transform: scaleX(1); transform-origin: bottom left; }
@@ -497,9 +471,6 @@
         flex-wrap: wrap;
         gap: 12px;
       }
-      .address-option {
-        min-width: 100%;
-      }
       .watermark-toggle {
         font-size: 14px;
       }
@@ -523,10 +494,10 @@
   <main class="container">
     <section class="app-card" aria-label="Text to PDF Generator">
       <div class="app-card-header">
-        <h1><i class="fas fa-industry"></i> Myrtille Industries</h1>
+        <h1><i class="fas fa-file-pdf"></i> Text to PDF Generator</h1>
       </div>
 
-      <div class极app-content">
+      <div class="app-content">
         <div class="app-section">
           <h2 class="section-title">
             <i class="fas fa-edit"></i>
@@ -549,33 +520,32 @@
         </div>
         
         <div class="app-section">
-          <div class="address-selector">
-            <div class="address-header">
-              <i class="fas极fa-map-marker-alt"></i>
-              <h3>Select Address for Document</h3>
+          <h2 class="section-title">
+            <i class="fas fa-building"></i>
+            Company Details
+          </h2>
+          <div class="details-form">
+            <div class="form-group">
+              <label for="companyName"><i class="fas fa-signature"></i> Company/Firm Name</label>
+              <input type="text" id="companyName" class="form-input" placeholder="Enter your company name" value="Sandeep">
+              <div class="example-text">Example: Sandeep </div>
             </div>
-            <div class="address-options">
-              <div class="address-option" id="oldAddressOption">
-                <h3><i class="fas fa-building"></i> Old Address</h3>
-                <p>92 SURAJ NAGAR (E)</p>
-                <p>CIVIL LINES SODALA</p>
-                <p>JAIPUR (RAJ)</p>
-                <div class="selected-indicator">
-                  <i class="fas fa-check-circle"></i> Selected
-                </div>
-              </div>
-              <div class="address-option selected" id="newAddressOption">
-                <h3><i class="fas fa-home"></i> New Address</h3>
-                <p>Building No./Flat No.: PLOT NO 25</p>
-                <p>Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI</p>
-                <p>City/Town/Village: Jaipur</p>
-                <p>District: Jaipur</p>
-                <p>State: Rajasthan</p>
-                <p>PIN Code: 302019</p>
-                <div class="selected-indicator">
-                  <i class="fas fa-check-circle"></极> Selected
-                </div>
-              </div>
+            
+            <div class="form-group">
+              <label for="companyAddress"><i class="fas fa-map-marker-alt"></i> Address</label>
+              <textarea id="companyAddress" class="form-input" placeholder="Enter your company address">PLOT NO 25, DEEPNAGAR
+NEAR PULICE THANA
+KOTPUTLI-BEHROR, Rajasthan 303108</textarea>
+              <div class="example-text">Enter each address part on a new line</div>
+            </div>
+            
+            <div class="form-group">
+              <label for="contactDetails"><i class="fas fa-address-card"></i> Contact Details</label>
+              <textarea id="contactDetails" class="form-input" placeholder="Enter your contact details">Mobile: +91 9542559478
+Email: example@gmail.com
+GST: 08AMHYU1683C1Z4
+URN: UDYAM-RJ-14-0079642</textarea>
+              <div class="example-text">Enter each contact detail on a new line</div>
             </div>
           </div>
         </div>
@@ -583,8 +553,8 @@
         <div class="app-section" style="text-align: center;">
           <div class="watermark-toggle">
             <label for="watermarkToggle">
-              MYRTILLE INDUSTRIES Watermark
-              <input type="checkbox" id="watermarkToggle" aria-label="Enable Watermark">
+              <span id="watermarkLabel">Company Name</span> Watermark
+              <input type="checkbox" id="watermarkToggle" aria-label="Enable Watermark" checked>
               <span class="toggle-switch"></span>
             </label>
           </div>
@@ -613,11 +583,19 @@
         </div>
       </div>
     </section>
+    
+    <div class="footer">
+      <div class="footer-content">
+        Secure • Free • Professional | Made with 
+        <span style="color:#ff4d4d;">❤️</span> 
+        by 
+        <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank">
+          Sandeep
+          <span class="underline"></span>
+        </a>
+      </div>
+    </div>
   </main>
-
-  <footer>
-    Secure • Free • Professional | Made with ❤️ by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank">Sandeep</a>
-  </footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -633,54 +611,15 @@
       const successMessage = document.getElementById('successMessage');
       const errorMessage = document.getElementById('errorMessage');
       const errorText = document.getElementById('errorText');
-      const oldAddressOption = document.getElementById('oldAddressOption');
-      const newAddressOption = document.getElementById('newAddressOption');
       const watermarkToggle = document.getElementById('watermarkToggle');
+      const companyNameInput = document.getElementById('companyName');
+      const companyAddressInput = document.getElementById('companyAddress');
+      const contactDetailsInput = document.getElementById('contactDetails');
+      const watermarkLabel = document.getElementById('watermarkLabel');
       
-      const addresses = {
-        old: {
-          address: [
-            "92 SURAJ NAGAR (E)",
-            "CIVIL LINES SODALA",
-            "JAIPUR (RAJ)"
-          ],
-          contact: [
-            "+91 9782099489",
-            "anilyadav.bme@gmail.com",
-            "GST: 08AMHPY5013C",
-            "URN-UDYAM-RJ-17-0084962"
-          ]
-        },
-        new: {
-          address: [
-            "Building No./Flat No.: PLOT NO 25",
-            "Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI",
-            "City/Town/Village: Jaipur",
-            "District: Jaipur",
-            "State: Rajasthan",
-            "PIN Code: 302019"
-          ],
-          contact: [
-            "Mobile: +91 9782099489",
-            "Email: myrtilleindia@gmail.com",
-            "GST: 08AMHPY5013C1Z4",
-            "URN: UDYAM-RJ-17-0084962"
-          ]
-        }
-      };
-      
-      let selectedAddress = 'new';
-      
-      oldAddressOption.addEventListener('click', () => {
-        selectedAddress = 'old';
-        oldAddressOption.classList.add('selected');
-        newAddressOption.classList.remove('selected');
-      });
-      
-      newAddressOption.addEventListener('click', () => {
-        selectedAddress = 'new';
-        newAddressOption.classList.add('selected');
-        oldAddressOption.classList.remove('selected');
+      // Update watermark label with company name
+      companyNameInput.addEventListener('input', () => {
+        watermarkLabel.textContent = companyNameInput.value || 'Company Name';
       });
 
       function adjustTextareaHeight() {
@@ -732,29 +671,28 @@
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const month = monthNames[now.getMonth()];
         const year = now.getFullYear();
-        const hours = now.getHours();
+        let hours = now.getHours();
         const minutes = now.getMinutes();
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        const formattedHours = hours % 12 || 12;
+        const ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
         const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-        
-        return `${date}_${month}_${year}_${formattedHours}_${formattedMinutes}${ampm}`;
+        return `${date}_${month}_${year}_${hours}_${formattedMinutes}${ampm}`;
       }
 
-      function processFileName(originalName) {
-        // Check if the filename ends with the pattern (one digit followed by two letters before .pdf)
-        const pattern = /\d[AP]M\.pdf$/i;
+      function getBaseFilename() {
+        let baseName = companyNameInput.value.trim().replace(/\s+/g, '_');
+        // Check if the baseName ends with a pattern like "0PM" or "5AM" followed by ".pdf"
+        const pattern = /_\d{1,2}_[A-Za-z]{3}_\d{4}_\d{1,2}_\d{2}[ap]m$/;
         
-        if (pattern.test(originalName)) {
-          // Remove the last 22 characters (before .pdf) if available
-          if (originalName.length >= 22) {
-            return originalName.substring(0, originalName.length - 22) + getFormattedDateTime() + '.pdf';
+        if (pattern.test(baseName)) {
+          // Remove the last 22 characters if the baseName is long enough
+          if (baseName.length > 22) {
+            baseName = baseName.substring(0, baseName.length - 22);
           }
         }
         
-        // Standard format: originalFileName_Day_Mon_Year_Hour_MinuteAMPM.pdf
-        const baseName = originalName.replace('.pdf', '');
-        return `${baseName}_${getFormattedDateTime()}.pdf`;
+        return baseName;
       }
 
       function processBoldText(text) {
@@ -783,7 +721,7 @@
         if (lastIndex < text.length) {
           parts.push({
             text: text.substring(lastIndex),
-            bold极 false
+            bold: false
           });
         }
         
@@ -798,10 +736,19 @@
       async function generatePDF() {
         console.log('Starting PDF generation');
         const content = contentInput.value.trim();
+        const companyName = companyNameInput.value.trim();
+        const companyAddress = companyAddressInput.value.split('\n').filter(line => line.trim() !== '');
+        const contactDetails = contactDetailsInput.value.split('\n').filter(line => line.trim() !== '');
 
         if (!content) {
           console.log('No content entered');
           showError("Please enter some content before generating");
+          return;
+        }
+
+        if (!companyName) {
+          console.log('No company name entered');
+          showError("Please enter a company name");
           return;
         }
 
@@ -839,9 +786,6 @@
           console.log('Total lines:', lines.length);
           const pages = groupLinesIntoPages(lines, helveticaFont, 12, contentAreaHeight);
           console.log('Pages created:', pages.length);
-
-          const addressInfo = addresses[selectedAddress];
-          const isNewAddress = selectedAddress === 'new';
           
           for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
             console.log(`Generating page ${pageIndex + 1}`);
@@ -854,7 +798,7 @@
             // Add watermark if enabled
             if (watermarkToggle.checked) {
               console.log('Adding watermark');
-              const watermarkText = "MYRTILLE INDUSTRIES";
+              const watermarkText = companyName.toUpperCase();
               const font = helveticaBoldFont;
               const { width, height } = newPage.getSize();
               const diagonalLength = Math.sqrt(width * width + height * height);
@@ -893,7 +837,6 @@
               color: PDFLib.rgb(1, 1, 1),
             });
 
-            const companyName = "MYRTILLE INDUSTRIES";
             const textWidth = helveticaBoldFont.widthOfTextAtSize(companyName, 24);
             newPage.drawText(companyName, {
               x: a4Width / 2 - textWidth / 2,
@@ -925,11 +868,11 @@
               color: PDFLib.rgb(0.8, 0.8, 0.8),
             });
 
-            let yPos = isNewAddress ? 90 : 85;
-            const addressFontSize = isNewAddress ? 9 : 10;
-            const addressLineSpacing = isNewAddress ? 10 : 14;
+            let yPos = 90;
+            const addressFontSize = 9;
+            const addressLineSpacing = 10;
             
-            addressInfo.address.forEach(line => {
+            companyAddress.forEach(line => {
               newPage.drawText(sanitizeText(line), {
                 x: 40,
                 y: yPos,
@@ -940,10 +883,10 @@
               yPos -= addressLineSpacing;
             });
 
-            yPos = isNewAddress ? 90 : 85;
-            addressInfo.contact.forEach(line => {
+            yPos = 90;
+            contactDetails.forEach(line => {
               newPage.drawText(sanitizeText(line), {
-                x: a4Width - (isNewAddress ? 200 : 180),
+                x: a4Width - 200,
                 y: yPos,
                 size: addressFontSize,
                 color: PDFLib.rgb(0.102, 0.322, 0.463),
@@ -985,7 +928,7 @@
           statusMessage.textContent = "Finalizing document...";
           progressBar.style.width = "95%";
 
-          const finalPdfBytes = await final极f.save();
+          const finalPdfBytes = await finalPdf.save();
           console.log('PDF bytes generated, size:', finalPdfBytes.length);
 
           const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
@@ -995,10 +938,9 @@
             throw new Error('FileSaver.js saveAs function is not available');
           }
 
-          // Generate filename with date and time
-          const filename = processFileName("Myrtille_Industries.pdf");
-          
-          saveAs(blob, filename);
+          const baseFilename = getBaseFilename();
+          const dateTimeStr = getFormattedDateTime();
+          saveAs(blob, `${baseFilename}_${dateTimeStr}.pdf`);
           console.log('PDF download initiated');
 
           statusMessage.textContent = "Document generated successfully!";
@@ -1098,7 +1040,7 @@
           const isParagraphBreak = line.length === 0;
           const heightToAdd = isParagraphBreak ? paragraphSpacing : lineHeight;
 
-          if (currentHeight + height极Add > maxHeight) {
+          if (currentHeight + heightToAdd > maxHeight) {
             if (currentPage.length > 0) {
               pages.push([...currentPage]);
             }
