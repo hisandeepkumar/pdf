@@ -10,35 +10,35 @@
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
-      color: white;
       background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
                   url('images/background.jpg');
       background-size: cover;
       background-position: center;
-      text-align: center;
-      min-height: 100vh;
+      height: 100vh;
       display: flex;
-      flex-direction: column;
       justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: #fff;
+      text-align: center;
     }
     h1 {
       font-size: 2.5em;
       margin-bottom: 20px;
     }
     input[type="file"] {
-      margin: 10px 0;
+      margin: 15px 0;
       padding: 10px;
       border-radius: 8px;
     }
     button {
-      padding: 10px 20px;
-      margin: 10px;
+      padding: 12px 25px;
       border: none;
       border-radius: 8px;
-      cursor: pointer;
       background: #36d1dc;
       color: white;
       font-size: 1em;
+      cursor: pointer;
       transition: background 0.3s;
     }
     button:hover {
@@ -50,14 +50,13 @@
       font-weight: bold;
     }
     .footer {
-      text-align:center; 
-      margin-top:30px; 
-      font-size:18px; 
-      font-weight:600; 
+      margin-top: 30px; 
+      font-size: 18px; 
+      font-weight: 600; 
       background: linear-gradient(90deg,#5b86e5,#36d1dc,#5b86e5);
       -webkit-background-clip: text; 
       color: transparent; 
-      display:inline-block;
+      display: inline-block;
       animation: moveText 3s linear infinite;
     }
     @keyframes moveText {
@@ -68,14 +67,12 @@
   </style>
 </head>
 <body>
-  <div>
-    <h1>PDF Page Number Adder</h1>
-    <input type="file" id="upload" accept="application/pdf">
-    <br>
-    <button onclick="generatePDF()">Add Page Numbers</button>
-    <div id="status"></div>
-    <div class="footer">Secure • Free • Professional | Made with ❤️ by Sandeep</div>
-  </div>
+  <h1>PDF Page Number Adder</h1>
+  <input type="file" id="upload" accept="application/pdf">
+  <br>
+  <button onclick="generatePDF()">Add Page Numbers</button>
+  <div id="status"></div>
+  <div class="footer">Secure • Free • Professional | Made with ❤️ by Sandeep</div>
 
   <script>
     async function generatePDF() {
