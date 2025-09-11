@@ -16,7 +16,7 @@ const urlsToCache = [
 "text-letterhead.html",
 "delete-pages.html",
 "reorder-pages.html",
-
+"/images/background.jpg",
 
 
 
