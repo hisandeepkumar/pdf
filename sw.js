@@ -14,6 +14,10 @@ const urlsToCache = [
 "replace-pages.html",
 "rotate_pages.html",
 "text-letterhead.html",
+"delete-pages.html",
+"reorder-pages.html",
+
+
 
 
 
