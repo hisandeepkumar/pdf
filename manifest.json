@@ -1,6 +1,6 @@
 {
   "name": "Pdf editor",
-  "short_name": "Pdf",
+  "short_name": "Pdf editor",
   "start_url": "/pdf/index.html",
   "scope": "/pdf/",
   "display": "standalone",
