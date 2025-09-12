@@ -1,9 +1,9 @@
-const CACHE_NAME = "my-site-cache-v2"; // version bump karo jab assets change ho
+const CACHE_NAME = "my-site-cache-v2";
 const urlsToCache = [
-  "/index.html",
-  "/add-page-numbers.html",
-  "/add-signature.html",
-  "/add-watermark.html",
+  "/index.html",    
+  "/add-page-numbers.html",    
+  "/add-signature.html",  
+  "/add-watermark.html", 
   "/background.css",
   "/extract-pages.html",
   "/image-to-pdf.html",
@@ -16,95 +16,115 @@ const urlsToCache = [
   "/delete-pages.html",
   "/reorder-pages.html",
   "/images/background.jpg",
-  "/app.js",
+  "/app.js",        
   "/icon-192.png",
-  "/icon-512.png"
+  "/icon-512.png",
+  "/offline.html"  // Add an offline fallback page
 ];
 
-// Install - pre-cache everything
+// Install phase - cache all pages and assets
 self.addEventListener("install", event => {
-  self.skipWaiting(); // immediately move to activate
+  self.skipWaiting(); // Force activation immediately
+  
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then(cache => {
+      // Cache all specified resources
+      return cache.addAll(urlsToCache).catch(err => {
+        console.log("Failed to cache some resources:", err);
+      });
+    })
   );
 });
 
-// Activate - cleanup old caches and take control
+// Activate phase - clear old caches and claim clients
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        keys.map(k => {
-          if (k !== CACHE_NAME) return caches.delete(k);
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => {
+      // Take control of all clients immediately
+      return self.clients.claim();
+    })
   );
 });
 
-// Helper: safe cache put (only for successful GET responses)
-async function safeCachePut(cacheName, request, response) {
-  if (!response || !response.ok || request.method !== "GET") return;
-  const cache = await caches.open(cacheName);
-  await cache.put(request, response.clone());
-}
-
-// Fetch handler:
-// - Navigation/HTML requests: network-first -> update cache -> fallback to cache if network fails
-// - Other resources (css/js/images): cache-first, but update cache in background (stale-while-revalidate)
+// Fetch event with enhanced offline handling
 self.addEventListener("fetch", event => {
-  const req = event.request;
-
-  // Only handle GET requests
-  if (req.method !== "GET") return;
-
-  const acceptHeader = req.headers.get("accept") || "";
-
-  // Treat navigation or HTML requests as "pages"
-  const isNavigation = req.mode === "navigate" || acceptHeader.includes("text/html");
-
-  if (isNavigation) {
-    // Network-first for pages: try network, cache it, fallback to cache when offline
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') return;
+  
+  // For HTML pages: try network first, then cache
+  if (event.request.headers.get('accept').includes('text/html')) {
     event.respondWith(
-      fetch(req)
-        .then(networkResponse => {
-          // update cache in background (but return network response immediately)
-          event.waitUntil(safeCachePut(CACHE_NAME, req, networkResponse));
-          return networkResponse;
+      fetch(event.request)
+        .then(response => {
+          // Cache the latest version
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME)
+            .then(cache => cache.put(event.request, responseClone));
+          return response;
         })
-        .catch(async () => {
-          // network failed -> return cached version if available
-          const cache = await caches.open(CACHE_NAME);
-          const cachedResponse = await cache.match(req);
-          if (cachedResponse) return cachedResponse;
-
-          // If requested page not in cache, fallback to index.html (useful for SPA) or return generic offline page
-          const fallback = await cache.match("/index.html");
-          if (fallback) return fallback;
-
-          return new Response("You are offline", { status: 503, statusText: "Offline" });
+        .catch(() => {
+          // Network failed, try cache
+          return caches.match(event.request)
+            .then(cachedResponse => {
+              if (cachedResponse) {
+                return cachedResponse;
+              }
+              // Return offline page if nothing in cache
+              return caches.match('/offline.html');
+            });
         })
     );
     return;
   }
-
-  // For non-navigation requests (static assets): try cache first, then network.
+  
+  // For other resources: cache first, then network
   event.respondWith(
-    caches.match(req).then(cachedResponse => {
-      const networkFetch = fetch(req)
-        .then(networkResponse => {
-          // update cache in background
-          event.waitUntil(safeCachePut(CACHE_NAME, req, networkResponse));
-          return networkResponse;
-        })
-        .catch(() => {
-          // network failed; if no cache, the promise will resolve to undefined
-          return undefined;
-        });
-
-      // If we have cached response, return it immediately (makes offline refresh seamless).
-      // Meanwhile networkFetch will update the cache for next time.
-      return cachedResponse || networkFetch;
-    })
+    caches.match(event.request)
+      .then(cachedResponse => {
+        if (cachedResponse) {
+          // Update cache in background
+          fetch(event.request)
+            .then(response => {
+              caches.open(CACHE_NAME)
+                .then(cache => cache.put(event.request, response));
+            })
+            .catch(() => { /* Ignore update errors */ });
+          return cachedResponse;
+        }
+        
+        // Not in cache, try network
+        return fetch(event.request)
+          .then(response => {
+            // Cache new resource
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME)
+              .then(cache => cache.put(event.request, responseClone));
+            return response;
+          })
+          .catch(() => {
+            // Return appropriate fallback based on file type
+            if (event.request.url.includes('.css')) {
+              return new Response('body { background: #f0f0f0; }', { headers: { 'Content-Type': 'text/css' } });
+            }
+            if (event.request.url.includes('.js')) {
+              return new Response('console.log("Offline mode");', { headers: { 'Content-Type': 'text/javascript' } });
+            }
+            if (event.request.url.includes('.png') || event.request.url.includes('.jpg')) {
+              // Return a transparent pixel for missing images
+              return new Response('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', { 
+                headers: { 'Content-Type': 'image/gif' } 
+              });
+            }
+            return new Response('Offline content not available');
+          });
+      })
   );
 });
