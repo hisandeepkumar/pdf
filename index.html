@@ -3,24 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="./manifest.json">
   <title>PDF Editor (Free&Secure)</title>
-   <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", function() {
-    navigator.serviceWorker.register("./sw.js").then(function(registration) {
-      console.log("ServiceWorker registered: ", registration);
-    }).catch(function(error) {
-      console.log("ServiceWorker registration failed: ", error);
-    });
-  });
-}
-</script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-  
     * {
       margin: 0;
       padding: 0;
@@ -35,9 +22,10 @@ if ("serviceWorker" in navigator) {
       align-items: center;
       padding: 24px;
       color: #f0f0f0;
-     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
-    background-size: cover;
-    background-position: center;
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)), 
+                  radial-gradient(circle at top right, #1a1a2e, #16213e, #0f3460);
+      background-size: cover;
+      background-position: center;
       background-attachment: fixed;
       overflow-x: hidden;
       transition: background 0.3s ease;
@@ -50,12 +38,12 @@ if ("serviceWorker" in navigator) {
     }
 
     .app-card {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(16px);
       border-radius: 20px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       padding: 32px;
       position: relative;
       transition: all 0.3s ease;
@@ -66,7 +54,7 @@ if ("serviceWorker" in navigator) {
       top: 0;
       left: 0;
       width: 100%;
-      background: rgba(35, 35, 50, 0.7);
+      background: rgba(25, 25, 35, 0.8);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(91, 134, 229, 0.3);
       padding: 16px 32px;
@@ -158,8 +146,6 @@ if ("serviceWorker" in navigator) {
     }
 
     .subject-button {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(10px);
       border-radius: 16px;
       padding: 25px 20px;
       border: 1px solid rgba(255, 255, 255, 0.15);
@@ -176,17 +162,59 @@ if ("serviceWorker" in navigator) {
       color: #f0f0f0;
     }
 
-    /* Neon glow effect on hover */
+    /* Base button styles with different colors */
+    .subject-button:nth-child(1) {
+      background: rgba(91, 134, 229, 0.15);
+    }
+    .subject-button:nth-child(2) {
+      background: rgba(54, 209, 220, 0.15);
+    }
+    .subject-button:nth-child(3) {
+      background: rgba(255, 77, 77, 0.15);
+    }
+    .subject-button:nth-child(4) {
+      background: rgba(255, 154, 61, 0.15);
+    }
+    .subject-button:nth-child(5) {
+      background: rgba(255, 221, 89, 0.15);
+    }
+    .subject-button:nth-child(6) {
+      background: rgba(108, 229, 168, 0.15);
+    }
+    .subject-button:nth-child(7) {
+      background: rgba(157, 80, 187, 0.15);
+    }
+    .subject-button:nth-child(8) {
+      background: rgba(255, 94, 125, 0.15);
+    }
+    .subject-button:nth-child(9) {
+      background: rgba(0, 206, 201, 0.15);
+    }
+    .subject-button:nth-child(10) {
+      background: rgba(249, 127, 81, 0.15);
+    }
+    .subject-button:nth-child(11) {
+      background: rgba(183, 21, 64, 0.15);
+    }
+    .subject-button:nth-child(12) {
+      background: rgba(12, 36, 97, 0.15);
+    }
+    .subject-button:nth-child(13) {
+      background: rgba(56, 173, 169, 0.15);
+    }
+    .subject-button:nth-child(14) {
+      background: rgba(229, 80, 57, 0.15);
+    }
+    .subject-button:nth-child(15) {
+      background: rgba(74, 105, 189, 0.15);
+    }
+    .subject-button:nth-child(16) {
+      background: rgba(246, 185, 59, 0.15);
+    }
+
+    /* Neon glow effect on hover with different colors */
     .subject-button:hover {
       transform: translateY(-10px) scale(1.05);
-      border-color: #5b86e5;
-      box-shadow: 
-        0 0 10px #ffffff,
-        0 0 20px #ffffff,
-        0 0 30px #ffffff,
-        0 0 40px #ffffff,
-        0 0 70px #ffffff,
-        0 0 80px #ffffff;
       z-index: 10;
     }
 
@@ -208,26 +236,102 @@ if ("serviceWorker" in navigator) {
     .button-icon {
       width: 60px;
       height: 60px;
-      background: rgba(91, 134, 229, 0.2);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 20px;
       font-size: 24px;
-      color: #5b86e5;
-      border: 2px solid rgba(91, 134, 229, 0.3);
       transition: all 0.4s ease;
       position: relative;
       overflow: hidden;
     }
 
+    /* Button icon colors */
+    .subject-button:nth-child(1) .button-icon {
+      background: rgba(91, 134, 229, 0.2);
+      color: #5b86e5;
+      border: 2px solid rgba(91, 134, 229, 0.3);
+    }
+    .subject-button:nth-child(2) .button-icon {
+      background: rgba(54, 209, 220, 0.2);
+      color: #36d1dc;
+      border: 2px solid rgba(54, 209, 220, 0.3);
+    }
+    .subject-button:nth-child(3) .button-icon {
+      background: rgba(255, 77, 77, 0.2);
+      color: #ff4d4d;
+      border: 2px solid rgba(255, 77, 77, 0.3);
+    }
+    .subject-button:nth-child(4) .button-icon {
+      background: rgba(255, 154, 61, 0.2);
+      color: #ff9a3d;
+      border: 2px solid rgba(255, 154, 61, 0.3);
+    }
+    .subject-button:nth-child(5) .button-icon {
+      background: rgba(255, 221, 89, 0.2);
+      color: #ffdd59;
+      border: 2px solid rgba(255, 221, 89, 0.3);
+    }
+    .subject-button:nth-child(6) .button-icon {
+      background: rgba(108, 229, 168, 0.2);
+      color: #6ce5a8;
+      border: 2px solid rgba(108, 229, 168, 0.3);
+    }
+    .subject-button:nth-child(7) .button-icon {
+      background: rgba(157, 80, 187, 0.2);
+      color: #9d50bb;
+      border: 2px solid rgba(157, 80, 187, 0.3);
+    }
+    .subject-button:nth-child(8) .button-icon {
+      background: rgba(255, 94, 125, 0.2);
+      color: #ff5e7d;
+      border: 2px solid rgba(255, 94, 125, 0.3);
+    }
+    .subject-button:nth-child(9) .button-icon {
+      background: rgba(0, 206, 201, 0.2);
+      color: #00cec9;
+      border: 2px solid rgba(0, 206, 201, 0.3);
+    }
+    .subject-button:nth-child(10) .button-icon {
+      background: rgba(249, 127, 81, 0.2);
+      color: #f97f51;
+      border: 2px solid rgba(249, 127, 81, 0.3);
+    }
+    .subject-button:nth-child(11) .button-icon {
+      background: rgba(183, 21, 64, 0.2);
+      color: #b71540;
+      border: 2px solid rgba(183, 21, 64, 0.3);
+    }
+    .subject-button:nth-child(12) .button-icon {
+      background: rgba(12, 36, 97, 0.2);
+      color: #0c2461;
+      border: 2px solid rgba(12, 36, 97, 0.3);
+    }
+    .subject-button:nth-child(13) .button-icon {
+      background: rgba(56, 173, 169, 0.2);
+      color: #38ada9;
+      border: 2px solid rgba(56, 173, 169, 0.3);
+    }
+    .subject-button:nth-child(14) .button-icon {
+      background: rgba(229, 80, 57, 0.2);
+      color: #e55039;
+      border: 2px solid rgba(229, 80, 57, 0.3);
+    }
+    .subject-button:nth-child(15) .button-icon {
+      background: rgba(74, 105, 189, 0.2);
+      color: #4a69bd;
+      border: 2px solid rgba(74, 105, 189, 0.3);
+    }
+    .subject-button:nth-child(16) .button-icon {
+      background: rgba(246, 185, 59, 0.2);
+      color: #f6b93b;
+      border: 2px solid rgba(246, 185, 59, 0.3);
+    }
+
     .subject-button:hover .button-icon {
       transform: scale(1.15) rotate(5deg);
-      background: rgba(91, 134, 229, 0.3);
       color: #fff;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 1);
-      border-color: rgba(91, 134, 229, 0.8);
     }
 
     .button-icon::after {
@@ -269,15 +373,251 @@ if ("serviceWorker" in navigator) {
       transition: all 0.3s ease;
     }
 
-    .subject-button:hover h3 {
-      color: #5b86e5;
-      text-shadow: 0 0 10px rgba(91, 134, 229, 0.7);
-    }
-
     .subject-button span {
       font-size: 14px;
       color: rgba(255, 255, 255, 0.8);
       line-height: 1.5;
+    }
+
+    /* Individual neon colors for each button on hover */
+    .subject-button:nth-child(1):hover {
+      background: rgba(91, 134, 229, 0.25);
+      border-color: #5b86e5;
+      box-shadow: 0 0 10px #5b86e5, 0 0 20px #5b86e5, 0 0 30px #5b86e5, 0 0 40px #5b86e5;
+    }
+    .subject-button:nth-child(1):hover .button-icon {
+      background: rgba(91, 134, 229, 0.3);
+      border-color: rgba(91, 134, 229, 0.8);
+      box-shadow: 0 0 15px #5b86e5;
+    }
+    .subject-button:nth-child(1):hover h3 {
+      color: #5b86e5;
+      text-shadow: 0 0 10px rgba(91, 134, 229, 0.7);
+    }
+
+    .subject-button:nth-child(2):hover {
+      background: rgba(54, 209, 220, 0.25);
+      border-color: #36d1dc;
+      box-shadow: 0 0 10px #36d1dc, 0 0 20px #36d1dc, 0 0 30px #36d1dc, 0 0 40px #36d1dc;
+    }
+    .subject-button:nth-child(2):hover .button-icon {
+      background: rgba(54, 209, 220, 0.3);
+      border-color: rgba(54, 209, 220, 0.8);
+      box-shadow: 0 0 15px #36d1dc;
+    }
+    .subject-button:nth-child(2):hover h3 {
+      color: #36d1dc;
+      text-shadow: 0 0 10px rgba(54, 209, 220, 0.7);
+    }
+
+    .subject-button:nth-child(3):hover {
+      background: rgba(255, 77, 77, 0.25);
+      border-color: #ff4d4d;
+      box-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff4d4d, 0 0 30px #ff4d4d, 0 0 40px #ff4d4d;
+    }
+    .subject-button:nth-child(3):hover .button-icon {
+      background: rgba(255, 77, 77, 0.3);
+      border-color: rgba(255, 77, 77, 0.8);
+      box-shadow: 0 0 15px #ff4d4d;
+    }
+    .subject-button:nth-child(3):hover h3 {
+      color: #ff4d4d;
+      text-shadow: 0 0 10px rgba(255, 77, 77, 0.7);
+    }
+
+    .subject-button:nth-child(4):hover {
+      background: rgba(255, 154, 61, 0.25);
+      border-color: #ff9a3d;
+      box-shadow: 0 0 10px #ff9a3d, 0 0 20px #ff9a3d, 0 0 30px #ff9a3d, 0 0 40px #ff9a3d;
+    }
+    .subject-button:nth-child(4):hover .button-icon {
+      background: rgba(255, 154, 61, 0.3);
+      border-color: rgba(255, 154, 61, 0.8);
+      box-shadow: 0 0 15px #ff9a3d;
+    }
+    .subject-button:nth-child(4):hover h3 {
+      color: #ff9a3d;
+      text-shadow: 0 0 10px rgba(255, 154, 61, 0.7);
+    }
+
+    .subject-button:nth-child(5):hover {
+      background: rgba(255, 221, 89, 0.25);
+      border-color: #ffdd59;
+      box-shadow: 0 0 10px #ffdd59, 0 0 20px #ffdd59, 0 0 30px #ffdd59, 0 0 40px #ffdd59;
+    }
+    .subject-button:nth-child(5):hover .button-icon {
+      background: rgba(255, 221, 89, 0.3);
+      border-color: rgba(255, 221, 89, 0.8);
+      box-shadow: 0 0 15px #ffdd59;
+    }
+    .subject-button:nth-child(5):hover h3 {
+      color: #ffdd59;
+      text-shadow: 0 0 10px rgba(255, 221, 89, 0.7);
+    }
+
+    .subject-button:nth-child(6):hover {
+      background: rgba(108, 229, 168, 0.25);
+      border-color: #6ce5a8;
+      box-shadow: 0 0 10px #6ce5a8, 0 0 20px #6ce5a8, 0 0 30px #6ce5a8, 0 0 40px #6ce5a8;
+    }
+    .subject-button:nth-child(6):hover .button-icon {
+      background: rgba(108, 229, 168, 0.3);
+      border-color: rgba(108, 229, 168, 0.8);
+      box-shadow: 0 0 15px #6ce5a8;
+    }
+    .subject-button:nth-child(6):hover h3 {
+      color: #6ce5a8;
+      text-shadow: 0 0 10px rgba(108, 229, 168, 0.7);
+    }
+
+    .subject-button:nth-child(7):hover {
+      background: rgba(157, 80, 187, 0.25);
+      border-color: #9d50bb;
+      box-shadow: 0 0 10px #9d50bb, 0 0 20px #9d50bb, 0 0 30px #9d50bb, 0 0 40px #9d50bb;
+    }
+    .subject-button:nth-child(7):hover .button-icon {
+      background: rgba(157, 80, 187, 0.3);
+      border-color: rgba(157, 80, 187, 0.8);
+      box-shadow: 0 0 15px #9d50bb;
+    }
+    .subject-button:nth-child(7):hover h3 {
+      color: #9d50bb;
+      text-shadow: 0 0 10px rgba(157, 80, 187, 0.7);
+    }
+
+    .subject-button:nth-child(8):hover {
+      background: rgba(255, 94, 125, 0.25);
+      border-color: #ff5e7d;
+      box-shadow: 0 0 10px #ff5e7d, 0 0 20px #ff5e7d, 0 0 30px #ff5e7d, 0 0 40px #ff5e7d;
+    }
+    .subject-button:nth-child(8):hover .button-icon {
+      background: rgba(255, 94, 125, 0.3);
+      border-color: rgba(255, 94, 125, 0.8);
+      box-shadow: 0 0 15px #ff5e7d;
+    }
+    .subject-button:nth-child(8):hover h3 {
+      color: #ff5e7d;
+      text-shadow: 0 0 10px rgba(255, 94, 125, 0.7);
+    }
+
+    .subject-button:nth-child(9):hover {
+      background: rgba(0, 206, 201, 0.25);
+      border-color: #00cec9;
+      box-shadow: 0 0 10px #00cec9, 0 0 20px #00cec9, 0 0 30px #00cec9, 0 0 40px #00cec9;
+    }
+    .subject-button:nth-child(9):hover .button-icon {
+      background: rgba(0, 206, 201, 0.3);
+      border-color: rgba(0, 206, 201, 0.8);
+      box-shadow: 0 0 15px #00cec9;
+    }
+    .subject-button:nth-child(9):hover h3 {
+      color: #00cec9;
+      text-shadow: 0 0 10px rgba(0, 206, 201, 0.7);
+    }
+
+    .subject-button:nth-child(10):hover {
+      background: rgba(249, 127, 81, 0.25);
+      border-color: #f97f51;
+      box-shadow: 0 0 10px #f97f51, 0 0 20px #f97f51, 0 0 30px #f97f51, 0 0 40px #f97f51;
+    }
+    .subject-button:nth-child(10):hover .button-icon {
+      background: rgba(249, 127, 81, 0.3);
+      border-color: rgba(249, 127, 81, 0.8);
+      box-shadow: 0 0 15px #f97f51;
+    }
+    .subject-button:nth-child(10):hover h3 {
+      color: #f97f51;
+      text-shadow: 0 0 10px rgba(249, 127, 81, 0.7);
+    }
+
+    .subject-button:nth-child(11):hover {
+      background: rgba(183, 21, 64, 0.25);
+      border-color: #b71540;
+      box-shadow: 0 0 10px #b71540, 0 0 20px #b71540, 0 0 30px #b71540, 0 0 40px #b71540;
+    }
+    .subject-button:nth-child(11):hover .button-icon {
+      background: rgba(183, 21, 64, 0.3);
+      border-color: rgba(183, 21, 64, 0.8);
+      box-shadow: 0 0 15px #b71540;
+    }
+    .subject-button:nth-child(11):hover h3 {
+      color: #b71540;
+      text-shadow: 0 0 10px rgba(183, 21, 64, 0.7);
+    }
+
+    .subject-button:nth-child(12):hover {
+      background: rgba(12, 36, 97, 0.25);
+      border-color: #0c2461;
+      box-shadow: 0 0 10px #0c2461, 0 0 20px #0c2461, 0 0 30px #0c2461, 0 0 40px #0c2461;
+    }
+    .subject-button:nth-child(12):hover .button-icon {
+      background: rgba(12, 36, 97, 0.3);
+      border-color: rgba(12, 36, 97, 0.8);
+      box-shadow: 0 0 15px #0c2461;
+    }
+    .subject-button:nth-child(12):hover h3 {
+      color: #0c2461;
+      text-shadow: 0 0 10px rgba(12, 36, 97, 0.7);
+    }
+
+    .subject-button:nth-child(13):hover {
+      background: rgba(56, 173, 169, 0.25);
+      border-color: #38ada9;
+      box-shadow: 0 0 10px #38ada9, 0 0 20px #38ada9, 0 0 30px #38ada9, 0 0 40px #38ada9;
+    }
+    .subject-button:nth-child(13):hover .button-icon {
+      background: rgba(56, 173, 169, 0.3);
+      border-color: rgba(56, 173, 169, 0.8);
+      box-shadow: 0 0 15px #38ada9;
+    }
+    .subject-button:nth-child(13):hover h3 {
+      color: #38ada9;
+      text-shadow: 0 0 10px rgba(56, 173, 169, 0.7);
+    }
+
+    .subject-button:nth-child(14):hover {
+      background: rgba(229, 80, 57, 0.25);
+      border-color: #e55039;
+      box-shadow: 0 0 10px #e55039, 0 0 20px #e55039, 0 0 30px #e55039, 0 0 40px #e55039;
+    }
+    .subject-button:nth-child(14):hover .button-icon {
+      background: rgba(229, 80, 57, 0.3);
+      border-color: rgba(229, 80, 57, 0.8);
+      box-shadow: 0 0 15px #e55039;
+    }
+    .subject-button:nth-child(14):hover h3 {
+      color: #e55039;
+      text-shadow: 0 0 10px rgba(229, 80, 57, 0.7);
+    }
+
+    .subject-button:nth-child(15):hover {
+      background: rgba(74, 105, 189, 0.25);
+      border-color: #4a69bd;
+      box-shadow: 0 0 10px #4a69bd, 0 0 20px #4a69bd, 0 0 30px #4a69bd, 0 0 40px #4a69bd;
+    }
+    .subject-button:nth-child(15):hover .button-icon {
+      background: rgba(74, 105, 189, 0.3);
+      border-color: rgba(74, 105, 189, 0.8);
+      box-shadow: 0 0 15px #4a69bd;
+    }
+    .subject-button:nth-child(15):hover h3 {
+      color: #4a69bd;
+      text-shadow: 0 0 10px rgba(74, 105, 189, 0.7);
+    }
+
+    .subject-button:nth-child(16):hover {
+      background: rgba(246, 185, 59, 0.25);
+      border-color: #f6b93b;
+      box-shadow: 0 0 10px #f6b93b, 0 0 20px #f6b93b, 0 0 30px #f6b93b, 0 0 40px #f6b93b;
+    }
+    .subject-button:nth-child(16):hover .button-icon {
+      background: rgba(246, 185, 59, 0.3);
+      border-color: rgba(246, 185, 59, 0.8);
+      box-shadow: 0 0 15px #f6b93b;
+    }
+    .subject-button:nth-child(16):hover h3 {
+      color: #f6b93b;
+      text-shadow: 0 0 10px rgba(246, 185, 59, 0.7);
     }
 
     .footer {
