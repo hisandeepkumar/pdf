@@ -20,6 +20,7 @@ if ("serviceWorker" in navigator) {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
+  
     * {
       margin: 0;
       padding: 0;
@@ -34,7 +35,7 @@ if ("serviceWorker" in navigator) {
       align-items: center;
       padding: 24px;
       color: #f0f0f0;
-     background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
+     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
     background-size: cover;
     background-position: center;
       background-attachment: fixed;
@@ -49,13 +50,12 @@ if ("serviceWorker" in navigator) {
     }
 
     .app-card {
-      background: rgba(20, 20, 30, 0.7);
+      background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(16px);
       border-radius: 20px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3),
-                  0 0 20px rgba(91, 134, 229, 0.2);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
       overflow: hidden;
-      border: 1px solid rgba(91, 134, 229, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       padding: 32px;
       position: relative;
       transition: all 0.3s ease;
@@ -158,12 +158,12 @@ if ("serviceWorker" in navigator) {
     }
 
     .subject-button {
-      background: rgba(30, 30, 40, 0.7);
+      background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(10px);
       border-radius: 16px;
       padding: 25px 20px;
-      border: 1px solid rgba(91, 134, 229, 0.3);
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease;
       cursor: pointer;
       display: flex;
       flex-direction: column;
@@ -174,8 +174,6 @@ if ("serviceWorker" in navigator) {
       min-height: 160px;
       text-decoration: none;
       color: #f0f0f0;
-      transform: translateY(0);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
     /* Neon glow effect on hover */
@@ -183,12 +181,12 @@ if ("serviceWorker" in navigator) {
       transform: translateY(-10px) scale(1.05);
       border-color: #5b86e5;
       box-shadow: 
-        0 0 10px #5b86e5,
-        0 0 20px #5b86e5,
-        0 0 30px #5b86e5,
-        0 0 40px #5b86e5,
-        0 0 70px #5b86e5,
-        0 0 80px #5b86e5;
+        0 0 10px #ffffff,
+        0 0 20px #ffffff,
+        0 0 30px #ffffff,
+        0 0 40px #ffffff,
+        0 0 70px #ffffff,
+        0 0 80px #ffffff;
       z-index: 10;
     }
 
@@ -228,7 +226,7 @@ if ("serviceWorker" in navigator) {
       transform: scale(1.15) rotate(5deg);
       background: rgba(91, 134, 229, 0.3);
       color: #fff;
-      box-shadow: 0 0 15px rgba(91, 134, 229, 0.8);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 1);
       border-color: rgba(91, 134, 229, 0.8);
     }
 
@@ -545,6 +543,7 @@ if ("serviceWorker" in navigator) {
         animation: none;
       }
     }
+  
   </style>
 </head>
 <body>
