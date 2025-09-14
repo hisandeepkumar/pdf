@@ -3,7 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Editor (Free&Secure)</title>
+  <link rel="manifest" href="./manifest.json">
+  <title>PDF Editor (fast, Free & Secure)</title>
+   <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function() {
+    navigator.serviceWorker.register("./sw.js").then(function(registration) {
+      console.log("ServiceWorker registered: ", registration);
+    }).catch(function(error) {
+      console.log("ServiceWorker registration failed: ", error);
+    });
+  });
+}
+</script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
