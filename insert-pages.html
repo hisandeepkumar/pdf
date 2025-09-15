@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Page Insertion Tool</title>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: #f0f0f0;
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://4kwallpapers.com/images/wallpapers/macos-big-sur-apple-layers-fluidic-colorful-wwdc-stock--1455.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 850px;
+      width: 100%;
+    }
+
+    .app-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .app-header {
+      padding: 32px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    }
+
+    .logo i {
+      font-size: 28px;
+      color: #5b86e5;
+    }
+
+    .app-header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #f0f0f0;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .app-header p {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .app-content {
+      padding: 32px;
+    }
+
+    .app-section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 500;
+      color: #f0f0f0;
+    }
+
+    .section-title i {
+      margin-right: 12px;
+      color: #5b86e5;
+      font-size: 20px;
+    }
+
+    .upload-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .upload-box {
+      flex: 1;
+      min-width: 300px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .upload-area {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      cursor: pointer;
+      height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .upload-area:hover, .upload-area.active {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #5b86e5;
+      box-shadow: 0 0 20px rgba(91, 134, 229, 0.3);
+    }
+
+    .upload-area i {
+      font-size: 40px;
+      color: #5b86e5;
+      margin-bottom: 16px;
+    }
+
+    .upload-area h3 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #f0f0f0;
+      margin-bottom: 8px;
+    }
+
+    .upload-area p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .upload-area input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-info {
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      font-size: 14px;
+      color: #f0f0f0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: none;
+    }
+
+    .file-info.active {
+      display: block;
+    }
+
+    .file-info p {
+      margin: 8px 0;
+    }
+
+    .file-info span {
+      font-weight: 500;
+      color: #5b86e5;
+    }
+
+    .insert-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px 0;
+      width: 100%;
+    }
+
+    .insert-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(91, 134, 229, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .insert-icon:hover {
+      background: rgba(91, 134, 229, 0.5);
+      transform: scale(1.1);
+    }
+
+    .insert-icon i {
+      font-size: 28px;
+      color: #fff;
+    }
+
+    .page-input-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .page-input-container label {
+      font-weight: 500;
+      color: #f0f0f0;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .page-input {
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.1);
+      color: #f0f0f0;
+      font-size: 16px;
+      width: 100px;
+      text-align: center;
+    }
+
+    .page-input:focus {
+      outline: none;
+      border-color: #5b86e5;
+      box-shadow: 0 0 0 2px rgba(91, 134, 229, 0.3);
+    }
+
+    .range-divider {
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: bold;
+    }
+
+    .signature-note {
+      background: rgba(255, 215, 0, 0.15);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+    }
+
+    .signature-note i {
+      color: #FFD700;
+      margin-right: 8px;
+    }
+
+    .range-example {
+      background: rgba(91, 134, 229, 0.15);
+      border: 1px solid rgba(91, 134, 229, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    .range-example i {
+      color: #5b86e5;
+      margin-right: 8px;
+    }
+
+    .btn-container {
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      color: #f0f0f0;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 14px 32px;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(91, 134, 229, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto;
+      min-width: 200px;
+    }
+
+    .btn i {
+      margin-right: 8px;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: all 0.5s ease;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(91, 134, 229, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+      opacity: 0.7;
+    }
+
+    .status-area {
+      display: none;
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status-area.active {
+      display: block;
+    }
+
+    .status-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .status-header i {
+      margin-right: 12px;
+      color: #5b86e5;
+      font-size: 20px;
+    }
+
+    .status-header h3 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #f0f0f0;
+    }
+
+    .progress-container {
+      background: rgba(255, 255, 255, 0.1);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #5b86e5, #36d1dc);
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+
+    .status-message {
+      margin-top: 12px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .success-message, .error-message {
+      display: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    .success-message {
+      background: rgba(52, 199, 89, 0.2);
+      color: #34c759;
+      border: 1px solid rgba(52, 199, 89, 0.3);
+    }
+
+    .error-message {
+      background: rgba(255, 59, 48, 0.2);
+      color: #ff3b30;
+      border: 1px solid rgba(255, 59, 48, 0.3);
+    }
+
+    .success-message i, .error-message i {
+      margin-right: 8px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      padding: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .footer-text {
+      display: inline-block;
+      position: relative;
+    }
+    
+    .footer-text::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      bottom: -5px;
+      left: 0;
+      background: linear-gradient(90deg, #5b86e5, #36d1dc);
+      transform: scaleX(0);
+      transform-origin: bottom right;
+      transition: transform 0.5s ease;
+      animation: continuousLine 3s infinite;
+    }
+    
+    @keyframes continuousLine {
+      0% {
+        transform: scaleX(0);
+        transform-origin: bottom left;
+      }
+      50% {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+      }
+      51% {
+        transform: scaleX(1);
+        transform-origin: bottom right;
+      }
+      100% {
+        transform: scaleX(0);
+        transform-origin: bottom right;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+      .app-content {
+        padding: 24px;
+      }
+      .app-header {
+        padding: 24px;
+      }
+      .app-header h1 {
+        font-size: 24px;
+      }
+      .upload-area {
+        padding: 24px;
+        height: 160px;
+      }
+      .logo {
+        width: 56px;
+        height: 56px;
+      }
+      .logo i {
+        font-size: 24px;
+      }
+      .insert-icon {
+        width: 50px;
+        height: 50px;
+      }
+      .upload-container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="app-card" aria-label="PDF Page Insertion Tool">
+      <header class="app-header">
+        <div class="logo-container">
+          <div class="logo">
+            <i class="fas fa-file-pdf"></i>
+          </div>
+        </div>
+        <h1>PDF Page Insertion Tool</h1>
+        <p>Insert pages from one PDF into another without deleting existing pages</p>
+      </header>
+
+      <div class="app-content">
+        <div class="app-section">
+          <h2 class="section-title">
+            <i class="fas fa-plus-circle"></i>
+            Insert Pages Into Your PDF
+          </h2>
+          
+          <div class="upload-container">
+            <div class="upload-box">
+              <div class="upload-area" id="originalDropZone">
+                <i class="fas fa-file-pdf"></i>
+                <h3>Original PDF</h3>
+                <p>Click to select your main document</p>
+                <input type="file" id="originalUpload" accept="application/pdf" />
+              </div>
+              <div class="file-info" id="originalFileInfo">
+                <p>File: <span id="originalFileName">-</span></p>
+                <p>Size: <span id="originalFileSize">-</span></p>
+                <p>Pages: <span id="originalFilePages">-</span></p>
+              </div>
+            </div>
+            
+            <div class="insert-section">
+              <div class="insert-icon" id="insertIcon">
+                <i class="fas fa-plus"></i>
+              </div>
+              
+              <div class="page-input-container">
+                <label for="insertPage">Insert after page:</label>
+                <div class="input-group">
+                  <input type="number" id="insertPage" class="page-input" min="0" placeholder="Page" disabled>
+                </div>
+                <small style="color: rgba(255, 255, 255, 0.7);">(Use 0 to insert at the beginning)</small>
+              </div>
+            </div>
+            
+            <div class="upload-box">
+              <div class="upload-area" id="insertionDropZone">
+                <i class="fas fa-file-pdf"></i>
+                <h3>PDF to Insert</h3>
+                <p>Click to select pages to insert</p>
+                <input type="file" id="insertionUpload" accept="application/pdf" disabled />
+              </div>
+              <div class="file-info" id="insertionFileInfo">
+                <p>File: <span id="insertionFileName">-</span></p>
+                <p>Size: <span id="insertionFileSize">-</span></p>
+                <p>Pages: <span id="insertionFilePages">-</span></p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="signature-note">
+            <i class="fas fa-exclamation-circle"></i>
+            Signatures on all pages will be preserved automatically
+          </div>
+          
+          <div class="range-example">
+            <i class="fas fa-lightbulb"></i>
+            Example: Enter "25" to insert pages after page 25 of your original PDF
+          </div>
+        </div>
+
+        <div class="btn-container">
+          <button class="btn" id="generateBtn" disabled>
+            <i class="fas fa-cogs"></i> Generate Document
+          </button>
+        </div>
+
+        <div class="status-area" id="statusArea">
+          <div class="status-header">
+            <i class="fas fa-cog fa-spin"></i>
+            <h3>Processing your document...</h3>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <div class="status-message" id="statusMessage">Initializing PDF processing...</div>
+        </div>
+
+        <div class="success-message" id="successMessage">
+          <i class="fas fa-check-circle"></i> Document generated successfully!
+        </div>
+
+        <div class="error-message" id="errorMessage">
+          <i class="fas fa-exclamation-circle"></i> <span id="errorText">Error processing document</span>
+        </div>
+        <div class="footer">
+          <div class="footer-text">Secure • Free • Professional | Made with <span style="color: #ff4d4d;">❤️</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" style="color: #5b86e5; text-decoration: none;">Sandeep</a></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Back Button -->
+  <button
+    type="button"
+    title="Back"
+    aria-label="Go back"
+    onclick="(function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })();"
+    onkeydown="if(event.key==='Enter' || event.code==='Space'){ event.preventDefault(); (function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })(); }"
+    onmouseenter="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.25)';"
+    onmouseleave="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.18)';"
+    style="
+      position:fixed;
+      top:14px;
+      left:14px;
+      z-index:2147483647;
+      width:52px;
+      height:52px;
+      padding:0;
+      border-radius:50%;
+      border:none;
+      background:linear-gradient(180deg,#ffffff,#f2f2f2);
+      box-shadow:0 4px 12px rgba(0,0,0,0.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      transition:transform .12s ease, box-shadow .12s ease;
+      backdrop-filter:blur(6px);
+      opacity:0.98;
+    "
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+      <path d="M15 18l-6-6 6-6" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Elements
+      const originalUpload = document.getElementById('originalUpload');
+      const insertionUpload = document.getElementById('insertionUpload');
+      const originalDropZone = document.getElementById('originalDropZone');
+      const insertionDropZone = document.getElementById('insertionDropZone');
+      const insertIcon = document.getElementById('insertIcon');
+      const insertPageInput = document.getElementById('insertPage');
+      const generateBtn = document.getElementById('generateBtn');
+      
+      // File info elements
+      const originalFileInfo = document.getElementById('originalFileInfo');
+      const insertionFileInfo = document.getElementById('insertionFileInfo');
+      const originalFileName = document.getElementById('originalFileName');
+      const originalFileSize = document.getElementById('originalFileSize');
+      const originalFilePages = document.getElementById('originalFilePages');
+      const insertionFileName = document.getElementById('insertionFileName');
+      const insertionFileSize = document.getElementById('insertionFileSize');
+      const insertionFilePages = document.getElementById('insertionFilePages');
+      
+      // Status elements
+      const statusArea = document.getElementById('statusArea');
+      const progressBar = document.getElementById('progressBar');
+      const statusMessage = document.getElementById('statusMessage');
+      const successMessage = document.getElementById('successMessage');
+      const errorMessage = document.getElementById('errorMessage');
+      const errorText = document.getElementById('errorText');
+      
+      // File data
+      let originalPdfBytes = null;
+      let originalPdfDoc = null;
+      let originalPageCount = 0;
+      let insertionPdfBytes = null;
+      let insertionPdfDoc = null;
+      let insertionPageCount = 0;
+      let originalFileNameFull = '';
+      
+      // Initialize
+      insertionUpload.disabled = true;
+      generateBtn.disabled = true;
+      
+      // Event listeners
+      originalUpload.addEventListener('change', handleOriginalUpload);
+      insertionUpload.addEventListener('change', handleInsertionUpload);
+      insertIcon.addEventListener('click', () => insertionUpload.click());
+      generateBtn.addEventListener('click', generateDocument);
+      
+      // Input validation
+      insertPageInput.addEventListener('input', validatePageInput);
+      
+      // Enable drag and drop for both areas
+      setupDragDrop(originalDropZone, originalUpload);
+      setupDragDrop(insertionDropZone, insertionUpload);
+      
+      // Handle original PDF upload
+      async function handleOriginalUpload() {
+        if (!originalUpload.files.length) return;
+        
+        try {
+          const file = originalUpload.files[0];
+          originalFileNameFull = file.name;
+          const displayName = file.name.length > 30 ? file.name.substring(0, 27) + '...' : file.name;
+          originalFileName.textContent = displayName;
+          originalFileSize.textContent = formatFileSize(file.size);
+          originalFilePages.textContent = "Detecting...";
+          
+          originalFileInfo.classList.add('active');
+          insertionUpload.disabled = false;
+          
+          // Load PDF and get page count
+          originalPdfBytes = await file.arrayBuffer();
+          originalPdfDoc = await PDFLib.PDFDocument.load(originalPdfBytes);
+          originalPageCount = originalPdfDoc.getPageCount();
+          originalFilePages.textContent = `${originalPageCount} ${originalPageCount === 1 ? 'page' : 'pages'}`;
+          
+          // Enable page number input
+          insertPageInput.disabled = false;
+          insertPageInput.placeholder = "0";
+          insertPageInput.max = originalPageCount;
+          
+        } catch (error) {
+          showError(`Error loading original PDF: ${error.message}`);
+        }
+      }
+      
+      // Handle insertion PDF upload
+      async function handleInsertionUpload() {
+        if (!insertionUpload.files.length) return;
+        
+        try {
+          const file = insertionUpload.files[0];
+          const displayName = file.name.length > 30 ? file.name.substring(0, 27) + '...' : file.name;
+          insertionFileName.textContent = displayName;
+          insertionFileSize.textContent = formatFileSize(file.size);
+          insertionFilePages.textContent = "Detecting...";
+          
+          insertionFileInfo.classList.add('active');
+          
+          // Load PDF and get page count
+          insertionPdfBytes = await file.arrayBuffer();
+          insertionPdfDoc = await PDFLib.PDFDocument.load(insertionPdfBytes);
+          insertionPageCount = insertionPdfDoc.getPageCount();
+          insertionFilePages.textContent = `${insertionPageCount} ${insertionPageCount === 1 ? 'page' : 'pages'}`;
+          
+          // Enable generate button if page number is set
+          validatePageInput();
+          
+        } catch (error) {
+          showError(`Error loading insertion PDF: ${error.message}`);
+        }
+      }
+      
+      // Validate page input
+      function validatePageInput() {
+        const insertPage = parseInt(insertPageInput.value);
+        
+        if (isNaN(insertPage) || insertPage < 0 || insertPage > originalPageCount) {
+          generateBtn.disabled = true;
+          return false;
+        }
+        
+        if (insertionFileInfo.classList.contains('active')) {
+          generateBtn.disabled = false;
+          return true;
+        }
+        
+        generateBtn.disabled = true;
+        return false;
+      }
+      
+      // Generate the final document with signature preservation
+      async function generateDocument() {
+        const insertPage = parseInt(insertPageInput.value);
+        
+        // Validate inputs
+        if (!validatePageInput()) {
+          showError("Please enter a valid page number and select both PDFs");
+          return;
+        }
+        
+        if (!insertionPdfDoc || insertionPageCount < 1) {
+          showError("Insertion PDF is invalid or has no pages");
+          return;
+        }
+        
+        try {
+          // Reset messages and show status
+          successMessage.style.display = 'none';
+          errorMessage.style.display = 'none';
+          statusArea.classList.add('active');
+          statusMessage.textContent = "Starting PDF processing...";
+          progressBar.style.width = "5%";
+          
+          // Create a new PDF document
+          const finalPdf = await PDFLib.PDFDocument.create();
+          
+          // Copy pages from the original PDF before the insertion point
+          statusMessage.textContent = "Processing pages before insertion point...";
+          for (let i = 0; i < insertPage; i++) {
+            const [page] = await finalPdf.copyPages(originalPdfDoc, [i]);
+            finalPdf.addPage(page);
+            
+            // Update progress
+            const progress = 5 + (i / originalPageCount * 30);
+            progressBar.style.width = `${progress}%`;
+          }
+          
+          // Add insertion pages
+          statusMessage.textContent = "Adding insertion pages...";
+          for (let i = 0; i < insertionPageCount; i++) {
+            const [page] = await finalPdf.copyPages(insertionPdfDoc, [i]);
+            finalPdf.addPage(page);
+            
+            // Update progress
+            const progress = 35 + (i / insertionPageCount * 30);
+            progressBar.style.width = `${progress}%`;
+          }
+          
+          // Copy pages from the original PDF after the insertion point
+          statusMessage.textContent = "Processing pages after insertion point...";
+          for (let i = insertPage; i < originalPageCount; i++) {
+            const [page] = await finalPdf.copyPages(originalPdfDoc, [i]);
+            finalPdf.addPage(page);
+            
+            // Update progress
+            const progress = 65 + ((i - insertPage) / (originalPageCount - insertPage) * 30);
+            progressBar.style.width = `${progress}%`;
+          }
+          
+          statusMessage.textContent = "Finalizing document...";
+          progressBar.style.width = "95%";
+          
+          // Save the final PDF
+          const finalPdfBytes = await finalPdf.save();
+          
+          // Generate filename according to specifications
+          const fileName = generateFileName(originalFileNameFull);
+          const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
+          saveAs(blob, fileName);
+          
+          statusMessage.textContent = "Document generated successfully!";
+          progressBar.style.width = "100%";
+          
+          // Show success message
+          setTimeout(() => {
+            statusArea.classList.remove('active');
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+              successMessage.style.display = 'none';
+            }, 4000);
+          }, 1000);
+          
+        } catch (error) {
+          console.error('Error:', error);
+          showError(`Error processing PDF: ${error.message}`);
+        }
+      }
+      
+      // Generate filename according to specifications
+      function generateFileName(originalName) {
+        // Get base name without extension
+        let baseName = originalName.replace(/\.pdf$/i, '');
+        
+        // Check if filename ends with pattern like "0PM" or "5AM" before ".pdf"
+        const pattern = /[0-9][AP]M$/i;
+        if (pattern.test(baseName) && baseName.length >= 22) {
+          // Remove last 22 characters
+          baseName = baseName.substring(0, baseName.length - 22);
+        }
+        
+        // Get current date and time components
+        const now = new Date();
+        const day = now.getDate().toString().padStart(2, '0');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = monthNames[now.getMonth()];
+        const year = now.getFullYear();
+        
+        // Format time in 12-hour format
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // Convert 0 to 12
+        
+        // Construct filename
+        return `${baseName}_${day}_${month}_${year}_${hours}_${minutes}${ampm}.pdf`;
+      }
+      
+      // Helper functions
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
+      
+      function showError(message) {
+        errorText.textContent = message;
+        errorMessage.style.display = 'block';
+        statusArea.classList.add('active');
+        statusMessage.textContent = message;
+        progressBar.style.width = "100%";
+        
+        setTimeout(() => {
+          statusArea.classList.remove('active');
+          errorMessage.style.display = 'none';
+          progressBar.style.width = "0%";
+        }, 4000);
+      }
+      
+      function setupDragDrop(dropZone, fileInput) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+          dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+          dropZone.addEventListener(eventName, () => {
+            dropZone.classList.add('active');
+          }, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+          dropZone.addEventListener(eventName, () => {
+            dropZone.classList.remove('active');
+          }, false);
+        });
+        
+        dropZone.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+          const dt = e.dataTransfer;
+          const files = dt.files;
+          if (files.length && files[0].type === 'application/pdf') {
+            fileInput.files = files;
+            
+            // Trigger change event
+            const event = new Event('change');
+            fileInput.dispatchEvent(event);
+          } else {
+            showError("Please drop a PDF file");
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
