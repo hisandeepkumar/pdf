@@ -223,6 +223,10 @@ if ("serviceWorker" in navigator) {
       background: rgba(246, 185, 59, 0.15);
     }
 
+     .subject-button:nth-child(17) {
+      background: rgba(12, 36, 97, 0.15);
+    }
+
     /* Neon glow effect on hover with different colors */
     .subject-button:hover {
       transform: translateY(-10px) scale(1.05);
@@ -338,6 +342,13 @@ if ("serviceWorker" in navigator) {
       background: rgba(246, 185, 59, 0.2);
       color: #f6b93b;
       border: 2px solid rgba(246, 185, 59, 0.3);
+    }
+
+
+.subject-button:nth-child(17) .button-icon {
+      background: rgba(12, 36, 97, 0.2);
+      color: #0c2461;
+      border: 2px solid rgba(12, 36, 97, 0.3);
     }
 
     .subject-button:hover .button-icon {
@@ -1000,6 +1011,15 @@ if ("serviceWorker" in navigator) {
             </div>
             <h3>Replace Pages</h3>
             <span>Swap pages in PDF documents</span>
+          </a>
+
+<!-- Reorder Pages -->
+          <a href="insert-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-sort"></i>
+            </div>
+            <h3>Insert Pages</h3>
+            <span>Insert pages in PDF documents</span>
           </a>
 
 
