@@ -236,42 +236,9 @@ if ("serviceWorker" in navigator) {
 .subject-button:nth-child(60) { background: hsla(354,70%,50%,0.15); }
 
 
-    /* Neon glow effect on hover with different colors */
-    .subject-button:hover {
-      transform: translateY(-10px) scale(1.05);
-      z-index: 10;
-    }
 
-    .subject-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      transition: 0.7s;
-    }
 
-    .subject-button:hover::before {
-      left: 100%;
-    }
-
-    .button-icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      font-size: 24px;
-      transition: all 0.4s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Button icon colors */
+/* Button icon colors */
     /* 60 subject-button rules — hues spaced by 6° (0 → 354) */
 .subject-button:nth-child(1) .button-icon  { background: hsla(0,70%,50%,0.2);   color: hsl(0,70%,44%);   border: 2px solid hsla(0,70%,50%,0.3); }
 .subject-button:nth-child(2) .button-icon  { background: hsla(6,70%,50%,0.2);   color: hsl(6,70%,44%);   border: 2px solid hsla(6,70%,50%,0.3); }
@@ -335,59 +302,7 @@ if ("serviceWorker" in navigator) {
 .subject-button:nth-child(60) .button-icon { background: hsla(354,70%,50%,0.2); color: hsl(354,70%,44%); border: 2px solid hsla(354,70%,50%,0.3); }
 
 
- 
-
-    .subject-button:hover .button-icon {
-      transform: scale(1.15) rotate(5deg);
-      color: #fff;
-    }
-
-    .button-icon::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: rgba(255, 255, 255, 0.1);
-      transform: rotate(45deg);
-      transition: all 0.6s ease;
-      opacity: 0;
-    }
-
-    .subject-button:hover .button-icon::after {
-      animation: shine 1.5s ease forwards;
-    }
-
-    @keyframes shine {
-      0% {
-        transform: rotate(45deg) translate(-50%, -50%) scale(0.1);
-        opacity: 0;
-      }
-      50% {
-        opacity: 0.5;
-      }
-      100% {
-        transform: rotate(45deg) translate(50%, 50%) scale(1);
-        opacity: 0;
-      }
-    }
-
-    .subject-button h3 {
-      font-size: 20px;
-      margin-bottom: 12px;
-      font-weight: 600;
-      color: #fff;
-      transition: all 0.3s ease;
-    }
-
-    .subject-button span {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
-      line-height: 1.5;
-    }
-
-    /* Individual neon colors for each button on hover */
+/* Individual neon colors for each button on hover */
     /* Neon hover rules for 60 buttons — hues spaced by 6° (0 → 354) */
 .subject-button:nth-child(1):hover  { background: hsla(0,70%,50%,0.25);   border-color: hsl(0,70%,44%);   box-shadow: 0 0 10px hsl(0,70%,44%), 0 0 20px hsl(0,70%,44%), 0 0 30px hsl(0,70%,44%), 0 0 40px hsl(0,70%,44%); }
 .subject-button:nth-child(1):hover .button-icon  { background: hsla(0,70%,50%,0.3);   border-color: hsla(0,70%,44%,0.8); box-shadow: 0 0 15px hsl(0,70%,44%); }
@@ -628,6 +543,98 @@ if ("serviceWorker" in navigator) {
 .subject-button:nth-child(60):hover { background: hsla(354,70%,50%,0.25); border-color: hsl(354,70%,44%); box-shadow: 0 0 10px hsl(354,70%,44%), 0 0 20px hsl(354,70%,44%), 0 0 30px hsl(354,70%,44%), 0 0 40px hsl(354,70%,44%); }
 .subject-button:nth-child(60):hover .button-icon { background: hsla(354,70%,50%,0.3); border-color: hsla(354,70%,44%,0.8); box-shadow: 0 0 15px hsl(354,70%,44%); }
 .subject-button:nth-child(60):hover h3 { color: hsl(354,70%,44%); text-shadow: 0 0 10px hsla(354,70%,50%,0.7); }
+
+    /* Neon glow effect on hover with different colors */
+    .subject-button:hover {
+      transform: translateY(-10px) scale(1.05);
+      z-index: 10;
+    }
+
+    .subject-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: 0.7s;
+    }
+
+    .subject-button:hover::before {
+      left: 100%;
+    }
+
+    .button-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    
+
+
+ 
+
+    .subject-button:hover .button-icon {
+      transform: scale(1.15) rotate(5deg);
+      color: #fff;
+    }
+
+    .button-icon::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(45deg);
+      transition: all 0.6s ease;
+      opacity: 0;
+    }
+
+    .subject-button:hover .button-icon::after {
+      animation: shine 1.5s ease forwards;
+    }
+
+    @keyframes shine {
+      0% {
+        transform: rotate(45deg) translate(-50%, -50%) scale(0.1);
+        opacity: 0;
+      }
+      50% {
+        opacity: 0.5;
+      }
+      100% {
+        transform: rotate(45deg) translate(50%, 50%) scale(1);
+        opacity: 0;
+      }
+    }
+
+    .subject-button h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+      font-weight: 600;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .subject-button span {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.5;
+    }
+
+    
 
 
     .footer {
