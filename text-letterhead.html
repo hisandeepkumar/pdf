@@ -23,7 +23,7 @@
       align-items: center;
       padding: 24px;
       color: #f0f0f0;
-      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -398,7 +398,72 @@
       margin-top: 6px;
     }
     
-     .footer {
+    .color-settings {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .color-picker-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .color-picker-label {
+      font-size: 12px;
+      margin-bottom: 8px;
+      color: #f0f0f0;
+      text-align: center;
+    }
+    
+    .color-picker {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 50px;
+      height: 50px;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease;
+    }
+    
+    .color-picker:hover {
+      transform: scale(1.1);
+    }
+    
+    .color-picker::-webkit-color-swatch {
+      border: none;
+      border-radius: 50%;
+      padding: 0;
+    }
+    
+    .color-picker::-webkit-color-swatch-wrapper {
+      padding: 0;
+      border-radius: 50%;
+    }
+    
+    .color-picker::-moz-color-swatch {
+      border: none;
+      border-radius: 50%;
+    }
+    
+    .color-value {
+      font-size: 11px;
+      margin-top: 6px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .footer {
       margin-top: 30px;
       text-align: center;
       color: rgba(255, 255, 255, 0.7);
@@ -444,7 +509,6 @@
         transform-origin: bottom right;
       }
     }
-
 
     @media (max-width: 768px) {
       .container {
@@ -494,6 +558,9 @@
       }
       .watermark-toggle input:checked + .toggle-switch::before {
         transform: translateX(25px);
+      }
+      .color-settings {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       }
     }
   </style>
@@ -554,6 +621,50 @@ Email: example@gmail.com
 GST: 08AMHYU1683C1Z4
 URN: UDYAM-RJ-14-0079642</textarea>
               <div class="example-text">Enter each contact detail on a new line</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-section">
+          <h2 class="section-title">
+            <i class="fas fa-palette"></i>
+            Color Settings
+          </h2>
+          <div class="color-settings">
+            <div class="color-picker-group">
+              <span class="color-picker-label">Company Name</span>
+              <input type="color" id="companyNameColor" class="color-picker" value="#000000">
+              <span class="color-value" id="companyNameColorValue">#000000</span>
+            </div>
+            
+            <div class="color-picker-group">
+              <span class="color-picker-label">Address</span>
+              <input type="color" id="addressColor" class="color-picker" value="#1a5276">
+              <span class="color-value" id="addressColorValue">#1a5276</span>
+            </div>
+            
+            <div class="color-picker-group">
+              <span class="color-picker-label">Contact Details</span>
+              <input type="color" id="contactColor" class="color-picker" value="#1a5276">
+              <span class="color-value" id="contactColorValue">#1a5276</span>
+            </div>
+            
+            <div class="color-picker-group">
+              <span class="color-picker-label">Watermark</span>
+              <input type="color" id="watermarkColor" class="color-picker" value="#3a86e0">
+              <span class="color-value" id="watermarkColorValue">#3a86e0</span>
+            </div>
+            
+            <div class="color-picker-group">
+              <span class="color-picker-label">Normal Text</span>
+              <input type="color" id="normalTextColor" class="color-picker" value="#333333">
+              <span class="color-value" id="normalTextColorValue">#333333</span>
+            </div>
+            
+            <div class="color-picker-group">
+              <span class="color-picker-label">Bold Text</span>
+              <input type="color" id="boldTextColor" class="color-picker" value="#000000">
+              <span class="color-value" id="boldTextColorValue">#000000</span>
             </div>
           </div>
         </div>
@@ -654,9 +765,50 @@ URN: UDYAM-RJ-14-0079642</textarea>
       const contactDetailsInput = document.getElementById('contactDetails');
       const watermarkLabel = document.getElementById('watermarkLabel');
       
+      // Color picker elements
+      const companyNameColor = document.getElementById('companyNameColor');
+      const addressColor = document.getElementById('addressColor');
+      const contactColor = document.getElementById('contactColor');
+      const watermarkColor = document.getElementById('watermarkColor');
+      const normalTextColor = document.getElementById('normalTextColor');
+      const boldTextColor = document.getElementById('boldTextColor');
+      
+      // Color value display elements
+      const companyNameColorValue = document.getElementById('companyNameColorValue');
+      const addressColorValue = document.getElementById('addressColorValue');
+      const contactColorValue = document.getElementById('contactColorValue');
+      const watermarkColorValue = document.getElementById('watermarkColorValue');
+      const normalTextColorValue = document.getElementById('normalTextColorValue');
+      const boldTextColorValue = document.getElementById('boldTextColorValue');
+      
       // Update watermark label with company name
       companyNameInput.addEventListener('input', () => {
         watermarkLabel.textContent = companyNameInput.value || 'Company Name';
+      });
+      
+      // Update color value displays when color pickers change
+      companyNameColor.addEventListener('input', () => {
+        companyNameColorValue.textContent = companyNameColor.value;
+      });
+      
+      addressColor.addEventListener('input', () => {
+        addressColorValue.textContent = addressColor.value;
+      });
+      
+      contactColor.addEventListener('input', () => {
+        contactColorValue.textContent = contactColor.value;
+      });
+      
+      watermarkColor.addEventListener('input', () => {
+        watermarkColorValue.textContent = watermarkColor.value;
+      });
+      
+      normalTextColor.addEventListener('input', () => {
+        normalTextColorValue.textContent = normalTextColor.value;
+      });
+      
+      boldTextColor.addEventListener('input', () => {
+        boldTextColorValue.textContent = boldTextColor.value;
       });
 
       function adjustTextareaHeight() {
@@ -769,6 +921,26 @@ URN: UDYAM-RJ-14-0079642</textarea>
       function sanitizeText(text) {
         return text.replace(/[^\x20-\x7E]/g, ' ');
       }
+      
+      // Helper function to convert hex color to RGB array for PDF-Lib
+      function hexToRgb(hex) {
+        // Remove # if present
+        hex = hex.replace('#', '');
+        
+        // Parse the hex string
+        let r, g, b;
+        if (hex.length === 3) {
+          r = parseInt(hex[0] + hex[0], 16) / 255;
+          g = parseInt(hex[1] + hex[1], 16) / 255;
+          b = parseInt(hex[2] + hex[2], 16) / 255;
+        } else {
+          r = parseInt(hex.substring(0, 2), 16) / 255;
+          g = parseInt(hex.substring(2, 4), 16) / 255;
+          b = parseInt(hex.substring(4, 6), 16) / 255;
+        }
+        
+        return [r, g, b];
+      }
 
       async function generatePDF() {
         console.log('Starting PDF generation');
@@ -824,6 +996,14 @@ URN: UDYAM-RJ-14-0079642</textarea>
           const pages = groupLinesIntoPages(lines, helveticaFont, 12, contentAreaHeight);
           console.log('Pages created:', pages.length);
           
+          // Get color values
+          const companyNameRgb = hexToRgb(companyNameColor.value);
+          const addressRgb = hexToRgb(addressColor.value);
+          const contactRgb = hexToRgb(contactColor.value);
+          const watermarkRgb = hexToRgb(watermarkColor.value);
+          const normalTextRgb = hexToRgb(normalTextColor.value);
+          const boldTextRgb = hexToRgb(boldTextColor.value);
+          
           for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
             console.log(`Generating page ${pageIndex + 1}`);
             const progress = 10 + (pageIndex / pages.length * 80);
@@ -860,7 +1040,7 @@ URN: UDYAM-RJ-14-0079642</textarea>
                 y: yCenter,
                 size: fontSize,
                 font: font,
-                color: PDFLib.rgb(0.231, 0.525, 0.898),
+                color: PDFLib.rgb(watermarkRgb[0], watermarkRgb[1], watermarkRgb[2]),
                 opacity: 0.3,
                 rotate: PDFLib.degrees(angle),
               });
@@ -879,7 +1059,7 @@ URN: UDYAM-RJ-14-0079642</textarea>
               x: a4Width / 2 - textWidth / 2,
               y: a4Height - 45,
               size: 24,
-              color: PDFLib.rgb(0, 0, 0),
+              color: PDFLib.rgb(companyNameRgb[0], companyNameRgb[1], companyNameRgb[2]),
               font: helveticaBoldFont,
             });
 
@@ -905,32 +1085,69 @@ URN: UDYAM-RJ-14-0079642</textarea>
               color: PDFLib.rgb(0.8, 0.8, 0.8),
             });
 
+            // Check if we should center the footer information
+            const hasAddress = companyAddress.length > 0;
+            const hasContact = contactDetails.length > 0;
+            
             let yPos = 90;
             const addressFontSize = 9;
             const addressLineSpacing = 10;
             
-            companyAddress.forEach(line => {
-              newPage.drawText(sanitizeText(line), {
-                x: 40,
-                y: yPos,
-                size: addressFontSize,
-                color: PDFLib.rgb(0.102, 0.322, 0.463),
-                font: helveticaFont,
+            if (hasAddress && hasContact) {
+              // Original layout with both address and contact details
+              companyAddress.forEach(line => {
+                newPage.drawText(sanitizeText(line), {
+                  x: 40,
+                  y: yPos,
+                  size: addressFontSize,
+                  color: PDFLib.rgb(addressRgb[0], addressRgb[1], addressRgb[2]),
+                  font: helveticaFont,
+                });
+                yPos -= addressLineSpacing;
               });
-              yPos -= addressLineSpacing;
-            });
 
-            yPos = 90;
-            contactDetails.forEach(line => {
-              newPage.drawText(sanitizeText(line), {
-                x: a4Width - 200,
-                y: yPos,
-                size: addressFontSize,
-                color: PDFLib.rgb(0.102, 0.322, 0.463),
-                font: helveticaFont,
+              yPos = 90;
+              contactDetails.forEach(line => {
+                newPage.drawText(sanitizeText(line), {
+                  x: a4Width - 200,
+                  y: yPos,
+                  size: addressFontSize,
+                  color: PDFLib.rgb(contactRgb[0], contactRgb[1], contactRgb[2]),
+                  font: helveticaFont,
+                });
+                yPos -= addressLineSpacing;
               });
-              yPos -= addressLineSpacing;
-            });
+            } else if (hasAddress) {
+              // Only address - center it
+              companyAddress.forEach(line => {
+                const lineWidth = helveticaFont.widthOfTextAtSize(line, addressFontSize);
+                const centeredX = (a4Width - lineWidth) / 2;
+                
+                newPage.drawText(sanitizeText(line), {
+                  x: centeredX,
+                  y: yPos,
+                  size: addressFontSize,
+                  color: PDFLib.rgb(addressRgb[0], addressRgb[1], addressRgb[2]),
+                  font: helveticaFont,
+                });
+                yPos -= addressLineSpacing;
+              });
+            } else if (hasContact) {
+              // Only contact details - center it
+              contactDetails.forEach(line => {
+                const lineWidth = helveticaFont.widthOfTextAtSize(line, addressFontSize);
+                const centeredX = (a4Width - lineWidth) / 2;
+                
+                newPage.drawText(sanitizeText(line), {
+                  x: centeredX,
+                  y: yPos,
+                  size: addressFontSize,
+                  color: PDFLib.rgb(contactRgb[0], contactRgb[1], contactRgb[2]),
+                  font: helveticaFont,
+                });
+                yPos -= addressLineSpacing;
+              });
+            }
 
             const pageLines = pages[pageIndex];
             let contentY = a4Height - 75 - 20;
@@ -944,13 +1161,14 @@ URN: UDYAM-RJ-14-0079642</textarea>
               
               for (const part of line) {
                 const font = part.bold ? helveticaBoldFont : helveticaFont;
+                const color = part.bold ? boldTextRgb : normalTextRgb;
                 const sanitizedText = sanitizeText(part.text);
                 
                 newPage.drawText(sanitizedText, {
                   x: xOffset,
                   y: contentY,
                   size: 12,
-                  color: PDFLib.rgb(0.2, 0.2, 0.2),
+                  color: PDFLib.rgb(color[0], color[1], color[2]),
                   font: font,
                 });
                 
