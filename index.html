@@ -1,0 +1,2326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="./manifest.json">
+  <title>PDF Editor (fast, Free & Secure)</title>
+   <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function() {
+    navigator.serviceWorker.register("./sw.js").then(function(registration) {
+      console.log("ServiceWorker registered: ", registration);
+    }).catch(function(error) {
+      console.log("ServiceWorker registration failed: ", error);
+    });
+  });
+}
+</script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+ body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: #f0f0f0;
+     background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
+    background-size: cover;
+    background-position: center;
+      background-attachment: fixed;
+      overflow-x: hidden;
+      transition: background 0.3s ease;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .app-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 32px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .app-card-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(25, 25, 35, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(91, 134, 229, 0.3);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-card-header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #f0f0f0;
+      letter-spacing: -0.5px;
+      text-shadow: 0 0 10px rgba(91, 134, 229, 0.5);
+    }
+
+    .app-card-header h1 i {
+      color: #5b86e5;
+      font-size: 32px;
+      filter: drop-shadow(0 0 5px rgba(91, 134, 229, 0.8));
+    }
+
+    .fullscreen-btn {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(91, 134, 229, 0.3);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .fullscreen-btn:hover {
+      background: rgba(91, 134, 229, 0.3);
+      transform: scale(1.1);
+      box-shadow: 0 0 10px #5b86e5, 0 0 20px #5b86e5;
+    }
+
+    .fullscreen-btn i {
+      font-size: 18px;
+      color: #f0f0f0;
+    }
+
+    .app-content {
+      margin-top: 80px;
+      text-align: center;
+    }
+
+    .welcome-section {
+      margin-bottom: 40px;
+      padding: 0 20px;
+    }
+
+    .welcome-section h2 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      background: linear-gradient(90deg, #5b86e5, #36d1dc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+      text-shadow: 0 0 10px rgba(91, 134, 229, 0.4);
+    }
+
+    .welcome-section p {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.85);
+      max-width: 700px;
+      margin: 0 auto 30px;
+      line-height: 1.6;
+    }
+
+    .solutions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 20px;
+    }
+
+    .subject-button {
+      border-radius: 16px;
+      padding: 25px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 160px;
+      text-decoration: none;
+      color: #f0f0f0;
+    }
+
+    /* Base button styles with different colors */
+    .subject-button:nth-child(1) {
+      background: rgba(91, 134, 229, 0.15);
+    }
+    .subject-button:nth-child(2) {
+      background: rgba(54, 209, 220, 0.15);
+    }
+    .subject-button:nth-child(3) {
+      background: rgba(255, 77, 77, 0.15);
+    }
+    .subject-button:nth-child(4) {
+      background: rgba(255, 154, 61, 0.15);
+    }
+    .subject-button:nth-child(5) {
+      background: rgba(255, 221, 89, 0.15);
+    }
+    .subject-button:nth-child(6) {
+      background: rgba(108, 229, 168, 0.15);
+    }
+    .subject-button:nth-child(7) {
+      background: rgba(157, 80, 187, 0.15);
+    }
+    .subject-button:nth-child(8) {
+      background: rgba(255, 94, 125, 0.15);
+    }
+    .subject-button:nth-child(9) {
+      background: rgba(0, 206, 201, 0.15);
+    }
+    .subject-button:nth-child(10) {
+      background: rgba(249, 127, 81, 0.15);
+    }
+    .subject-button:nth-child(11) {
+      background: rgba(183, 21, 64, 0.15);
+    }
+    .subject-button:nth-child(12) {
+      background: rgba(12, 36, 97, 0.15);
+    }
+    .subject-button:nth-child(13) {
+      background: rgba(56, 173, 169, 0.15);
+    }
+    .subject-button:nth-child(14) {
+      background: rgba(229, 80, 57, 0.15);
+    }
+    .subject-button:nth-child(15) {
+      background: rgba(74, 105, 189, 0.15);
+    }
+    .subject-button:nth-child(16) {
+      background: rgba(246, 185, 59, 0.15);
+    }
+    .subject-button:nth-child(17) {
+      background: rgba(12, 36, 97, 0.15);
+    }
+    .subject-button:nth-child(18) {
+      background: rgba(91, 134, 229, 0.15);
+    }
+    .subject-button:nth-child(19) {
+      background: rgba(54, 209, 220, 0.15);
+    }
+    .subject-button:nth-child(20) {
+      background: rgba(255, 77, 77, 0.15);
+    }
+    .subject-button:nth-child(21) {
+      background: rgba(255, 154, 61, 0.15);
+    }
+    .subject-button:nth-child(22) {
+      background: rgba(255, 221, 89, 0.15);
+    }
+    .subject-button:nth-child(23) {
+      background: rgba(108, 229, 168, 0.15);
+    }
+    .subject-button:nth-child(24) {
+      background: rgba(157, 80, 187, 0.15);
+    }
+    .subject-button:nth-child(25) {
+      background: rgba(255, 94, 125, 0.15);
+    }
+    .subject-button:nth-child(26) {
+      background: rgba(0, 206, 201, 0.15);
+    }
+    .subject-button:nth-child(27) {
+      background: rgba(249, 127, 81, 0.15);
+    }
+    .subject-button:nth-child(28) {
+      background: rgba(183, 21, 64, 0.15);
+    }
+    .subject-button:nth-child(29) {
+      background: rgba(12, 36, 97, 0.15);
+    }
+    .subject-button:nth-child(30) {
+      background: rgba(56, 173, 169, 0.15);
+    }
+    .subject-button:nth-child(31) {
+      background: rgba(229, 80, 57, 0.15);
+    }
+    .subject-button:nth-child(32) {
+      background: rgba(74, 105, 189, 0.15);
+    }
+    .subject-button:nth-child(33) {
+      background: rgba(246, 185, 59, 0.15);
+    }
+    .subject-button:nth-child(34) {
+      background: rgba(12, 36, 97, 0.15);
+    }
+    .subject-button:nth-child(35) {
+      background: rgba(91, 134, 229, 0.15);
+    }
+    .subject-button:nth-child(36) {
+      background: rgba(54, 209, 220, 0.15);
+    }
+    .subject-button:nth-child(37) {
+      background: rgba(255, 77, 77, 0.15);
+    }
+    .subject-button:nth-child(38) {
+      background: rgba(255, 154, 61, 0.15);
+    }
+    .subject-button:nth-child(39) {
+      background: rgba(255, 221, 89, 0.15);
+    }
+    .subject-button:nth-child(40) {
+      background: rgba(108, 229, 168, 0.15);
+    }
+    .subject-button:nth-child(41) {
+      background: rgba(157, 80, 187, 0.15);
+    }
+    .subject-button:nth-child(42) {
+      background: rgba(255, 94, 125, 0.15);
+    }
+    .subject-button:nth-child(43) {
+      background: rgba(0, 206, 201, 0.15);
+    }
+    .subject-button:nth-child(44) {
+      background: rgba(249, 127, 81, 0.15);
+    }
+    .subject-button:nth-child(45) {
+      background: rgba(183, 21, 64, 0.15);
+    }
+    .subject-button:nth-child(46) {
+      background: rgba(12, 36, 97, 0.15);
+    }
+    .subject-button:nth-child(47) {
+      background: rgba(56, 173, 169, 0.15);
+    }
+    .subject-button:nth-child(48) {
+      background: rgba(229, 80, 57, 0.15);
+    }
+    .subject-button:nth-child(49) {
+      background: rgba(74, 105, 189, 0.15);
+    }
+    .subject-button:nth-child(50) {
+      background: rgba(246, 185, 59, 0.15);
+    }
+
+    /* Neon glow effect on hover with different colors */
+    .subject-button:hover {
+      transform: translateY(-10px) scale(1.05);
+      z-index: 10;
+    }
+
+    .subject-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: 0.7s;
+    }
+
+    .subject-button:hover::before {
+      left: 100%;
+    }
+
+    .button-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Button icon colors */
+    .subject-button:nth-child(1) .button-icon {
+      background: rgba(91, 134, 229, 0.2);
+      color: #5b86e5;
+      border: 2px solid rgba(91, 134, 229, 0.3);
+    }
+    .subject-button:nth-child(2) .button-icon {
+      background: rgba(54, 209, 220, 0.2);
+      color: #36d1dc;
+      border: 2px solid rgba(54, 209, 220, 0.3);
+    }
+    .subject-button:nth-child(3) .button-icon {
+      background: rgba(255, 77, 77, 0.2);
+      color: #ff4d4d;
+      border: 2px solid rgba(255, 77, 77, 0.3);
+    }
+    .subject-button:nth-child(4) .button-icon {
+      background: rgba(255, 154, 61, 0.2);
+      color: #ff9a3d;
+      border: 2px solid rgba(255, 154, 61, 0.3);
+    }
+    .subject-button:nth-child(5) .button-icon {
+      background: rgba(255, 221, 89, 0.2);
+      color: #ffdd59;
+      border: 2px solid rgba(255, 221, 89, 0.3);
+    }
+    .subject-button:nth-child(6) .button-icon {
+      background: rgba(108, 229, 168, 0.2);
+      color: #6ce5a8;
+      border: 2px solid rgba(108, 229, 168, 0.3);
+    }
+    .subject-button:nth-child(7) .button-icon {
+      background: rgba(157, 80, 187, 0.2);
+      color: #9d50bb;
+      border: 2px solid rgba(157, 80, 187, 0.3);
+    }
+    .subject-button:nth-child(8) .button-icon {
+      background: rgba(255, 94, 125, 0.2);
+      color: #ff5e7d;
+      border: 2px solid rgba(255, 94, 125, 0.3);
+    }
+    .subject-button:nth-child(9) .button-icon {
+      background: rgba(0, 206, 201, 0.2);
+      color: #00cec9;
+      border: 2px solid rgba(0, 206, 201, 0.3);
+    }
+    .subject-button:nth-child(10) .button-icon {
+      background: rgba(249, 127, 81, 0.2);
+      color: #f97f51;
+      border: 2px solid rgba(249, 127, 81, 0.3);
+    }
+    .subject-button:nth-child(11) .button-icon {
+      background: rgba(183, 21, 64, 0.2);
+      color: #b71540;
+      border: 2px solid rgba(183, 21, 64, 0.3);
+    }
+    .subject-button:nth-child(12) .button-icon {
+      background: rgba(12, 36, 97, 0.2);
+      color: #0c2461;
+      border: 2px solid rgba(12, 36, 97, 0.3);
+    }
+    .subject-button:nth-child(13) .button-icon {
+      background: rgba(56, 173, 169, 0.2);
+      color: #38ada9;
+      border: 2px solid rgba(56, 173, 169, 0.3);
+    }
+    .subject-button:nth-child(14) .button-icon {
+      background: rgba(229, 80, 57, 0.2);
+      color: #e55039;
+      border: 2px solid rgba(229, 80, 57, 0.3);
+    }
+    .subject-button:nth-child(15) .button-icon {
+      background: rgba(74, 105, 189, 0.2);
+      color: #4a69bd;
+      border: 2px solid rgba(74, 105, 189, 0.3);
+    }
+    .subject-button:nth-child(16) .button-icon {
+      background: rgba(246, 185, 59, 0.2);
+      color: #f6b93b;
+      border: 2px solid rgba(246, 185, 59, 0.3);
+    }
+    .subject-button:nth-child(17) .button-icon {
+      background: rgba(12, 36, 97, 0.2);
+      color: #0c2461;
+      border: 2px solid rgba(12, 36, 97, 0.3);
+    }
+    .subject-button:nth-child(18) .button-icon {
+      background: rgba(91, 134, 229, 0.2);
+      color: #5b86e5;
+      border: 2px solid rgba(91, 134, 229, 0.3);
+    }
+    .subject-button:nth-child(19) .button-icon {
+      background: rgba(54, 209, 220, 0.2);
+      color: #36d1dc;
+      border: 2px solid rgba(54, 209, 220, 0.3);
+    }
+    .subject-button:nth-child(20) .button-icon {
+      background: rgba(255, 77, 77, 0.2);
+      color: #ff4d4d;
+      border: 2px solid rgba(255, 77, 77, 0.3);
+    }
+    .subject-button:nth-child(21) .button-icon {
+      background: rgba(255, 154, 61, 0.2);
+      color: #ff9a3d;
+      border: 2px solid rgba(255, 154, 61, 0.3);
+    }
+    .subject-button:nth-child(22) .button-icon {
+      background: rgba(255, 221, 89, 0.2);
+      color: #ffdd59;
+      border: 2px solid rgba(255, 221, 89, 0.3);
+    }
+    .subject-button:nth-child(23) .button-icon {
+      background: rgba(108, 229, 168, 0.2);
+      color: #6ce5a8;
+      border: 2px solid rgba(108, 229, 168, 0.3);
+    }
+    .subject-button:nth-child(24) .button-icon {
+      background: rgba(157, 80, 187, 0.2);
+      color: #9d50bb;
+      border: 2px solid rgba(157, 80, 187, 0.3);
+    }
+    .subject-button:nth-child(25) .button-icon {
+      background: rgba(255, 94, 125, 0.2);
+      color: #ff5e7d;
+      border: 2px solid rgba(255, 94, 125, 0.3);
+    }
+    .subject-button:nth-child(26) .button-icon {
+      background: rgba(0, 206, 201, 0.2);
+      color: #00cec9;
+      border: 2px solid rgba(0, 206, 201, 0.3);
+    }
+    .subject-button:nth-child(27) .button-icon {
+      background: rgba(249, 127, 81, 0.2);
+      color: #f97f51;
+      border: 2px solid rgba(249, 127, 81, 0.3);
+    }
+    .subject-button:nth-child(28) .button-icon {
+      background: rgba(183, 21, 64, 0.2);
+      color: #b71540;
+      border: 2px solid rgba(183, 21, 64, 0.3);
+    }
+    .subject-button:nth-child(29) .button-icon {
+      background: rgba(12, 36, 97, 0.2);
+      color: #0c2461;
+      border: 2px solid rgba(12, 36, 97, 0.3);
+    }
+    .subject-button:nth-child(30) .button-icon {
+      background: rgba(56, 173, 169, 0.2);
+      color: #38ada9;
+      border: 2px solid rgba(56, 173, 169, 0.3);
+    }
+    .subject-button:nth-child(31) .button-icon {
+      background: rgba(229, 80, 57, 0.2);
+      color: #e55039;
+      border: 2px solid rgba(229, 80, 57, 0.3);
+    }
+    .subject-button:nth-child(32) .button-icon {
+      background: rgba(74, 105, 189, 0.2);
+      color: #4a69bd;
+      border: 2px solid rgba(74, 105, 189, 0.3);
+    }
+    .subject-button:nth-child(33) .button-icon {
+      background: rgba(246, 185, 59, 0.2);
+      color: #f6b93b;
+      border: 2px solid rgba(246, 185, 59, 0.3);
+    }
+    .subject-button:nth-child(34) .button-icon {
+      background: rgba(12, 36, 97, 0.2);
+      color: #0c2461;
+      border: 2px solid rgba(12, 36, 97, 0.3);
+    }
+    .subject-button:nth-child(35) .button-icon {
+      background: rgba(91, 134, 229, 0.2);
+      color: #5b86e5;
+      border: 2px solid rgba(91, 134, 229, 0.3);
+    }
+    .subject-button:nth-child(36) .button-icon {
+      background: rgba(54, 209, 220, 0.2);
+      color: #36d1dc;
+      border: 2px solid rgba(54, 209, 220, 0.3);
+    }
+    .subject-button:nth-child(37) .button-icon {
+      background: rgba(255, 77, 77, 0.2);
+      color: #ff4d4d;
+      border: 2px solid rgba(255, 77, 77, 0.3);
+    }
+    .subject-button:nth-child(38) .button-icon {
+      background: rgba(255, 154, 61, 0.2);
+      color: #ff9a3d;
+      border: 2px solid rgba(255, 154, 61, 0.3);
+    }
+    .subject-button:nth-child(39) .button-icon {
+      background: rgba(255, 221, 89, 0.2);
+      color: #ffdd59;
+      border: 2px solid rgba(255, 221, 89, 0.3);
+    }
+    .subject-button:nth-child(40) .button-icon {
+      background: rgba(108, 229, 168, 0.2);
+      color: #6ce5a8;
+      border: 2px solid rgba(108, 229, 168, 0.3);
+    }
+    .subject-button:nth-child(41) .button-icon {
+      background: rgba(157, 80, 187, 0.2);
+      color: #9d50bb;
+      border: 2px solid rgba(157, 80, 187, 0.3);
+    }
+    .subject-button:nth-child(42) .button-icon {
+      background: rgba(255, 94, 125, 0.2);
+      color: #ff5e7d;
+      border: 2px solid rgba(255, 94, 125, 0.3);
+    }
+    .subject-button:nth-child(43) .button-icon {
+      background: rgba(0, 206, 201, 0.2);
+      color: #00cec9;
+      border: 2px solid rgba(0, 206, 201, 0.3);
+    }
+    .subject-button:nth-child(44) .button-icon {
+      background: rgba(249, 127, 81, 0.2);
+      color: #f97f51;
+      border: 2px solid rgba(249, 127, 81, 0.3);
+    }
+    .subject-button:nth-child(45) .button-icon {
+      background: rgba(183, 21, 64, 0.2);
+      color: #b71540;
+      border: 2px solid rgba(183, 21, 64, 0.3);
+    }
+    .subject-button:nth-child(46) .button-icon {
+      background: rgba(12, 36, 97, 0.2);
+      color: #0c2461;
+      border: 2px solid rgba(12, 36, 97, 0.3);
+    }
+    .subject-button:nth-child(47) .button-icon {
+      background: rgba(56, 173, 169, 0.2);
+      color: #38ada9;
+      border: 2px solid rgba(56, 173, 169, 0.3);
+    }
+    .subject-button:nth-child(48) .button-icon {
+      background: rgba(229, 80, 57, 0.2);
+      color: #e55039;
+      border: 2px solid rgba(229, 80, 57, 0.3);
+    }
+    .subject-button:nth-child(49) .button-icon {
+      background: rgba(74, 105, 189, 0.2);
+      color: #4a69bd;
+      border: 2px solid rgba(74, 105, 189, 0.3);
+    }
+    .subject-button:nth-child(50) .button-icon {
+      background: rgba(246, 185, 59, 0.2);
+      color: #f6b93b;
+      border: 2px solid rgba(246, 185, 59, 0.3);
+    }
+
+    .subject-button:hover .button-icon {
+      transform: scale(1.15) rotate(5deg);
+      color: #fff;
+    }
+
+    .button-icon::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(45deg);
+      transition: all 0.6s ease;
+      opacity: 0;
+    }
+
+    .subject-button:hover .button-icon::after {
+      animation: shine 1.5s ease forwards;
+    }
+
+    @keyframes shine {
+      0% {
+        transform: rotate(45deg) translate(-50%, -50%) scale(0.1);
+        opacity: 0;
+      }
+      50% {
+        opacity: 0.5;
+      }
+      100% {
+        transform: rotate(45deg) translate(50%, 50%) scale(1);
+        opacity: 0;
+      }
+    }
+
+    .subject-button h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+      font-weight: 600;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .subject-button span {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.5;
+    }
+
+    /* Individual neon colors for each button on hover */
+    .subject-button:nth-child(1):hover {
+      background: rgba(91, 134, 229, 0.25);
+      border-color: #5b86e5;
+      box-shadow: 0 0 10px #5b86e5, 0 0 20px #5b86e5, 0 0 30px #5b86e5, 0 0 40px #5b86e5;
+    }
+    .subject-button:nth-child(1):hover .button-icon {
+      background: rgba(91, 134, 229, 0.3);
+      border-color: rgba(91, 134, 229, 0.8);
+      box-shadow: 0 0 15px #5b86e5;
+    }
+    .subject-button:nth-child(1):hover h3 {
+      color: #5b86e5;
+      text-shadow: 0 0 10px rgba(91, 134, 229, 0.7);
+    }
+
+    .subject-button:nth-child(2):hover {
+      background: rgba(54, 209, 220, 0.25);
+      border-color: #36d1dc;
+      box-shadow: 0 0 10px #36d1dc, 0 0 20px #36d1dc, 0 0 30px #36d1dc, 0 0 40px #36d1dc;
+    }
+    .subject-button:nth-child(2):hover .button-icon {
+      background: rgba(54, 209, 220, 0.3);
+      border-color: rgba(54, 209, 220, 0.8);
+      box-shadow: 0 0 15px #36d1dc;
+    }
+    .subject-button:nth-child(2):hover h3 {
+      color: #36d1dc;
+      text-shadow: 0 0 10px rgba(54, 209, 220, 0.7);
+    }
+
+    .subject-button:nth-child(3):hover {
+      background: rgba(255, 77, 77, 0.25);
+      border-color: #ff4d4d;
+      box-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff4d4d, 0 0 30px #ff4d4d, 0 0 40px #ff4d4d;
+    }
+    .subject-button:nth-child(3):hover .button-icon {
+      background: rgba(255, 77, 77, 0.3);
+      border-color: rgba(255, 77, 77, 0.8);
+      box-shadow: 0 0 15px #ff4d4d;
+    }
+    .subject-button:nth-child(3):hover h3 {
+      color: #ff4d4d;
+      text-shadow: 0 0 10px rgba(255, 77, 77, 0.7);
+    }
+
+    .subject-button:nth-child(4):hover {
+      background: rgba(255, 154, 61, 0.25);
+      border-color: #ff9a3d;
+      box-shadow: 0 0 10px #ff9a3d, 0 0 20px #ff9a3d, 0 0 30px #ff9a3d, 0 0 40px #ff9a3d;
+    }
+    .subject-button:nth-child(4):hover .button-icon {
+      background: rgba(255, 154, 61, 0.3);
+      border-color: rgba(255, 154, 61, 0.8);
+      box-shadow: 0 0 15px #ff9a3d;
+    }
+    .subject-button:nth-child(4):hover h3 {
+      color: #ff9a3d;
+      text-shadow: 0 0 10px rgba(255, 154, 61, 0.7);
+    }
+
+    .subject-button:nth-child(5):hover {
+      background: rgba(255, 221, 89, 0.25);
+      border-color: #ffdd59;
+      box-shadow: 0 0 10px #ffdd59, 0 0 20px #ffdd59, 0 0 30px #ffdd59, 0 0 40px #ffdd59;
+    }
+    .subject-button:nth-child(5):hover .button-icon {
+      background: rgba(255, 221, 89, 0.3);
+      border-color: rgba(255, 221, 89, 0.8);
+      box-shadow: 0 0 15px #ffdd59;
+    }
+    .subject-button:nth-child(5):hover h3 {
+      color: #ffdd59;
+      text-shadow: 0 0 10px rgba(255, 221, 89, 0.7);
+    }
+
+    .subject-button:nth-child(6):hover {
+      background: rgba(108, 229, 168, 0.25);
+      border-color: #6ce5a8;
+      box-shadow: 0 0 10px #6ce5a8, 0 0 20px #6ce5a8, 0 0 30px #6ce5a8, 0 0 40px #6ce5a8;
+    }
+    .subject-button:nth-child(6):hover .button-icon {
+      background: rgba(108, 229, 168, 0.3);
+      border-color: rgba(108, 229, 168, 0.8);
+      box-shadow: 0 0 15px #6ce5a8;
+    }
+    .subject-button:nth-child(6):hover h3 {
+      color: #6ce5a8;
+      text-shadow: 0 0 10px rgba(108, 229, 168, 0.7);
+    }
+
+    .subject-button:nth-child(7):hover {
+      background: rgba(157, 80, 187, 0.25);
+      border-color: #9d50bb;
+      box-shadow: 0 0 10px #9d50bb, 0 0 20px #9d50bb, 0 0 30px #9d50bb, 0 0 40px #9d50bb;
+    }
+    .subject-button:nth-child(7):hover .button-icon {
+      background: rgba(157, 80, 187, 0.3);
+      border-color: rgba(157, 80, 187, 0.8);
+      box-shadow: 0 0 15px #9d50bb;
+    }
+    .subject-button:nth-child(7):hover h3 {
+      color: #9d50bb;
+      text-shadow: 0 0 10px rgba(157, 80, 187, 0.7);
+    }
+
+    .subject-button:nth-child(8):hover {
+      background: rgba(255, 94, 125, 0.25);
+      border-color: #ff5e7d;
+      box-shadow: 0 0 10px #ff5e7d, 0 0 20px #ff5e7d, 0 0 30px #ff5e7d, 0 0 40px #ff5e7d;
+    }
+    .subject-button:nth-child(8):hover .button-icon {
+      background: rgba(255, 94, 125, 0.3);
+      border-color: rgba(255, 94, 125, 0.8);
+      box-shadow: 0 0 15px #ff5e7d;
+    }
+    .subject-button:nth-child(8):hover h3 {
+      color: #ff5e7d;
+      text-shadow: 0 0 10px rgba(255, 94, 125, 0.7);
+    }
+
+    .subject-button:nth-child(9):hover {
+      background: rgba(0, 206, 201, 0.25);
+      border-color: #00cec9;
+      box-shadow: 0 0 10px #00cec9, 0 0 20px #00cec9, 0 0 30px #00cec9, 0 0 40px #00cec9;
+    }
+    .subject-button:nth-child(9):hover .button-icon {
+      background: rgba(0, 206, 201, 0.3);
+      border-color: rgba(0, 206, 201, 0.8);
+      box-shadow: 0 0 15px #00cec9;
+    }
+    .subject-button:nth-child(9):hover h3 {
+      color: #00cec9;
+      text-shadow: 0 0 10px rgba(0, 206, 201, 0.7);
+    }
+
+    .subject-button:nth-child(10):hover {
+      background: rgba(249, 127, 81, 0.25);
+      border-color: #f97f51;
+      box-shadow: 0 0 10px #f97f51, 0 0 20px #f97f51, 0 0 30px #f97f51, 0 0 40px #f97f51;
+    }
+    .subject-button:nth-child(10):hover .button-icon {
+      background: rgba(249, 127, 81, 0.3);
+      border-color: rgba(249, 127, 81, 0.8);
+      box-shadow: 0 0 15px #f97f51;
+    }
+    .subject-button:nth-child(10):hover h3 {
+      color: #f97f51;
+      text-shadow: 0 0 10px rgba(249, 127, 81, 0.7);
+    }
+
+    .subject-button:nth-child(11):hover {
+      background: rgba(183, 21, 64, 0.25);
+      border-color: #b71540;
+      box-shadow: 0 0 10px #b71540, 0 0 20px #b71540, 0 0 30px #b71540, 0 0 40px #b71540;
+    }
+    .subject-button:nth-child(11):hover .button-icon {
+      background: rgba(183, 21, 64, 0.3);
+      border-color: rgba(183, 21, 64, 0.8);
+      box-shadow: 0 0 15px #b71540;
+    }
+    .subject-button:nth-child(11):hover h3 {
+      color: #b71540;
+      text-shadow: 0 0 10px rgba(183, 21, 64, 0.7);
+    }
+
+    .subject-button:nth-child(12):hover {
+      background: rgba(12, 36, 97, 0.25);
+      border-color: #0c2461;
+      box-shadow: 0 0 10px #0c2461, 0 0 20px #0c2461, 0 0 30px #0c2461, 0 0 40px #0c2461;
+    }
+    .subject-button:nth-child(12):hover .button-icon {
+      background: rgba(12, 36, 97, 0.3);
+      border-color: rgba(12, 36, 97, 0.8);
+      box-shadow: 0 0 15px #0c2461;
+    }
+    .subject-button:nth-child(12):hover h3 {
+      color: #0c2461;
+      text-shadow: 0 0 10px rgba(12, 36, 97, 0.7);
+    }
+
+    .subject-button:nth-child(13):hover {
+      background: rgba(56, 173, 169, 0.25);
+      border-color: #38ada9;
+      box-shadow: 0 0 10px #38ada9, 0 0 20px #38ada9, 0 0 30px #38ada9, 0 0 40px #38ada9;
+    }
+    .subject-button:nth-child(13):hover .button-icon {
+      background: rgba(56, 173, 169, 0.3);
+      border-color: rgba(56, 173, 169, 0.8);
+      box-shadow: 0 0 15px #38ada9;
+    }
+    .subject-button:nth-child(13):hover h3 {
+      color: #38ada9;
+      text-shadow: 0 0 10px rgba(56, 173, 169, 0.7);
+    }
+
+    .subject-button:nth-child(14):hover {
+      background: rgba(229, 80, 57, 0.25);
+      border-color: #e55039;
+      box-shadow: 0 0 10px #e55039, 0 0 20px #e55039, 0 0 30px #e55039, 0 0 40px #e55039;
+    }
+    .subject-button:nth-child(14):hover .button-icon {
+      background: rgba(229, 80, 57, 0.3);
+      border-color: rgba(229, 80, 57, 0.8);
+      box-shadow: 0 0 15px #e55039;
+    }
+    .subject-button:nth-child(14):hover h3 {
+      color: #e55039;
+      text-shadow: 0 0 10px rgba(229, 80, 57, 0.7);
+    }
+
+    .subject-button:nth-child(15):hover {
+      background: rgba(74, 105, 189, 0.25);
+      border-color: #4a69bd;
+      box-shadow: 0 0 10px #4a69bd, 0 0 20px #4a69bd, 0 0 30px #4a69bd, 0 0 40px #4a69bd;
+    }
+    .subject-button:nth-child(15):hover .button-icon {
+      background: rgba(74, 105, 189, 0.3);
+      border-color: rgba(74, 105, 189, 0.8);
+      box-shadow: 0 0 15px #4a69bd;
+    }
+    .subject-button:nth-child(15):hover h3 {
+      color: #4a69bd;
+      text-shadow: 0 0 10px rgba(74, 105, 189, 0.7);
+    }
+
+    .subject-button:nth-child(16):hover {
+      background: rgba(246, 185, 59, 0.25);
+      border-color: #f6b93b;
+      box-shadow: 0 0 10px #f6b93b, 0 0 20px #f6b93b, 0 0 30px #f6b93b, 0 0 40px #f6b93b;
+    }
+    .subject-button:nth-child(16):hover .button-icon {
+      background: rgba(246, 185, 59, 0.3);
+      border-color: rgba(246, 185, 59, 0.8);
+      box-shadow: 0 0 15px #f6b93b;
+    }
+    .subject-button:nth-child(16):hover h3 {
+      color: #f6b93b;
+      text-shadow: 0 0 10px rgba(246, 185, 59, 0.7);
+    }
+
+    .subject-button:nth-child(17):hover {
+      background: rgba(12, 36, 97, 0.25);
+      border-color: #0c2461;
+      box-shadow: 0 0 10px #0c2461, 0 0 20px #0c2461, 0 0 30px #0c2461, 0 0 40px #0c2461;
+    }
+    .subject-button:nth-child(17):hover .button-icon {
+      background: rgba(12, 36, 97, 0.3);
+      border-color: rgba(12, 36, 97, 0.8);
+      box-shadow: 0 0 15px #0c2461;
+    }
+    .subject-button:nth-child(17):hover h3 {
+      color: #0c2461;
+      text-shadow: 0 0 10px rgba(12, 36, 97, 0.7);
+    }
+
+    .subject-button:nth-child(18):hover {
+      background: rgba(91, 134, 229, 0.25);
+      border-color: #5b86e5;
+      box-shadow: 0 0 10px #5b86e5, 0 0 20px #5b86e5, 0 0 30px #5b86e5, 0 0 40px #5b86e5;
+    }
+    .subject-button:nth-child(18):hover .button-icon {
+      background: rgba(91, 134, 229, 0.3);
+      border-color: rgba(91, 134, 229, 0.8);
+      box-shadow: 0 0 15px #5b86e5;
+    }
+    .subject-button:nth-child(18):hover h3 {
+      color: #5b86e5;
+      text-shadow: 0 0 10px rgba(91, 134, 229, 0.7);
+    }
+
+    .subject-button:nth-child(19):hover {
+      background: rgba(54, 209, 220, 0.25);
+      border-color: #36d1dc;
+      box-shadow: 0 0 10px #36d1dc, 0 0 20px #36d1dc, 0 0 30px #36d1dc, 0 0 40px #36d1dc;
+    }
+    .subject-button:nth-child(19):hover .button-icon {
+      background: rgba(54, 209, 220, 0.3);
+      border-color: rgba(54, 209, 220, 0.8);
+      box-shadow: 0 0 15px #36d1dc;
+    }
+    .subject-button:nth-child(19):hover h3 {
+      color: #36d1dc;
+      text-shadow: 0 0 10px rgba(54, 209, 220, 0.7);
+    }
+
+    .subject-button:nth-child(20):hover {
+      background: rgba(255, 77, 77, 0.25);
+      border-color: #ff4d4d;
+      box-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff4d4d, 0 0 30px #ff4d4d, 0 0 40px #ff4d4d;
+    }
+    .subject-button:nth-child(20):hover .button-icon {
+      background: rgba(255, 77, 77, 0.3);
+      border-color: rgba(255, 77, 77, 0.8);
+      box-shadow: 0 0 15px #ff4d4d;
+    }
+    .subject-button:nth-child(20):hover h3 {
+      color: #ff4d4d;
+      text-shadow: 0 0 10px rgba(255, 77, 77, 0.7);
+    }
+
+    .subject-button:nth-child(21):hover {
+      background: rgba(255, 154, 61, 0.25);
+      border-color: #ff9a3d;
+      box-shadow: 0 0 10px #ff9a3d, 0 0 20px #ff9a3d, 0 0 30px #ff9a3d, 0 0 40px #ff9a3d;
+    }
+    .subject-button:nth-child(21):hover .button-icon {
+      background: rgba(255, 154, 61, 0.3);
+      border-color: rgba(255, 154, 61, 0.8);
+      box-shadow: 0 0 15px #ff9a3d;
+    }
+    .subject-button:nth-child(21):hover h3 {
+      color: #ff9a3d;
+      text-shadow: 0 0 10px rgba(255, 154, 61, 0.7);
+    }
+
+    .subject-button:nth-child(22):hover {
+      background: rgba(255, 221, 89, 0.25);
+      border-color: #ffdd59;
+      box-shadow: 0 0 10px #ffdd59, 0 0 20px #ffdd59, 0 0 30px #ffdd59, 0 0 40px #ffdd59;
+    }
+    .subject-button:nth-child(22):hover .button-icon {
+      background: rgba(255, 221, 89, 0.3);
+      border-color: rgba(255, 221, 89, 0.8);
+      box-shadow: 0 0 15px #ffdd59;
+    }
+    .subject-button:nth-child(22):hover h3 {
+      color: #ffdd59;
+      text-shadow: 0 0 10px rgba(255, 221, 89, 0.7);
+    }
+
+    .subject-button:nth-child(23):hover {
+      background: rgba(108, 229, 168, 0.25);
+      border-color: #6ce5a8;
+      box-shadow: 0 0 10px #6ce5a8, 0 0 20px #6ce5a8, 0 0 30px #6ce5a8, 0 0 40px #6ce5a8;
+    }
+    .subject-button:nth-child(23):hover .button-icon {
+      background: rgba(108, 229, 168, 0.3);
+      border-color: rgba(108, 229, 168, 0.8);
+      box-shadow: 0 0 15px #6ce5a8;
+    }
+    .subject-button:nth-child(23):hover h3 {
+      color: #6ce5a8;
+      text-shadow: 0 0 10px rgba(108, 229, 168, 0.7);
+    }
+
+    .subject-button:nth-child(24):hover {
+      background: rgba(157, 80, 187, 0.25);
+      border-color: #9d50bb;
+      box-shadow: 0 0 10px #9d50bb, 0 0 20px #9d50bb, 0 0 30px #9d50bb, 0 0 40px #9d50bb;
+    }
+    .subject-button:nth-child(24):hover .button-icon {
+      background: rgba(157, 80, 187, 0.3);
+      border-color: rgba(157, 80, 187, 0.8);
+      box-shadow: 0 0 15px #9d50bb;
+    }
+    .subject-button:nth-child(24):hover h3 {
+      color: #9d50bb;
+      text-shadow: 0 0 10px rgba(157, 80, 187, 0.7);
+    }
+
+    .subject-button:nth-child(25):hover {
+      background: rgba(255, 94, 125, 0.25);
+      border-color: #ff5e7d;
+      box-shadow: 0 0 10px #ff5e7d, 0 0 20px #ff5e7d, 0 0 30px #ff5e7d, 0 0 40px #ff5e7d;
+    }
+    .subject-button:nth-child(25):hover .button-icon {
+      background: rgba(255, 94, 125, 0.3);
+      border-color: rgba(255, 94, 125, 0.8);
+      box-shadow: 0 0 15px #ff5e7d;
+    }
+    .subject-button:nth-child(25):hover h3 {
+      color: #ff5e7d;
+      text-shadow: 0 0 10px rgba(255, 94, 125, 0.7);
+    }
+
+    .subject-button:nth-child(26):hover {
+      background: rgba(0, 206, 201, 0.25);
+      border-color: #00cec9;
+      box-shadow: 0 0 10px #00cec9, 0 0 20px #00cec9, 0 0 30px #00cec9, 0 0 40px #00cec9;
+    }
+    .subject-button:nth-child(26):hover .button-icon {
+      background: rgba(0, 206, 201, 0.3);
+      border-color: rgba(0, 206, 201, 0.8);
+      box-shadow: 0 0 15px #00cec9;
+    }
+    .subject-button:nth-child(26):hover h3 {
+      color: #00cec9;
+      text-shadow: 0 0 10px rgba(0, 206, 201, 0.7);
+    }
+
+    .subject-button:nth-child(27):hover {
+      background: rgba(249, 127, 81, 0.25);
+      border-color: #f97f51;
+      box-shadow: 0 0 10px #f97f51, 0 0 20px #f97f51, 0 0 30px #f97f51, 0 0 40px #f97f51;
+    }
+    .subject-button:nth-child(27):hover .button-icon {
+      background: rgba(249, 127, 81, 0.3);
+      border-color: rgba(249, 127, 81, 0.8);
+      box-shadow: 0 0 15px #f97f51;
+    }
+    .subject-button:nth-child(27):hover h3 {
+      color: #f97f51;
+      text-shadow: 0 0 10px rgba(249, 127, 81, 0.7);
+    }
+
+    .subject-button:nth-child(28):hover {
+      background: rgba(183, 21, 64, 0.25);
+      border-color: #b71540;
+      box-shadow: 0 0 10px #b71540, 0 0 20px #b71540, 0 0 30px #b71540, 0 0 40px #b71540;
+    }
+    .subject-button:nth-child(28):hover .button-icon {
+      background: rgba(183, 21, 64, 0.3);
+      border-color: rgba(183, 21, 64, 0.8);
+      box-shadow: 0 0 15px #b71540;
+    }
+    .subject-button:nth-child(28):hover h3 {
+      color: #b71540;
+      text-shadow: 0 0 10px rgba(183, 21, 64, 0.7);
+    }
+
+    .subject-button:nth-child(29):hover {
+      background: rgba(12, 36, 97, 0.25);
+      border-color: #0c2461;
+      box-shadow: 0 0 10px #0c2461, 0 0 20px #0c2461, 0 0 30px #0c2461, 0 0 40px #0c2461;
+    }
+    .subject-button:nth-child(29):hover .button-icon {
+      background: rgba(12, 36, 97, 0.3);
+      border-color: rgba(12, 36, 97, 0.8);
+      box-shadow: 0 0 15px #0c2461;
+    }
+    .subject-button:nth-child(29):hover h3 {
+      color: #0c2461;
+      text-shadow: 极 0 0 10px rgba(12, 36, 97, 0.7);
+    }
+
+    .subject-button:nth-child(30):hover {
+      background: rgba(56, 173, 169, 0.25);
+      border-color: #38ada9;
+      box-shadow: 0 0 10px #38ada9, 0 0 20px #38ada9, 0 极 0 30px #38ada9, 0 0 40px #38ada9;
+    }
+    .subject-button:nth-child(30):hover .button-icon {
+      background: rgba(56, 173, 169, 0.3);
+      border-color: rgba(56, 173, 169, 0.8);
+      box-shadow: 0 0 15px #38ada9;
+    }
+    .subject-button:nth-child(30):hover h3 {
+      color: #38ada9;
+      text-shadow: 0 0 10px rgba(56, 173, 169, 0.7);
+    }
+
+    .subject-button:nth-child(31):hover {
+      background: rgba(229, 80, 57, 极 0.25);
+      border-color: #e55039;
+      box-shadow: 0 0 10px #e55039, 0 0 20px #e55039, 0 0 30px #e55039, 0 0 40px #e55039;
+    }
+    .subject-button:nth-child(31):hover .button-icon {
+      background: rgba(229, 80, 57, 0.3);
+      border-color: rgba(229, 80, 57, 0.8);
+      box-shadow: 0 0 15px #e55039;
+    }
+    .subject-button:nth-child(31):hover h3 {
+      color: #e55039;
+      text-shadow: 0 0 10px rgba(229, 80, 57, 0.7);
+    }
+
+    .subject-button:nth-child(32):hover {
+      background: rgba(74, 105, 189, 0.25);
+      border-color: #4a69bd;
+      box-shadow: 0 0 10px #4a69bd, 0 0 20px #4a69bd, 0 0 30px #4a69bd, 0 0 40px #极4a69bd;
+    }
+    .subject-button:nth-child(32):极hover .button-icon {
+      background: rgba(74, 105, 189, 0.3);
+      border-color: rgba(74, 105, 189, 0.8);
+      box-shadow: 0 0 15px #4a69bd;
+    }
+    .subject-button:nth-child(32):hover h3 {
+      color: #4a69bd;
+      text-shadow: 0 0 10px rgba(74, 105, 189, 0.7);
+    }
+
+    .subject-button:nth-child(33):hover {
+      background: rgba(246, 185, 59, 0.25);
+      border-color: #f6b93b;
+      box-shadow: 0 0 10px #f6b93b, 0 0 20px #f6b93b, 0 0 30px #f6b93b, 0 0 40px #f6b93b;
+    }
+    .subject-button:nth-child(33):hover .button-icon {
+      background: rgba(246, 185, 59, 0.3);
+      border-color: rgba(246, 185, 59, 0.8);
+      box-shadow: 0 极 0 15px #f6b93b;
+    }
+    .subject-button:nth-child(33):hover h3 {
+      color: #f6b93b;
+     极 text-shadow: 0 0 10px rgba(246, 185, 59, 0.7);
+    }
+
+    .subject-button:nth-child(34):hover {
+      background: rgba(12, 36, 97, 0.25);
+      border-color: #0c2461;
+      box-shadow: 0 0 10px #0c2461, 0 0 20px #0c2461, 0 0 30px #0c2461, 0 0 40px #0c2461;
+    }
+    .subject-button:nth-child(34):hover .button-icon {
+      background: rgba(12, 36, 97, 0.3);
+      border-color: rgba(12, 36, 97, 0.8);
+      box-shadow: 0 0 15px #0c2461;
+    }
+    .subject-button:nth-child(34):hover h3 {
+      color: #0c2461;
+      text-shadow: 0 0 10px rgba(12, 36, 97, 0.7);
+    }
+
+    .subject-button:nth-child(35):hover {
+      background: rgba(91, 134, 229, 0.25);
+      border-color: #5b86e5;
+      box-shadow: 0 0 10px #5b86e5, 0 0 20px #5b86e5, 0 0 30px #5b86e5, 0 0 40px #5b86e5;
+    }
+    .subject-button:nth-child(35):hover .button-icon {
+      background: rgba(91, 134, 229, 0.3);
+      border-color: rgba(91, 134, 229, 0.8);
+      box-shadow: 0 0 15px #5b86e5;
+    }
+    .subject-button:nth-child(35):hover h3 {
+      color: #5b86e5;
+      text-shadow: 0 0 10px rgba(91, 134, 229, 极 0.7);
+    }
+
+    .subject-button:nth-child(36):hover {
+      background: rgba(54, 209, 220, 0.25);
+      border-color: #36d极1dc;
+      box-shadow: 0 0 10px #36d1dc, 0 0 20px #36d1dc, 0 0 30px #36d1dc, 0 0 40px #36d1dc;
+    }
+    .subject-button:nth-child(36):hover .button-icon {
+      background: rgba(54, 209, 220, 0.3);
+      border-color: rgba(54, 209, 220, 0.8);
+      box-shadow: 0 0 15px #36d1dc;
+    }
+    .subject-button:nth-child(36):hover h3 {
+      color: #36d1dc;
+      text-shadow: 0 0 10px rgba(54, 209, 220, 0.7);
+    }
+
+    .subject-button:nth-child(37):hover {
+      background: rgba(255, 77, 77, 0.25);
+      border-color: #ff4d4d;
+      box-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff4d4d, 0 0 30px #ff4极d4d, 0 0 40px #ff4d4d;
+    }
+    .subject-button:nth-child(37):hover .button-icon {
+      background:极 rgba(255, 77, 77, 0.3);
+      border-color: rgba(255, 77, 77, 0.8);
+      box-shadow: 0 0 15px #ff4d4d;
+    }
+    .subject-button:nth-child(37):hover h3 {
+      color: #ff4d4d;
+      text-shadow: 0 0 10px rgba(255, 77, 77, 0.7);
+    }
+
+    .subject-button:n极th-child(38):hover {
+      background: rgba(255, 154, 61, 0.25);
+      border-color: #ff9a3d;
+      box-shadow: 0 0 10px #ff9a3d, 0 0 20px #ff9a3d, 0 0 30px #ff9a3d, 0 0 40px #ff9a3d;
+    }
+    .subject-button:nth-child(38):hover .button-icon {
+      background: rgba(255, 154, 61, 0.3);
+      border-color: rgba(255, 154, 61, 0.8);
+      box-shadow: 0 0 15px #ff9a3d;
+    }
+    .subject-button:nth-child(38):hover h3 {
+      color: #ff9a3d;
+      text-shadow: 0 0 10px rgba(255, 154, 61, 0.7);
+    }
+
+    .subject-button:nth-child(39):hover {
+      background: rgba(255, 221, 89, 0.25);
+      border-color: #ffdd59;
+      box-shadow: 0 0 10px #ffdd59, 0 0 20px #ffdd59, 0 0 30px #ffdd59, 0 0 40px #ffdd59;
+    }
+    .subject-button:nth-child(39):hover .button-icon {
+      background: rgba(255, 221, 89, 0.3);
+      border-color: rgba(255, 221, 89, 0.8);
+      box-shadow: 0 0 15px #ffdd59;
+    }
+    .subject-button:nth-child(39):hover h3 {
+      color: #极ffdd59;
+      text-shadow: 0 0 10px rgba(255, 221, 89, 0.7);
+    }
+
+    .subject-button:nth-child(40):hover {
+      background: rgba(108, 229, 168, 0.25);
+      border-color: #6ce5a8;
+      box-shadow: 0 0 10px #6ce5a8, 0 0 20px #6ce5a8, 0 0 30px #6ce5a8, 0 0 40px #6ce5a8;
+    }
+    .subject-button:nth-child(40):hover .button-icon {
+      background: rgba(108, 229, 168, 0.3);
+      border-color: rgba(108, 229, 168, 0.8);
+      box-shadow: 0 0 15px #6ce5a8;
+    }
+    .subject-button:nth-child(40):hover h3 {
+      color: #6ce5a8;
+      text-shadow: 0 0 10px rgba(108, 229, 168, 0.7);
+    }
+
+    .subject-button:nth-child(41):hover {
+      background: rgba(157, 80, 187, 0.25);
+      border-color: #9d50bb;
+      box-shadow: 0 0 10px #9d50bb, 0 0 20px #9d50bb, 0 0 30px #9d50bb, 0 0 40px #9d50bb;
+    }
+    .subject-button:nth-child(41):hover .button-icon {
+      background: rgba(157, 极80, 187, 0.3);
+      border-color: rgba(157, 80, 187, 0.8);
+      box-shadow: 0 0 15px #9极d50bb;
+    }
+    .subject-button:nth-child(41):hover h3 {
+      color: #9d50bb;
+      text-shadow: 0 0 10px rgba(157, 80, 187, 0.7);
+    }
+
+    .subject-button:nth-child(42):hover {
+      background: rgba(255, 94, 125, 0.25);
+      border-color: #ff5e7d;
+      box-shadow: 0 0 10px #ff5e7d, 0 0 20px #ff5e7d, 0 0 30px #ff5e7d, 0 0 40px #ff5e7d;
+    }
+    .subject-button:nth-child(42):hover .button-icon {
+      background: rgba(255, 94, 125, 0.3);
+      border-color: rgba(255, 94, 125, 0.8);
+      box-shadow: 0 0 15px #ff5e7d;
+    }
+    .subject-button:n极th-child(42):hover h3 {
+      color: #ff5e7d;
+      text-shadow: 0 0 极10px rgba(255, 94, 125, 0.7);
+    }
+
+    .subject-button:nth-child(43):hover {
+      background: rgba(0, 206, 201, 0.25);
+      border-color: #00cec9;
+      box-shadow: 0 0 10px #00cec9, 0 0 20px #00cec9, 0 0 30px #00cec9, 0 0 40px #00cec9;
+    }
+    .subject-button:nth-child(43):hover .button-icon {
+      background: rgba(0, 206, 201, 0.3);
+      border极-color: rgba(0, 206, 201, 0.8);
+      box-shadow: 0 0 15px #00cec9;
+    }
+    .subject-button:nth-child(43):hover h3 {
+      color: #00cec9;
+      text-shadow: 0 0 10px rgba(0, 206, 201, 0.7);
+    }
+
+    .subject-button:nth-child(44):hover {
+      background: rgba(249, 127, 81, 0.25);
+      border-color: #f97f51;
+      box-shadow: 0 0 10px #极f97f51, 0 0 20px #f97f51, 0 0 30px #f97f51, 0 0 40px #f97f51;
+    }
+    .subject-button:nth-child(44):hover .button-icon {
+      background: rgba(249, 127, 81, 0.3);
+      border-color: rgba(249, 127, 81, 极0.8);
+      box-shadow: 0 0 15px #f97f51;
+    }
+    .subject-button:nth-child(44):hover h3 {
+      color: #f97f51;
+      text-shadow: 0 0 10px rgba(249, 127, 81, 0.7);
+    }
+
+    .subject-button:nth-child(45):hover {
+      background: rgba(183, 21, 64, 0.25);
+      border-color: #b71540;
+      box-shadow: 0 0 10px #b71540, 0 0 20px #b71540, 0 0 30px #b71540, 0 0 40px #b71540;
+    }
+    .subject-button:nth-child(45):hover .button-icon {
+      background: rgba(183, 21, 64, 0.3);
+      border-color: rgba(183, 21, 64, 0.8);
+      box-shadow: 0 0 15px #b71540;
+    }
+    .subject-button:nth-child(45):hover h3 {
+      color: #b71540;
+      text-shadow: 0 0 10px rgba(183, 21, 64, 0.7);
+    }
+
+    .subject-button:nth-child(46):hover {
+      background: rgba(12, 36, 97, 0.25);
+      border-color: #0c2461;
+     极 box-shadow: 0 0 10px #0c2461, 0 0 20px #0c246极1, 0 0 30px #0c2461, 0 0 40px #0c2461;
+    }
+    .subject-button:nth-child(46):hover .button-icon {
+      background: rgba(12, 36, 97, 0.3);
+      border-color: rgba(12, 36, 97, 0.8);
+      box-shadow: 0 0 15px #0c2461;
+    }
+    .subject-button:nth-child(46):hover h3 {
+      color: #0c2461;
+      text-shadow: 0 0 10px rgba(12, 36, 97, 0.7);
+    }
+
+    .subject-button:nth-child(47):hover {
+      background: rgba(56, 173, 169, 0.25);
+      border-color: #38ada9;
+      box-shadow: 0 0 10px #38ada9, 0 0 20px #38ada9, 0 0 30px #38ada9, 0 0 40px #38ada9;
+    }
+    .subject-button:nth-child(47):hover .button-icon {
+      background: rgba(56, 173, 169, 0.3);
+      border-color: rgba(56, 173, 169, 0.8);
+      box-shadow: 0 0 15px #38ada9;
+    }
+    .subject-button:nth-child(47):hover h3 {
+      color: #38ada9;
+      text-shadow: 0 0 10px rgba(56, 173, 169, 0.7);
+    }
+
+    .subject-button:nth-child(48):hover {
+      background: rgba(229, 80, 57, 0.25);
+      border-color: #e55039;
+      box-shadow: 0 0 10px #e55039, 0 0 20极px #e55039, 0 0 30px #e55039, 0 0 40px #e55039;
+    }
+    .subject-button:nth-child(48):hover .button-icon {
+      background: rgba(229, 80, 57, 0.3);
+      border-color: rgba(229, 80, 57, 0.8);
+      box-shadow: 0 0 15px #e55039;
+    }
+    .subject-button:nth-child(48):hover h3 {
+      color: #e55039;
+      text-shadow: 0 0 10px rgba(229, 80, 57, 0.7);
+    }
+
+    .subject-button:nth-child(49):hover {
+      background: rgba(74, 105, 189, 0.25);
+      border-color: #4a69bd;
+      box-shadow: 0 0 10px #4a69bd, 0 0 20px #4a69bd, 0 0 30px #4a69bd, 0 0 40px #4a69bd;
+    }
+    .subject-button:nth-child(49):hover .button-icon {
+      background: rgba(74, 105, 189, 0.3);
+      border-color: rgba(74, 105, 189, 0.8);
+      box-shadow: 0 0 15px #4a69bd;
+    }
+    .subject-button:nth-child(49):hover h3 {
+      color: #4a69bd;
+      text-shadow: 0 0 10px rgba(74, 105, 189, 0.7);
+    }
+
+    .subject-button:nth-child(50):hover {
+      background: rgba(246, 185, 59, 0.25);
+      border-color: #f6b93b;
+      box-shadow: 0 0 10px #f6b93b, 0 0 20px #f6b93b, 0 0 30px #f6b93b, 0 0 40px #f6b93b;
+    }
+    .subject-button:nth-child(50):hover .button-icon {
+      background: rgba(246, 185, 59, 0.3);
+      border-color: rgba(246, 185, 59, 极0.8);
+      box-shadow: 0 0 15px #f6b93b;
+    }
+    .subject-button:nth-child(50):hover h3 {
+      color: #f6b93b;
+      text-shadow: 0 0 10px rgba(246, 185, 59, 0.7);
+    }
+
+    .footer {
+      margin-top: 50px;
+      padding: 25px 20px 15px;
+      border-top: 1px solid rgba(91, 134, 229, 0.3);
+      color: rgba(255, 极255, 255, 0.8);
+      font-size: 14px;
+      background: rgba(20, 20, 30, 0.5);
+      border-radius: 12px;
+      backdrop-filter: blur(5px);
+      box-shadow: 极 0 0 15px rgba(91, 134, 229, 0.2);
+    }
+
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .footer-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #5b86e5;
+      text-shadow: 0 0 8px rgba(91, 134, 229, 0.5);
+    }
+
+    .footer-description {
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .footer-copyright {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px极 solid rgba(91, 134, 229, 0.2);
+      font-size: 16px;
+     极 color: rgba(255, 255, 255, 0.9);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+
+    .footer-copyright a {
+      color: #5b86e5;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .footer-copyright a:hover {
+      color: #36d1dc;
+      text-shadow: 0 0 8px rgba(54, 209, 220, 0.7);
+      text-decoration: underline;
+    }
+
+    .heart {
+      color: #ff4d4d;
+      animation: heartbeat 2s infinite;
+      display: inline-block;
+      filter: drop-shadow(0 0 3px rgba(极255, 77, 77, 0.7));
+    }
+
+    /* Apple-style text animation */
+    .animated-text {
+      display: inline-block;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .animated-text span {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: appleTextAnimation 0.8s forwards;
+    }
+    
+    @keyframes appleTextAnimation {
+      0% {
+        opacity: 0;
+        transform: translate极Y(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Individual delays for each word */
+    .word1 { animation-delay: 0.1s; }
+    .word2 { animation-delay: 0.2s; }
+    .word3 { animation-delay: 0.3s; }
+    .word4 { animation-delay: 0.4s; }
+    .word5 { animation-delay: 极0.5s; }
+    .word6 { animation-delay: 0.6s; }
+    .word7 { animation-delay: 0.7s; }
+    .word8 { animation-delay: 0.8s; }
+
+    @keyframes heartbeat {
+      0% { transform: scale(1); }
+      5% { transform: scale(1.1); }
+      10% { transform: scale(1); }
+      15% { transform: scale(1.1); }
+      20% { transform: scale(1); }
+      100% { transform: scale(1); }
+    }
+
+    /* Floating animation for cards */
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    /* Apply animations to cards */
+    .subject-button {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .subject-button:nth-child(2n) {
+      animation-delay: 1s;
+    }
+
+    .subject-button:nth-child(3n) {
+      animation-delay: 2s;
+    }
+
+    .subject-button:nth-child(4n) {
+      animation-delay: 3s;
+    }
+
+    /* Fullscreen styles */
+    body:fullscreen {
+      background: #0f172a;
+      padding: 0;
+    }
+    
+    body:fullscreen .container {
+      max-width: 1400px;
+      padding: 40px;
+    }
+    
+    body:fullscreen .app-card {
+      border-radius: 10px;
+    }
+    
+    body:fullscreen .solutions-grid {
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1极fr));
+      gap: 30px;
+    }
+    
+    body:fullscreen .subject-button {
+      min-height: 180px;
+      padding: 30px 25px;
+    }
+
+    @media (max-width: 992px) {
+      .solutions-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      
+      .app-card {
+        padding: 25px 20px;
+      }
+      
+      .app-card-header h1 {
+        font-size: 22px;
+      }
+      
+      .app-content {
+        margin-top: 70px;
+      }
+      
+      .welcome-section h2 {
+        font-size: 28px;
+      }
+      
+      .welcome-section p {
+        font-size: 16px;
+      }
+      
+      .subject-button {
+        padding: 20px 15px;
+        min-height: 150px;
+        animation: none;
+      }
+      
+      .button-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+        margin-bottom: 15px;
+      }
+      
+      .subject-button h3 {
+        font-size: 18px;
+      }
+      
+      .fullscreen-btn {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .footer {
+        padding: 20极px 15px 10px;
+      }
+      
+      .footer-copyright {
+        flex-direction: column;
+        gap: 5px;
+        font-size: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .solutions-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .app-card-header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 20px;
+      }
+      
+      .app-card-header h极1 {
+        font-size: 20px;
+      }
+      
+      .footer-title {
+        font-size: 16px;
+      }
+      
+     极 .footer-description {
+        font-size: 13px;
+      }
+      
+      .footer-copyright {
+        font-size: 14px;
+      }
+      
+      .subject-button {
+        animation: none;
+      }
+    }
+  
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="app-card" aria-label="Myrtille Industries PDF Solutions">
+      <!-- Company Header with Fullscreen Button -->
+      <div class="app-card-header">
+        <div class="header-left">
+          <i class="fa-file-pdf"></i>
+          <h1>PDF Editor & Document Processing (Free&Secure)</h1>
+        </div>
+        <div class="fullscreen-btn" id="fullscreenBtn" title="Toggle Fullscreen">
+          <i class="fas fa-expand"></i>
+        </div>
+      </div>
+
+      <div class="app-content">
+        <div class="welcome-section">
+          <h2>Advanced PDF Editor & Document Processing</h2>
+          <p>Access our comprehensive suite of PDF tools designed to enhance your document workflow. All solutions feature professional letterhead integration and secure processing.</p>
+        </div>
+        
+        <div class="solutions-grid">
+          <!-- PDF Editor -->
+          <a href="https://www.sejda.com/pdf-editor" 
+   target="_blank" 
+   class="subject-button"
+   rel="noopener noreferrer">
+  <div class="button-icon">
+    <i class="fas fa-edit"></i>
+  </div>
+  <h3>PDF Editor</h3>
+  <span>Edit text in existing PDF documents</span>
+          </a>
+          
+          <!-- PDF on Letterhead -->
+          <a href="pdf-letterhead.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-contract"></i>
+            </div>
+            <h3>PDF on Letterhead</h3>
+            <span>Convert documents with professional letterhead</span>
+          </a>
+          
+          <!-- Text on Letterhead -->
+          <a href="text-letterhead.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-font"></i>
+            </div>
+            <h3>Text on Letterhead</h3>
+            <span>Convert text to PDF with letterhead</span>
+          </a>
+          
+          <!-- Merge PDF -->
+          <a href="merge-pdf.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-object-group"></i>
+            </div>
+            <h3>Merge PDF</h3>
+            <span>Combine multiple PDF files into one</span>
+          </a>
+          
+          <!-- Extract Pages -->
+          <a href="extract-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-cut"></i>
+            </div>
+            <h3>Extract Pages</h3>
+            <span>Extract specific pages from PDFs</span>
+          </a>
+          
+          <!-- PDF to Image -->
+          <a href="pdf-to-image.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-image"></i>
+            </div>
+            <h3>PDF to Image</h3>
+            <span>Convert PDF pages to image formats</span>
+          </a>
+          
+          <!-- Image to PDF -->
+          <a href="image-to-pdf.html" class极="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-pdf"></i>
+            </div>
+            <h3>Image to PDF</h3>
+            <span>Convert images to PDF documents</span>
+          </a>
+          
+          <!-- Add Page Numbers -->
+          <a href="add-page-numbers.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-list-ol"></i>
+            </div>
+            <h3>Add Page Numbers</h3>
+            <span>Insert page numbers into PDFs</span>
+          </a>
+          
+          <!-- Replace Pages -->
+          <a href="replace-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <h3>Replace Pages</h3>
+            <span>Swap pages in PDF documents</span>
+          </a>
+
+<!-- Reorder Pages -->
+          <a href="insert-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-sort"></i>
+            </div>
+            <h3>Insert Pages</h3>
+            <span>Insert pages in PDF documents</span>
+          </a>
+
+
+           <!-- rotate pages in PDF -->
+          <a href="rotate_pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-redo"></i>
+            </div>
+            <h3>Rotate pages in PDF</h3>
+            <span>Rotate any page in PDFs</span>
+          </a>
+          
+          <!-- Add Signature -->
+          <a href="add-signature.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-signature"></i>
+            </div>
+            <h3>Add Signature</h3>
+            <span>Digitally sign PDF documents</span>
+          </a>
+          
+          <!-- Delete Pages -->
+          <a href="delete-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-trash-alt"></i>
+            </div>
+            <h3>Delete Pages</h3>
+            <span>Remove pages from PDF files</span>
+          </a>
+
+ <!-- Add password in pdf  -->
+          <a href="add_password_in_pdf.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-lock"></i>
+            </div>
+            <h3>Add password in pdf</h3>
+            <span>Add password in pdf</span>
+          </a>
+          
+          <!-- Reorder Pages -->
+          <a href="reorder-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-sort"></i>
+            </div>
+            <h3>Reorder Pages</h3>
+            <span>Rearrange PDF page order</span>
+          </a>
+          
+          <!-- Mark in PDF -->
+          <a href="mark-pdf.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-highlighter"></i>
+            </div>
+            <h3>Mark in PDF</h3>
+            <span>Highlight and annotate PDFs</span>
+          </a>
+          
+          <!-- Add Watermark -->
+          <a href="add-watermark.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-tint"></i>
+            </div>
+            <h3>Add Watermark</h3>
+            <span>Add text/image watermarks to PDFs</span>
+          </a>
+          
+          <!-- New Features Added Below -->
+          
+          <!-- Organize -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-folder"></i>
+            </div>
+            <h3>Organize PDF</h3>
+            <span>Organize and structure your PDF documents</span>
+          </a>
+          
+          <!-- Adjust page size/scale -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-expand-arrows-alt"></i>
+            </div>
+            <h3>Adjust Page Size</h3>
+            <span>Resize and scale PDF pages</span>
+          </a>
+          
+          <!-- Crop PDF -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-crop"></i>
+            </div>
+            <h3>Crop PDF</h3>
+            <span>Crop margins and content in PDFs</span>
+          </a>
+          
+          <!-- Multi-Page Layout -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-th"></i>
+            </div>
+            <h3>Multi-Page Layout</h3>
+            <span>Arrange multiple pages on a single sheet</span>
+          </a>
+          
+          <!-- PDF to Single Large Page -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-compress-arrows-alt"></i>
+            </div>
+            <h3>PDF to Single Page</h3>
+            <span>Convert multi-page PDF to a single large page</span>
+          </a>
+          
+          <!-- Split PDF -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-cut"></i>
+            </div>
+            <h3>Split PDF</h3>
+            <span>Split PDF into multiple files</span>
+          </a>
+          
+          <!-- HTML to PDF -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fab fa-html5"></i>
+            </div>
+            <h3>HTML to PDF</h3>
+            <span>Convert HTML files to PDF format</span>
+          </a>
+          
+          <!-- Markdown to PDF -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-code"></i>
+            </div>
+            <h3>Markdown to PDF</h3>
+            <span>Convert Markdown files to PDF</span>
+          </a>
+          
+          <!-- PDF to Markdown -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-code"></i>
+            </div>
+            <h3>PDF to Markdown</h3>
+            <span>Extract text from PDF to Markdown format</span>
+          </a>
+          
+          <!-- PDF to Word -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-word"></i>
+            </div>
+            <h3>PDF to Word</h3>
+            <span>Convert PDF to editable Word document</span>
+          </a>
+          
+          <!-- PDF to RTF -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <h3>PDF to RTF</h3>
+            <span>Convert PDF to Rich Text Format</span>
+          </a>
+          
+          <!-- PDF to XML -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-code"></i>
+            </div>
+            <h3>PDF to XML</h3>
+            <span>Extract PDF content as XML data</span>
+          </a>
+          
+          <!-- Add Attachments -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-paperclip"></i>
+            </div>
+            <h3>Add Attachments</h3>
+            <span>Embed files in PDF documents</span>
+          </a>
+          
+          <!-- Add Image -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-image"></i>
+            </div>
+            <h3>Add Image to PDF</h3>
+            <span>Insert images into existing PDFs</span>
+          </a>
+          
+          <!-- Change Metadata -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-tags"></i>
+            </div>
+            <h3>Edit Metadata</h3>
+            <span>Modify PDF document information</span>
+          </a>
+          
+          <!-- Compare PDFs -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-columns"></极>
+            </div>
+            <h3>Compare PDFs</h3>
+            <span>Compare two PDF documents for differences</span>
+          </a>
+          
+          <!-- Extract Images -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-image"></i>
+            </div>
+            <h3>Extract Images</h3>
+            <span>Extract images from PDF files</span>
+          </a>
+          
+          <!-- Flatten -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-layer-group"></i>
+            </div>
+            <h3>Flatten PDF</h3>
+            <span>Merge layers and annotations in PDF</span>
+          </a>
+          
+          <!-- Get ALL Info on PDF -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <h3>PDF Info</h3>
+            <span>View detailed information about PDF</span>
+          </a>
+          
+          <!-- Remove Annotations -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="极button-icon">
+              <i class="fas fa-eraser"></i>
+            </div>
+            <h3>Remove Annotations</h3>
+            <span>Remove comments and markups from PDF</span>
+          </a>
+          
+          <!-- Remove Blank Pages -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-excel"></i>
+            </div>
+            <h3>Remove Blank Pages</h3>
+            <span>Delete empty pages from PDF documents</span>
+          </a>
+          
+          <!-- Remove Image -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-trash"></i>
+            </div>
+            <h3>Remove Images</h3>
+            <span>Delete images from PDF files</span>
+          </a>
+          
+          <!-- Unlock PDF Forms -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-unlock"></i>
+            </div>
+            <h3>Unlock Forms</h3>
+            <span>Make PDF forms editable</span>
+          </a>
+          
+          <!-- Compress -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-compress-arrows-alt"></i>
+            </div>
+            <h3>Compress PDF</h3>
+            <span>Reduce PDF file size</span>
+          </a>
+          
+          <!-- Overlay PDFs -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-object-group"></i>
+            </div>
+            <h3>Overlay PDFs</h3>
+            <span>Overlay one PDF on top of another</span>
+          </a>
+          
+          <!-- Split by Size/Count -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-weight-hanging"></i>
+            </div>
+            <h3>Split by Size/Count</h3>
+            <span>Split PDF by file size or page count</span>
+          </a>
+          
+          <!-- Split PDF by Sections -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-bookmark"></i>
+            </div>
+            <h3>Split by Sections</h3>
+            <span>Split PDF based on sections or bookmarks</span>
+          </a>
+          
+          <!-- Convert File to PDF -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-pdf"></i>
+            </div>
+            <h3>Convert to PDF</h3>
+            <span>Convert various file formats to PDF</span>
+          </a>
+          
+          <!-- Email to PDF -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <h3>Email to PDF</h3>
+            <span>Convert emails to PDF documents</span>
+          </a>
+          
+          <!-- PDF to CSV -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-csv"></i>
+            </div>
+            <h3>PDF to CSV</h3>
+            <span>Extract table data from PDF to CSV</span>
+          </a>
+          
+          <!-- PDF to PDF/A -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-archive"></i>
+            </div>
+            <h3>PDF to PDF/A</h3>
+            <span>Convert to archival PDF format</span>
+          </a>
+          
+          <!-- PDF to Presentation -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-powerpoint"></i>
+            </div>
+            <h3>PDF to PPT</h3>
+            <span>Convert PDF to PowerPoint presentation</span>
+          </a>
+          
+          <!-- Sign with Certificate -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-certificate"></i>
+            </div>
+            <h3>Sign with Certificate</h3>
+            <span>Digitally sign PDF with certificate</span>
+          </a>
+          
+          <!-- Remove Password -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-unlock-alt"></i>
+            </div>
+            <h3>Remove Password</h3>
+            <span>Remove password protection from PDF</span>
+          </a>
+          
+          <!-- Sanitize -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-soap"></i>
+            </div>
+            <h3>Sanitize PDF</h3>
+            <span>Remove hidden and sensitive data</span>
+          </a>
+          
+          <!-- Auto Redact -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-eye-slash"></i>
+            </div>
+            <h3>Auto Redact</h3>
+            <span>Automatically redact sensitive information</span>
+          </a>
+          
+          <!-- Manual Redaction -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-highlighter"></i>
+            </div>
+            <h3>Manual Redact</h3>
+            <span>Manually redact content in PDF</span>
+          </a>
+          
+          <!-- Detect/Split Scanned Photos -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <极 i class="fas fa-camera"></i>
+            </div>
+            <h3>Split Scanned Photos</h3>
+            <span>Detect and split scanned photographs</span>
+          </a>
+          
+          <!-- Edit Table of Contents -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-list-ol"></i>
+            </div>
+            <h3>Edit TOC</h3>
+            <span>Edit table of contents in PDF</span>
+          </a>
+          
+          <!-- Pipeline -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-project-diagram"></i>
+            </div>
+            <h3>PDF Pipeline</h3>
+            <span>Create processing pipelines for PDFs</span>
+          </a>
+          
+          <!-- Repair -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-tools"></i>
+            </div>
+            <h3>Repair PDF</h3>
+            <span>Repair corrupted PDF files</span>
+          </a>
+          
+          <!-- Scanner Effect -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-scanner"></i>
+            </div>
+            <h3>Scanner Effect</h3>
+            <span>Apply scanner-like effects to PDF</span>
+          </a>
+          
+          <!-- Split by Chapters -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-book"></i>
+            </div>
+            <h3>Split by Chapters</h3>
+            <span>Split PDF by chapters or sections</span>
+          </a>
+          
+          <!-- OCR -->
+          <a href="feature_coming_soon.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-eye"></i>
+            </div>
+            <h3>OCR</h3>
+            <span>Optical Character Recognition for PDFs</span>
+          </a>
+        </div>
+        
+        <div class="footer">
+          <div class="footer-content">
+            <div class="footer-title">PDF Editor - Professional Document Processing</div>
+            <div class="footer-description">
+              Our platform offers a comprehensive suite of PDF tools designed to streamline your document workflow. 
+              All tools are completely free to use, secure, and feature professional letterhead integration for 
+              business and academic applications. Process your documents with confidence knowing that all files 
+              are handled client-side for maximum privacy and security.
+            </div>
+            <div class="footer-copyright animated-text">
+              <span class="word1">Secure</span>
+              <span class="word2"> • </span>
+              <span class极="word3">Free</span>
+              <span class="word4"> • </span>
+              <span class="word5">Professional</span>
+              <span class="word6"> | </span>
+              <span class="word7">Made with <span class="heart">❤️</span> by </span>
+              <span class="word8"><a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" rel="noopener noreferrer">Sandeep</a></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <script>
+    // Add animation on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const buttons = document.querySelectorAll('.subject-button');
+      buttons.forEach((button, index) => {
+        button.style.opacity = '0';
+        button.style.transform = 'translateY(20px)';
+        button.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        
+        setTimeout(() => {
+          button.style.opacity = '1';
+          button.style.transform = 'translateY(0)';
+        }, 100 + index * 50);
+      });
+      
+      // Fullscreen functionality
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+      const fullscreenIcon = fullscreenBtn.querySelector('i');
+      
+      fullscreenBtn.addEventListener('click', toggleFullscreen);
+      
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          // Enter fullscreen
+          document.documentElement.requestFullscreen().catch(err => {
+            console.error(`Error attempting to enable fullscreen: ${err.message}`);
+          });
+        } else {
+          // Exit fullscreen
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          }
+        }
+      }
+      
+      // Update icon based on fullscreen state
+      document.addEventListener('fullscreenchange', updateFullscreenIcon);
+      document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+      document.addEventListener('mozfullscreenchange', updateFullscreenIcon);
+      document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
+      
+      function updateFullscreenIcon() {
+       
