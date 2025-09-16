@@ -59,72 +59,69 @@ self.addEventListener("activate", event => {
   );
 });
 
-// Fetch event - serve from cache first, then network
+// Fetch event - network first, then cache for online users
 self.addEventListener("fetch", event => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
   
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      // Return cached version if found
-      if (response) {
-        return response;
-      }
-      
-      // Otherwise, fetch from network
-      return fetch(event.request).then(networkResponse => {
-        // Don't cache non-200 responses or opaque responses
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type === 'opaque') {
-          return networkResponse;
+  // For online users, try network first, then cache
+  if (navigator.onLine) {
+    event.respondWith(
+      fetch(event.request).then(networkResponse => {
+        // If we got a response, update the cache
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseClone);
+          });
         }
-        
-        // Clone the response and cache it
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
-        
         return networkResponse;
       }).catch(error => {
-        // For HTML pages, fall back to index.html for SPA routing
-        if (event.request.headers.get('accept').includes('text/html')) {
-          return caches.match('/index.html');
-        }
-        
-        throw error;
-      });
-    })
-  );
-});
-
-// Message event - handle messages from the client
-self.addEventListener("message", event => {
-  if (event.data && event.data.type === "UPDATE_CACHE") {
-    event.waitUntil(updateCache());
-  }
-});
-
-// Function to update cache with all resources
-function updateCache() {
-  return caches.open(CACHE_NAME).then(cache => {
-    return Promise.allSettled(
-      urlsToCache.map(url => {
-        return fetch(url, { cache: 'no-store' }).then(response => {
-          if (response.ok) {
-            return cache.put(url, response);
+        // Network request failed, try cache
+        return caches.match(event.request).then(cachedResponse => {
+          if (cachedResponse) {
+            return cachedResponse;
           }
-          throw new Error(`Failed to fetch ${url}: ${response.status}`);
-        }).catch(error => {
-          console.log('Cache update failed for', url, error);
+          // If it's a HTML request and no cache, then return the index.html for SPA
+          if (event.request.headers.get('accept').includes('text/html')) {
+            return caches.match('/index.html');
+          }
+          throw error;
         });
       })
     );
-  });
-}
-
-// Background sync for caching when online
-self.addEventListener('sync', event => {
-  if (event.tag === 'update-cache') {
-    event.waitUntil(updateCache());
+  } else {
+    // For offline users, use cache first approach
+    event.respondWith(
+      caches.match(event.request).then(response => {
+        // Return cached version if found
+        if (response) {
+          return response;
+        }
+        
+        // Otherwise, try to fetch from network (might fail offline)
+        return fetch(event.request).then(networkResponse => {
+          // Don't cache non-200 responses or opaque responses
+          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type === 'opaque') {
+            return networkResponse;
+          }
+          
+          // Clone the response and cache it
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+          
+          return networkResponse;
+        }).catch(error => {
+          // For HTML pages, fall back to index.html for SPA routing
+          if (event.request.headers.get('accept').includes('text/html')) {
+            return caches.match('/index.html');
+          }
+          
+          throw error;
+        });
+      })
+    );
   }
 });
