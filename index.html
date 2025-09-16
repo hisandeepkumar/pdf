@@ -157,399 +157,44 @@ if ("serviceWorker" in navigator) {
     }
 
     .subject-button {
-      border-radius: 16px;
-      padding: 25px 20px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      min-height: 160px;
-      text-decoration: none;
-      color: #f0f0f0;
-    }
-
-    /* Base button backgrounds for 60 buttons — hues spaced by 6° (0 → 354) */
-.subject-button:nth-child(1)  { background: hsla(0,70%,50%,0.15); }
-.subject-button:nth-child(2)  { background: hsla(6,70%,50%,0.15); }
-.subject-button:nth-child(3)  { background: hsla(12,70%,50%,0.15); }
-.subject-button:nth-child(4)  { background: hsla(18,70%,50%,0.15); }
-.subject-button:nth-child(5)  { background: hsla(24,70%,50%,0.15); }
-.subject-button:nth-child(6)  { background: hsla(30,70%,50%,0.15); }
-.subject-button:nth-child(7)  { background: hsla(36,70%,50%,0.15); }
-.subject-button:nth-child(8)  { background: hsla(42,70%,50%,0.15); }
-.subject-button:nth-child(9)  { background: hsla(48,70%,50%,0.15); }
-.subject-button:nth-child(10) { background: hsla(54,70%,50%,0.15); }
-.subject-button:nth-child(11) { background: hsla(60,70%,50%,0.15); }
-.subject-button:nth-child(12) { background: hsla(66,70%,50%,0.15); }
-.subject-button:nth-child(13) { background: hsla(72,70%,50%,0.15); }
-.subject-button:nth-child(14) { background: hsla(78,70%,50%,0.15); }
-.subject-button:nth-child(15) { background: hsla(84,70%,50%,0.15); }
-.subject-button:nth-child(16) { background: hsla(90,70%,50%,0.15); }
-.subject-button:nth-child(17) { background: hsla(96,70%,50%,0.15); }
-.subject-button:nth-child(18) { background: hsla(102,70%,50%,0.15); }
-.subject-button:nth-child(19) { background: hsla(108,70%,50%,0.15); }
-.subject-button:nth-child(20) { background: hsla(114,70%,50%,0.15); }
-.subject-button:nth-child(21) { background: hsla(120,70%,50%,0.15); }
-.subject-button:nth-child(22) { background: hsla(126,70%,50%,0.15); }
-.subject-button:nth-child(23) { background: hsla(132,70%,50%,0.15); }
-.subject-button:nth-child(24) { background: hsla(138,70%,50%,0.15); }
-.subject-button:nth-child(25) { background: hsla(144,70%,50%,0.15); }
-.subject-button:nth-child(26) { background: hsla(150,70%,50%,0.15); }
-.subject-button:nth-child(27) { background: hsla(156,70%,50%,0.15); }
-.subject-button:nth-child(28) { background: hsla(162,70%,50%,0.15); }
-.subject-button:nth-child(29) { background: hsla(168,70%,50%,0.15); }
-.subject-button:nth-child(30) { background: hsla(174,70%,50%,0.15); }
-.subject-button:nth-child(31) { background: hsla(180,70%,50%,0.15); }
-.subject-button:nth-child(32) { background: hsla(186,70%,50%,0.15); }
-.subject-button:nth-child(33) { background: hsla(192,70%,50%,0.15); }
-.subject-button:nth-child(34) { background: hsla(198,70%,50%,0.15); }
-.subject-button:nth-child(35) { background: hsla(204,70%,50%,0.15); }
-.subject-button:nth-child(36) { background: hsla(210,70%,50%,0.15); }
-.subject-button:nth-child(37) { background: hsla(216,70%,50%,0.15); }
-.subject-button:nth-child(38) { background: hsla(222,70%,50%,0.15); }
-.subject-button:nth-child(39) { background: hsla(228,70%,50%,0.15); }
-.subject-button:nth-child(40) { background: hsla(234,70%,50%,0.15); }
-.subject-button:nth-child(41) { background: hsla(240,70%,50%,0.15); }
-.subject-button:nth-child(42) { background: hsla(246,70%,50%,0.15); }
-.subject-button:nth-child(43) { background: hsla(252,70%,50%,0.15); }
-.subject-button:nth-child(44) { background: hsla(258,70%,50%,0.15); }
-.subject-button:nth-child(45) { background: hsla(264,70%,50%,0.15); }
-.subject-button:nth-child(46) { background: hsla(270,70%,50%,0.15); }
-.subject-button:nth-child(47) { background: hsla(276,70%,50%,0.15); }
-.subject-button:nth-child(48) { background: hsla(282,70%,50%,0.15); }
-.subject-button:nth-child(49) { background: hsla(288,70%,50%,0.15); }
-.subject-button:nth-child(50) { background: hsla(294,70%,50%,0.15); }
-.subject-button:nth-child(51) { background: hsla(300,70%,50%,0.15); }
-.subject-button:nth-child(52) { background: hsla(306,70%,50%,0.15); }
-.subject-button:nth-child(53) { background: hsla(312,70%,50%,0.15); }
-.subject-button:nth-child(54) { background: hsla(318,70%,50%,0.15); }
-.subject-button:nth-child(55) { background: hsla(324,70%,50%,0.15); }
-.subject-button:nth-child(56) { background: hsla(330,70%,50%,0.15); }
-.subject-button:nth-child(57) { background: hsla(336,70%,50%,0.15); }
-.subject-button:nth-child(58) { background: hsla(342,70%,50%,0.15); }
-.subject-button:nth-child(59) { background: hsla(348,70%,50%,0.15); }
-.subject-button:nth-child(60) { background: hsla(354,70%,50%,0.15); }
-
-
-
-
-/* Button icon colors */
-    /* 60 subject-button rules — hues spaced by 6° (0 → 354) */
-.subject-button:nth-child(1) .button-icon  { background: hsla(0,70%,50%,0.2);   color: hsl(0,70%,44%);   border: 2px solid hsla(0,70%,50%,0.3); }
-.subject-button:nth-child(2) .button-icon  { background: hsla(6,70%,50%,0.2);   color: hsl(6,70%,44%);   border: 2px solid hsla(6,70%,50%,0.3); }
-.subject-button:nth-child(3) .button-icon  { background: hsla(12,70%,50%,0.2);  color: hsl(12,70%,44%);  border: 2px solid hsla(12,70%,50%,0.3); }
-.subject-button:nth-child(4) .button-icon  { background: hsla(18,70%,50%,0.2);  color: hsl(18,70%,44%);  border: 2px solid hsla(18,70%,50%,0.3); }
-.subject-button:nth-child(5) .button-icon  { background: hsla(24,70%,50%,0.2);  color: hsl(24,70%,44%);  border: 2px solid hsla(24,70%,50%,0.3); }
-.subject-button:nth-child(6) .button-icon  { background: hsla(30,70%,50%,0.2);  color: hsl(30,70%,44%);  border: 2px solid hsla(30,70%,50%,0.3); }
-.subject-button:nth-child(7) .button-icon  { background: hsla(36,70%,50%,0.2);  color: hsl(36,70%,44%);  border: 2px solid hsla(36,70%,50%,0.3); }
-.subject-button:nth-child(8) .button-icon  { background: hsla(42,70%,50%,0.2);  color: hsl(42,70%,44%);  border: 2px solid hsla(42,70%,50%,0.3); }
-.subject-button:nth-child(9) .button-icon  { background: hsla(48,70%,50%,0.2);  color: hsl(48,70%,44%);  border: 2px solid hsla(48,70%,50%,0.3); }
-.subject-button:nth-child(10) .button-icon { background: hsla(54,70%,50%,0.2);  color: hsl(54,70%,44%);  border: 2px solid hsla(54,70%,50%,0.3); }
-.subject-button:nth-child(11) .button-icon { background: hsla(60,70%,50%,0.2);  color: hsl(60,70%,44%);  border: 2px solid hsla(60,70%,50%,0.3); }
-.subject-button:nth-child(12) .button-icon { background: hsla(66,70%,50%,0.2);  color: hsl(66,70%,44%);  border: 2px solid hsla(66,70%,50%,0.3); }
-.subject-button:nth-child(13) .button-icon { background: hsla(72,70%,50%,0.2);  color: hsl(72,70%,44%);  border: 2px solid hsla(72,70%,50%,0.3); }
-.subject-button:nth-child(14) .button-icon { background: hsla(78,70%,50%,0.2);  color: hsl(78,70%,44%);  border: 2px solid hsla(78,70%,50%,0.3); }
-.subject-button:nth-child(15) .button-icon { background: hsla(84,70%,50%,0.2);  color: hsl(84,70%,44%);  border: 2px solid hsla(84,70%,50%,0.3); }
-.subject-button:nth-child(16) .button-icon { background: hsla(90,70%,50%,0.2);  color: hsl(90,70%,44%);  border: 2px solid hsla(90,70%,50%,0.3); }
-.subject-button:nth-child(17) .button-icon { background: hsla(96,70%,50%,0.2);  color: hsl(96,70%,44%);  border: 2px solid hsla(96,70%,50%,0.3); }
-.subject-button:nth-child(18) .button-icon { background: hsla(102,70%,50%,0.2); color: hsl(102,70%,44%); border: 2px solid hsla(102,70%,50%,0.3); }
-.subject-button:nth-child(19) .button-icon { background: hsla(108,70%,50%,0.2); color: hsl(108,70%,44%); border: 2px solid hsla(108,70%,50%,0.3); }
-.subject-button:nth-child(20) .button-icon { background: hsla(114,70%,50%,0.2); color: hsl(114,70%,44%); border: 2px solid hsla(114,70%,50%,0.3); }
-.subject-button:nth-child(21) .button-icon { background: hsla(120,70%,50%,0.2); color: hsl(120,70%,44%); border: 2px solid hsla(120,70%,50%,0.3); }
-.subject-button:nth-child(22) .button-icon { background: hsla(126,70%,50%,0.2); color: hsl(126,70%,44%); border: 2px solid hsla(126,70%,50%,0.3); }
-.subject-button:nth-child(23) .button-icon { background: hsla(132,70%,50%,0.2); color: hsl(132,70%,44%); border: 2px solid hsla(132,70%,50%,0.3); }
-.subject-button:nth-child(24) .button-icon { background: hsla(138,70%,50%,0.2); color: hsl(138,70%,44%); border: 2px solid hsla(138,70%,50%,0.3); }
-.subject-button:nth-child(25) .button-icon { background: hsla(144,70%,50%,0.2); color: hsl(144,70%,44%); border: 2px solid hsla(144,70%,50%,0.3); }
-.subject-button:nth-child(26) .button-icon { background: hsla(150,70%,50%,0.2); color: hsl(150,70%,44%); border: 2px solid hsla(150,70%,50%,0.3); }
-.subject-button:nth-child(27) .button-icon { background: hsla(156,70%,50%,0.2); color: hsl(156,70%,44%); border: 2px solid hsla(156,70%,50%,0.3); }
-.subject-button:nth-child(28) .button-icon { background: hsla(162,70%,50%,0.2); color: hsl(162,70%,44%); border: 2px solid hsla(162,70%,50%,0.3); }
-.subject-button:nth-child(29) .button-icon { background: hsla(168,70%,50%,0.2); color: hsl(168,70%,44%); border: 2px solid hsla(168,70%,50%,0.3); }
-.subject-button:nth-child(30) .button-icon { background: hsla(174,70%,50%,0.2); color: hsl(174,70%,44%); border: 2px solid hsla(174,70%,50%,0.3); }
-.subject-button:nth-child(31) .button-icon { background: hsla(180,70%,50%,0.2); color: hsl(180,70%,44%); border: 2px solid hsla(180,70%,50%,0.3); }
-.subject-button:nth-child(32) .button-icon { background: hsla(186,70%,50%,0.2); color: hsl(186,70%,44%); border: 2px solid hsla(186,70%,50%,0.3); }
-.subject-button:nth-child(33) .button-icon { background: hsla(192,70%,50%,0.2); color: hsl(192,70%,44%); border: 2px solid hsla(192,70%,50%,0.3); }
-.subject-button:nth-child(34) .button-icon { background: hsla(198,70%,50%,0.2); color: hsl(198,70%,44%); border: 2px solid hsla(198,70%,50%,0.3); }
-.subject-button:nth-child(35) .button-icon { background: hsla(204,70%,50%,0.2); color: hsl(204,70%,44%); border: 2px solid hsla(204,70%,50%,0.3); }
-.subject-button:nth-child(36) .button-icon { background: hsla(210,70%,50%,0.2); color: hsl(210,70%,44%); border: 2px solid hsla(210,70%,50%,0.3); }
-.subject-button:nth-child(37) .button-icon { background: hsla(216,70%,50%,0.2); color: hsl(216,70%,44%); border: 2px solid hsla(216,70%,50%,0.3); }
-.subject-button:nth-child(38) .button-icon { background: hsla(222,70%,50%,0.2); color: hsl(222,70%,44%); border: 2px solid hsla(222,70%,50%,0.3); }
-.subject-button:nth-child(39) .button-icon { background: hsla(228,70%,50%,0.2); color: hsl(228,70%,44%); border: 2px solid hsla(228,70%,50%,0.3); }
-.subject-button:nth-child(40) .button-icon { background: hsla(234,70%,50%,0.2); color: hsl(234,70%,44%); border: 2px solid hsla(234,70%,50%,0.3); }
-.subject-button:nth-child(41) .button-icon { background: hsla(240,70%,50%,0.2); color: hsl(240,70%,44%); border: 2px solid hsla(240,70%,50%,0.3); }
-.subject-button:nth-child(42) .button-icon { background: hsla(246,70%,50%,0.2); color: hsl(246,70%,44%); border: 2px solid hsla(246,70%,50%,0.3); }
-.subject-button:nth-child(43) .button-icon { background: hsla(252,70%,50%,0.2); color: hsl(252,70%,44%); border: 2px solid hsla(252,70%,50%,0.3); }
-.subject-button:nth-child(44) .button-icon { background: hsla(258,70%,50%,0.2); color: hsl(258,70%,44%); border: 2px solid hsla(258,70%,50%,0.3); }
-.subject-button:nth-child(45) .button-icon { background: hsla(264,70%,50%,0.2); color: hsl(264,70%,44%); border: 2px solid hsla(264,70%,50%,0.3); }
-.subject-button:nth-child(46) .button-icon { background: hsla(270,70%,50%,0.2); color: hsl(270,70%,44%); border: 2px solid hsla(270,70%,50%,0.3); }
-.subject-button:nth-child(47) .button-icon { background: hsla(276,70%,50%,0.2); color: hsl(276,70%,44%); border: 2px solid hsla(276,70%,50%,0.3); }
-.subject-button:nth-child(48) .button-icon { background: hsla(282,70%,50%,0.2); color: hsl(282,70%,44%); border: 2px solid hsla(282,70%,50%,0.3); }
-.subject-button:nth-child(49) .button-icon { background: hsla(288,70%,50%,0.2); color: hsl(288,70%,44%); border: 2px solid hsla(288,70%,50%,0.3); }
-.subject-button:nth-child(50) .button-icon { background: hsla(294,70%,50%,0.2); color: hsl(294,70%,44%); border: 2px solid hsla(294,70%,50%,0.3); }
-.subject-button:nth-child(51) .button-icon { background: hsla(300,70%,50%,0.2); color: hsl(300,70%,44%); border: 2px solid hsla(300,70%,50%,0.3); }
-.subject-button:nth-child(52) .button-icon { background: hsla(306,70%,50%,0.2); color: hsl(306,70%,44%); border: 2px solid hsla(306,70%,50%,0.3); }
-.subject-button:nth-child(53) .button-icon { background: hsla(312,70%,50%,0.2); color: hsl(312,70%,44%); border: 2px solid hsla(312,70%,50%,0.3); }
-.subject-button:nth-child(54) .button-icon { background: hsla(318,70%,50%,0.2); color: hsl(318,70%,44%); border: 2px solid hsla(318,70%,50%,0.3); }
-.subject-button:nth-child(55) .button-icon { background: hsla(324,70%,50%,0.2); color: hsl(324,70%,44%); border: 2px solid hsla(324,70%,50%,0.3); }
-.subject-button:nth-child(56) .button-icon { background: hsla(330,70%,50%,0.2); color: hsl(330,70%,44%); border: 2px solid hsla(330,70%,50%,0.3); }
-.subject-button:nth-child(57) .button-icon { background: hsla(336,70%,50%,0.2); color: hsl(336,70%,44%); border: 2px solid hsla(336,70%,50%,0.3); }
-.subject-button:nth-child(58) .button-icon { background: hsla(342,70%,50%,0.2); color: hsl(342,70%,44%); border: 2px solid hsla(342,70%,50%,0.3); }
-.subject-button:nth-child(59) .button-icon { background: hsla(348,70%,50%,0.2); color: hsl(348,70%,44%); border: 2px solid hsla(348,70%,50%,0.3); }
-.subject-button:nth-child(60) .button-icon { background: hsla(354,70%,50%,0.2); color: hsl(354,70%,44%); border: 2px solid hsla(354,70%,50%,0.3); }
-
-
-/* Individual neon colors for each button on hover */
-    /* Neon hover rules for 60 buttons — hues spaced by 6° (0 → 354) */
-.subject-button:nth-child(1):hover  { background: hsla(0,70%,50%,0.25);   border-color: hsl(0,70%,44%);   box-shadow: 0 0 10px hsl(0,70%,44%), 0 0 20px hsl(0,70%,44%), 0 0 30px hsl(0,70%,44%), 0 0 40px hsl(0,70%,44%); }
-.subject-button:nth-child(1):hover .button-icon  { background: hsla(0,70%,50%,0.3);   border-color: hsla(0,70%,44%,0.8); box-shadow: 0 0 15px hsl(0,70%,44%); }
-.subject-button:nth-child(1):hover h3 { color: hsl(0,70%,44%);  text-shadow: 0 0 10px hsla(0,70%,50%,0.7); }
-
-.subject-button:nth-child(2):hover  { background: hsla(6,70%,50%,0.25);  border-color: hsl(6,70%,44%);  box-shadow: 0 0 10px hsl(6,70%,44%), 0 0 20px hsl(6,70%,44%), 0 0 30px hsl(6,70%,44%), 0 0 40px hsl(6,70%,44%); }
-.subject-button:nth-child(2):hover .button-icon  { background: hsla(6,70%,50%,0.3);  border-color: hsla(6,70%,44%,0.8); box-shadow: 0 0 15px hsl(6,70%,44%); }
-.subject-button:nth-child(2):hover h3 { color: hsl(6,70%,44%); text-shadow: 0 0 10px hsla(6,70%,50%,0.7); }
-
-.subject-button:nth-child(3):hover  { background: hsla(12,70%,50%,0.25); border-color: hsl(12,70%,44%); box-shadow: 0 0 10px hsl(12,70%,44%), 0 0 20px hsl(12,70%,44%), 0 0 30px hsl(12,70%,44%), 0 0 40px hsl(12,70%,44%); }
-.subject-button:nth-child(3):hover .button-icon  { background: hsla(12,70%,50%,0.3); border-color: hsla(12,70%,44%,0.8); box-shadow: 0 0 15px hsl(12,70%,44%); }
-.subject-button:nth-child(3):hover h3 { color: hsl(12,70%,44%); text-shadow: 0 0 10px hsla(12,70%,50%,0.7); }
-
-.subject-button:nth-child(4):hover  { background: hsla(18,70%,50%,0.25); border-color: hsl(18,70%,44%); box-shadow: 0 0 10px hsl(18,70%,44%), 0 0 20px hsl(18,70%,44%), 0 0 30px hsl(18,70%,44%), 0 0 40px hsl(18,70%,44%); }
-.subject-button:nth-child(4):hover .button-icon  { background: hsla(18,70%,50%,0.3); border-color: hsla(18,70%,44%,0.8); box-shadow: 0 0 15px hsl(18,70%,44%); }
-.subject-button:nth-child(4):hover h3 { color: hsl(18,70%,44%); text-shadow: 0 0 10px hsla(18,70%,50%,0.7); }
-
-.subject-button:nth-child(5):hover  { background: hsla(24,70%,50%,0.25); border-color: hsl(24,70%,44%); box-shadow: 0 0 10px hsl(24,70%,44%), 0 0 20px hsl(24,70%,44%), 0 0 30px hsl(24,70%,44%), 0 0 40px hsl(24,70%,44%); }
-.subject-button:nth-child(5):hover .button-icon  { background: hsla(24,70%,50%,0.3); border-color: hsla(24,70%,44%,0.8); box-shadow: 0 0 15px hsl(24,70%,44%); }
-.subject-button:nth-child(5):hover h3 { color: hsl(24,70%,44%); text-shadow: 0 0 10px hsla(24,70%,50%,0.7); }
-
-.subject-button:nth-child(6):hover  { background: hsla(30,70%,50%,0.25); border-color: hsl(30,70%,44%); box-shadow: 0 0 10px hsl(30,70%,44%), 0 0 20px hsl(30,70%,44%), 0 0 30px hsl(30,70%,44%), 0 0 40px hsl(30,70%,44%); }
-.subject-button:nth-child(6):hover .button-icon  { background: hsla(30,70%,50%,0.3); border-color: hsla(30,70%,44%,0.8); box-shadow: 0 0 15px hsl(30,70%,44%); }
-.subject-button:nth-child(6):hover h3 { color: hsl(30,70%,44%); text-shadow: 0 0 10px hsla(30,70%,50%,0.7); }
-
-.subject-button:nth-child(7):hover  { background: hsla(36,70%,50%,0.25); border-color: hsl(36,70%,44%); box-shadow: 0 0 10px hsl(36,70%,44%), 0 0 20px hsl(36,70%,44%), 0 0 30px hsl(36,70%,44%), 0 0 40px hsl(36,70%,44%); }
-.subject-button:nth-child(7):hover .button-icon  { background: hsla(36,70%,50%,0.3); border-color: hsla(36,70%,44%,0.8); box-shadow: 0 0 15px hsl(36,70%,44%); }
-.subject-button:nth-child(7):hover h3 { color: hsl(36,70%,44%); text-shadow: 0 0 10px hsla(36,70%,50%,0.7); }
-
-.subject-button:nth-child(8):hover  { background: hsla(42,70%,50%,0.25); border-color: hsl(42,70%,44%); box-shadow: 0 0 10px hsl(42,70%,44%), 0 0 20px hsl(42,70%,44%), 0 0 30px hsl(42,70%,44%), 0 0 40px hsl(42,70%,44%); }
-.subject-button:nth-child(8):hover .button-icon  { background: hsla(42,70%,50%,0.3); border-color: hsla(42,70%,44%,0.8); box-shadow: 0 0 15px hsl(42,70%,44%); }
-.subject-button:nth-child(8):hover h3 { color: hsl(42,70%,44%); text-shadow: 0 0 10px hsla(42,70%,50%,0.7); }
-
-.subject-button:nth-child(9):hover  { background: hsla(48,70%,50%,0.25); border-color: hsl(48,70%,44%); box-shadow: 0 0 10px hsl(48,70%,44%), 0 0 20px hsl(48,70%,44%), 0 0 30px hsl(48,70%,44%), 0 0 40px hsl(48,70%,44%); }
-.subject-button:nth-child(9):hover .button-icon  { background: hsla(48,70%,50%,0.3); border-color: hsla(48,70%,44%,0.8); box-shadow: 0 0 15px hsl(48,70%,44%); }
-.subject-button:nth-child(9):hover h3 { color: hsl(48,70%,44%); text-shadow: 0 0 10px hsla(48,70%,50%,0.7); }
-
-.subject-button:nth-child(10):hover { background: hsla(54,70%,50%,0.25); border-color: hsl(54,70%,44%); box-shadow: 0 0 10px hsl(54,70%,44%), 0 0 20px hsl(54,70%,44%), 0 0 30px hsl(54,70%,44%), 0 0 40px hsl(54,70%,44%); }
-.subject-button:nth-child(10):hover .button-icon { background: hsla(54,70%,50%,0.3); border-color: hsla(54,70%,44%,0.8); box-shadow: 0 0 15px hsl(54,70%,44%); }
-.subject-button:nth-child(10):hover h3 { color: hsl(54,70%,44%); text-shadow: 0 0 10px hsla(54,70%,50%,0.7); }
-
-.subject-button:nth-child(11):hover { background: hsla(60,70%,50%,0.25); border-color: hsl(60,70%,44%); box-shadow: 0 0 10px hsl(60,70%,44%), 0 0 20px hsl(60,70%,44%), 0 0 30px hsl(60,70%,44%), 0 0 40px hsl(60,70%,44%); }
-.subject-button:nth-child(11):hover .button-icon { background: hsla(60,70%,50%,0.3); border-color: hsla(60,70%,44%,0.8); box-shadow: 0 0 15px hsl(60,70%,44%); }
-.subject-button:nth-child(11):hover h3 { color: hsl(60,70%,44%); text-shadow: 0 0 10px hsla(60,70%,50%,0.7); }
-
-.subject-button:nth-child(12):hover { background: hsla(66,70%,50%,0.25); border-color: hsl(66,70%,44%); box-shadow: 0 0 10px hsl(66,70%,44%), 0 0 20px hsl(66,70%,44%), 0 0 30px hsl(66,70%,44%), 0 0 40px hsl(66,70%,44%); }
-.subject-button:nth-child(12):hover .button-icon { background: hsla(66,70%,50%,0.3); border-color: hsla(66,70%,44%,0.8); box-shadow: 0 0 15px hsl(66,70%,44%); }
-.subject-button:nth-child(12):hover h3 { color: hsl(66,70%,44%); text-shadow: 0 0 10px hsla(66,70%,50%,0.7); }
-
-.subject-button:nth-child(13):hover { background: hsla(72,70%,50%,0.25); border-color: hsl(72,70%,44%); box-shadow: 0 0 10px hsl(72,70%,44%), 0 0 20px hsl(72,70%,44%), 0 0 30px hsl(72,70%,44%), 0 0 40px hsl(72,70%,44%); }
-.subject-button:nth-child(13):hover .button-icon { background: hsla(72,70%,50%,0.3); border-color: hsla(72,70%,44%,0.8); box-shadow: 0 0 15px hsl(72,70%,44%); }
-.subject-button:nth-child(13):hover h3 { color: hsl(72,70%,44%); text-shadow: 0 0 10px hsla(72,70%,50%,0.7); }
-
-.subject-button:nth-child(14):hover { background: hsla(78,70%,50%,0.25); border-color: hsl(78,70%,44%); box-shadow: 0 0 10px hsl(78,70%,44%), 0 0 20px hsl(78,70%,44%), 0 0 30px hsl(78,70%,44%), 0 0 40px hsl(78,70%,44%); }
-.subject-button:nth-child(14):hover .button-icon { background: hsla(78,70%,50%,0.3); border-color: hsla(78,70%,44%,0.8); box-shadow: 0 0 15px hsl(78,70%,44%); }
-.subject-button:nth-child(14):hover h3 { color: hsl(78,70%,44%); text-shadow: 0 0 10px hsla(78,70%,50%,0.7); }
-
-.subject-button:nth-child(15):hover { background: hsla(84,70%,50%,0.25); border-color: hsl(84,70%,44%); box-shadow: 0 0 10px hsl(84,70%,44%), 0 0 20px hsl(84,70%,44%), 0 0 30px hsl(84,70%,44%), 0 0 40px hsl(84,70%,44%); }
-.subject-button:nth-child(15):hover .button-icon { background: hsla(84,70%,50%,0.3); border-color: hsla(84,70%,44%,0.8); box-shadow: 0 0 15px hsl(84,70%,44%); }
-.subject-button:nth-child(15):hover h3 { color: hsl(84,70%,44%); text-shadow: 0 0 10px hsla(84,70%,50%,0.7); }
-
-.subject-button:nth-child(16):hover { background: hsla(90,70%,50%,0.25); border-color: hsl(90,70%,44%); box-shadow: 0 0 10px hsl(90,70%,44%), 0 0 20px hsl(90,70%,44%), 0 0 30px hsl(90,70%,44%), 0 0 40px hsl(90,70%,44%); }
-.subject-button:nth-child(16):hover .button-icon { background: hsla(90,70%,50%,0.3); border-color: hsla(90,70%,44%,0.8); box-shadow: 0 0 15px hsl(90,70%,44%); }
-.subject-button:nth-child(16):hover h3 { color: hsl(90,70%,44%); text-shadow: 0 0 10px hsla(90,70%,50%,0.7); }
-
-.subject-button:nth-child(17):hover { background: hsla(96,70%,50%,0.25); border-color: hsl(96,70%,44%); box-shadow: 0 0 10px hsl(96,70%,44%), 0 0 20px hsl(96,70%,44%), 0 0 30px hsl(96,70%,44%), 0 0 40px hsl(96,70%,44%); }
-.subject-button:nth-child(17):hover .button-icon { background: hsla(96,70%,50%,0.3); border-color: hsla(96,70%,44%,0.8); box-shadow: 0 0 15px hsl(96,70%,44%); }
-.subject-button:nth-child(17):hover h3 { color: hsl(96,70%,44%); text-shadow: 0 0 10px hsla(96,70%,50%,0.7); }
-
-.subject-button:nth-child(18):hover { background: hsla(102,70%,50%,0.25); border-color: hsl(102,70%,44%); box-shadow: 0 0 10px hsl(102,70%,44%), 0 0 20px hsl(102,70%,44%), 0 0 30px hsl(102,70%,44%), 0 0 40px hsl(102,70%,44%); }
-.subject-button:nth-child(18):hover .button-icon { background: hsla(102,70%,50%,0.3); border-color: hsla(102,70%,44%,0.8); box-shadow: 0 0 15px hsl(102,70%,44%); }
-.subject-button:nth-child(18):hover h3 { color: hsl(102,70%,44%); text-shadow: 0 0 10px hsla(102,70%,50%,0.7); }
-
-.subject-button:nth-child(19):hover { background: hsla(108,70%,50%,0.25); border-color: hsl(108,70%,44%); box-shadow: 0 0 10px hsl(108,70%,44%), 0 0 20px hsl(108,70%,44%), 0 0 30px hsl(108,70%,44%), 0 0 40px hsl(108,70%,44%); }
-.subject-button:nth-child(19):hover .button-icon { background: hsla(108,70%,50%,0.3); border-color: hsla(108,70%,44%,0.8); box-shadow: 0 0 15px hsl(108,70%,44%); }
-.subject-button:nth-child(19):hover h3 { color: hsl(108,70%,44%); text-shadow: 0 0 10px hsla(108,70%,50%,0.7); }
-
-.subject-button:nth-child(20):hover { background: hsla(114,70%,50%,0.25); border-color: hsl(114,70%,44%); box-shadow: 0 0 10px hsl(114,70%,44%), 0 0 20px hsl(114,70%,44%), 0 0 30px hsl(114,70%,44%), 0 0 40px hsl(114,70%,44%); }
-.subject-button:nth-child(20):hover .button-icon { background: hsla(114,70%,50%,0.3); border-color: hsla(114,70%,44%,0.8); box-shadow: 0 0 15px hsl(114,70%,44%); }
-.subject-button:nth-child(20):hover h3 { color: hsl(114,70%,44%); text-shadow: 0 0 10px hsla(114,70%,50%,0.7); }
-
-.subject-button:nth-child(21):hover { background: hsla(120,70%,50%,0.25); border-color: hsl(120,70%,44%); box-shadow: 0 0 10px hsl(120,70%,44%), 0 0 20px hsl(120,70%,44%), 0 0 30px hsl(120,70%,44%), 0 0 40px hsl(120,70%,44%); }
-.subject-button:nth-child(21):hover .button-icon { background: hsla(120,70%,50%,0.3); border-color: hsla(120,70%,44%,0.8); box-shadow: 0 0 15px hsl(120,70%,44%); }
-.subject-button:nth-child(21):hover h3 { color: hsl(120,70%,44%); text-shadow: 0 0 10px hsla(120,70%,50%,0.7); }
-
-.subject-button:nth-child(22):hover { background: hsla(126,70%,50%,0.25); border-color: hsl(126,70%,44%); box-shadow: 0 0 10px hsl(126,70%,44%), 0 0 20px hsl(126,70%,44%), 0 0 30px hsl(126,70%,44%), 0 0 40px hsl(126,70%,44%); }
-.subject-button:nth-child(22):hover .button-icon { background: hsla(126,70%,50%,0.3); border-color: hsla(126,70%,44%,0.8); box-shadow: 0 0 15px hsl(126,70%,44%); }
-.subject-button:nth-child(22):hover h3 { color: hsl(126,70%,44%); text-shadow: 0 0 10px hsla(126,70%,50%,0.7); }
-
-.subject-button:nth-child(23):hover { background: hsla(132,70%,50%,0.25); border-color: hsl(132,70%,44%); box-shadow: 0 0 10px hsl(132,70%,44%), 0 0 20px hsl(132,70%,44%), 0 0 30px hsl(132,70%,44%), 0 0 40px hsl(132,70%,44%); }
-.subject-button:nth-child(23):hover .button-icon { background: hsla(132,70%,50%,0.3); border-color: hsla(132,70%,44%,0.8); box-shadow: 0 0 15px hsl(132,70%,44%); }
-.subject-button:nth-child(23):hover h3 { color: hsl(132,70%,44%); text-shadow: 0 0 10px hsla(132,70%,50%,0.7); }
-
-.subject-button:nth-child(24):hover { background: hsla(138,70%,50%,0.25); border-color: hsl(138,70%,44%); box-shadow: 0 0 10px hsl(138,70%,44%), 0 0 20px hsl(138,70%,44%), 0 0 30px hsl(138,70%,44%), 0 0 40px hsl(138,70%,44%); }
-.subject-button:nth-child(24):hover .button-icon { background: hsla(138,70%,50%,0.3); border-color: hsla(138,70%,44%,0.8); box-shadow: 0 0 15px hsl(138,70%,44%); }
-.subject-button:nth-child(24):hover h3 { color: hsl(138,70%,44%); text-shadow: 0 0 10px hsla(138,70%,50%,0.7); }
-
-.subject-button:nth-child(25):hover { background: hsla(144,70%,50%,0.25); border-color: hsl(144,70%,44%); box-shadow: 0 0 10px hsl(144,70%,44%), 0 0 20px hsl(144,70%,44%), 0 0 30px hsl(144,70%,44%), 0 0 40px hsl(144,70%,44%); }
-.subject-button:nth-child(25):hover .button-icon { background: hsla(144,70%,50%,0.3); border-color: hsla(144,70%,44%,0.8); box-shadow: 0 0 15px hsl(144,70%,44%); }
-.subject-button:nth-child(25):hover h3 { color: hsl(144,70%,44%); text-shadow: 0 0 10px hsla(144,70%,50%,0.7); }
-
-.subject-button:nth-child(26):hover { background: hsla(150,70%,50%,0.25); border-color: hsl(150,70%,44%); box-shadow: 0 0 10px hsl(150,70%,44%), 0 0 20px hsl(150,70%,44%), 0 0 30px hsl(150,70%,44%), 0 0 40px hsl(150,70%,44%); }
-.subject-button:nth-child(26):hover .button-icon { background: hsla(150,70%,50%,0.3); border-color: hsla(150,70%,44%,0.8); box-shadow: 0 0 15px hsl(150,70%,44%); }
-.subject-button:nth-child(26):hover h3 { color: hsl(150,70%,44%); text-shadow: 0 0 10px hsla(150,70%,50%,0.7); }
-
-.subject-button:nth-child(27):hover { background: hsla(156,70%,50%,0.25); border-color: hsl(156,70%,44%); box-shadow: 0 0 10px hsl(156,70%,44%), 0 0 20px hsl(156,70%,44%), 0 0 30px hsl(156,70%,44%), 0 0 40px hsl(156,70%,44%); }
-.subject-button:nth-child(27):hover .button-icon { background: hsla(156,70%,50%,0.3); border-color: hsla(156,70%,44%,0.8); box-shadow: 0 0 15px hsl(156,70%,44%); }
-.subject-button:nth-child(27):hover h3 { color: hsl(156,70%,44%); text-shadow: 0 0 10px hsla(156,70%,50%,0.7); }
-
-.subject-button:nth-child(28):hover { background: hsla(162,70%,50%,0.25); border-color: hsl(162,70%,44%); box-shadow: 0 0 10px hsl(162,70%,44%), 0 0 20px hsl(162,70%,44%), 0 0 30px hsl(162,70%,44%), 0 0 40px hsl(162,70%,44%); }
-.subject-button:nth-child(28):hover .button-icon { background: hsla(162,70%,50%,0.3); border-color: hsla(162,70%,44%,0.8); box-shadow: 0 0 15px hsl(162,70%,44%); }
-.subject-button:nth-child(28):hover h3 { color: hsl(162,70%,44%); text-shadow: 0 0 10px hsla(162,70%,50%,0.7); }
-
-.subject-button:nth-child(29):hover { background: hsla(168,70%,50%,0.25); border-color: hsl(168,70%,44%); box-shadow: 0 0 10px hsl(168,70%,44%), 0 0 20px hsl(168,70%,44%), 0 0 30px hsl(168,70%,44%), 0 0 40px hsl(168,70%,44%); }
-.subject-button:nth-child(29):hover .button-icon { background: hsla(168,70%,50%,0.3); border-color: hsla(168,70%,44%,0.8); box-shadow: 0 0 15px hsl(168,70%,44%); }
-.subject-button:nth-child(29):hover h3 { color: hsl(168,70%,44%); text-shadow: 0 0 10px hsla(168,70%,50%,0.7); }
-
-.subject-button:nth-child(30):hover { background: hsla(174,70%,50%,0.25); border-color: hsl(174,70%,44%); box-shadow: 0 0 10px hsl(174,70%,44%), 0 0 20px hsl(174,70%,44%), 0 0 30px hsl(174,70%,44%), 0 0 40px hsl(174,70%,44%); }
-.subject-button:nth-child(30):hover .button-icon { background: hsla(174,70%,50%,0.3); border-color: hsla(174,70%,44%,0.8); box-shadow: 0 0 15px hsl(174,70%,44%); }
-.subject-button:nth-child(30):hover h3 { color: hsl(174,70%,44%); text-shadow: 0 0 10px hsla(174,70%,50%,0.7); }
-
-.subject-button:nth-child(31):hover { background: hsla(180,70%,50%,0.25); border-color: hsl(180,70%,44%); box-shadow: 0 0 10px hsl(180,70%,44%), 0 0 20px hsl(180,70%,44%), 0 0 30px hsl(180,70%,44%), 0 0 40px hsl(180,70%,44%); }
-.subject-button:nth-child(31):hover .button-icon { background: hsla(180,70%,50%,0.3); border-color: hsla(180,70%,44%,0.8); box-shadow: 0 0 15px hsl(180,70%,44%); }
-.subject-button:nth-child(31):hover h3 { color: hsl(180,70%,44%); text-shadow: 0 0 10px hsla(180,70%,50%,0.7); }
-
-.subject-button:nth-child(32):hover { background: hsla(186,70%,50%,0.25); border-color: hsl(186,70%,44%); box-shadow: 0 0 10px hsl(186,70%,44%), 0 0 20px hsl(186,70%,44%), 0 0 30px hsl(186,70%,44%), 0 0 40px hsl(186,70%,44%); }
-.subject-button:nth-child(32):hover .button-icon { background: hsla(186,70%,50%,0.3); border-color: hsla(186,70%,44%,0.8); box-shadow: 0 0 15px hsl(186,70%,44%); }
-.subject-button:nth-child(32):hover h3 { color: hsl(186,70%,44%); text-shadow: 0 0 10px hsla(186,70%,50%,0.7); }
-
-.subject-button:nth-child(33):hover { background: hsla(192,70%,50%,0.25); border-color: hsl(192,70%,44%); box-shadow: 0 0 10px hsl(192,70%,44%), 0 0 20px hsl(192,70%,44%), 0 0 30px hsl(192,70%,44%), 0 0 40px hsl(192,70%,44%); }
-.subject-button:nth-child(33):hover .button-icon { background: hsla(192,70%,50%,0.3); border-color: hsla(192,70%,44%,0.8); box-shadow: 0 0 15px hsl(192,70%,44%); }
-.subject-button:nth-child(33):hover h3 { color: hsl(192,70%,44%); text-shadow: 0 0 10px hsla(192,70%,50%,0.7); }
-
-.subject-button:nth-child(34):hover { background: hsla(198,70%,50%,0.25); border-color: hsl(198,70%,44%); box-shadow: 0 0 10px hsl(198,70%,44%), 0 0 20px hsl(198,70%,44%), 0 0 30px hsl(198,70%,44%), 0 0 40px hsl(198,70%,44%); }
-.subject-button:nth-child(34):hover .button-icon { background: hsla(198,70%,50%,0.3); border-color: hsla(198,70%,44%,0.8); box-shadow: 0 0 15px hsl(198,70%,44%); }
-.subject-button:nth-child(34):hover h3 { color: hsl(198,70%,44%); text-shadow: 0 0 10px hsla(198,70%,50%,0.7); }
-
-.subject-button:nth-child(35):hover { background: hsla(204,70%,50%,0.25); border-color: hsl(204,70%,44%); box-shadow: 0 0 10px hsl(204,70%,44%), 0 0 20px hsl(204,70%,44%), 0 0 30px hsl(204,70%,44%), 0 0 40px hsl(204,70%,44%); }
-.subject-button:nth-child(35):hover .button-icon { background: hsla(204,70%,50%,0.3); border-color: hsla(204,70%,44%,0.8); box-shadow: 0 0 15px hsl(204,70%,44%); }
-.subject-button:nth-child(35):hover h3 { color: hsl(204,70%,44%); text-shadow: 0 0 10px hsla(204,70%,50%,0.7); }
-
-.subject-button:nth-child(36):hover { background: hsla(210,70%,50%,0.25); border-color: hsl(210,70%,44%); box-shadow: 0 0 10px hsl(210,70%,44%), 0 0 20px hsl(210,70%,44%), 0 0 30px hsl(210,70%,44%), 0 0 40px hsl(210,70%,44%); }
-.subject-button:nth-child(36):hover .button-icon { background: hsla(210,70%,50%,0.3); border-color: hsla(210,70%,44%,0.8); box-shadow: 0 0 15px hsl(210,70%,44%); }
-.subject-button:nth-child(36):hover h3 { color: hsl(210,70%,44%); text-shadow: 0 0 10px hsla(210,70%,50%,0.7); }
-
-.subject-button:nth-child(37):hover { background: hsla(216,70%,50%,0.25); border-color: hsl(216,70%,44%); box-shadow: 0 0 10px hsl(216,70%,44%), 0 0 20px hsl(216,70%,44%), 0 0 30px hsl(216,70%,44%), 0 0 40px hsl(216,70%,44%); }
-.subject-button:nth-child(37):hover .button-icon { background: hsla(216,70%,50%,0.3); border-color: hsla(216,70%,44%,0.8); box-shadow: 0 0 15px hsl(216,70%,44%); }
-.subject-button:nth-child(37):hover h3 { color: hsl(216,70%,44%); text-shadow: 0 0 10px hsla(216,70%,50%,0.7); }
-
-.subject-button:nth-child(38):hover { background: hsla(222,70%,50%,0.25); border-color: hsl(222,70%,44%); box-shadow: 0 0 10px hsl(222,70%,44%), 0 0 20px hsl(222,70%,44%), 0 0 30px hsl(222,70%,44%), 0 0 40px hsl(222,70%,44%); }
-.subject-button:nth-child(38):hover .button-icon { background: hsla(222,70%,50%,0.3); border-color: hsla(222,70%,44%,0.8); box-shadow: 0 0 15px hsl(222,70%,44%); }
-.subject-button:nth-child(38):hover h3 { color: hsl(222,70%,44%); text-shadow: 0 0 10px hsla(222,70%,50%,0.7); }
-
-.subject-button:nth-child(39):hover { background: hsla(228,70%,50%,0.25); border-color: hsl(228,70%,44%); box-shadow: 0 0 10px hsl(228,70%,44%), 0 0 20px hsl(228,70%,44%), 0 0 30px hsl(228,70%,44%), 0 0 40px hsl(228,70%,44%); }
-.subject-button:nth-child(39):hover .button-icon { background: hsla(228,70%,50%,0.3); border-color: hsla(228,70%,44%,0.8); box-shadow: 0 0 15px hsl(228,70%,44%); }
-.subject-button:nth-child(39):hover h3 { color: hsl(228,70%,44%); text-shadow: 0 0 10px hsla(228,70%,50%,0.7); }
-
-.subject-button:nth-child(40):hover { background: hsla(234,70%,50%,0.25); border-color: hsl(234,70%,44%); box-shadow: 0 0 10px hsl(234,70%,44%), 0 0 20px hsl(234,70%,44%), 0 0 30px hsl(234,70%,44%), 0 0 40px hsl(234,70%,44%); }
-.subject-button:nth-child(40):hover .button-icon { background: hsla(234,70%,50%,0.3); border-color: hsla(234,70%,44%,0.8); box-shadow: 0 0 15px hsl(234,70%,44%); }
-.subject-button:nth-child(40):hover h3 { color: hsl(234,70%,44%); text-shadow: 0 0 10px hsla(234,70%,50%,0.7); }
-
-.subject-button:nth-child(41):hover { background: hsla(240,70%,50%,0.25); border-color: hsl(240,70%,44%); box-shadow: 0 0 10px hsl(240,70%,44%), 0 0 20px hsl(240,70%,44%), 0 0 30px hsl(240,70%,44%), 0 0 40px hsl(240,70%,44%); }
-.subject-button:nth-child(41):hover .button-icon { background: hsla(240,70%,50%,0.3); border-color: hsla(240,70%,44%,0.8); box-shadow: 0 0 15px hsl(240,70%,44%); }
-.subject-button:nth-child(41):hover h3 { color: hsl(240,70%,44%); text-shadow: 0 0 10px hsla(240,70%,50%,0.7); }
-
-.subject-button:nth-child(42):hover { background: hsla(246,70%,50%,0.25); border-color: hsl(246,70%,44%); box-shadow: 0 0 10px hsl(246,70%,44%), 0 0 20px hsl(246,70%,44%), 0 0 30px hsl(246,70%,44%), 0 0 40px hsl(246,70%,44%); }
-.subject-button:nth-child(42):hover .button-icon { background: hsla(246,70%,50%,0.3); border-color: hsla(246,70%,44%,0.8); box-shadow: 0 0 15px hsl(246,70%,44%); }
-.subject-button:nth-child(42):hover h3 { color: hsl(246,70%,44%); text-shadow: 0 0 10px hsla(246,70%,50%,0.7); }
-
-.subject-button:nth-child(43):hover { background: hsla(252,70%,50%,0.25); border-color: hsl(252,70%,44%); box-shadow: 0 0 10px hsl(252,70%,44%), 0 0 20px hsl(252,70%,44%), 0 0 30px hsl(252,70%,44%), 0 0 40px hsl(252,70%,44%); }
-.subject-button:nth-child(43):hover .button-icon { background: hsla(252,70%,50%,0.3); border-color: hsla(252,70%,44%,0.8); box-shadow: 0 0 15px hsl(252,70%,44%); }
-.subject-button:nth-child(43):hover h3 { color: hsl(252,70%,44%); text-shadow: 0 0 10px hsla(252,70%,50%,0.7); }
-
-.subject-button:nth-child(44):hover { background: hsla(258,70%,50%,0.25); border-color: hsl(258,70%,44%); box-shadow: 0 0 10px hsl(258,70%,44%), 0 0 20px hsl(258,70%,44%), 0 0 30px hsl(258,70%,44%), 0 0 40px hsl(258,70%,44%); }
-.subject-button:nth-child(44):hover .button-icon { background: hsla(258,70%,50%,0.3); border-color: hsla(258,70%,44%,0.8); box-shadow: 0 0 15px hsl(258,70%,44%); }
-.subject-button:nth-child(44):hover h3 { color: hsl(258,70%,44%); text-shadow: 0 0 10px hsla(258,70%,50%,0.7); }
-
-.subject-button:nth-child(45):hover { background: hsla(264,70%,50%,0.25); border-color: hsl(264,70%,44%); box-shadow: 0 0 10px hsl(264,70%,44%), 0 0 20px hsl(264,70%,44%), 0 0 30px hsl(264,70%,44%), 0 0 40px hsl(264,70%,44%); }
-.subject-button:nth-child(45):hover .button-icon { background: hsla(264,70%,50%,0.3); border-color: hsla(264,70%,44%,0.8); box-shadow: 0 0 15px hsl(264,70%,44%); }
-.subject-button:nth-child(45):hover h3 { color: hsl(264,70%,44%); text-shadow: 0 0 10px hsla(264,70%,50%,0.7); }
-
-.subject-button:nth-child(46):hover { background: hsla(270,70%,50%,0.25); border-color: hsl(270,70%,44%); box-shadow: 0 0 10px hsl(270,70%,44%), 0 0 20px hsl(270,70%,44%), 0 0 30px hsl(270,70%,44%), 0 0 40px hsl(270,70%,44%); }
-.subject-button:nth-child(46):hover .button-icon { background: hsla(270,70%,50%,0.3); border-color: hsla(270,70%,44%,0.8); box-shadow: 0 0 15px hsl(270,70%,44%); }
-.subject-button:nth-child(46):hover h3 { color: hsl(270,70%,44%); text-shadow: 0 0 10px hsla(270,70%,50%,0.7); }
-
-.subject-button:nth-child(47):hover { background: hsla(276,70%,50%,0.25); border-color: hsl(276,70%,44%); box-shadow: 0 0 10px hsl(276,70%,44%), 0 0 20px hsl(276,70%,44%), 0 0 30px hsl(276,70%,44%), 0 0 40px hsl(276,70%,44%); }
-.subject-button:nth-child(47):hover .button-icon { background: hsla(276,70%,50%,0.3); border-color: hsla(276,70%,44%,0.8); box-shadow: 0 0 15px hsl(276,70%,44%); }
-.subject-button:nth-child(47):hover h3 { color: hsl(276,70%,44%); text-shadow: 0 0 10px hsla(276,70%,50%,0.7); }
-
-.subject-button:nth-child(48):hover { background: hsla(282,70%,50%,0.25); border-color: hsl(282,70%,44%); box-shadow: 0 0 10px hsl(282,70%,44%), 0 0 20px hsl(282,70%,44%), 0 0 30px hsl(282,70%,44%), 0 0 40px hsl(282,70%,44%); }
-.subject-button:nth-child(48):hover .button-icon { background: hsla(282,70%,50%,0.3); border-color: hsla(282,70%,44%,0.8); box-shadow: 0 0 15px hsl(282,70%,44%); }
-.subject-button:nth-child(48):hover h3 { color: hsl(282,70%,44%); text-shadow: 0 0 10px hsla(282,70%,50%,0.7); }
-
-.subject-button:nth-child(49):hover { background: hsla(288,70%,50%,0.25); border-color: hsl(288,70%,44%); box-shadow: 0 0 10px hsl(288,70%,44%), 0 0 20px hsl(288,70%,44%), 0 0 30px hsl(288,70%,44%), 0 0 40px hsl(288,70%,44%); }
-.subject-button:nth-child(49):hover .button-icon { background: hsla(288,70%,50%,0.3); border-color: hsla(288,70%,44%,0.8); box-shadow: 0 0 15px hsl(288,70%,44%); }
-.subject-button:nth-child(49):hover h3 { color: hsl(288,70%,44%); text-shadow: 0 0 10px hsla(288,70%,50%,0.7); }
-
-.subject-button:nth-child(50):hover { background: hsla(294,70%,50%,0.25); border-color: hsl(294,70%,44%); box-shadow: 0 0 10px hsl(294,70%,44%), 0 0 20px hsl(294,70%,44%), 0 0 30px hsl(294,70%,44%), 0 0 40px hsl(294,70%,44%); }
-.subject-button:nth-child(50):hover .button-icon { background: hsla(294,70%,50%,0.3); border-color: hsla(294,70%,44%,0.8); box-shadow: 0 0 15px hsl(294,70%,44%); }
-.subject-button:nth-child(50):hover h3 { color: hsl(294,70%,44%); text-shadow: 0 0 10px hsla(294,70%,50%,0.7); }
-
-.subject-button:nth-child(51):hover { background: hsla(300,70%,50%,0.25); border-color: hsl(300,70%,44%); box-shadow: 0 0 10px hsl(300,70%,44%), 0 0 20px hsl(300,70%,44%), 0 0 30px hsl(300,70%,44%), 0 0 40px hsl(300,70%,44%); }
-.subject-button:nth-child(51):hover .button-icon { background: hsla(300,70%,50%,0.3); border-color: hsla(300,70%,44%,0.8); box-shadow: 0 0 15px hsl(300,70%,44%); }
-.subject-button:nth-child(51):hover h3 { color: hsl(300,70%,44%); text-shadow: 0 0 10px hsla(300,70%,50%,0.7); }
-
-.subject-button:nth-child(52):hover { background: hsla(306,70%,50%,0.25); border-color: hsl(306,70%,44%); box-shadow: 0 0 10px hsl(306,70%,44%), 0 0 20px hsl(306,70%,44%), 0 0 30px hsl(306,70%,44%), 0 0 40px hsl(306,70%,44%); }
-.subject-button:nth-child(52):hover .button-icon { background: hsla(306,70%,50%,0.3); border-color: hsla(306,70%,44%,0.8); box-shadow: 0 0 15px hsl(306,70%,44%); }
-.subject-button:nth-child(52):hover h3 { color: hsl(306,70%,44%); text-shadow: 0 0 10px hsla(306,70%,50%,0.7); }
-
-.subject-button:nth-child(53):hover { background: hsla(312,70%,50%,0.25); border-color: hsl(312,70%,44%); box-shadow: 0 0 10px hsl(312,70%,44%), 0 0 20px hsl(312,70%,44%), 0 0 30px hsl(312,70%,44%), 0 0 40px hsl(312,70%,44%); }
-.subject-button:nth-child(53):hover .button-icon { background: hsla(312,70%,50%,0.3); border-color: hsla(312,70%,44%,0.8); box-shadow: 0 0 15px hsl(312,70%,44%); }
-.subject-button:nth-child(53):hover h3 { color: hsl(312,70%,44%); text-shadow: 0 0 10px hsla(312,70%,50%,0.7); }
-
-.subject-button:nth-child(54):hover { background: hsla(318,70%,50%,0.25); border-color: hsl(318,70%,44%); box-shadow: 0 0 10px hsl(318,70%,44%), 0 0 20px hsl(318,70%,44%), 0 0 30px hsl(318,70%,44%), 0 0 40px hsl(318,70%,44%); }
-.subject-button:nth-child(54):hover .button-icon { background: hsla(318,70%,50%,0.3); border-color: hsla(318,70%,44%,0.8); box-shadow: 0 0 15px hsl(318,70%,44%); }
-.subject-button:nth-child(54):hover h3 { color: hsl(318,70%,44%); text-shadow: 0 0 10px hsla(318,70%,50%,0.7); }
-
-.subject-button:nth-child(55):hover { background: hsla(324,70%,50%,0.25); border-color: hsl(324,70%,44%); box-shadow: 0 0 10px hsl(324,70%,44%), 0 0 20px hsl(324,70%,44%), 0 0 30px hsl(324,70%,44%), 0 0 40px hsl(324,70%,44%); }
-.subject-button:nth-child(55):hover .button-icon { background: hsla(324,70%,50%,0.3); border-color: hsla(324,70%,44%,0.8); box-shadow: 0 0 15px hsl(324,70%,44%); }
-.subject-button:nth-child(55):hover h3 { color: hsl(324,70%,44%); text-shadow: 0 0 10px hsla(324,70%,50%,0.7); }
-
-.subject-button:nth-child(56):hover { background: hsla(330,70%,50%,0.25); border-color: hsl(330,70%,44%); box-shadow: 0 0 10px hsl(330,70%,44%), 0 0 20px hsl(330,70%,44%), 0 0 30px hsl(330,70%,44%), 0 0 40px hsl(330,70%,44%); }
-.subject-button:nth-child(56):hover .button-icon { background: hsla(330,70%,50%,0.3); border-color: hsla(330,70%,44%,0.8); box-shadow: 0 0 15px hsl(330,70%,44%); }
-.subject-button:nth-child(56):hover h3 { color: hsl(330,70%,44%); text-shadow: 0 0 10px hsla(330,70%,50%,0.7); }
-
-.subject-button:nth-child(57):hover { background: hsla(336,70%,50%,0.25); border-color: hsl(336,70%,44%); box-shadow: 0 0 10px hsl(336,70%,44%), 0 0 20px hsl(336,70%,44%), 0 0 30px hsl(336,70%,44%), 0 0 40px hsl(336,70%,44%); }
-.subject-button:nth-child(57):hover .button-icon { background: hsla(336,70%,50%,0.3); border-color: hsla(336,70%,44%,0.8); box-shadow: 0 0 15px hsl(336,70%,44%); }
-.subject-button:nth-child(57):hover h3 { color: hsl(336,70%,44%); text-shadow: 0 0 10px hsla(336,70%,50%,0.7); }
-
-.subject-button:nth-child(58):hover { background: hsla(342,70%,50%,0.25); border-color: hsl(342,70%,44%); box-shadow: 0 0 10px hsl(342,70%,44%), 0 0 20px hsl(342,70%,44%), 0 0 30px hsl(342,70%,44%), 0 0 40px hsl(342,70%,44%); }
-.subject-button:nth-child(58):hover .button-icon { background: hsla(342,70%,50%,0.3); border-color: hsla(342,70%,44%,0.8); box-shadow: 0 0 15px hsl(342,70%,44%); }
-.subject-button:nth-child(58):hover h3 { color: hsl(342,70%,44%); text-shadow: 0 0 10px hsla(342,70%,50%,0.7); }
-
-.subject-button:nth-child(59):hover { background: hsla(348,70%,50%,0.25); border-color: hsl(348,70%,44%); box-shadow: 0 0 10px hsl(348,70%,44%), 0 0 20px hsl(348,70%,44%), 0 0 30px hsl(348,70%,44%), 0 0 40px hsl(348,70%,44%); }
-.subject-button:nth-child(59):hover .button-icon { background: hsla(348,70%,50%,0.3); border-color: hsla(348,70%,44%,0.8); box-shadow: 0 0 15px hsl(348,70%,44%); }
-.subject-button:nth-child(59):hover h3 { color: hsl(348,70%,44%); text-shadow: 0 0 10px hsla(348,70%,50%,0.7); }
-
-.subject-button:nth-child(60):hover { background: hsla(354,70%,50%,0.25); border-color: hsl(354,70%,44%); box-shadow: 0 0 10px hsl(354,70%,44%), 0 0 20px hsl(354,70%,44%), 0 0 30px hsl(354,70%,44%), 0 0 40px hsl(354,70%,44%); }
-.subject-button:nth-child(60):hover .button-icon { background: hsla(354,70%,50%,0.3); border-color: hsla(354,70%,44%,0.8); box-shadow: 0 0 15px hsl(354,70%,44%); }
-.subject-button:nth-child(60):hover h3 { color: hsl(354,70%,44%); text-shadow: 0 0 10px hsla(354,70%,50%,0.7); }
-
-    /* Neon glow effect on hover with different colors */
-    .subject-button:hover {
-      transform: translateY(-10px) scale(1.05);
-      z-index: 10;
-    }
-
+  border-radius: 16px;
+  padding: 25px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 160px;
+  text-decoration: none;
+  color: #f0f0f0;
+}
+
+.subject-button .button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.subject-button h3 {
+  margin: 10px 0 5px;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+
+.subject-button:hover {
+  transform: scale(1.05);
+}
     .subject-button::before {
       content: '';
       position: absolute;
@@ -1564,6 +1209,71 @@ if ("serviceWorker" in navigator) {
       }
     });
   </script>
+
+
+  <script>
+const buttons = document.querySelectorAll('.subject-button');
+const total = buttons.length;
+
+// unique hues for random colors
+let hues = Array.from({length: total}, (_, i) => Math.floor((360 / total) * i));
+
+// shuffle hues
+for (let i = hues.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [hues[i], hues[j]] = [hues[j], hues[i]];
+}
+
+// assign styles
+buttons.forEach((btn, idx) => {
+  const hue = hues[idx];
+  const base = `hsl(${hue}, 70%, 50%)`;
+
+  // normal state
+  btn.style.background = `hsla(${hue}, 70%, 50%, 0.15)`;
+
+  const icon = btn.querySelector(".button-icon");
+  if (icon) {
+    icon.style.background = `hsla(${hue}, 70%, 50%, 0.2)`;
+    icon.style.color = base;
+    icon.style.borderColor = `hsla(${hue}, 70%, 50%, 0.3)`;
+  }
+
+  // hover state
+  btn.addEventListener("mouseenter", () => {
+    btn.style.background = `hsla(${hue}, 70%, 50%, 0.25)`;
+    btn.style.borderColor = base;
+    btn.style.boxShadow = `0 0 10px ${base}, 0 0 20px ${base}, 0 0 30px ${base}, 0 0 40px ${base}`;
+    if (icon) {
+      icon.style.background = `hsla(${hue}, 70%, 50%, 0.3)`;
+      icon.style.borderColor = `hsla(${hue}, 70%, 44%, 0.8)`;
+      icon.style.boxShadow = `0 0 15px ${base}`;
+    }
+    const title = btn.querySelector("h3");
+    if (title) {
+      title.style.color = base;
+      title.style.textShadow = `0 0 10px hsla(${hue},70%,50%,0.7)`;
+    }
+  });
+
+  btn.addEventListener("mouseleave", () => {
+    btn.style.background = `hsla(${hue}, 70%, 50%, 0.15)`;
+    btn.style.borderColor = "rgba(255, 255, 255, 0.15)";
+    btn.style.boxShadow = "none";
+    if (icon) {
+      icon.style.background = `hsla(${hue}, 70%, 50%, 0.2)`;
+      icon.style.color = base;
+      icon.style.borderColor = `hsla(${hue}, 70%, 50%, 0.3)`;
+      icon.style.boxShadow = "none";
+    }
+    const title = btn.querySelector("h3");
+    if (title) {
+      title.style.color = "#f0f0f0";
+      title.style.textShadow = "none";
+    }
+  });
+});
+</script>
 
  
 </body>
