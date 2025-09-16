@@ -2323,4 +2323,19 @@ if ("serviceWorker" in navigator) {
       document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
       
       function updateFullscreenIcon() {
+        if (document.fullscreenElement || 
+            document.webkitFullscreenElement || 
+            document.mozFullScreenElement ||
+            document.msFullscreenElement) {
+          fullscreenIcon.className = 'fas fa-compress';
+        } else {
+          fullscreenIcon.className = 'fas fa-expand';
+        }
+      }
+    });
+  </script>
+
+ 
+</body>
+</html>
        
