@@ -61,16 +61,17 @@
       font-family: ui-monospace, Menlo, Monaco, monospace;
       font-size: 12px;      /* Code font size control */
       line-height: 1.35;
+      color: #8affc1;
       white-space: nowrap;
     }
 
     .code-track {
       display: block;
-      animation: scrollCode 25s linear infinite; /* Changed to 25s for slower scrolling */
+      animation: scrollCode 8s linear infinite;
     }
     @keyframes scrollCode {
       0% { transform: translateY(0); }
-      100% { transform: translateY(-50%); } /* Changed to -50% to loop continuously */
+      100% { transform: translateY(-120%); }
     }
 
     /* ==================== LAPTOP CONTROL ==================== */
@@ -162,18 +163,6 @@
     .confetti-piece{position:absolute;left:50%;top:40%;width:8px;height:12px;opacity:0;transform-origin:center;animation:confetti 900ms forwards}
     @keyframes confetti{0%{opacity:1;transform:translate(-50%,0) rotate(0) scale(1)}100%{opacity:1;transform:translate(calc(-50% + var(--x)), calc(var(--y) * -1px)) rotate(var(--rot)) scale(1)}}
 
-    /* Syntax highlighting colors */
-    .comment { color: #6A9955; }
-    .keyword { color: #569CD6; }
-    .string { color: #CE9178; }
-    .function { color: #DCDCAA; }
-    .number { color: #B5CEA8; }
-    .operator { color: #D4D4D4; }
-    .variable { color: #9CDCFE; }
-    .bracket { color: #FFD700; }
-    .tag { color: #569CD6; }
-    .attribute { color: #9CDCFE; }
-
     /* Responsive */
     @media(max-width:980px){
       .card{grid-template-columns:1fr;max-width:760px;padding:20px}
@@ -191,10 +180,10 @@
         <div style="font-size:14px;color:rgba(255,255,255,0.85);font-weight:600">PDF Page Deleter</div>
       </div>
 
-      <h1 id="comingSoonTitle">We're crafting something thoughtful — <span style="color:#36d1dc">coming soon</span></h1>
-      <p class="lead empathy">We want the tool to feel human, not robotic. To match that, here's a little preview: a coder at work, building the tool — and a live console behind them — just to capture the energy.</p>
+      <h1 id="comingSoonTitle">We’re crafting something thoughtful — <span style="color:#36d1dc">coming soon</span></h1>
+      <p class="lead empathy">We want the tool to feel human, not robotic. To match that, here’s a little preview: a coder at work, building the tool — and a live console behind them — just to capture the energy.</p>
 
-      <div class="empathy">Be first to try it — drop your email and we'll send a gentle note when it's ready. No spam, promise.</div>
+      <div class="empathy">Be first to try it — drop your email and we’ll send a gentle note when it's ready. No spam, promise.</div>
 
       <div style="margin-top:12px">
         <form id="notifyForm" class="subscribe">
@@ -229,7 +218,7 @@
 
           <!-- Coder PNG (will be clipped by desk's overflow:hidden) -->
           <div class="coder">
-           <img src="https://assets.codepen.io/1468070/coder.png" alt="Coder at laptop">
+           <img src="images/my-coder.png" alt="Coder at laptop">
           </div>
         </div>
       </div>
@@ -356,56 +345,14 @@
     ];
 
     const codeTrack = document.getElementById('codeTrack');
-    
-    // Function to apply syntax highlighting to code
-    function highlightCode(line) {
-      // Replace special characters with HTML entities
-      line = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      
-      // Highlight comments (lines starting with //)
-      if (line.trim().startsWith('//')) {
-        return `<span class="comment">${line}</span>`;
-      }
-      
-      // Highlight strings (content between quotes)
-      line = line.replace(/(['"])(.*?)\1/g, '<span class="string">$1$2$1</span>');
-      
-      // Highlight keywords
-      const keywords = ['const', 'let', 'var', 'for', 'if', 'else', 'while', 'function', 'return', 'await', 'async', 'class', 'export', 'import', 'new', 'this', 'true', 'false', 'null', 'undefined'];
-      keywords.forEach(keyword => {
-        const regex = new RegExp(`\\b${keyword}\\b`, 'g');
-        line = line.replace(regex, `<span class="keyword">${keyword}</span>`);
-      });
-      
-      // Highlight numbers
-      line = line.replace(/\b(\d+)\b/g, '<span class="number">$1</span>');
-      
-      // Highlight operators
-      const operators = ['=', '==', '===', '!=', '!==', '<', '>', '<=', '>=', '=>', '\\+', '-', '\\*', '/', '%', '\\+\\+', '--', '\\|\\|', '&&', '!'];
-      operators.forEach(op => {
-        const regex = new RegExp(`(${op})`, 'g');
-        line = line.replace(regex, '<span class="operator">$1</span>');
-      });
-      
-      // Highlight brackets
-      line = line.replace(/[{}()[\]]/g, '<span class="bracket">$&</span>');
-      
-      // Highlight functions (words followed by parentheses)
-      line = line.replace(/(\w+)(?=\()/g, '<span class="function">$1</span>');
-      
-      return line;
-    }
-
-    // Function to populate the code track with syntax highlighting
     function populateCode() {
       let html = '';
       for (let i = 0; i < 24; i++) {
         const line = snippets[Math.floor(Math.random()*snippets.length)];
         const prefix = Math.random() > 0.6 ? '>' : ' ';
-        const highlightedLine = highlightCode(line);
-        html += `<div style="opacity:${0.45 + Math.random()*0.55};margin-bottom:6px">${prefix} ${highlightedLine}${Math.random()>0.85? ' // ok':''}</div>`;
+        html += `<div style="opacity:${0.45 + Math.random()*0.55};margin-bottom:6px">${prefix} ${line}${Math.random()>0.85? ' // ok':''}</div>`;
       }
-      codeTrack.innerHTML = html;
+      codeTrack.innerHTML = html + html;
       
       // Randomly highlight some lines
       const lines = codeTrack.querySelectorAll('div');
@@ -419,35 +366,8 @@
         }
       });
     }
-    
-    // Initialize the code display
     populateCode();
-    
-    // Add new lines periodically without resetting the entire display
-    function addNewLines() {
-      const newLines = [];
-      for (let i = 0; i < 3; i++) {
-        const line = snippets[Math.floor(Math.random()*snippets.length)];
-        const prefix = Math.random() > 0.6 ? '>' : ' ';
-        const highlightedLine = highlightCode(line);
-        newLines.push(`<div style="opacity:${0.45 + Math.random()*0.55};margin-bottom:6px">${prefix} ${highlightedLine}${Math.random()>0.85? ' // ok':''}</div>`);
-      }
-      
-      // Add new lines to the top
-      codeTrack.innerHTML = newLines.join('') + codeTrack.innerHTML;
-      
-      // Remove excess lines if needed (keep around 30 lines max)
-      if (codeTrack.children.length > 30) {
-        for (let i = 0; i < 3; i++) {
-          if (codeTrack.lastChild) {
-            codeTrack.removeChild(codeTrack.lastChild);
-          }
-        }
-      }
-    }
-    
-    // Add new lines every 3 seconds instead of resetting the entire display
-    setInterval(addNewLines, 3000);
+    setInterval(populateCode, 6000);
 
     const typingText = document.getElementById('typingText');
     const phrases = ["Editing index.js","Fixing edge-case","Writing tests","Tidying up UI","Saving progress","Almost there..."];
@@ -505,3 +425,5 @@
   </script>
 </body>
 </html>
+
+
