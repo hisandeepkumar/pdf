@@ -347,7 +347,7 @@
     const codeTrack = document.getElementById('codeTrack');
     function populateCode() {
       let html = '';
-      for (let i = 0; i < 24; i++) {
+      for (let i = 0; i < 60; i++) {
         const line = snippets[Math.floor(Math.random()*snippets.length)];
         const prefix = Math.random() > 0.6 ? '>' : ' ';
         html += `<div style="opacity:${0.45 + Math.random()*0.55};margin-bottom:6px">${prefix} ${line}${Math.random()>0.85? ' // ok':''}</div>`;
