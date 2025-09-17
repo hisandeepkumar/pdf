@@ -28,26 +28,26 @@
     .right{display:flex;flex-direction:column;align-items:center;justify-content:start;gap:18px;padding:18px}
     .visual{width:100%;height:420px;display:flex;align-items:center;justify-content:center;position:relative}
 
-    .desk{width:360px;height:280px;position:relative;border-radius:12px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 18px 40px rgba(6,10,20,0.6);overflow:visible}
+    .desk{width:360px;height:280px;position:relative;border-radius:12px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 18px 40px rgba(6,10,20,0.6);overflow:hidden}
 
     /* Monitor bada kiya */
-    .monitor{width:100%;height:180px;background:#051018;border-radius:8px;padding:12px;position:relative;box-shadow:inset 0 -6px 18px rgba(0,0,0,0.6);overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
+    .monitor{width:100%;height:220px;background:#051018;border-radius:8px;padding:12px;position:relative;box-shadow:inset 0 -6px 18px rgba(0,0,0,0.6);overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
     .monitor .code-lines{position:absolute;left:12px;top:12px;right:12px;bottom:12px;font-family:ui-monospace,Menlo,Monaco,monospace;font-size:12px;line-height:1.35;color:#8affc1;white-space:nowrap}
 
     .code-track{display:block;animation:scrollCode 8s linear infinite}
     @keyframes scrollCode{0%{transform:translateY(0)}100%{transform:translateY(-120%)}}
 
-    .laptop{width:56%;height:80px;background:linear-gradient(180deg,#0b1220,#07101a);border-radius:6px;margin:14px auto 0;padding:8px;position:relative;border:1px solid rgba(255,255,255,0.02);box-shadow:0 10px 24px rgba(0,0,0,0.5)}
-    .laptop .screen{height:100%;border-radius:4px;background:#021019;padding:8px;color:#cfe8ff;font-family:ui-monospace,Menlo,monospace;font-size:12px;overflow:hidden}
+    .laptop{width:56%;height:80px;background:linear-gradient(180deg,#0b1220,#07101a);border-radius:6px;margin:14px auto 0;padding:8px;position:relative;border:1px solid rgba(255,255,255,0.02);box-shadow:0 10px 24px rgba(0,0,0,0.5);overflow:hidden}
+    .laptop .screen{height:100%;border-radius:4px;background:#021019;padding:8px;color:#cfe8ff;font-family:ui-monospace,Menlo,monospace;font-size:12px;overflow:hidden;position:relative}
 
     /* coder PNG */
-    .coder{position:absolute;left:50%;bottom:-28px;width:220px;z-index:3;transform:translateX(-50%)}
+    .coder{position:absolute;left:50%;bottom:0;width:220px;z-index:3;transform:translateX(-50%)}
     .coder img{width:100%;height:auto;display:block}
 
-    /* Typing box foreground mein PNG ke niche */
+    /* Typing box laptop ke andar */
     .typing-box {
       position: absolute;
-      bottom: -70px;
+      bottom: 8px;
       left: 50%;
       transform: translateX(-50%);
       font-family: ui-monospace, Menlo, Monaco, monospace;
@@ -85,7 +85,7 @@
       .visual{height:320px}
       .desk{width:88%}
       .coder{width:180px}
-      .typing-box{font-size:12px;bottom:-60px}
+      .typing-box{font-size:12px}
     }
   </style>
 </head>
@@ -126,7 +126,12 @@
 
           <!-- Laptop (foreground) -->
           <div class="laptop">
-            <div class="screen"></div>
+            <div class="screen">
+              <!-- Typing text laptop ke andar -->
+              <div class="typing-box">
+                <span class="typing" id="typingText">Initializing editor…</span><span class="cursor"></span>
+              </div>
+            </div>
           </div>
 
           <!-- Coder PNG -->
@@ -134,10 +139,6 @@
             <img src="images/my-coder.png" alt="Coder at laptop">
           </div>
 
-          <!-- Typing text foreground -->
-          <div class="typing-box">
-            <span class="typing" id="typingText">Initializing editor…</span><span class="cursor"></span>
-          </div>
         </div>
       </div>
 
