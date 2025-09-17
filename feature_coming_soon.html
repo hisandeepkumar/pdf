@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Coming Soon — A Kinder PDF Experience</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+      background:linear-gradient(180deg, rgba(8,10,20,0.6), rgba(4,6,10,0.6)), url('images/background.jpg') center/cover fixed no-repeat;
+      color:#eef2f8;display:flex;align-items:center;justify-content:center;padding:28px;
+    }
+
+    .card{width:100%;max-width:920px;background:rgba(255,255,255,0.06);backdrop-filter:blur(14px);border-radius:20px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 12px 40px rgba(6,10,20,0.6);overflow:hidden;padding:28px;display:grid;grid-template-columns:1fr 460px;gap:28px}
+
+    .left{display:flex;flex-direction:column;gap:18px;justify-content:center}
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo i{font-size:34px;color:#5b86e5}
+    h1{font-size:28px;line-height:1.05;color:#fff}
+    p.lead{color:rgba(255,255,255,0.88);font-size:15px}
+
+    .empathy{background:linear-gradient(90deg, rgba(91,134,229,0.08), rgba(54,209,220,0.06));padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);color:rgba(255,255,255,0.95)}
+
+    .right{display:flex;flex-direction:column;align-items:center;justify-content:start;gap:18px;padding:18px}
+    .visual{width:100%;height:360px;display:flex;align-items:center;justify-content:center;position:relative}
+
+    .desk{width:360px;height:240px;position:relative;border-radius:12px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 18px 40px rgba(6,10,20,0.6);overflow:visible}
+
+    .monitor{width:100%;height:128px;background:#051018;border-radius:8px;padding:12px;position:relative;box-shadow:inset 0 -6px 18px rgba(0,0,0,0.6);overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
+    .monitor .code-lines{position:absolute;left:12px;top:12px;right:12px;bottom:12px;font-family:ui-monospace,Menlo,Monaco,monospace;font-size:12px;line-height:1.35;color:#8affc1;white-space:nowrap}
+
+    .code-track{display:block;animation:scrollCode 8s linear infinite}
+    @keyframes scrollCode{0%{transform:translateY(0)}100%{transform:translateY(-120%)}}
+
+    .laptop{width:56%;height:80px;background:linear-gradient(180deg,#0b1220,#07101a);border-radius:6px;margin:14px auto 0;padding:8px;position:relative;border:1px solid rgba(255,255,255,0.02);box-shadow:0 10px 24px rgba(0,0,0,0.5)}
+    .laptop .screen{height:100%;border-radius:4px;background:#021019;padding:8px;color:#cfe8ff;font-family:ui-monospace,Menlo,monospace;font-size:12px;overflow:hidden}
+    .typing{display:inline-block}
+    .cursor{display:inline-block;width:8px;height:14px;background:#36d1dc;margin-left:4px;vertical-align:middle;animation:blink 900ms steps(1) infinite}
+    @keyframes blink{50%{opacity:0}}
+
+    /* coder PNG */
+    .coder{position:absolute;left:0;bottom:-28px;width:220px;z-index:3}
+    .coder img{width:100%;height:auto;display:block}
+
+    .glow{position:absolute;left:50%;top:20px;transform:translateX(-50%);width:340px;height:120px;filter:blur(28px);opacity:0.08;background:radial-gradient(circle at 50% 30%, #36d1dc 0%, #5b86e5 30%, transparent 60%);border-radius:50%}
+
+    .monitor, .laptop{animation:flicker 6s ease-in-out infinite}
+    @keyframes flicker{0%,100%{opacity:1}50%{opacity:0.97}}
+
+    .subscribe{width:100%;display:flex;gap:10px;align-items:center}
+    .subscribe input[type='email']{flex:1;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.02);color:#fff;font-size:14px;outline:none}
+    .subscribe input[type='email']:focus{box-shadow:0 6px 20px rgba(91,134,229,0.12);border-color:#5b86e5}
+    .btn-ghost{padding:12px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.10);background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));color:#fff;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:10px}
+    .btn-ghost:disabled{opacity:0.5;cursor:not-allowed}
+
+    .anticipation{width:100%;height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-top:8px}
+    .anticipation > i{display:block;height:100%;width:18%;background:linear-gradient(90deg,#5b86e5,#36d1dc);transform-origin:left;animation:anticipate 3s linear infinite}
+    @keyframes anticipate{0%{transform:translateX(-0%)}50%{transform:translateX(280%)}100%{transform:translateX(0%)}}
+
+    .footer{grid-column:1/-1;margin-top:6px;text-align:center;color:rgba(255,255,255,0.7);font-size:13px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.04)}
+
+    .confetti-piece{position:absolute;left:50%;top:40%;width:8px;height:12px;opacity:0;transform-origin:center;animation:confetti 900ms forwards}
+    @keyframes confetti{0%{opacity:1;transform:translate(-50%,0) rotate(0) scale(1)}100%{opacity:1;transform:translate(calc(-50% + var(--x)), calc(var(--y) * -1px)) rotate(var(--rot)) scale(1)}}
+
+    @media(max-width:980px){.card{grid-template-columns:1fr;max-width:760px;padding:20px}.visual{height:260px}.desk{width:88%}.coder{width:180px;left:50%;transform:translateX(-50%)}}
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="comingSoonTitle">
+    <section class="left">
+      <div class="logo">
+        <i class="fas fa-file-pdf"></i>
+        <div style="font-size:14px;color:rgba(255,255,255,0.85);font-weight:600">PDF Page Deleter</div>
+      </div>
+
+      <h1 id="comingSoonTitle">We’re crafting something thoughtful — <span style="color:#36d1dc">coming soon</span></h1>
+      <p class="lead empathy">We want the tool to feel human, not robotic. To match that, here’s a little preview: a coder at work, building the tool — and a live console behind them — just to capture the energy.</p>
+
+      <div class="empathy">Be first to try it — drop your email and we’ll send a gentle note when it’s ready. No spam, promise.</div>
+
+      <div style="margin-top:12px">
+        <form id="notifyForm" class="subscribe">
+          <input id="emailInput" type="email" placeholder="Your email address" required>
+          <button id="notifyBtn" class="btn-ghost" type="submit" disabled><i class="fas fa-bell"></i>Notify me</button>
+        </form>
+        <div class="anticipation"><i></i></div>
+        <div id="formFeedback" style="margin-top:12px;min-height:26px"></div>
+      </div>
+    </section>
+
+    <aside class="right">
+      <div class="visual">
+        <div class="desk">
+          <div class="glow"></div>
+
+          <!-- Monitor (background display with scrolling code) -->
+          <div class="monitor">
+            <div class="code-lines" id="monitorTrack">
+              <div class="code-track" id="codeTrack"></div>
+            </div>
+          </div>
+
+          <!-- Laptop (foreground) -->
+          <div class="laptop">
+            <div class="screen"><span class="typing" id="typingText">Initializing editor…</span><span class="cursor"></span></div>
+          </div>
+
+          <!-- Coder PNG -->
+          <div class="coder">
+            <img src="images/my-coder.png" alt="Coder at laptop">
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;color:rgba(255,255,255,0.9);font-size:14px;margin-top:4px">
+        Estimated launch: <strong>Q4 2025</strong>
+      </div>
+      <div id="notifySuccess" class="success" style="display:none;text-align:center">
+        <i class="fas fa-check-circle" style="color:#36d1dc"></i>
+        <span id="successText">Thanks — we’ll ping you soon.</span>
+      </div>
+    </aside>
+
+    <div class="footer">Secure • Free • Professional | Made with <span style="color:#ff4d4d">❤</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" rel="noopener" style="color:#5b86e5;text-decoration:none">Sandeep</a></div>
+  </main>
+
+  <script>
+    const emailInput = document.getElementById('emailInput');
+    const notifyBtn = document.getElementById('notifyBtn');
+    const notifyForm = document.getElementById('notifyForm');
+    const formFeedback = document.getElementById('formFeedback');
+    const notifySuccess = document.getElementById('notifySuccess');
+
+    function isValidEmail(v){ return v && v.indexOf('@')>0 && v.indexOf('.')>v.indexOf('@')+1 }
+    emailInput.addEventListener('input', ()=>{notifyBtn.disabled = !isValidEmail(emailInput.value.trim())});
+
+    const snippets = [
+      "const pages = parsePages(input)",
+      "for (let p of pages) { removePage(p) }",
+      "await pdf.load(buffer)",
+      "const out = pdf.save()",
+      "// optimizing for safety and speed",
+      "if (!file || !isPdf(file)) return",
+      "renderProgress(80)",
+      "console.log('done')",
+      "// building thoughtful UX...",
+      "commit('polish: add soft animations')",
+      "fetch('/api/launchDate')",
+      "// keep it simple, keep it kind"
+    ];
+
+    const codeTrack = document.getElementById('codeTrack');
+    function populateCode() {
+      let html = '';
+      for (let i = 0; i < 24; i++) {
+        const line = snippets[Math.floor(Math.random()*snippets.length)];
+        const prefix = Math.random() > 0.6 ? '>' : ' ';
+        html += `<div style="opacity:${0.45 + Math.random()*0.55};margin-bottom:6px">${prefix} ${line}${Math.random()>0.85? ' // ok':''}</div>`;
+      }
+      codeTrack.innerHTML = html + html;
+    }
+    populateCode();
+    setInterval(populateCode, 6000);
+
+    const typingText = document.getElementById('typingText');
+    const phrases = ["Editing index.js","Fixing edge-case","Writing tests","Tidying up UI","Saving progress","Almost there..."];
+    let tIndex = 0, charIndex = 0, forward = true;
+
+    function stepTyping() {
+      const current = phrases[tIndex];
+      if (forward) {
+        charIndex++;
+        typingText.textContent = current.slice(0, charIndex);
+        if (charIndex === current.length) { forward = false; setTimeout(stepTyping, 800); return }
+      } else {
+        charIndex--;
+        typingText.textContent = current.slice(0, charIndex);
+        if (charIndex === 0) { forward = true; tIndex = (tIndex+1) % phrases.length }
+      }
+      setTimeout(stepTyping, 80 + Math.random()*60);
+    }
+    stepTyping();
+
+    notifyForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      if(!isValidEmail(email)){
+        formFeedback.textContent = 'Please enter a valid email.';
+        formFeedback.style.color = '#ffb4b4';
+        return;
+      }
+      notifyBtn.disabled = true;
+      notifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+      formFeedback.textContent = '';
+      setTimeout(()=>{
+        notifySuccess.style.display = 'block';
+        formFeedback.textContent = 'We’ll send a small note when we go live. Meanwhile — take a deep breath. 😊';
+        formFeedback.style.color = 'rgba(255,255,255,0.9)';
+        notifyBtn.innerHTML = '<i class="fas fa-bell"></i> Notified';
+      }, 950);
+    });
+  </script>
+</body>
+</html>
