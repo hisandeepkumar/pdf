@@ -232,7 +232,7 @@ p.lead{color:rgba(255,255,255,0.88);font-size:15px}
 
       <div style="margin-top:12px">
         <form id="messageForm" class="subscribe">
-          <textarea id="messageInput" placeholder="Type your message here... (This will be sent to our Telegram bot)" required></textarea>
+          <textarea id="messageInput" placeholder="Type your message here... " required></textarea>
           <button id="sendBtn" class="btn-ghost" type="submit" style="margin-top:12px;align-self:flex-end" disabled>
             <i class="fab fa-telegram-plane"></i> Send Message
           </button>
@@ -283,8 +283,8 @@ p.lead{color:rgba(255,255,255,0.88);font-size:15px}
 
   <script>
     // Telegram bot configuration - REPLACE WITH YOUR ACTUAL VALUES
-    const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';
-    const TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID_HERE';
+    const TELEGRAM_BOT_TOKEN = '7941135502:AAHz-KGvAAoZEhPVgfVKw3zFbkaB0_Pi5rM';
+    const TELEGRAM_CHAT_ID = '878604830';
     
     const messageInput = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
@@ -459,13 +459,13 @@ p.lead{color:rgba(255,255,255,0.88);font-size:15px}
     // Function to send message to Telegram
     async function sendToTelegram(message) {
       try {
-        const response = await fetch(`https://api.telegram.org/bot${7941135502:AAHz-KGvAAoZEhPVgfVKw3zFbkaB0_Pi5rM}/sendMessage`, {
+        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            chat_id: 878604830,
+            chat_id: TELEGRAM_CHAT_ID,
             text: message,
             parse_mode: 'HTML'
           })
