@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Coming Soon — A Kinder PDF Experience</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    
+html,body {
+  min-height:100%;
+  margin:0;
+  padding:0;
+}
+
+body {
+  font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  background:linear-gradient(180deg, rgba(8,10,20,0.6), rgba(4,6,10,0.6)), url('images/background.jpg') center/cover fixed no-repeat;
+  color:#eef2f8;
+  padding:28px;
+  display:flex;
+  justify-content:center;
+}
+
+main.card {
+  margin:auto;            /* center desktop/tablet */
+  width:100%;
+  max-width:920px;
+}
+
+.card{
+  width:100%;max-width:920px;
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(14px);
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 12px 40px rgba(6,10,20,0.6);
+  overflow:hidden;
+  padding:28px;
+  display:grid;
+  grid-template-columns:1fr 460px;
+  gap:28px;
+}
+
+.left{display:flex;flex-direction:column;gap:18px;justify-content:center}
+.logo{display:flex;align-items:center;gap:12px}
+.logo i{font-size:34px;color:#5b86e5}
+h1{font-size:28px;line-height:1.05;color:#fff}
+p.lead{color:rgba(255,255,255,0.88);font-size:15px}
+
+.empathy{
+  background:linear-gradient(90deg, rgba(91,134,229,0.08), rgba(54,209,220,0.06));
+  padding:12px;border-radius:12px;
+  border:1px solid rgba(255,255,255,0.03);
+  color:rgba(255,255,255,0.95)
+}
+
+.right{display:flex;flex-direction:column;align-items:center;justify-content:start;gap:18px;padding:18px}
+.visual{
+  position:relative;
+  width:100%;
+  max-width:420px;
+  aspect-ratio:360/500; /* desk ka original ratio */
+  margin:0 auto;
+}
+
+/* ==================== DESK ==================== */
+.desk {
+  position:relative;
+  width:100%;
+  height:100%;
+  border-radius:3%;
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  box-shadow:0 18px 40px rgba(6,10,20,0.6);
+  overflow:hidden;
+}
+
+/* ==================== MONITOR ==================== */
+.monitor {
+  position:absolute;
+  top:4%;
+  left:5%;
+  width:90%;
+  height:70%;
+  background:#051018;
+  border-radius:2%;
+  padding:3%;
+  position:relative;
+  box-shadow:inset 0 -1% 4% rgba(0,0,0,0.6);
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,0.03);
+}
+.monitor .code-lines {
+  position:absolute;
+  left:3%;
+  top:3%;
+  right:3%;
+  bottom:3%;
+  font-family:ui-monospace, Menlo, Monaco, monospace;
+  font-size:clamp(9px,1.5vw,12px);
+  line-height:1.35;
+  color:#8affc1;
+  white-space:nowrap;
+}
+.code-track{display:block;animation:scrollCode 22s linear infinite}
+@keyframes scrollCode {
+  0% { transform: translateY(0); }
+  80% { transform: translateY(-120%); }
+  100% { transform: translateY(-120%); } /* pause at end */
+}
+
+/* ==================== LAPTOP ==================== */
+.laptop {
+  position:absolute;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  width:100%;
+  height:16%;
+  padding:2%;
+  background:linear-gradient(180deg, #0b1220, #07101a);
+  border-radius:1.5%;
+  border:1px solid rgba(255,255,255,0.02);
+  box-shadow:0 2% 6% rgba(0,0,0,0.5);
+  z-index:4;
+}
+.laptop .screen {
+  height:100%;
+  border-radius:1%;
+  background:#021019;
+  padding:2% 3%;
+  color:#cfe8ff;
+  font-family:ui-monospace, Menlo, monospace;
+  font-size:clamp(10px,1.5vw,12px);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+}
+
+/* ==================== CODER PNG ==================== */
+.coder {
+  position:absolute;
+  left:50%;
+  bottom:-6%;
+  width:100%;
+  transform:translateX(-50%);
+  z-index:3;
+}
+.coder img {
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+/* ==================== TYPING ==================== */
+.typing-box {
+  font-family:ui-monospace, Menlo, Monaco, monospace;
+  font-size:clamp(12px,1.8vw,14px);
+  color:#cfe8ff;
+  white-space:nowrap;
+  overflow:hidden;
+  width:100%;
+}
+.typing{display:inline-block}
+.cursor{display:inline-block;width:8px;height:14px;background:#36d1dc;margin-left:4px;vertical-align:middle;animation:blink 900ms steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+.glow{
+  position:absolute;left:50%;top:4%;
+  transform:translateX(-50%);
+  width:90%;height:25%;
+  filter:blur(28px);opacity:0.08;
+  background:radial-gradient(circle at 50% 30%, #36d1dc 0%, #5b86e5 30%, transparent 60%);
+  border-radius:50%
+}
+
+.monitor, .laptop{animation:flicker 6s ease-in-out infinite}
+@keyframes flicker{0%,100%{opacity:1}50%{opacity:0.97}}
+
+@keyframes typingGlow {0%,100% { box-shadow: 0 0 5px rgba(54, 209, 220, 0.3);}50% { box-shadow: 0 0 15px rgba(54, 209, 220, 0.6);}}
+@keyframes codeHighlight {0% { background-color: transparent;}10% { background-color: rgba(54, 209, 220, 0.2);}20% { background-color: transparent;}}
+.monitor .code-track div {padding:0 4px;border-radius:2px;animation: codeHighlight 15s infinite;}
+.monitor .code-track div:nth-child(2n){animation-delay:2s}
+.monitor .code-track div:nth-child(3n){animation-delay:5s}
+.laptop .screen{animation:typingGlow 3s infinite}
+
+/* Subscription */
+.subscribe{width:100%;display:flex;gap:10px;align-items:center;flex-direction:column;}
+.subscribe textarea{flex:1;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.02);color:#fff;font-size:14px;outline:none;width:100%;min-height:100px;font-family:inherit;resize:vertical;}
+.subscribe textarea:focus{box-shadow:0 6px 20px rgba(91,134,229,0.12);border-color:#5b86e5}
+.btn-ghost{padding:12px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.10);background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));color:#fff;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:10px}
+.btn-ghost:disabled{opacity:0.5;cursor:not-allowed}
+
+.anticipation{width:100%;height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-top:8px}
+.anticipation > i{display:block;height:100%;width:18%;background:linear-gradient(90deg,#5b86e5,#36d1dc);transform-origin:left;animation:anticipate 3s linear infinite}
+@keyframes anticipate{0%{transform:translateX(-0%)}50%{transform:translateX(280%)}100%{transform:translateX(0%)}}
+
+.footer{grid-column:1/-1;margin-top:6px;text-align:center;color:rgba(255,255,255,0.7);font-size:13px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.04)}
+
+.confetti-piece{position:absolute;left:50%;top:40%;width:8px;height:12px;opacity:0;transform-origin:center;animation:confetti 900ms forwards}
+@keyframes confetti{0%{opacity:1;transform:translate(-50%,0) rotate(0) scale(1)}100%{opacity:1;transform:translate(calc(-50% + var(--x)), calc(var(--y) * -1px)) rotate(var(--rot)) scale(1)}}
+
+/* Responsive */
+@media(max-width:980px){
+  .card{grid-template-columns:1fr;max-width:760px;padding:20px}
+  .visual{max-width:320px}
+}
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="comingSoonTitle">
+    <section class="left">
+      <div class="logo">
+        <i class="fas fa-file-pdf"></i>
+        <div style="font-size:14px;color:rgba(255,255,255,0.85);font-weight:600">PDF Page Deleter</div>
+      </div>
+
+      <h1 id="comingSoonTitle">We're building something amazing — <span style="color:#36d1dc">coming soon</span></h1>
+      
+      <div class="empathy">
+        Why is it taking so long? Because we're making sure every pixel is perfectly placed and every line of code is bug-free. 
+        Also, we may have accidentally started a coffee machine instead of the build server. ☕
+      </div>
+
+      <div class="empathy">
+        Want to drop us a message? We'd love to hear from you! Send us your thoughts, and we'll respond via Telegram.
+      </div>
+
+      <div style="margin-top:12px">
+        <form id="messageForm" class="subscribe">
+          <textarea id="messageInput" placeholder="Type your message here... (This will be sent to our Telegram bot)" required></textarea>
+          <button id="sendBtn" class="btn-ghost" type="submit" style="margin-top:12px;align-self:flex-end" disabled>
+            <i class="fab fa-telegram-plane"></i> Send Message
+          </button>
+        </form>
+        <div id="formFeedback" style="margin-top:12px;min-height:26px"></div>
+      </div>
+    </section>
+
+    <aside class="right">
+      <div class="visual">
+        <div class="desk">
+          <div class="glow"></div>
+
+          <!-- Monitor (background display with scrolling code) -->
+          <div class="monitor">
+            <div class="code-lines" id="monitorTrack">
+              <div class="code-track" id="codeTrack"></div>
+            </div>
+          </div>
+
+          <!-- Laptop (with typing animation in screen) -->
+          <div class="laptop">
+            <div class="screen">
+              <div class="typing-box">
+                <span class="typing" id="typingText"></span><span class="cursor"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coder PNG (will be clipped by desk's overflow:hidden) -->
+          <div class="coder">
+           <img src="images/my-coder.png" alt="Coder at laptop">
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;color:rgba(255,255,255,0.9);font-size:14px;margin-top:4px">
+        Estimated launch: <strong>Q4 2025</strong>
+      </div>
+      <div id="messageSuccess" class="success" style="display:none;text-align:center">
+        <i class="fas fa-check-circle" style="color:#36d1dc"></i>
+        <span id="successText">Message sent! We'll get back to you soon.</span>
+      </div>
+    </aside>
+
+    <div class="footer">Secure • Free • Professional | Made with <span style="color:#ff4d4d">❤</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" rel="noopener" style="color:#5b86e5;text-decoration:none">Sandeep</a></div>
+  </main>
+
+  <script>
+    // Telegram bot configuration - REPLACE WITH YOUR ACTUAL VALUES
+    const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';
+    const TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID_HERE';
+    
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const messageForm = document.getElementById('messageForm');
+    const formFeedback = document.getElementById('formFeedback');
+    const messageSuccess = document.getElementById('messageSuccess');
+
+    // Enable button when message is not empty
+    messageInput.addEventListener('input', () => {
+      sendBtn.disabled = !messageInput.value.trim();
+    });
+
+    // Fixed snippets array
+    const snippets = [
+      "const pages = parsePages(input)",
+      "for (let p of pages) { removePage(p) }",
+      "await pdf.load(buffer)",
+      "const out = pdf.save()",
+      "// optimizing for safety and speed",
+      "if (!file || !isPdf(file)) return",
+      "renderProgress(80)",
+      "console.log('done')",
+      "// building thoughtful UX...",
+      "commit('polish: add soft animations')",
+      "fetch('/api/launchDate')",
+      "// keep it simple, keep it kind",
+      "// ========================== PDF Editor Build Logs ==========================",
+      "// 🚀 Initializing Engine",
+      "console.log('Initializing PDF engine...')",
+      "await pdfEngine.loadKernel('v1.0.0')",
+      "setConfig({ safeMode: true, cache: true })",
+      "commit('init: engine loaded successfully')",
+      "// Parsing Uploaded PDF",
+      "const pages = parsePages(input)",
+      "for (let p of pages) { sanitizePage(p); optimizePage(p) }",
+      "await pdf.load(buffer)",
+      "console.log(`Parsed ${pages.length} pages successfully`)",
+      "// Registering Core PDF Tools",
+      "addTool('mergePDF', { description: 'Combine multiple PDFs' })",
+      "addTool('splitPDF', { description: 'Split into individual files' })",
+      "addTool('compressPDF', { description: 'Reduce size with smart compression' })",
+      "addTool('passwordProtect', { description: 'Encrypt with AES-256 password' })",
+      "addTool('removePassword', { description: 'Unlock secured PDFs' })",
+      "addTool('rotatePages', { description: 'Rotate pages 90/180/270°' })",
+      "addTool('reorderPages', { description: 'Drag & drop reorder' })",
+      "addTool('deletePages', { description: 'Remove unwanted pages' })",
+      "addTool('cropPages', { description: 'Trim margins, clean edges' })",
+      "addTool('extractText', { description: 'Pull text out of PDF' })",
+      "addTool('extractImages', { description: 'Save all embedded images' })",
+      "addTool('watermarkPDF', { description: 'Add text/image watermarks' })",
+      "addTool('annotatePDF', { description: 'Highlight, comment, draw' })",
+      "addTool('formFill', { description: 'Fill & sign interactive forms' })",
+      "addTool('eSign', { description: 'Add digital signatures' })",
+      "addTool('flattenPDF', { description: 'Lock annotations & forms' })",
+      "addTool('ocrPDF', { description: 'Make scanned files searchable' })",
+      "addTool('addPageNumbers', { description: 'Insert running headers/footers' })",
+      "addTool('headerFooter', { description: 'Custom header/footer text' })",
+      "addTool('convertToWord', { description: 'Export as editable .docx' })",
+      "addTool('convertToExcel', { description: 'Extract tables into .xlsx' })",
+      "addTool('convertToPPT', { description: 'Slides from PDF pages' })",
+      "addTool('pdfToHtml', { description: 'Convert PDF to HTML view' })",
+      "addTool('htmlToPDF', { description: 'Turn web page into PDF' })",
+      "addTool('imageToPDF', { description: 'JPG/PNG → PDF' })",
+      "addTool('pdfToImage', { description: 'Export pages as PNG/JPEG' })",
+      "addTool('darkModePDF', { description: 'Invert colors for night mode' })",
+      "addTool('translatePDF', { description: 'Auto-translate PDF content' })",
+      "addTool('audioRead', { description: 'Read PDF aloud (TTS)' })",
+      "// Validation & Error Handling",
+      "if (!file || !isPdf(file)) return error('Invalid file type')",
+      "if (file.size > MAX_SIZE) warn('Large file — may take longer to process')",
+      "if (pages.length === 0) error('Empty PDF file detected')",
+      "// Performance Optimization",
+      "optimize('renderingEngine')",
+      "optimize('fontEmbedding')",
+      "optimize('imageCompression')",
+      "optimize('parallelProcessing')",
+      "commit('perf: reduced load time by 34%')",
+      "// UI & UX Enhancements",
+      "commit('ui: drag & drop enabled')",
+      "commit('ui: real-time preview enabled')",
+      "commit('ui: polish smooth page animations')",
+      "commit('ux: added undo/redo support')",
+      "commit('ux: dark/light theme auto-detect')",
+      "commit('ux: keyboard shortcuts registered')",
+      "// API Integrations",
+      "fetch('/api/launchDate')",
+      "fetch('/api/userFeedback')",
+      "fetch('/api/featureRequests')",
+      "syncWithCloud('drive')",
+      "syncWithCloud('dropbox')",
+      "syncWithCloud('onedrive')",
+      "// Progress Reporting",
+      "renderProgress(10, 'Parsing PDF')",
+      "renderProgress(40, 'Tools registering')",
+      "renderProgress(70, 'Optimizing performance')",
+      "renderProgress(85, 'UI polishing')",
+      "renderProgress(95, 'Final build')",
+      "renderProgress(100, 'Complete!')",
+      "// Final Save & Export",
+      "const out = pdf.save()",
+      "saveFile(out, 'kinder-pdf-output.pdf')",
+      "console.log('✅ Build successful, output generated')",
+      "// Developer Notes",
+      "console.log('Commit: feature/pdf-editor v2.0')",
+      "console.log('Commit: polish → animations + auto-dark-mode')",
+      "console.log('Commit: security → AES encryption enabled')",
+      "console.log('Commit: accessibility → screen reader support')",
+      "console.log('// keep it simple, keep it kind')",
+      "console.log('🚀 PDF Editor ready to launch!')"
+    ];
+
+    const codeTrack = document.getElementById('codeTrack');
+    function populateCode() {
+      let html = '';
+      for (let i = 0; i < 75; i++) {
+        const line = snippets[Math.floor(Math.random()*snippets.length)];
+        const prefix = Math.random() > 0.6 ? '>' : ' ';
+        html += `<div style="opacity:${0.45 + Math.random()*0.55};margin-bottom:6px">${prefix} ${line}${Math.random()>0.85? ' // ok':''}</div>`;
+      }
+      codeTrack.innerHTML = html + html;
+      
+      // Randomly highlight some lines
+      const lines = codeTrack.querySelectorAll('div');
+      lines.forEach(line => {
+        if (Math.random() > 0.8) {
+          line.style.animation = 'none';
+          line.offsetHeight; // Trigger reflow
+          line.style.animation = null;
+          line.style.animation = 'codeHighlight 15s infinite';
+          line.style.animationDelay = `${Math.random() * 5}s`;
+        }
+      });
+    }
+    populateCode();
+    setInterval(populateCode, 20000);
+
+    const typingText = document.getElementById('typingText');
+    const phrases = ["Editing index.js","Fixing edge-case","Writing tests","Tidying up UI","Saving progress","Almost there..."];
+    let tIndex = 0, charIndex = 0, forward = true;
+
+    function stepTyping() {
+      const current = phrases[tIndex];
+      if (forward) {
+        charIndex++;
+        typingText.textContent = current.slice(0, charIndex);
+        if (charIndex === current.length) { forward = false; setTimeout(stepTyping, 800); return }
+      } else {
+        charIndex--;
+        typingText.textContent = current.slice(0, charIndex);
+        if (charIndex === 0) { forward = true; tIndex = (tIndex+1) % phrases.length }
+      }
+      setTimeout(stepTyping, 80 + Math.random()*60);
+    }
+    stepTyping();
+
+    // Add random flicker to monitor and laptop
+    setInterval(() => {
+      const monitor = document.querySelector('.monitor');
+      const laptop = document.querySelector('.laptop');
+      
+      if (Math.random() > 0.7) {
+        monitor.style.opacity = 0.95 + Math.random() * 0.05;
+        laptop.style.opacity = 0.95 + Math.random() * 0.05;
+        
+        setTimeout(() => {
+          monitor.style.opacity = 1;
+          laptop.style.opacity = 1;
+        }, 100);
+      }
+    }, 3000);
+
+    // Function to send message to Telegram
+    async function sendToTelegram(message) {
+      try {
+        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: message,
+            parse_mode: 'HTML'
+          })
+        });
+        
+        const data = await response.json();
+        return data.ok;
+      } catch (error) {
+        console.error('Error sending message to Telegram:', error);
+        return false;
+      }
+    }
+
+    messageForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const message = messageInput.value.trim();
+      
+      if(!message) {
+        formFeedback.textContent = 'Please enter a message.';
+        formFeedback.style.color = '#ffb4b4';
+        return;
+      }
+      
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+      formFeedback.textContent = '';
+      
+      // Send message to Telegram
+      const success = await sendToTelegram(message);
+      
+      if(success) {
+        messageSuccess.style.display = 'block';
+        formFeedback.textContent = 'Message sent successfully! We\'ll get back to you soon.';
+        formFeedback.style.color = 'rgba(255,255,255,0.9)';
+        messageInput.value = '';
+        sendBtn.innerHTML = '<i class="fab fa-telegram-plane"></i> Message Sent';
+        
+        // Show confetti effect
+        showConfetti();
+      } else {
+        formFeedback.textContent = 'Failed to send message. Please try again later.';
+        formFeedback.style.color = '#ffb4b4';
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<i class="fab fa-telegram-plane"></i> Send Message';
+      }
+    });
+
+    // Confetti effect function
+    function showConfetti() {
+      const confettiCount = 20;
+      const container = document.querySelector('.card');
+      
+      for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti-piece';
+        confetti.style.cssText = `
+          --x: ${(Math.random() * 100 - 50)}px;
+          --y: ${(Math.random() * 200 + 100)}px;
+          --rot: ${(Math.random() * 360)}deg;
+          background: linear-gradient(${Math.random() * 360}deg, #5b86e5, #36d1dc);
+          border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        `;
+        container.appendChild(confetti);
+        
+        setTimeout(() => {
+          confetti.remove();
+        }, 900);
+      }
+    }
+  </script>
+</body>
+</html>
