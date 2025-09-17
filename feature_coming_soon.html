@@ -11,11 +11,12 @@
     html,body{height:100%}
     body{
       font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-      background:linear-gradient(180deg, rgba(8,10,20,0.6), rgba(4,6,10,0.6)), url('images/background.jpg') center/cover fixed no-repeat;
+      background: linear-gradient(rgba(8,10,20,0.85), rgba(4,6,10,0.85)), 
+                  url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%2308111d" width="100" height="100"/><path fill="%230d1526" d="M0 0L100 100M100 0L0 100" stroke-width="0.5"/></svg>');
       color:#eef2f8;display:flex;align-items:center;justify-content:center;padding:28px;
     }
 
-    .card{width:100%;max-width:920px;background:rgba(255,255,255,0.06);backdrop-filter:blur(14px);border-radius:20px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 12px 40px rgba(6,10,20,0.6);overflow:hidden;padding:28px;display:grid;grid-template-columns:1fr 460px;gap:28px}
+    .card{width:100%;max-width:920px;background:rgba(255,255,255,0.06);backdrop-filter:blur(14px);border-radius:20px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 12px 40px rgba(6,10,20,0.6);overflow:hidden;padding:28px;display:grid;grid-template-columns:1fr 380px;gap:28px}
 
     .left{display:flex;flex-direction:column;gap:18px;justify-content:center}
     .logo{display:flex;align-items:center;gap:12px}
@@ -28,36 +29,38 @@
     .right{display:flex;flex-direction:column;align-items:center;justify-content:start;gap:18px;padding:18px}
     .visual{width:100%;height:420px;display:flex;align-items:center;justify-content:center;position:relative}
 
-    .desk{width:360px;height:280px;position:relative;border-radius:12px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 18px 40px rgba(6,10,20,0.6);overflow:hidden} /* Added overflow:hidden */
+    /* Desk with same width as coder image (220px) and increased height */
+    .desk{width:220px;height:320px;position:relative;border-radius:12px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 18px 40px rgba(6,10,20,0.6);overflow:hidden}
 
-    /* Monitor made larger */
-    .monitor{width:100%;height:220px;background:#051018;border-radius:8px;padding:12px;position:relative;box-shadow:inset 0 -6px 18px rgba(0,0,0,0.6);overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
-    .monitor .code-lines{position:absolute;left:12px;top:12px;right:12px;bottom:12px;font-family:ui-monospace,Menlo,Monaco,monospace;font-size:12px;line-height:1.35;color:#8affc1;white-space:nowrap}
+    /* Monitor with adjusted size */
+    .monitor{width:100%;height:180px;background:#051018;border-radius:8px;padding:12px;position:relative;box-shadow:inset 0 -6px 18px rgba(0,0,0,0.6);overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
+    .monitor .code-lines{position:absolute;left:12px;top:12px;right:12px;bottom:12px;font-family:ui-monospace,Menlo,Monaco,monospace;font-size:11px;line-height:1.35;color:#8affc1;white-space:nowrap}
 
     .code-track{display:block;animation:scrollCode 8s linear infinite}
     @keyframes scrollCode{0%{transform:translateY(0)}100%{transform:translateY(-120%)}}
 
-    .laptop{width:56%;height:80px;background:linear-gradient(180deg,#0b1220,#07101a);border-radius:6px;margin:14px auto 0;padding:8px;position:relative;border:1px solid rgba(255,255,255,0.02);box-shadow:0 10px 24px rgba(0,0,0,0.5)}
-    .laptop .screen{height:100%;border-radius:4px;background:#021019;padding:8px;color:#cfe8ff;font-family:ui-monospace,Menlo,monospace;font-size:12px;overflow:hidden;display:flex;align-items:center;justify-content:flex-start;padding-left:12px}
+    /* Laptop with adjusted size */
+    .laptop{width:70%;height:70px;background:linear-gradient(180deg,#0b1220,#07101a);border-radius:6px;margin:14px auto 0;padding:6px;position:relative;border:1px solid rgba(255,255,255,0.02);box-shadow:0 10px 24px rgba(0,0,0,0.5)}
+    .laptop .screen{height:100%;border-radius:4px;background:#021019;padding:6px;color:#cfe8ff;font-family:ui-monospace,Menlo,monospace;font-size:11px;overflow:hidden;display:flex;align-items:center;justify-content:flex-start;padding-left:10px}
 
-    /* coder PNG */
-    .coder{position:absolute;left:50%;bottom:-28px;width:220px;z-index:3;transform:translateX(-50%)}
-    .coder img{width:100%;height:auto;display:block}
+    /* Coder PNG */
+    .coder{position:absolute;left:50%;bottom:0;width:220px;z-index:3;transform:translateX(-50%)}
+    .coder img{width:100%;height:auto;display:block;filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));}
 
     /* Typing animation inside laptop screen */
     .typing-box {
       font-family: ui-monospace, Menlo, Monaco, monospace;
-      font-size: 14px;
+      font-size: 12px;
       color: #cfe8ff;
       white-space: nowrap;
       overflow: hidden;
       width: 100%;
     }
     .typing{display:inline-block}
-    .cursor{display:inline-block;width:8px;height:14px;background:#36d1dc;margin-left:4px;vertical-align:middle;animation:blink 900ms steps(1) infinite}
+    .cursor{display:inline-block;width:6px;height:12px;background:#36d1dc;margin-left:2px;vertical-align:middle;animation:blink 900ms steps(1) infinite}
     @keyframes blink{50%{opacity:0}}
 
-    .glow{position:absolute;left:50%;top:20px;transform:translateX(-50%);width:340px;height:120px;filter:blur(28px);opacity:0.08;background:radial-gradient(circle at 50% 30%, #36d1dc 0%, #5b86e5 30%, transparent 60%);border-radius:50%}
+    .glow{position:absolute;left:50%;top:20px;transform:translateX(-50%);width:200px;height:100px;filter:blur(20px);opacity:0.08;background:radial-gradient(circle at 50% 30%, #36d1dc 0%, #5b86e5 30%, transparent 60%);border-radius:50%}
 
     .monitor, .laptop{animation:flicker 6s ease-in-out infinite}
     @keyframes flicker{0%,100%{opacity:1}50%{opacity:0.97}}
@@ -65,7 +68,7 @@
     /* New animations for developer activity */
     @keyframes typingGlow {
       0%, 100% { box-shadow: 0 0 5px rgba(54, 209, 220, 0.3); }
-      50% { box-shadow: 0 0 15px rgba(54, 209, 220, 0.6); }
+      50% { box-shadow: 0 0 12px rgba(54, 209, 220, 0.6); }
     }
     
     @keyframes codeHighlight {
@@ -110,8 +113,8 @@
     @media(max-width:980px){
       .card{grid-template-columns:1fr;max-width:760px;padding:20px}
       .visual{height:320px}
-      .desk{width:88%}
-      .coder{width:180px}
+      .desk{width:220px}
+      .coder{width:220px}
     }
   </style>
 </head>
@@ -123,10 +126,10 @@
         <div style="font-size:14px;color:rgba(255,255,255,0.85);font-weight:600">PDF Page Deleter</div>
       </div>
 
-      <h1 id="comingSoonTitle">We’re crafting something thoughtful — <span style="color:#36d1dc">coming soon</span></h1>
-      <p class="lead empathy">We want the tool to feel human, not robotic. To match that, here’s a little preview: a coder at work, building the tool — and a live console behind them — just to capture the energy.</p>
+      <h1 id="comingSoonTitle">We're crafting something thoughtful — <span style="color:#36d1dc">coming soon</span></h1>
+      <p class="lead empathy">We want the tool to feel human, not robotic. To match that, here's a little preview: a coder at work, building the tool — and a live console behind them — just to capture the energy.</p>
 
-      <div class="empathy">Be first to try it — drop your email and we’ll send a gentle note when it's ready. No spam, promise.</div>
+      <div class="empathy">Be first to try it — drop your email and we'll send a gentle note when it's ready. No spam, promise.</div>
 
       <div style="margin-top:12px">
         <form id="notifyForm" class="subscribe">
@@ -161,7 +164,41 @@
 
           <!-- Coder PNG (will be clipped by desk's overflow:hidden) -->
           <div class="coder">
-            <img src="images/my-coder.png" alt="Coder at laptop">
+            <!-- Using a SVG illustration as a placeholder for the coder image -->
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="skin" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#f8d4bc" />
+                  <stop offset="100%" stop-color="#e6b89c" />
+                </linearGradient>
+                <linearGradient id="shirt" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#5b86e5" />
+                  <stop offset="100%" stop-color="#36d1dc" />
+                </linearGradient>
+                <linearGradient id="hair" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#2c1810" />
+                  <stop offset="100%" stop-color="#1a0e08" />
+                </linearGradient>
+              </defs>
+              
+              <!-- Head -->
+              <circle cx="100" cy="70" r="25" fill="url(#skin)" />
+              
+              <!-- Hair -->
+              <path d="M75,60 Q85,45 100,45 Q115,45 125,60 Q130,70 125,80 Q115,95 100,95 Q85,95 75,80 Q70,70 75,60" fill="url(#hair)" />
+              
+              <!-- Body -->
+              <path d="M85,95 Q80,120 85,140 Q95,160 105,160 Q115,160 125,140 Q130,120 125,95 Z" fill="url(#shirt)" />
+              
+              <!-- Glasses -->
+              <ellipse cx="90" cy="70" rx="8" ry="6" fill="none" stroke="#333" stroke-width="1.5" />
+              <ellipse cx="110" cy="70" rx="8" ry="6" fill="none" stroke="#333" stroke-width="1.5" />
+              <line x1="98" y1="70" x2="102" y2="70" stroke="#333" stroke-width="1.5" />
+              
+              <!-- Arms -->
+              <path d="M85,110 Q70,120 65,130 Q60,140 65,150 Q70,160 80,155 Q85,150 85,145 L85,110" fill="url(#shirt)" />
+              <path d="M115,110 Q130,120 135,130 Q140,140 135,150 Q130,160 120,155 Q115,150 115,145 L115,110" fill="url(#shirt)" />
+            </svg>
           </div>
         </div>
       </div>
