@@ -28,33 +28,30 @@
     .right{display:flex;flex-direction:column;align-items:center;justify-content:start;gap:18px;padding:18px}
     .visual{width:100%;height:420px;display:flex;align-items:center;justify-content:center;position:relative}
 
-    .desk{width:360px;height:280px;position:relative;border-radius:12px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 18px 40px rgba(6,10,20,0.6);overflow:hidden}
+    .desk{width:360px;height:280px;position:relative;border-radius:12px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 18px 40px rgba(6,10,20,0.6);overflow:hidden} /* Added overflow:hidden */
 
-    /* Monitor bada kiya */
+    /* Monitor made larger */
     .monitor{width:100%;height:220px;background:#051018;border-radius:8px;padding:12px;position:relative;box-shadow:inset 0 -6px 18px rgba(0,0,0,0.6);overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
     .monitor .code-lines{position:absolute;left:12px;top:12px;right:12px;bottom:12px;font-family:ui-monospace,Menlo,Monaco,monospace;font-size:12px;line-height:1.35;color:#8affc1;white-space:nowrap}
 
     .code-track{display:block;animation:scrollCode 8s linear infinite}
     @keyframes scrollCode{0%{transform:translateY(0)}100%{transform:translateY(-120%)}}
 
-    .laptop{width:56%;height:80px;background:linear-gradient(180deg,#0b1220,#07101a);border-radius:6px;margin:14px auto 0;padding:8px;position:relative;border:1px solid rgba(255,255,255,0.02);box-shadow:0 10px 24px rgba(0,0,0,0.5);overflow:hidden}
-    .laptop .screen{height:100%;border-radius:4px;background:#021019;padding:8px;color:#cfe8ff;font-family:ui-monospace,Menlo,monospace;font-size:12px;overflow:hidden;position:relative}
+    .laptop{width:56%;height:80px;background:linear-gradient(180deg,#0b1220,#07101a);border-radius:6px;margin:14px auto 0;padding:8px;position:relative;border:1px solid rgba(255,255,255,0.02);box-shadow:0 10px 24px rgba(0,0,0,0.5)}
+    .laptop .screen{height:100%;border-radius:4px;background:#021019;padding:8px;color:#cfe8ff;font-family:ui-monospace,Menlo,monospace;font-size:12px;overflow:hidden;display:flex;align-items:center;justify-content:flex-start;padding-left:12px}
 
     /* coder PNG */
-    .coder{position:absolute;left:50%;bottom:0;width:220px;z-index:3;transform:translateX(-50%)}
+    .coder{position:absolute;left:50%;bottom:-28px;width:220px;z-index:3;transform:translateX(-50%)}
     .coder img{width:100%;height:auto;display:block}
 
-    /* Typing box laptop ke andar */
+    /* Typing animation inside laptop screen */
     .typing-box {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
       font-family: ui-monospace, Menlo, Monaco, monospace;
       font-size: 14px;
       color: #cfe8ff;
       white-space: nowrap;
-      z-index: 5;
+      overflow: hidden;
+      width: 100%;
     }
     .typing{display:inline-block}
     .cursor{display:inline-block;width:8px;height:14px;background:#36d1dc;margin-left:4px;vertical-align:middle;animation:blink 900ms steps(1) infinite}
@@ -64,6 +61,36 @@
 
     .monitor, .laptop{animation:flicker 6s ease-in-out infinite}
     @keyframes flicker{0%,100%{opacity:1}50%{opacity:0.97}}
+
+    /* New animations for developer activity */
+    @keyframes typingGlow {
+      0%, 100% { box-shadow: 0 0 5px rgba(54, 209, 220, 0.3); }
+      50% { box-shadow: 0 0 15px rgba(54, 209, 220, 0.6); }
+    }
+    
+    @keyframes codeHighlight {
+      0% { background-color: transparent; }
+      10% { background-color: rgba(54, 209, 220, 0.2); }
+      20% { background-color: transparent; }
+    }
+    
+    .monitor .code-track div {
+      padding: 0 4px;
+      border-radius: 2px;
+      animation: codeHighlight 15s infinite;
+    }
+    
+    .monitor .code-track div:nth-child(2n) {
+      animation-delay: 2s;
+    }
+    
+    .monitor .code-track div:nth-child(3n) {
+      animation-delay: 5s;
+    }
+    
+    .laptop .screen {
+      animation: typingGlow 3s infinite;
+    }
 
     .subscribe{width:100%;display:flex;gap:10px;align-items:center}
     .subscribe input[type='email']{flex:1;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.02);color:#fff;font-size:14px;outline:none}
@@ -85,7 +112,6 @@
       .visual{height:320px}
       .desk{width:88%}
       .coder{width:180px}
-      .typing-box{font-size:12px}
     }
   </style>
 </head>
@@ -100,7 +126,7 @@
       <h1 id="comingSoonTitle">We’re crafting something thoughtful — <span style="color:#36d1dc">coming soon</span></h1>
       <p class="lead empathy">We want the tool to feel human, not robotic. To match that, here’s a little preview: a coder at work, building the tool — and a live console behind them — just to capture the energy.</p>
 
-      <div class="empathy">Be first to try it — drop your email and we’ll send a gentle note when it’s ready. No spam, promise.</div>
+      <div class="empathy">Be first to try it — drop your email and we’ll send a gentle note when it's ready. No spam, promise.</div>
 
       <div style="margin-top:12px">
         <form id="notifyForm" class="subscribe">
@@ -124,21 +150,19 @@
             </div>
           </div>
 
-          <!-- Laptop (foreground) -->
+          <!-- Laptop (with typing animation in screen) -->
           <div class="laptop">
             <div class="screen">
-              <!-- Typing text laptop ke andar -->
               <div class="typing-box">
-                <span class="typing" id="typingText">Initializing editor…</span><span class="cursor"></span>
+                <span class="typing" id="typingText"></span><span class="cursor"></span>
               </div>
             </div>
           </div>
 
-          <!-- Coder PNG -->
+          <!-- Coder PNG (will be clipped by desk's overflow:hidden) -->
           <div class="coder">
             <img src="images/my-coder.png" alt="Coder at laptop">
           </div>
-
         </div>
       </div>
 
@@ -147,7 +171,7 @@
       </div>
       <div id="notifySuccess" class="success" style="display:none;text-align:center">
         <i class="fas fa-check-circle" style="color:#36d1dc"></i>
-        <span id="successText">Thanks — we’ll ping you soon.</span>
+        <span id="successText">Thanks — we'll ping you soon.</span>
       </div>
     </aside>
 
@@ -188,6 +212,18 @@
         html += `<div style="opacity:${0.45 + Math.random()*0.55};margin-bottom:6px">${prefix} ${line}${Math.random()>0.85? ' // ok':''}</div>`;
       }
       codeTrack.innerHTML = html + html;
+      
+      // Randomly highlight some lines
+      const lines = codeTrack.querySelectorAll('div');
+      lines.forEach(line => {
+        if (Math.random() > 0.8) {
+          line.style.animation = 'none';
+          line.offsetHeight; // Trigger reflow
+          line.style.animation = null;
+          line.style.animation = 'codeHighlight 15s infinite';
+          line.style.animationDelay = `${Math.random() * 5}s`;
+        }
+      });
     }
     populateCode();
     setInterval(populateCode, 6000);
@@ -211,6 +247,22 @@
     }
     stepTyping();
 
+    // Add random flicker to monitor and laptop
+    setInterval(() => {
+      const monitor = document.querySelector('.monitor');
+      const laptop = document.querySelector('.laptop');
+      
+      if (Math.random() > 0.7) {
+        monitor.style.opacity = 0.95 + Math.random() * 0.05;
+        laptop.style.opacity = 0.95 + Math.random() * 0.05;
+        
+        setTimeout(() => {
+          monitor.style.opacity = 1;
+          laptop.style.opacity = 1;
+        }, 100);
+      }
+    }, 3000);
+
     notifyForm.addEventListener('submit', (e)=>{
       e.preventDefault();
       const email = emailInput.value.trim();
@@ -224,7 +276,7 @@
       formFeedback.textContent = '';
       setTimeout(()=>{
         notifySuccess.style.display = 'block';
-        formFeedback.textContent = 'We’ll send a small note when we go live. Meanwhile — take a deep breath. 😊';
+        formFeedback.textContent = 'We\'ll send a small note when we go live. Meanwhile — take a deep breath. 😊';
         formFeedback.style.color = 'rgba(255,255,255,0.9)';
         notifyBtn.innerHTML = '<i class="fas fa-bell"></i> Notified';
       }, 950);
