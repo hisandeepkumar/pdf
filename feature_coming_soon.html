@@ -41,70 +41,98 @@
     }
 
     /* ==================== MONITOR CONTROL ==================== */
-    .monitor{
-      width:100%;     /* Monitor width control */
-      height:350px;   /* Monitor height control */
-      background:#051018;
-      border-radius:8px;
-      padding:12px;
-      position:relative;
-      box-shadow:inset 0 -6px 18px rgba(0,0,0,0.6);
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,0.03);
-    }
-    .monitor .code-lines{
-      position:absolute;
-      left:12px;top:12px;right:12px;bottom:12px;
-      font-family:ui-monospace,Menlo,Monaco,monospace;
-      font-size:12px;      /* Code font size control */
-      line-height:1.35;
-      color:#8affc1;
-      white-space:nowrap;
-    }
+   /* ==================== DESK CONTROL ==================== */
+.desk {
+  width: 360px;    /* Desk width control */
+  height: 500px;   /* Desk height control */
+  position: relative;
+  border-radius: 12px;
+  padding: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  box-shadow: 0 18px 40px rgba(6,10,20,0.6);
+  overflow: hidden;  /* Keeps coder PNG inside desk */
+}
 
-    .code-track{display:block;animation:scrollCode 8s linear infinite}
-    @keyframes scrollCode{0%{transform:translateY(0)}100%{transform:translateY(-120%)}}
+/* ==================== MONITOR CONTROL ==================== */
+.monitor {
+  width: 100%;     /* Monitor width control */
+  height: 350px;   /* Monitor height control */
+  background: #051018;
+  border-radius: 8px;
+  padding: 12px;
+  position: relative;
+  box-shadow: inset 0 -6px 18px rgba(0,0,0,0.6);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.monitor .code-lines {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 12px;      /* Code font size control */
+  line-height: 1.35;
+  color: #8affc1;
+  white-space: nowrap;
+}
 
-    /* ==================== LAPTOP CONTROL ==================== */
-    .laptop{
-      width:360px;        /* Laptop width control */
-      height:80px;     /* Laptop height control */
-      bottom:4px
-      z-index:4;
-      background:linear-gradient(180deg,#0b1220,#07101a);
-      border-radius:6px;
-      
-      
-      position:relative;
-      border:1px solid rgba(255,255,255,0.02);
-      box-shadow:0 10px 24px rgba(0,0,0,0.5);
-    }
-    .laptop .screen{
-      height:100%;     /* Laptop screen height control */
-      border-radius:4px;
-      background:#021019;
-      padding:8px;
-      color:#cfe8ff;
-      font-family:ui-monospace,Menlo,monospace;
-      font-size:12px;  /* Laptop screen font size */
-      overflow:hidden;
-      display:flex;
-      align-items:center;
-      justify-content:flex-start;
-      padding-left:12px;
-z-index:4;
-    }
+.code-track {
+  display: block;
+  animation: scrollCode 8s linear infinite;
+}
+@keyframes scrollCode {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-120%); }
+}
 
-    /* ==================== CODER PNG CONTROL ==================== */
-    .coder{
-      position:absolute;
-      left:50%;         /* Horizontal position of coder */
-      bottom:-28px;     /* Vertical position of coder */
-      width:360px;      /* Coder image size control */
-      z-index:3;
-      transform:translateX(-50%);
-    }
-    .coder img{width:100%;height:auto;display:block}
+/* ==================== LAPTOP CONTROL ==================== */
+.laptop {
+  width: 360px;        /* Laptop width control */
+  height: 80px;        /* Laptop height control */
+  position: absolute;  /* Position inside desk */
+  left: 50%;           /* Center align horizontally */
+  bottom: 0;           /* Stick to desk bottom */
+  transform: translateX(-50%);
+  z-index: 4;          /* Above coder PNG */
+  padding: 8px;
+  background: linear-gradient(180deg, #0b1220, #07101a);
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.02);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.5);
+}
+.laptop .screen {
+  height: 100%;     /* Laptop screen height control */
+  border-radius: 4px;
+  background: #021019;
+  padding: 8px;
+  color: #cfe8ff;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px;  /* Laptop screen font size */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 12px;
+  z-index: 5;       /* Extra layer above coder if needed */
+}
+
+/* ==================== CODER PNG CONTROL ==================== */
+.coder {
+  position: absolute;
+  left: 50%;          /* Horizontal position of coder */
+  bottom: -28px;      /* Vertical position of coder */
+  width: 360px;       /* Coder image size control */
+  z-index: 3;         /* Behind laptop */
+  transform: translateX(-50%);
+}
+.coder img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 
     /* ==================== TYPING ANIMATION ==================== */
     .typing-box {
