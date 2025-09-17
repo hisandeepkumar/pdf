@@ -8,168 +8,191 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%}
-    body{
-      font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-      background:linear-gradient(180deg, rgba(8,10,20,0.6), rgba(4,6,10,0.6)), url('images/background.jpg') center/cover fixed no-repeat;
-      color:#eef2f8;display:flex;align-items:center;justify-content:center;padding:28px;
-    }
+html,body{height:100%}
+body{
+  font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  background:linear-gradient(180deg, rgba(8,10,20,0.6), rgba(4,6,10,0.6)), url('images/background.jpg') center/cover fixed no-repeat;
+  color:#eef2f8;display:flex;align-items:center;justify-content:center;padding:28px;
+}
 
-    .card{width:100%;max-width:920px;background:rgba(255,255,255,0.06);backdrop-filter:blur(14px);border-radius:20px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 12px 40px rgba(6,10,20,0.6);overflow:hidden;padding:28px;display:grid;grid-template-columns:1fr 460px;gap:28px}
+.card{
+  width:100%;max-width:920px;
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(14px);
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 12px 40px rgba(6,10,20,0.6);
+  overflow:hidden;
+  padding:28px;
+  display:grid;
+  grid-template-columns:1fr 460px;
+  gap:28px;
+}
 
-    .left{display:flex;flex-direction:column;gap:18px;justify-content:center}
-    .logo{display:flex;align-items:center;gap:12px}
-    .logo i{font-size:34px;color:#5b86e5}
-    h1{font-size:28px;line-height:1.05;color:#fff}
-    p.lead{color:rgba(255,255,255,0.88);font-size:15px}
+.left{display:flex;flex-direction:column;gap:18px;justify-content:center}
+.logo{display:flex;align-items:center;gap:12px}
+.logo i{font-size:34px;color:#5b86e5}
+h1{font-size:28px;line-height:1.05;color:#fff}
+p.lead{color:rgba(255,255,255,0.88);font-size:15px}
 
-    .empathy{background:linear-gradient(90deg, rgba(91,134,229,0.08), rgba(54,209,220,0.06));padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);color:rgba(255,255,255,0.95)}
+.empathy{
+  background:linear-gradient(90deg, rgba(91,134,229,0.08), rgba(54,209,220,0.06));
+  padding:12px;border-radius:12px;
+  border:1px solid rgba(255,255,255,0.03);
+  color:rgba(255,255,255,0.95)
+}
 
-    .right{display:flex;flex-direction:column;align-items:center;justify-content:start;gap:18px;padding:18px}
-    .visual{width:100%;height:420px;display:flex;align-items:center;justify-content:center;position:relative}
+.right{display:flex;flex-direction:column;align-items:center;justify-content:start;gap:18px;padding:18px}
+.visual{
+  position:relative;
+  width:100%;
+  max-width:420px;
+  aspect-ratio:360/500; /* desk ka original ratio */
+  margin:0 auto;
+}
 
-    /* ==================== DESK CONTROL ==================== */
-    .desk {
-      width: 360px;    /* Desk width control */
-      height: 500px;   /* Desk height control */
-      position: relative;
-      border-radius: 12px;
-      padding: 18px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      box-shadow: 0 18px 40px rgba(6,10,20,0.6);
-      overflow: hidden;  /* Keeps coder PNG inside desk */
-    }
+/* ==================== DESK ==================== */
+.desk {
+  position:relative;
+  width:100%;
+  height:100%;
+  border-radius:3%;
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  box-shadow:0 18px 40px rgba(6,10,20,0.6);
+  overflow:hidden;
+}
 
-    /* ==================== MONITOR CONTROL ==================== */
-    .monitor {
-      width: 100%;     /* Monitor width control */
-      height: 350px;   /* Monitor height control */
-      background: #051018;
-      border-radius: 8px;
-      padding: 12px;
-      position: relative;
-      box-shadow: inset 0 -6px 18px rgba(0,0,0,0.6);
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.03);
-    }
-    .monitor .code-lines {
-      position: absolute;
-      left: 12px;
-      top: 12px;
-      right: 12px;
-      bottom: 12px;
-      font-family: ui-monospace, Menlo, Monaco, monospace;
-      font-size: 12px;      /* Code font size control */
-      line-height: 1.35;
-      color: #8affc1;
-      white-space: nowrap;
-    }
+/* ==================== MONITOR ==================== */
+.monitor {
+  position:absolute;
+  top:4%;
+  left:5%;
+  width:90%;
+  height:70%;
+  background:#051018;
+  border-radius:2%;
+  padding:3%;
+  position:relative;
+  box-shadow:inset 0 -1% 4% rgba(0,0,0,0.6);
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,0.03);
+}
+.monitor .code-lines {
+  position:absolute;
+  left:3%;
+  top:3%;
+  right:3%;
+  bottom:3%;
+  font-family:ui-monospace, Menlo, Monaco, monospace;
+  font-size:clamp(9px,1.5vw,12px);
+  line-height:1.35;
+  color:#8affc1;
+  white-space:nowrap;
+}
+.code-track{display:block;animation:scrollCode 12s linear infinite}
+@keyframes scrollCode {
+  0% { transform: translateY(0); }
+  80% { transform: translateY(-120%); }
+  100% { transform: translateY(-120%); } /* pause at end */
+}
 
-    .code-track {
-      display: block;
-      animation: scrollCode 20s linear infinite;
-    }
-    @keyframes scrollCode {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-120%); }
-    }
+/* ==================== LAPTOP ==================== */
+.laptop {
+  position:absolute;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  width:100%;
+  height:16%;
+  padding:2%;
+  background:linear-gradient(180deg, #0b1220, #07101a);
+  border-radius:1.5%;
+  border:1px solid rgba(255,255,255,0.02);
+  box-shadow:0 2% 6% rgba(0,0,0,0.5);
+  z-index:4;
+}
+.laptop .screen {
+  height:100%;
+  border-radius:1%;
+  background:#021019;
+  padding:2% 3%;
+  color:#cfe8ff;
+  font-family:ui-monospace, Menlo, monospace;
+  font-size:clamp(10px,1.5vw,12px);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+}
 
-    /* ==================== LAPTOP CONTROL ==================== */
-    .laptop {
-      width: 360px;        /* Laptop width control */
-      height: 80px;        /* Laptop height control */
-      position: absolute;  /* Position inside desk */
-      left: 50%;           /* Center align horizontally */
-      bottom: 0;           /* Stick to desk bottom */
-      transform: translateX(-50%);
-      z-index: 4;          /* Above coder PNG */
-      padding: 8px;
-      background: linear-gradient(180deg, #0b1220, #07101a);
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.02);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.5);
-    }
-    .laptop .screen {
-      height: 100%;     /* Laptop screen height control */
-      border-radius: 4px;
-      background: #021019;
-      padding: 8px;
-      color: #cfe8ff;
-      font-family: ui-monospace, Menlo, monospace;
-      font-size: 12px;  /* Laptop screen font size */
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      padding-left: 12px;
-      z-index: 5;       /* Extra layer above coder if needed */
-    }
+/* ==================== CODER PNG ==================== */
+.coder {
+  position:absolute;
+  left:50%;
+  bottom:-6%;
+  width:100%;
+  transform:translateX(-50%);
+  z-index:3;
+}
+.coder img {
+  width:100%;
+  height:auto;
+  display:block;
+}
 
-    /* ==================== CODER PNG CONTROL ==================== */
-    .coder {
-      position: absolute;
-      left: 50%;          /* Horizontal position of coder */
-      bottom: -28px;      /* Vertical position of coder */
-      width: 360px;       /* Coder image size control */
-      z-index: 3;         /* Behind laptop */
-      transform: translateX(-50%);
-    }
-    .coder img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
+/* ==================== TYPING ==================== */
+.typing-box {
+  font-family:ui-monospace, Menlo, Monaco, monospace;
+  font-size:clamp(12px,1.8vw,14px);
+  color:#cfe8ff;
+  white-space:nowrap;
+  overflow:hidden;
+  width:100%;
+}
+.typing{display:inline-block}
+.cursor{display:inline-block;width:8px;height:14px;background:#36d1dc;margin-left:4px;vertical-align:middle;animation:blink 900ms steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
 
-    /* ==================== TYPING ANIMATION ==================== */
-    .typing-box {
-      font-family: ui-monospace, Menlo, Monaco, monospace;
-      font-size: 14px;
-      color: #cfe8ff;
-      white-space: nowrap;
-      overflow: hidden;
-      width: 100%;
-    }
-    .typing{display:inline-block}
-    .cursor{display:inline-block;width:8px;height:14px;background:#36d1dc;margin-left:4px;vertical-align:middle;animation:blink 900ms steps(1) infinite}
-    @keyframes blink{50%{opacity:0}}
+.glow{
+  position:absolute;left:50%;top:4%;
+  transform:translateX(-50%);
+  width:90%;height:25%;
+  filter:blur(28px);opacity:0.08;
+  background:radial-gradient(circle at 50% 30%, #36d1dc 0%, #5b86e5 30%, transparent 60%);
+  border-radius:50%
+}
 
-    /* Glow effect */
-    .glow{position:absolute;left:50%;top:20px;transform:translateX(-50%);width:340px;height:120px;filter:blur(28px);opacity:0.08;background:radial-gradient(circle at 50% 30%, #36d1dc 0%, #5b86e5 30%, transparent 60%);border-radius:50%}
+.monitor, .laptop{animation:flicker 6s ease-in-out infinite}
+@keyframes flicker{0%,100%{opacity:1}50%{opacity:0.97}}
 
-    .monitor, .laptop{animation:flicker 6s ease-in-out infinite}
-    @keyframes flicker{0%,100%{opacity:1}50%{opacity:0.97}}
+@keyframes typingGlow {0%,100% { box-shadow: 0 0 5px rgba(54, 209, 220, 0.3);}50% { box-shadow: 0 0 15px rgba(54, 209, 220, 0.6);}}
+@keyframes codeHighlight {0% { background-color: transparent;}10% { background-color: rgba(54, 209, 220, 0.2);}20% { background-color: transparent;}}
+.monitor .code-track div {padding:0 4px;border-radius:2px;animation: codeHighlight 15s infinite;}
+.monitor .code-track div:nth-child(2n){animation-delay:2s}
+.monitor .code-track div:nth-child(3n){animation-delay:5s}
+.laptop .screen{animation:typingGlow 3s infinite}
 
-    /* Code highlight animation */
-    @keyframes typingGlow {0%,100% { box-shadow: 0 0 5px rgba(54, 209, 220, 0.3);}50% { box-shadow: 0 0 15px rgba(54, 209, 220, 0.6);}}
-    @keyframes codeHighlight {0% { background-color: transparent;}10% { background-color: rgba(54, 209, 220, 0.2);}20% { background-color: transparent;}}
-    .monitor .code-track div {padding:0 4px;border-radius:2px;animation: codeHighlight 15s infinite;}
-    .monitor .code-track div:nth-child(2n){animation-delay:2s}
-    .monitor .code-track div:nth-child(3n){animation-delay:5s}
-    .laptop .screen{animation:typingGlow 3s infinite}
+/* Subscription */
+.subscribe{width:100%;display:flex;gap:10px;align-items:center}
+.subscribe input[type='email']{flex:1;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.02);color:#fff;font-size:14px;outline:none}
+.subscribe input[type='email']:focus{box-shadow:0 6px 20px rgba(91,134,229,0.12);border-color:#5b86e5}
+.btn-ghost{padding:12px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.10);background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));color:#fff;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:10px}
+.btn-ghost:disabled{opacity:0.5;cursor:not-allowed}
 
-    /* Subscription */
-    .subscribe{width:100%;display:flex;gap:10px;align-items:center}
-    .subscribe input[type='email']{flex:1;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.02);color:#fff;font-size:14px;outline:none}
-    .subscribe input[type='email']:focus{box-shadow:0 6px 20px rgba(91,134,229,0.12);border-color:#5b86e5}
-    .btn-ghost{padding:12px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.10);background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));color:#fff;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:10px}
-    .btn-ghost:disabled{opacity:0.5;cursor:not-allowed}
+.anticipation{width:100%;height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-top:8px}
+.anticipation > i{display:block;height:100%;width:18%;background:linear-gradient(90deg,#5b86e5,#36d1dc);transform-origin:left;animation:anticipate 3s linear infinite}
+@keyframes anticipate{0%{transform:translateX(-0%)}50%{transform:translateX(280%)}100%{transform:translateX(0%)}}
 
-    .anticipation{width:100%;height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-top:8px}
-    .anticipation > i{display:block;height:100%;width:18%;background:linear-gradient(90deg,#5b86e5,#36d1dc);transform-origin:left;animation:anticipate 3s linear infinite}
-    @keyframes anticipate{0%{transform:translateX(-0%)}50%{transform:translateX(280%)}100%{transform:translateX(0%)}}
+.footer{grid-column:1/-1;margin-top:6px;text-align:center;color:rgba(255,255,255,0.7);font-size:13px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.04)}
 
-    .footer{grid-column:1/-1;margin-top:6px;text-align:center;color:rgba(255,255,255,0.7);font-size:13px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.04)}
+.confetti-piece{position:absolute;left:50%;top:40%;width:8px;height:12px;opacity:0;transform-origin:center;animation:confetti 900ms forwards}
+@keyframes confetti{0%{opacity:1;transform:translate(-50%,0) rotate(0) scale(1)}100%{opacity:1;transform:translate(calc(-50% + var(--x)), calc(var(--y) * -1px)) rotate(var(--rot)) scale(1)}}
 
-    .confetti-piece{position:absolute;left:50%;top:40%;width:8px;height:12px;opacity:0;transform-origin:center;animation:confetti 900ms forwards}
-    @keyframes confetti{0%{opacity:1;transform:translate(-50%,0) rotate(0) scale(1)}100%{opacity:1;transform:translate(calc(-50% + var(--x)), calc(var(--y) * -1px)) rotate(var(--rot)) scale(1)}}
-
-    /* Responsive */
-    @media(max-width:980px){
-      .card{grid-template-columns:1fr;max-width:760px;padding:20px}
-      .visual{height:320px}
-      .desk{width:88%}
-      .coder{width:180px}
-    }
+/* Responsive */
+@media(max-width:980px){
+  .card{grid-template-columns:1fr;max-width:760px;padding:20px}
+  .visual{max-width:320px}
+}
   </style>
 </head>
 <body>
