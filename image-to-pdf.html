@@ -43,7 +43,6 @@
       padding: 32px;
     }
 
-
     .header {
       padding: 24px;
       text-align: center;
@@ -245,7 +244,7 @@
       background: rgba(0, 0, 0, 0.7);
       padding: 8px;
       display: flex;
-      justify-content: space-around;
+      justify-content: center;
       transform: translateY(100%);
       transition: transform 0.3s ease;
     }
@@ -269,6 +268,54 @@
     .control-btn i {
       font-size: 16px;
       margin-bottom: 2px;
+    }
+
+    .add-more-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      display: none;
+    }
+
+    .add-more-btn {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      color: #f0f0f0;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(255, 159, 67, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .add-more-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -150%;
+      width: 150%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: all 0.6s ease;
+    }
+
+    .add-more-btn:hover::before {
+      left: 150%;
+    }
+
+    .add-more-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+      box-shadow: 0 12px 32px rgba(255, 159, 67, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .btn {
@@ -423,6 +470,13 @@
     </div>
     <p class="file-info" id="fileInfo"></p>
     
+    <div class="add-more-container" id="addMoreContainer">
+      <button class="add-more-btn" id="addMoreBtn">
+        <i class="fas fa-plus"></i>
+        <span>Add More Images</span>
+      </button>
+    </div>
+    
     <div class="options-container">
       <div class="option-group">
         <label for="pageSize">Page Size</label>
@@ -430,22 +484,6 @@
           <option value="a4">A4 (210×297mm)</option>
           <option value="letter">Letter (8.5×11in)</option>
           <option value="legal">Legal (8.5×14in)</option>
-        </select>
-      </div>
-      
-      <div class="option-group">
-        <label for="autoCrop">Auto-Crop</label>
-        <select id="autoCrop">
-          <option value="auto">Auto-Crop Documents</option>
-          <option value="manual">Manual Crop (Per Image)</option>
-        </select>
-      </div>
-      
-      <div class="option-group">
-        <label for="imageEnhance">Image Enhancement</label>
-        <select id="imageEnhance">
-          <option value="enhanced">Enhanced Text Clarity</option>
-          <option value="original">Original Quality</option>
         </select>
       </div>
     </div>
@@ -465,42 +503,42 @@
       <div class="footer-text">Secure • Free • Professional | Made with <span style="color: #ff4d4d;">❤️</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" style="color: #5b86e5; text-decoration: none;">Sandeep</a></div>
     </div>
   </div>
-<!-- Circular Floating Back Button (inline CSS + inline JS) -->
-<button
-  type="button"
-  title="Back"
-  aria-label="Go back"
-  onclick="(function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })();"
-  onkeydown="if(event.key==='Enter' || event.code==='Space'){ event.preventDefault(); (function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })(); }"
-  onmouseenter="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.25)';"
-  onmouseleave="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.18)';"
-  style="
-    position:fixed;
-    top:14px;
-    left:14px;
-    z-index:2147483647;            /* maximum safe z-index so it's on top */
-    width:52px;
-    height:52px;
-    padding:0;
-    border-radius:50%;
-    border:none;
-    background:linear-gradient(180deg,#ffffff,#f2f2f2);
-    box-shadow:0 4px 12px rgba(0,0,0,0.18);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    -webkit-tap-highlight-color:transparent;
-    transition:transform .12s ease, box-shadow .12s ease;
-    backdrop-filter:blur(6px);
-    opacity:0.98;
-  "
->
-  <!-- SVG arrow (kept small, high-contrast) -->
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-    <path d="M15 18l-6-6 6-6" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
-  </svg>
-</button>
+
+  <!-- Circular Floating Back Button -->
+  <button
+    type="button"
+    title="Back"
+    aria-label="Go back"
+    onclick="(function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })();"
+    onkeydown="if(event.key==='Enter' || event.code==='Space'){ event.preventDefault(); (function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })(); }"
+    onmouseenter="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.25)';"
+    onmouseleave="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.18)';"
+    style="
+      position:fixed;
+      top:14px;
+      left:14px;
+      z-index:2147483647;
+      width:52px;
+      height:52px;
+      padding:0;
+      border-radius:50%;
+      border:none;
+      background:linear-gradient(180deg,#ffffff,#f2f2f2);
+      box-shadow:0 4px 12px rgba(0,0,0,0.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      transition:transform .12s ease, box-shadow .12s ease;
+      backdrop-filter:blur(6px);
+      opacity:0.98;
+    "
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+      <path d="M15 18l-6-6 6-6" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </button>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -511,6 +549,8 @@
       const progressContainer = document.getElementById('progressContainer');
       const progressBar = document.getElementById('progressBar');
       const imageGallery = document.getElementById('imageGallery');
+      const addMoreContainer = document.getElementById('addMoreContainer');
+      const addMoreBtn = document.getElementById('addMoreBtn');
       
       const { jsPDF } = window.jspdf;
       
@@ -556,6 +596,11 @@
         fileInput.click();
       });
       
+      // Add more button click handler
+      addMoreBtn.addEventListener('click', () => {
+        fileInput.click();
+      });
+      
       // Drag and drop functionality
       ['dragenter', 'dragover'].forEach(eventName => {
         uploadArea.addEventListener(eventName, (e) => {
@@ -594,34 +639,36 @@
           fileInfoDisplay.style.display = 'none';
           convertBtn.disabled = true;
           imageGallery.style.display = 'none';
+          addMoreContainer.style.display = 'none';
           return;
         }
         
         // Display file info
         const totalSize = validImages.reduce((acc, file) => acc + file.size, 0);
-        fileInfoDisplay.textContent = `${validImages.length} images selected (${formatFileSize(totalSize)})`;
+        fileInfoDisplay.textContent = `${uploadedImages.length + validImages.length} images selected (${formatFileSize(totalSize)})`;
         fileInfoDisplay.style.display = 'block';
         convertBtn.disabled = false;
         imageGallery.style.display = 'grid';
+        addMoreContainer.style.display = 'flex';
         
         // Process and display images
-        uploadedImages = [];
-        imageGallery.innerHTML = '';
-        
         Array.from(validImages).forEach((file, index) => {
           const reader = new FileReader();
           
           reader.onload = function(e) {
             const imageData = {
-              id: index,
+              id: uploadedImages.length + index,
               name: file.name,
-              src: e.target.result,
-              autoCrop: true,
-              enhance: true
+              src: e.target.result
             };
             
             uploadedImages.push(imageData);
             addImageToGallery(imageData);
+            
+            // Update file info after all images are loaded
+            if (uploadedImages.length === (uploadedImages.length - validImages.length + index + 1)) {
+              fileInfoDisplay.textContent = `${uploadedImages.length} images selected (${formatFileSize(totalSize)})`;
+            }
           };
           
           reader.readAsDataURL(file);
@@ -639,24 +686,9 @@
         const img = document.createElement('img');
         img.src = imageData.src;
         img.alt = imageData.name;
-        img.style.filter = imageData.enhance ? 'contrast(1.1) brightness(1.05)' : 'none';
         
         const controls = document.createElement('div');
         controls.className = 'image-controls';
-        
-        const cropBtn = document.createElement('button');
-        cropBtn.className = 'control-btn';
-        cropBtn.title = imageData.autoCrop ? 'Auto-Crop Enabled' : 'Auto-Crop Disabled';
-        cropBtn.innerHTML = '<i class="fas fa-crop-alt"></i> Crop';
-        cropBtn.style.color = imageData.autoCrop ? '#2ecc71' : '#e74c3c';
-        cropBtn.onclick = () => toggleAutoCrop(imageData.id);
-        
-        const enhanceBtn = document.createElement('button');
-        enhanceBtn.className = 'control-btn';
-        enhanceBtn.title = imageData.enhance ? 'Enhancement Enabled' : 'Enhancement Disabled';
-        enhanceBtn.innerHTML = '<i class="fas fa-magic"></i> Enhance';
-        enhanceBtn.style.color = imageData.enhance ? '#2ecc71' : '#e74c3c';
-        enhanceBtn.onclick = () => toggleEnhance(imageData.id);
         
         const removeBtn = document.createElement('button');
         removeBtn.className = 'control-btn';
@@ -664,37 +696,11 @@
         removeBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
         removeBtn.onclick = () => removeImage(imageData.id);
         
-        controls.appendChild(cropBtn);
-        controls.appendChild(enhanceBtn);
         controls.appendChild(removeBtn);
         
         imageItem.appendChild(img);
         imageItem.appendChild(controls);
         imageGallery.appendChild(imageItem);
-      }
-      
-      // Toggle auto-crop for specific image
-      function toggleAutoCrop(imageId) {
-        const imageIndex = uploadedImages.findIndex(img => img.id === imageId);
-        if (imageIndex !== -1) {
-          uploadedImages[imageIndex].autoCrop = !uploadedImages[imageIndex].autoCrop;
-          const btn = document.querySelector(`.image-item[data-id="${imageId}"] .control-btn:nth-child(1)`);
-          btn.style.color = uploadedImages[imageIndex].autoCrop ? '#2ecc71' : '#e74c3c';
-          btn.title = uploadedImages[imageIndex].autoCrop ? 'Auto-Crop Enabled' : 'Auto-Crop Disabled';
-        }
-      }
-      
-      // Toggle enhancement for specific image
-      function toggleEnhance(imageId) {
-        const imageIndex = uploadedImages.findIndex(img => img.id === imageId);
-        if (imageIndex !== -1) {
-          uploadedImages[imageIndex].enhance = !uploadedImages[imageIndex].enhance;
-          const img = document.querySelector(`.image-item[data-id="${imageId}"] img`);
-          img.style.filter = uploadedImages[imageIndex].enhance ? 'contrast(1.1) brightness(1.05)' : 'none';
-          const btn = document.querySelector(`.image-item[data-id="${imageId}"] .control-btn:nth-child(2)`);
-          btn.style.color = uploadedImages[imageIndex].enhance ? '#2ecc71' : '#e74c3c';
-          btn.title = uploadedImages[imageIndex].enhance ? 'Enhancement Enabled' : 'Enhancement Disabled';
-        }
       }
       
       // Remove image
@@ -709,6 +715,7 @@
             fileInfoDisplay.style.display = 'none';
             convertBtn.disabled = true;
             imageGallery.style.display = 'none';
+            addMoreContainer.style.display = 'none';
           } else {
             fileInfoDisplay.textContent = `${uploadedImages.length} images selected`;
           }
@@ -719,36 +726,6 @@
       function updateProgress(percent) {
         progressContainer.style.display = 'block';
         progressBar.style.width = `${percent}%`;
-      }
-      
-      // Auto-crop function (simplified)
-      function autoCropImage(img) {
-        // In a real implementation, this would use canvas to detect edges
-        // For this demo, we'll just return the original image
-        return img;
-      }
-      
-      // Apply enhancement filter
-      function enhanceImage(img) {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        
-        // Simple contrast enhancement
-        for (let i = 0; i < data.length; i += 4) {
-          // Increase contrast
-          data[i] = data[i] < 128 ? data[i] * 0.8 : 255 - (255 - data[i]) * 0.8;
-          data[i+1] = data[i+1] < 128 ? data[i+1] * 0.8 : 255 - (255 - data[i+1]) * 0.8;
-          data[i+2] = data[i+2] < 128 ? data[i+2] * 0.8 : 255 - (255 - data[i+2]) * 0.8;
-        }
-        
-        ctx.putImageData(imageData, 0, 0);
-        return canvas;
       }
       
       // Convert images to PDF
@@ -794,31 +771,13 @@
               img.onload = resolve;
             });
             
-            let processedImg = img;
-            
-            // Apply auto-crop if enabled
-            if (imageData.autoCrop) {
-              processedImg = autoCropImage(img);
-            }
-            
-            // Apply enhancement if enabled
-            if (imageData.enhance) {
-              const canvas = enhanceImage(processedImg);
-              const enhancedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-              processedImg = new Image();
-              processedImg.src = enhancedDataUrl;
-              await new Promise((resolve) => {
-                processedImg.onload = resolve;
-              });
-            }
-            
             // Add new page for each image except the first
             if (i > 0) {
               pdf.addPage();
             }
             
             // Calculate dimensions to fit A4
-            const imgRatio = processedImg.width / processedImg.height;
+            const imgRatio = img.width / img.height;
             let imgWidth = pageWidth;
             let imgHeight = pageWidth / imgRatio;
             
@@ -833,7 +792,7 @@
             
             // Add image to PDF
             pdf.addImage(
-              processedImg, 
+              img, 
               'JPEG', 
               x, 
               y, 
