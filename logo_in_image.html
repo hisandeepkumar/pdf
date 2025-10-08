@@ -877,5 +877,99 @@
       resetFileInput();
     });
   </script>
+
+
+<!-- Floating Fullscreen Toggle Button (CSS + JS in one block) -->
+<script>
+(function(){
+  /* === Inject CSS === */
+  const css = `
+  .floating-fs-btn {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 999999;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(.4,.2,.2,1);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    animation: fsFloat 5.5s ease-in-out infinite;
+  }
+  .floating-fs-btn:hover {
+    transform: translateY(-4px) scale(1.1) rotate(6deg);
+    box-shadow: 0 0 15px rgba(91,134,229,0.4), 0 0 25px rgba(91,134,229,0.25);
+  }
+  .floating-fs-btn.is-fullscreen {
+    animation: fsPulse 1.8s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(91,134,229,0.55), 0 0 35px rgba(91,134,229,0.35);
+  }
+  @keyframes fsFloat {
+    0% { transform: translateY(0) rotate(0); }
+    50% { transform: translateY(-6px) rotate(1deg); }
+    100% { transform: translateY(0) rotate(0); }
+  }
+  @keyframes fsPulse {
+    0%,100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+  .floating-fs-btn svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    transition: transform 0.3s ease;
+  }
+  @media(max-width:480px){
+    .floating-fs-btn{top:12px;right:12px;width:42px;height:42px;}
+  }`;
+  const s=document.createElement('style');
+  s.textContent=css;
+  document.head.appendChild(s);
+
+  /* === Create floating button === */
+  const btn=document.createElement('button');
+  btn.className='floating-fs-btn';
+  btn.id='floatingFullscreen';
+  btn.title='Enter Fullscreen';
+  btn.setAttribute('aria-label','Toggle fullscreen');
+  btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4h2V5h4V3zm6 0v2h4v4h2V5a2 2 0 0 0-2-2h-4zM5 15H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 0h-2v4h-4v2h4a2 2 0 0 0 2-2v-4z"/></svg>`;
+  document.body.appendChild(btn);
+
+  /* === Fullscreen helpers === */
+  const path=btn.querySelector('path');
+  function isFull(){return !!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement);}
+  function enterFull(){const el=document.documentElement;return el.requestFullscreen?.()||el.webkitRequestFullscreen?.()||el.mozRequestFullScreen?.()||el.msRequestFullscreen?.();}
+  function exitFull(){return document.exitFullscreen?.()||document.webkitExitFullscreen?.()||document.mozCancelFullScreen?.()||document.msExitFullscreen?.();}
+  
+  btn.onclick=async()=>{
+    try{ if(!isFull()) await enterFull(); else await exitFull(); }catch(e){console.error(e);}
+  };
+
+  function updateIcon(){
+    if(isFull()){
+      btn.classList.add('is-fullscreen');
+      btn.title='Exit Fullscreen';
+      path.setAttribute('d','M16 14h2v4h-4v2h4a2 2 0 0 0 2-2v-4h-2v2h-2v-2zm-8 0H6v2H4v-4a2 2 0 0 1 2-2h4v2H8v2h0zM8 6h2V4H6v4h2V6zm8 0v2h2V6h-2z');
+    } else {
+      btn.classList.remove('is-fullscreen');
+      btn.title='Enter Fullscreen';
+      path.setAttribute('d','M9 3H5a2 2 0 0 0-2 2v4h2V5h4V3zm6 0v2h4v4h2V5a2 2 0 0 0-2-2h-4zM5 15H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 0h-2v4h-4v2h4a2 2 0 0 0 2-2v-4z');
+    }
+  }
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(ev=>{
+    document.addEventListener(ev,updateIcon);
+  });
+})();
+</script>
+  
+  
 </body>
 </html>
