@@ -145,7 +145,7 @@
     <!-- Text Input Section -->
     <div class="text-input-area">
       <label for="textInput">Enter Your Text (Supports Hindi, English & Emojis)</label>
-      <textarea id="textInput" placeholder="Type your text here..." aria-label="Text input"></textarea>
+      <textarea id="textInput" placeholder="Type your text here... Use **text** for yellow highlighting" aria-label="Text input"></textarea>
       <div class="char-count"><span id="charCount">0</span> characters</div>
     </div>
 
@@ -369,74 +369,198 @@
         }
       }
 
+      /**
+       * NEW: Parse text and extract highlighted parts
+       * @param {string} text - Input text with **highlighted** parts
+       * @returns {Array} Array of objects with text and highlight property
+       */
+      function parseHighlightedText(text) {
+        const parts = [];
+        const regex = /\*\*(.*?)\*\*/g;
+        let lastIndex = 0;
+        let match;
+        
+        while ((match = regex.exec(text)) !== null) {
+          // Add normal text before the highlight
+          if (match.index > lastIndex) {
+            parts.push({
+              text: text.substring(lastIndex, match.index),
+              highlight: false
+            });
+          }
+          
+          // Add highlighted text
+          parts.push({
+            text: match[1],
+            highlight: true
+          });
+          
+          lastIndex = match.index + match[0].length;
+        }
+        
+        // Add remaining normal text
+        if (lastIndex < text.length) {
+          parts.push({
+            text: text.substring(lastIndex),
+            highlight: false
+          });
+        }
+        
+        return parts;
+      }
+
       function wrapLineToWidth(line, ctx, maxWidth) {
         if (!line) return [''];
-        if (ctx.measureText(line).width <= maxWidth) return [line];
-        const words = line.split(' ');
+        
+        // Parse highlighted text for this line
+        const parts = parseHighlightedText(line);
+        
+        // If no wrapping needed, return the original line structure
+        const fullLineText = parts.map(part => part.text).join('');
+        if (ctx.measureText(fullLineText).width <= maxWidth) {
+          return [parts];
+        }
+        
+        const words = [];
+        // Break into words while preserving highlight information
+        parts.forEach(part => {
+          const partWords = part.text.split(' ');
+          partWords.forEach(word => {
+            words.push({ text: word, highlight: part.highlight });
+          });
+        });
+        
         const wrapped = [];
-        let current = '';
+        let currentLine = [];
+        let currentWidth = 0;
+        
         for (let i = 0; i < words.length; i++) {
           const word = words[i];
-          const test = current ? (current + ' ' + word) : word;
-          const w = ctx.measureText(test).width;
-          if (w <= maxWidth) {
-            current = test;
+          const wordWidth = ctx.measureText(word.text).width;
+          const spaceWidth = currentLine.length > 0 ? ctx.measureText(' ').width : 0;
+          
+          if (currentWidth + spaceWidth + wordWidth <= maxWidth) {
+            // Word fits in current line
+            if (currentLine.length > 0) {
+              // Add space between words
+              currentLine.push({ text: ' ', highlight: false });
+              currentWidth += spaceWidth;
+            }
+            currentLine.push(word);
+            currentWidth += wordWidth;
           } else {
-            if (current) {
-              wrapped.push(current);
-              current = word;
-              if (ctx.measureText(word).width > maxWidth) {
-                let buf = '';
-                for (const ch of word) {
-                  const t = buf + ch;
-                  if (ctx.measureText(t).width <= maxWidth) { buf = t; } else { if (buf) wrapped.push(buf); buf = ch; }
-                }
-                if (buf) current = buf; else current = '';
+            // Word doesn't fit, start new line
+            if (currentLine.length > 0) {
+              wrapped.push(currentLine);
+            }
+            currentLine = [word];
+            currentWidth = wordWidth;
+            
+            // If single word is too long, break it
+            if (wordWidth > maxWidth) {
+              const broken = breakLongWord(word.text, ctx, maxWidth, word.highlight);
+              if (broken.length > 1) {
+                wrapped.push([broken[0]]);
+                currentLine = broken.slice(1);
+                currentWidth = ctx.measureText(currentLine[0].text).width;
               }
-            } else {
-              let buf = '';
-              for (const ch of word) {
-                const t = buf + ch;
-                if (ctx.measureText(t).width <= maxWidth) { buf = t; } else { if (buf) wrapped.push(buf); buf = ch; }
-              }
-              if (buf) current = buf;
             }
           }
         }
-        if (current) wrapped.push(current);
+        
+        if (currentLine.length > 0) {
+          wrapped.push(currentLine);
+        }
+        
         return wrapped;
+      }
+
+      function breakLongWord(word, ctx, maxWidth, highlight) {
+        const broken = [];
+        let current = '';
+        
+        for (let i = 0; i < word.length; i++) {
+          const test = current + word[i];
+          if (ctx.measureText(test).width <= maxWidth) {
+            current = test;
+          } else {
+            if (current) {
+              broken.push({ text: current, highlight });
+            }
+            current = word[i];
+          }
+        }
+        
+        if (current) {
+          broken.push({ text: current, highlight });
+        }
+        
+        return broken;
       }
 
       function getWrappedLinesFromText(rawText, ctx, maxWidth) {
         const logicalLines = rawText.split('\n');
         let finalLines = [];
+        
         logicalLines.forEach((ln, idx) => {
           const wrapped = wrapLineToWidth(ln, ctx, maxWidth);
           finalLines = finalLines.concat(wrapped);
+          
+          // Preserve empty lines
           if (ln === '' && idx !== logicalLines.length - 1) {
-            finalLines.push('');
+            finalLines.push([{ text: '', highlight: false }]);
           }
         });
+        
         return finalLines;
       }
 
       function calculateOptimalFontSizeForText(rawText, maxWidth, maxHeight, ctx, initial = 100) {
         let fontSize = initial;
-        while (fontSize >= 18) {
+        
+        // NEW: Minimum font size reduced to 12 to prevent overflow
+        while (fontSize >= 12) {
           ctx.font = `bold ${fontSize}px 'Noto Sans Devanagari', 'Inter', sans-serif`;
           const lines = getWrappedLinesFromText(rawText, ctx, maxWidth);
           const lineHeight = fontSize * 1.28;
           const totalHeight = lines.length * lineHeight;
-          const widest = lines.reduce((m, l) => Math.max(m, ctx.measureText(l).width), 0);
+          const widest = lines.reduce((m, line) => {
+            const lineText = line.map(part => part.text).join('');
+            return Math.max(m, ctx.measureText(lineText).width);
+          }, 0);
+          
           if (totalHeight <= maxHeight && widest <= maxWidth * 0.98) {
             return { fontSize, lines, lineHeight };
           }
           fontSize -= 2;
         }
-        ctx.font = `bold 18px 'Noto Sans Devanagari', 'Inter', sans-serif`;
-        const lines = getWrappedLinesFromText(rawText, ctx, maxWidth);
-        const lineHeight = 18 * 1.28;
-        return { fontSize: 18, lines, lineHeight };
+        
+        // NEW: Even at minimum font size, ensure it fits by truncating if necessary
+        ctx.font = `bold 12px 'Noto Sans Devanagari', 'Inter', sans-serif`;
+        let lines = getWrappedLinesFromText(rawText, ctx, maxWidth);
+        const lineHeight = 12 * 1.28;
+        let totalHeight = lines.length * lineHeight;
+        
+        // NEW: If still too tall, remove lines from bottom
+        while (totalHeight > maxHeight && lines.length > 1) {
+          lines = lines.slice(0, -1);
+          totalHeight = lines.length * lineHeight;
+        }
+        
+        // NEW: Add ellipsis to last line if truncated
+        if (lines.length > 0) {
+          const lastLine = lines[lines.length - 1];
+          const lastLineText = lastLine.map(part => part.text).join('');
+          
+          if (lastLineText.length > 0 && ctx.measureText(lastLineText + '...').width <= maxWidth) {
+            // Replace last word with ellipsis if possible
+            if (lastLine.length > 0) {
+              lastLine[lastLine.length - 1].text = lastLine[lastLine.length - 1].text + '...';
+            }
+          }
+        }
+        
+        return { fontSize: 12, lines, lineHeight };
       }
 
       function autoResizeTextarea(el) {
@@ -455,7 +579,6 @@
         ctx.fillStyle = bgColor.value;
         ctx.fillRect(0,0,previewSize,previewSize);
 
-        ctx.fillStyle = textColor.value;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
 
@@ -477,14 +600,17 @@
         const startY = logoAreaHeight + (availableHeight - totalHeight) / 2;
         const startX = paddingSides;
 
-        ctx.fillStyle = textColor.value;
-        ctx.globalAlpha = 1;
-        lines.forEach((line, i) => {
-          if (line === '') {
-            // blank line; skip drawing but preserve space
-          } else {
-            ctx.fillText(line, startX, startY + i * lineHeight);
-          }
+        // NEW: Draw text with highlighting support
+        lines.forEach((line, lineIndex) => {
+          let currentX = startX;
+          const currentY = startY + lineIndex * lineHeight;
+          
+          line.forEach(part => {
+            // Set color based on highlight
+            ctx.fillStyle = part.highlight ? '#FFFF00' : textColor.value; // Yellow for highlighted
+            ctx.fillText(part.text, currentX, currentY);
+            currentX += ctx.measureText(part.text).width;
+          });
         });
 
         // draw bottom brand in preview (if available)
@@ -622,14 +748,20 @@
           const startY = logoAreaHeight + (availableHeight - totalHeight) / 2;
           const startX = paddingSides;
 
-          ctx.fillStyle = textColor.value;
-          ctx.globalAlpha = 1;
-          lines.forEach((line, i) => {
-            if (line === '') {
-              // blank line preserved
-            } else {
-              ctx.fillText(line, startX, startY + i * lineHeight);
-            }
+          // NEW: Draw text with highlighting support
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'top';
+          
+          lines.forEach((line, lineIndex) => {
+            let currentX = startX;
+            const currentY = startY + lineIndex * lineHeight;
+            
+            line.forEach(part => {
+              // Set color based on highlight
+              ctx.fillStyle = part.highlight ? '#FFFF00' : textColor.value; // Yellow for highlighted
+              ctx.fillText(part.text, currentX, currentY);
+              currentX += ctx.measureText(part.text).width;
+            });
           });
 
           updateProgress(85);
@@ -845,11 +977,11 @@
         }
       }
 
-      // Example text (comment/uncomment as desired)
+      // Example text with highlighting
       const exampleText = `🇮🇳 संविधानिक जानकारी 🇮🇳  
 
-📘 अनुच्छेद 154 : राज्य की कार्यपालिका शक्ति  
-🔹 राज्य की समस्त कार्यपालिका शक्ति राज्यपाल में निहित होगी।  
+📘 **अनुच्छेद 154** : राज्य की कार्यपालिका शक्ति  
+🔹 राज्य की **समस्त कार्यपालिका शक्ति** राज्यपाल में निहित होगी।  
 🔹 वह इन शक्तियों का प्रयोग तो सीधे या अपने अधीनस्थ अधिकारियों के माध्यम से करेगा।`;
       // textInput.value = exampleText;
       // textInput.dispatchEvent(new Event('input'));
