@@ -34,6 +34,96 @@
     .color-options { display:flex; gap:15px; margin-bottom:18px; flex-wrap:wrap; }
     .color-option { display:flex; flex-direction:column; align-items:center; gap:8px; }
     .color-option input[type="color"] { width:50px; height:40px; border:2px solid rgba(255,255,255,0.12); border-radius:8px; cursor:pointer; background:transparent; }
+    
+    /* Upload Area Styles */
+    .upload-area {
+      border: 2px dashed rgba(255, 255, 255, 0.4);
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2),
+                  inset 0 1px 2px rgba(255, 255, 255, 0.3);
+      margin-bottom: 18px;
+    }
+    .upload-area:hover,
+    .upload-area.active {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: #5b86e5;
+      box-shadow: 0 8px 24px rgba(91, 134, 229, 0.3),
+                  inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+    .upload-area i {
+      font-size: 40px;
+      color: #5b86e5;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+    }
+    .upload-area:hover i,
+    .upload-area.active i {
+      transform: scale(1.1);
+    }
+    .upload-area h3 {
+      color: #f0f0f0;
+      margin-bottom: 10px;
+      font-size: 1.6rem;
+      font-weight: 500;
+    }
+    .upload-area p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+    }
+    .upload-area input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .file-info {
+      color: white;
+      font-size: 1rem;
+      margin: 10px 0;
+      text-align: center;
+      word-break: break-all;
+      padding: 0 10px;
+      display: none;
+      font-weight: bold;
+      text-decoration: underline;
+      background: linear-gradient(90deg,
+                  rgba(255, 255, 255, 0) 0%,
+                  rgba(255, 255, 255, 0.8) 50%,
+                  rgba(255, 255, 255, 0) 100%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 2s linear infinite;
+    }
+    @keyframes shine {
+      from {
+        background-position: 200% 0;
+      }
+      to {
+        background-position: -200% 0;
+      }
+    }
+    .size-info {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      margin: 10px 0;
+      text-align: center;
+      display: none;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
     .preview-container { display:flex; flex-direction:column; align-items:center; margin:16px 0; display:none; }
     .image-preview { max-width:100%; max-height:300px; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.3); border:2px solid rgba(255,255,255,0.12); }
     .overlays-container { display:flex; justify-content:space-around; flex-wrap:wrap; margin:20px 0; display:none; gap:20px; }
@@ -44,6 +134,27 @@
     .btn:disabled { opacity:0.5; cursor:not-allowed; }
     .footer { margin-top:18px; text-align:center; color:rgba(255,255,255,0.7); font-size:14px; padding:12px; border-top:1px solid rgba(255,255,255,0.06); }
     @media (max-width:768px) { .container { padding:16px; } .header h1 { font-size:22px; } .btn { width:220px; height:50px; font-size:14px; } }
+    
+    /* Mode selector */
+    .mode-selector {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+      gap: 10px;
+    }
+    .mode-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #f0f0f0;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .mode-btn.active {
+      background: rgba(91,134,229,0.3);
+      border-color: #5b86e5;
+    }
   </style>
 </head>
 <body>
@@ -52,11 +163,30 @@
       <h1><i class="fas fa-square"></i> Text to Square Image Generator</h1>
     </div>
 
-    <div class="text-input-area">
+    <!-- Mode Selector -->
+    <div class="mode-selector">
+      <button class="mode-btn active" id="textModeBtn">Text Mode</button>
+      <button class="mode-btn" id="imageModeBtn">Image Mode</button>
+    </div>
+
+    <!-- Text Input Section -->
+    <div class="text-input-area" id="textInputSection">
       <label for="textInput">Enter Your Text (Supports Hindi, English & Emojis)</label>
       <textarea id="textInput" placeholder="Type your text here..." aria-label="Text input"></textarea>
       <div class="char-count"><span id="charCount">0</span> characters</div>
     </div>
+
+    <!-- Upload Area -->
+    <div class="upload-area" id="uploadArea" style="display:none;">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <h3>Upload Image</h3>
+      <p>Click here or drag and drop your image file</p>
+      <input type="file" id="imageUpload" accept="image/*">
+    </div>
+    
+    <!-- File Info Display -->
+    <p class="file-info" id="fileInfo"></p>
+    <div class="size-info" id="sizeInfo"></div>
 
     <div class="color-options">
       <div class="color-option">
@@ -98,12 +228,13 @@
   </div>
 
   <!-- Back Button -->
-  <button type="button" title="Back" aria-label="Go back" onclick="(function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })();" style="position: fixed; top: 14px; left: 14px; z-index: 2147483647; width: 52px; height: 52px; padding: 0; border-radius: 50%; border: none; background: linear-gradient(180deg, #ffffff, #f2f2f2); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; backdrop-filter: blur(6px); opacity: 0.98;">
+  <button type="button" title="Back" aria-label="Go back" onclick="(function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })();" style="position: fixed; top: 14px; left: 14px; z-index: 2147483647; width: 52px; height: 52px; padding: 0; border-radius: 50%; border: none; background: linear-gradient(180deg, #ffffff, #f2f2f2); box-shadow: 0 4px 12px rgba(0,0,0,0.18); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; backdrop-filter: blur(6px); opacity: 0.98;">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M15 18l-6-6 6-6" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
   </button>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // DOM Element References
       const textInput = document.getElementById('textInput');
       const charCount = document.getElementById('charCount');
       const bgColor = document.getElementById('bgColor');
@@ -116,6 +247,170 @@
       const progressBar = document.getElementById('progressBar');
       const uiLogoImg = document.getElementById('uiLogo');
       const uiWatermarkImg = document.getElementById('uiWatermark');
+      
+      // Upload-related elements
+      const uploadArea = document.getElementById('uploadArea');
+      const imageInput = document.getElementById('imageUpload');
+      const fileInfoDisplay = document.getElementById('fileInfo');
+      const sizeInfoDisplay = document.getElementById('sizeInfo');
+      
+      // Mode selector elements
+      const textModeBtn = document.getElementById('textModeBtn');
+      const imageModeBtn = document.getElementById('imageModeBtn');
+      const textInputSection = document.getElementById('textInputSection');
+      
+      // Application State
+      let currentMode = 'text'; // 'text' or 'image'
+      let selectedImage = null;
+      let vibrationInterval = null;
+      let originalImageDimensions = { width: 0, height: 0 };
+
+      // Mode switching
+      textModeBtn.addEventListener('click', () => {
+        currentMode = 'text';
+        textModeBtn.classList.add('active');
+        imageModeBtn.classList.remove('active');
+        textInputSection.style.display = 'block';
+        uploadArea.style.display = 'none';
+        fileInfoDisplay.style.display = 'none';
+        sizeInfoDisplay.style.display = 'none';
+        
+        // Reset image-related state
+        selectedImage = null;
+        originalImageDimensions = { width: 0, height: 0 };
+        
+        // Trigger preview update based on text
+        if (textInput.value.trim()) {
+          updatePreview();
+        } else {
+          previewContainer.style.display = 'none';
+          overlaysContainer.style.display = 'none';
+          downloadBtn.disabled = true;
+        }
+      });
+      
+      imageModeBtn.addEventListener('click', () => {
+        currentMode = 'image';
+        imageModeBtn.classList.add('active');
+        textModeBtn.classList.remove('active');
+        textInputSection.style.display = 'none';
+        uploadArea.style.display = 'block';
+        
+        // If we already have an uploaded image, show its preview
+        if (selectedImage) {
+          previewContainer.style.display = 'flex';
+          overlaysContainer.style.display = 'flex';
+          downloadBtn.disabled = false;
+        } else {
+          previewContainer.style.display = 'none';
+          overlaysContainer.style.display = 'none';
+          downloadBtn.disabled = true;
+        }
+      });
+
+      // Format file size to human readable format
+      function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+        else return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+      }
+
+      // Reset file input to allow same file selection again
+      function resetFileInput() {
+        imageInput.value = '';
+      }
+
+      // Drag and Drop Event Handlers
+      ['dragenter','dragover'].forEach(ev => {
+        uploadArea.addEventListener(ev, e => { 
+          e.preventDefault(); 
+          uploadArea.classList.add('active'); 
+        });
+      });
+      
+      ['dragleave','drop'].forEach(ev => {
+        uploadArea.addEventListener(ev, e => { 
+          e.preventDefault(); 
+          uploadArea.classList.remove('active'); 
+        });
+      });
+
+      // Handle File Drop
+      uploadArea.addEventListener('drop', (e) => {
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+          handleImageSelection(e.dataTransfer.files[0]);
+        }
+      });
+
+      // Click to Open File Selector - RESET Input First
+      uploadArea.addEventListener('click', () => {
+        resetFileInput();
+        imageInput.click();
+      });
+      
+      // Handle File Selection - FIXED: Now Works Every Time
+      imageInput.addEventListener('change', (e) => { 
+        if (e.target.files && e.target.files.length) {
+          handleImageSelection(e.target.files[0]);
+        }
+      });
+
+      /**
+       * Handle image selection and validation
+       * @param {File} file - Selected image file
+       */
+      function handleImageSelection(file) {
+        // Validate file type
+        if (!file.type.match('image.*')) {
+          alert('Please select an image file');
+          resetUIAfterError();
+          return;
+        }
+        
+        // Update application state
+        selectedImage = file;
+        fileInfoDisplay.textContent = `${file.name} (${formatFileSize(file.size)})`;
+        fileInfoDisplay.style.display = 'block';
+        downloadBtn.disabled = false;
+        startVibration();
+
+        // Create preview and get original dimensions
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            // Store original dimensions
+            originalImageDimensions.width = img.width;
+            originalImageDimensions.height = img.height;
+            
+            // Update size info
+            sizeInfoDisplay.textContent = `Original Size: ${img.width} × ${img.height} pixels | ${formatFileSize(file.size)}`;
+            sizeInfoDisplay.style.display = 'block';
+            
+            // Set preview image
+            imagePreview.src = e.target.result;
+            previewContainer.style.display = 'flex';
+            overlaysContainer.style.display = 'flex';
+          };
+          img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+
+      /**
+       * Reset UI after error
+       */
+      function resetUIAfterError() {
+        fileInfoDisplay.style.display = 'none';
+        sizeInfoDisplay.style.display = 'none';
+        previewContainer.style.display = 'none';
+        overlaysContainer.style.display = 'none';
+        downloadBtn.disabled = true;
+        stopVibration();
+        selectedImage = null;
+        originalImageDimensions = { width: 0, height: 0 };
+        resetFileInput();
+      }
 
       let vibrationInterval = null;
       function startVibration(){ if('vibrate' in navigator){ vibrationInterval = setInterval(()=>navigator.vibrate(50),2000); } }
@@ -132,7 +427,13 @@
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12 || 12;
         hours = String(hours).padStart(2,'0');
-        return `social_post_${day}_${month}_${year}_${hours}_${minutes}${ampm}.png`;
+        
+        if (currentMode === 'image' && selectedImage) {
+          let baseName = selectedImage.name.replace(/\.[^/.]+$/, "");
+          return `${baseName}_branded_${day}_${month}_${year}_${hours}_${minutes}${ampm}.png`;
+        } else {
+          return `social_post_${day}_${month}_${year}_${hours}_${minutes}${ampm}.png`;
+        }
       }
 
       function wrapLineToWidth(line, ctx, maxWidth) {
@@ -273,7 +574,14 @@
       bgColor.addEventListener('input', updatePreview);
       textColor.addEventListener('input', updatePreview);
 
-      downloadBtn.addEventListener('click', () => { stopVibration(); generateAndDownloadImage(); });
+      downloadBtn.addEventListener('click', () => { 
+        stopVibration(); 
+        if (currentMode === 'image') {
+          addLogoAndWatermarkAndDownload();
+        } else {
+          generateAndDownloadImage();
+        }
+      });
 
       function updateProgress(percent) { progressContainer.style.display = 'block'; progressBar.style.width = `${percent}%`; }
 
@@ -398,6 +706,160 @@
           progressContainer.style.display = 'none';
           progressBar.style.width = '0%';
           downloadBtn.disabled = false;
+        }
+      }
+      
+      async function addLogoAndWatermarkAndDownload() {
+        // Validate selected image
+        if (!selectedImage) { 
+          alert('Please upload an image'); 
+          return; 
+        }
+        
+        // Disable download button and show progress
+        downloadBtn.disabled = true;
+        updateProgress(0);
+
+        try {
+          // Load uploaded image via object URL
+          const imgObjUrl = URL.createObjectURL(selectedImage);
+          const baseImage = await loadImage(imgObjUrl, false).catch(err => { 
+            throw new Error('Uploaded image could not be loaded: ' + err.message); 
+          });
+          updateProgress(25);
+          
+          // Clean up object URL
+          URL.revokeObjectURL(imgObjUrl);
+
+          // Load logo and watermark images
+          let logoImg = null;
+          let watermarkImg = null;
+
+          // Get source URLs from UI elements
+          const logoSrc = uiLogoImg && uiLogoImg.src ? uiLogoImg.src : null;
+          const watermarkSrc = uiWatermarkImg && uiWatermarkImg.src ? uiWatermarkImg.src : null;
+
+          // Load logo with error handling
+          if (logoSrc) {
+            try {
+              logoImg = await loadImage(logoSrc, true);
+            } catch (e) {
+              console.warn('Logo failed to load (will skip):', e.message);
+              logoImg = null;
+            }
+          }
+
+          updateProgress(50);
+
+          // Load watermark with error handling
+          if (watermarkSrc) {
+            try {
+              watermarkImg = await loadImage(watermarkSrc, true);
+            } catch (e) {
+              console.warn('Watermark failed to load (will skip):', e.message);
+              watermarkImg = null;
+            }
+          }
+
+          updateProgress(70);
+
+          // Create canvas with EXACT original image dimensions
+          const canvas = document.createElement('canvas');
+          canvas.width = originalImageDimensions.width;
+          canvas.height = originalImageDimensions.height;
+          const ctx = canvas.getContext('2d');
+
+          // Draw base image at original size (no resizing)
+          ctx.globalAlpha = 1;
+          ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+
+          // Add logo if available
+          if (logoImg) {
+            // Calculate logo dimensions relative to original image size
+            const logoWidth = canvas.width * 0.15; // 15% of image width
+            const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
+            const margin = Math.min(canvas.width, canvas.height) * 0.02; // 2% margin
+            const logoX = canvas.width - logoWidth - margin;
+            const logoY = margin;
+            
+            // Draw logo with high visibility
+            ctx.globalAlpha = 0.9;
+            ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+          } else {
+            console.info('Skipping logo (not available or failed to load).');
+          }
+
+          // Add watermark if available, otherwise use text fallback
+          if (watermarkImg) {
+            // Calculate watermark dimensions relative to original image size
+            const wmWidth = canvas.width * 0.25; // 25% of image width
+            const wmHeight = (watermarkImg.height * wmWidth) / watermarkImg.width;
+            const wmX = (canvas.width - wmWidth) / 2;
+            const wmY = (canvas.height - wmHeight) / 2;
+            
+            // Draw watermark with low opacity
+            ctx.globalAlpha = 0.3;
+            ctx.drawImage(watermarkImg, wmX, wmY, wmWidth, wmHeight);
+          } else {
+            // Fallback text watermark
+            ctx.globalAlpha = 0.15;
+            const text = 'SAMPLE';
+            const fontSize = Math.floor(Math.min(canvas.width, canvas.height) / 10);
+            ctx.font = `${fontSize}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'white';
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+          }
+
+          updateProgress(90);
+
+          // Convert canvas to data URL and download
+          // Use original image quality settings
+          let dataURL;
+          try {
+            dataURL = canvas.toDataURL('image/png');
+          } catch (err) {
+            console.error('toDataURL failed (likely CORS/tainted canvas):', err);
+            alert('Download failed because some overlay images are loaded from another domain without CORS permission. Make sure logo/watermark images are hosted on the same origin or allow CORS.');
+            throw err;
+          }
+
+          updateProgress(98);
+
+          // Create download link and trigger download
+          const a = document.createElement('a');
+          a.href = dataURL;
+          a.download = generateFilename();
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+
+          // Provide haptic feedback on supported devices
+          if ('vibrate' in navigator) navigator.vibrate(200);
+
+          updateProgress(100);
+
+          // Reset UI after successful download
+          setTimeout(() => {
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            downloadBtn.disabled = false;
+            // Reset file input to allow same file selection again
+            resetFileInput();
+          }, 400);
+          
+        } catch (error) {
+          // Error handling
+          console.error('Error in processing:', error);
+          alert('Error adding logo/watermark — see console for details. ' + 
+                (error && error.message ? error.message : ''));
+          
+          // Reset UI
+          progressContainer.style.display = 'none';
+          progressBar.style.width = '0%';
+          downloadBtn.disabled = false;
+          resetFileInput();
         }
       }
 
