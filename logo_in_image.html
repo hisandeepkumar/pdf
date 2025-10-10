@@ -3,115 +3,101 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Social Media Post Generator</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>Text to Square Image Generator</title>
+  <!-- Devanagari + Inter fallback for Latin. Emoji fallback will be system emoji. -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* Reset and Base Styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* Use Devanagari for Hindi text and Inter for Latin; system emoji fallback */
+    :root {
+      --ui-bg: rgba(255,255,255,0.15);
+      --glass-border: rgba(255,255,255,0.3);
     }
 
-    /* Body with Background Image */
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 24px;
       color: #f0f0f0;
-      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
-                  linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
     }
 
-    /* Main Container with Glass Morphism Effect */
     .container {
       width: 100%;
       max-width: 900px;
-      background: rgba(255, 255, 255, 0.15);
+      background: var(--ui-bg);
       backdrop-filter: blur(16px);
       border-radius: 20px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
-                  0 4px 16px rgba(255, 255, 255, 0.1),
-                  inset 0 1px 2px rgba(255, 255, 255, 0.3);
+                  0 4px 16px rgba(255, 255, 255, 0.06),
+                  inset 0 1px 2px rgba(255, 255, 255, 0.07);
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid var(--glass-border);
       transition: transform 0.3s ease;
-      padding: 32px;
-    }
-
-    /* Header Section */
-    .header {
       padding: 24px;
+    }
+
+    .header {
+      padding: 18px;
       text-align: center;
-      background: rgba(255, 255, 255, 0.05);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-      margin-bottom: 24px;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--glass-border);
+      margin-bottom: 18px;
       border-radius: 12px;
     }
+    .header h1 { font-size: 26px; font-weight: 600; color:#f0f0f0; display:flex; gap:12px; align-items:center; justify-content:center;}
+    .header h1 i { color: #5b86e5; font-size: 26px; }
 
-    .header h1 {
-      font-size: 28px;
-      font-weight: 600;
-      color: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
-
-    .header h1 i {
-      color: #5b86e5;
-      font-size: 28px;
-    }
-
-    /* Text Input Area */
     .text-input-area {
-      border: 2px solid rgba(255, 255, 255, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.14);
       border-radius: 12px;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.2);
+      padding: 16px;
+      background: rgba(255,255,255,0.04);
       position: relative;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2),
-                  inset 0 1px 2px rgba(255, 255, 255, 0.3);
-      margin-bottom: 24px;
-      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.02);
+      margin-bottom: 18px;
     }
 
     .text-input-area label {
       display: block;
       color: #f0f0f0;
       margin-bottom: 10px;
-      font-size: 1.2rem;
+      font-size: 1.05rem;
       font-weight: 500;
     }
 
+    /* Make textarea auto-grow, hide scrollbar, disable manual resize (we will handle it) */
     .text-input-area textarea {
       width: 100%;
-      min-height: 120px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      min-height: 72px;
+      max-height: 60vh;
+      overflow: hidden;
+      resize: none;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: 8px;
       padding: 12px;
       color: #f0f0f0;
       font-size: 1rem;
-      resize: none;
-      transition: all 0.3s ease;
-      overflow: hidden;
+      line-height: 1.3;
+      font-family: inherit;
+      white-space: pre-wrap; /* preserve user newlines and spaces visually */
     }
 
     .text-input-area textarea:focus {
       outline: none;
       border-color: #5b86e5;
-      box-shadow: 0 0 0 2px rgba(91, 134, 229, 0.3);
-      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 0 4px rgba(91, 134, 229, 0.08);
+      background: rgba(255, 255, 255, 0.04);
     }
 
     .text-input-area .char-count {
@@ -121,325 +107,69 @@
       margin-top: 8px;
     }
 
-    /* Color Options */
-    .color-options {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+    .color-options { display:flex; gap:15px; margin-bottom:18px; flex-wrap:wrap; }
+    .color-option { display:flex; flex-direction:column; align-items:center; gap:8px; }
+    .color-option label { color:#f0f0f0; font-size:0.9rem; }
+    .color-option input[type="color"] { width:50px; height:40px; border:2px solid rgba(255,255,255,0.12); border-radius:8px; cursor:pointer; background:transparent; }
 
-    .color-option {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
+    .preview-container { display:flex; flex-direction:column; align-items:center; margin:16px 0; display:none; }
+    .preview-title { color:#f0f0f0; font-size:1.08rem; font-weight:500; margin-bottom:12px; text-align:center; }
+    .image-preview { max-width:100%; max-height:300px; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.3); border:2px solid rgba(255,255,255,0.12); }
 
-    .color-option label {
-      color: #f0f0f0;
-      font-size: 0.9rem;
-    }
+    .overlays-container { display:flex; justify-content:space-around; flex-wrap:wrap; margin:20px 0; display:none; gap:20px; }
+    .overlay-preview { display:flex; flex-direction:column; align-items:center; text-align:center; background:rgba(255,255,255,0.03); padding:12px; border-radius:12px; width:200px; }
+    .overlay-preview h3 { color:#f0f0f0; margin-bottom:8px; font-size:1.05rem; }
+    .overlay-preview img { width:120px; height:60px; object-fit:contain; border-radius:8px; border:2px solid rgba(255,255,255,0.12); padding:5px; background:rgba(255,255,255,0.02); }
 
-    .color-option input[type="color"] {
-      width: 50px;
-      height: 40px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 8px;
-      cursor: pointer;
-      background: transparent;
-    }
+    .progress-container { width:100%; height:8px; background: rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; margin-top:12px; display:none; }
+    .progress-bar { width:0; height:100%; background: linear-gradient(90deg, #5b86e5, #36d1dc); transition: width 0.3s ease; }
 
-    /* Preview Container */
-    .preview-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 20px 0;
-      display: none;
-    }
-
-    .preview-title {
-      color: #f0f0f0;
-      font-size: 1.2rem;
-      font-weight: 500;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-
-    .image-preview {
-      max-width: 100%;
-      max-height: 300px;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-    }
-
-    /* Overlays Preview Section */
-    .overlays-container {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      margin: 20px 0;
-      display: none;
-      gap: 20px;
-    }
-
-    .overlay-preview {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 15px;
-      border-radius: 12px;
-      width: 200px;
-    }
-
-    .overlay-preview h3 {
-      color: #f0f0f0;
-      margin-bottom: 10px;
-      font-size: 1.1rem;
-    }
-
-    .overlay-preview img {
-      width: 120px;
-      height: 60px;
-      object-fit: contain;
-      border-radius: 8px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      padding: 5px;
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .overlay-preview span {
-      color: rgba(255, 255, 255, 0.9);
-      margin-top: 8px;
-      font-size: 0.9rem;
-    }
-
-    .logo-preview img {
-      border-color: #5b86e5;
-    }
-
-    .watermark-preview img {
-      border-color: #36d1dc;
-      opacity: 0.6;
-    }
-
-    /* Progress Bar */
-    .progress-container {
-      width: 100%;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: 20px;
-      display: none;
-    }
-
-    .progress-bar {
-      width: 0;
-      height: 100%;
-      background: linear-gradient(90deg, #5b86e5, #36d1dc);
-      transition: width 0.3s ease;
-    }
-
-    /* Download Button with 3D Effect */
     .btn {
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(12px);
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
       color: #f0f0f0;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      padding: 14px 32px;
-      border-radius: 30px;
-      width: 280px;
-      height: 60px;
-      font-size: 16px;
+      border: 1px solid rgba(255,255,255,0.14);
+      padding: 12px 28px;
+      border-radius: 28px;
+      width: 260px;
+      height: 54px;
+      font-size: 15px;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      box-shadow: 0 8px 24px rgba(91, 134, 229, 0.4),
-                  0 4px 12px rgba(0, 0, 0, 0.2),
-                  inset 0 2px 4px rgba(255, 255, 255, 0.3),
-                  inset 0 -2px 4px rgba(0, 0, 0, 0.1);
-      position: relative;
-      overflow: hidden;
-      margin: 24px auto 0;
-      white-space: nowrap;
-      text-align: center;
+      transition: all 0.28s ease;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      margin: 18px auto 0;
     }
+    .btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
 
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -150%;
-      width: 150%;
-      height: 100%;
-      background: linear-gradient(90deg,
-                  transparent,
-                  rgba(255, 255, 255, 0.3),
-                  transparent);
-      transition: all 0.6s ease;
-    }
+    .footer { margin-top:18px; text-align:center; color:rgba(255,255,255,0.7); font-size:14px; padding:12px; border-top:1px solid rgba(255,255,255,0.06); }
+    .footer-text { display:inline-block; position:relative; }
 
-    .btn:hover::before {
-      left: 150%;
-    }
-
-    .btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
-      box-shadow: 0 12px 32px rgba(91, 134, 229, 0.5),
-                  0 6px 16px rgba(0, 0, 0, 0.3),
-                  inset 0 2px 4px rgba(255, 255, 255, 0.4),
-                  inset 0 -2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn:disabled {
-      background: rgba(255, 255, 255, 0.1);
-      cursor: not-allowed;
-      box-shadow: none;
-      transform: none;
-    }
-
-    .btn:disabled::before {
-      display: none;
-    }
-
-    /* Footer Styling */
-    .footer {
-      margin-top: 30px;
-      text-align: center;
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 14px;
-      padding: 15px;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .footer-text {
-      display: inline-block;
-      position: relative;
-    }
-
-    .footer-text::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 2px;
-      bottom: -5px;
-      left: 0;
-      background: linear-gradient(90deg, #5b86e5, #36d1dc);
-      transform: scaleX(0);
-      transform-origin: bottom right;
-      transition: transform 0.5s ease;
-      animation: continuousLine 3s infinite;
-    }
-
-    @keyframes continuousLine {
-      0% {
-        transform: scaleX(0);
-        transform-origin: bottom left;
-      }
-      50% {
-        transform: scaleX(1);
-        transform-origin: bottom left;
-      }
-      51% {
-        transform: scaleX(1);
-        transform-origin: bottom right;
-      }
-      100% {
-        transform: scaleX(0);
-        transform-origin: bottom right;
-      }
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .container {
-        padding: 16px;
-      }
-      .header {
-        padding: 16px;
-      }
-      .header h1 {
-        font-size: 24px;
-      }
-      .text-input-area {
-        padding: 16px;
-      }
-      .btn {
-        width: 240px;
-        height: 50px;
-        font-size: 14px;
-        padding: 12px 24px;
-      }
-      .color-options {
-        justify-content: center;
-      }
-      .overlays-container {
-        flex-direction: column;
-        align-items: center;
-      }
-    }
-
-    /* Instructions Section */
-    .instructions {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-left: 4px solid #5b86e5;
-    }
-
-    .instructions h3 {
-      color: #f0f0f0;
-      margin-bottom: 8px;
-      font-size: 1.1rem;
-    }
-
-    .instructions p {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 0.9rem;
-      line-height: 1.4;
+    @media (max-width:768px) {
+      .container { padding: 16px; }
+      .header h1 { font-size:22px; }
+      .btn { width:220px; height:50px; font-size:14px; }
     }
   </style>
 </head>
 <body>
-  <!-- Main Container -->
   <div class="container">
-    <!-- Header Section -->
     <div class="header">
-      <h1><i class="fas fa-square"></i> Social Media Post Generator</h1>
+      <h1><i class="fas fa-square"></i> Text to Square Image Generator</h1>
     </div>
 
-    <!-- Instructions -->
-    <div class="instructions">
-      <h3>How to Use</h3>
-      <p>Type your text in the box below. The text will automatically adjust to fit perfectly in your social media post. Use line breaks to create multi-line text. Supports emojis, Hindi, and English.</p>
-    </div>
-
-    <!-- Text Input Area -->
     <div class="text-input-area">
-      <label for="textInput">Enter Your Post Text</label>
-      <textarea id="textInput" placeholder="Type your text here..."></textarea>
+      <label for="textInput">Enter Your Text (Supports Hindi, English & Emojis)</label>
+      <textarea id="textInput" placeholder="Type your text here..." aria-label="Text input"></textarea>
       <div class="char-count">
         <span id="charCount">0</span> characters
       </div>
     </div>
 
-    <!-- Color Options -->
     <div class="color-options">
       <div class="color-option">
         <label for="bgColor">Background Color</label>
-        <input type="color" id="bgColor" value="#5b86e5">
+        <input type="color" id="bgColor" value="#071E3A">
       </div>
       <div class="color-option">
         <label for="textColor">Text Color</label>
@@ -447,93 +177,51 @@
       </div>
     </div>
 
-    <!-- Image Preview Section -->
     <div class="preview-container" id="previewContainer">
-      <div class="preview-title">Post Preview</div>
+      <div class="preview-title">Image Preview</div>
       <img id="imagePreview" class="image-preview" src="" alt="Image Preview">
     </div>
 
-    <!-- Overlays Preview Section -->
     <div class="overlays-container" id="overlaysContainer">
-      <!-- Logo Preview -->
       <div class="overlay-preview logo-preview">
         <h3>Logo (Top Right)</h3>
-        <img id="uiLogo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Crect width='120' height='60' fill='%235b86e5' rx='8'/%3E%3Ctext x='60' y='35' font-family='Arial' font-size='14' fill='white' text-anchor='middle'%3ELOGO%3C/text%3E%3C/svg%3E" alt="Logo">
+        <img id="uiLogo" src="vikas_jajim_logo.png" alt="Logo">
         <span>Logo will be added to the top right corner</span>
       </div>
 
-      <!-- Watermark Preview -->
       <div class="overlay-preview watermark-preview">
         <h3>Watermark (Center)</h3>
-        <img id="uiWatermark" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Crect width='120' height='60' fill='%2336d1dc' rx='8'/%3E%3Ctext x='60' y='35' font-family='Arial' font-size='12' fill='white' text-anchor='middle'%3EWATERMARK%3C/text%3E%3C/svg%3E" alt="Watermark">
-        <span>Watermark will be added to the center</span>
+        <img id="uiWatermark" src="vikas_jajim_watermark.png" alt="Watermark">
+        <span>Watermark will be added to the center with low opacity</span>
       </div>
     </div>
 
-    <!-- Progress Bar -->
     <div class="progress-container" id="progressContainer">
       <div class="progress-bar" id="progressBar"></div>
     </div>
 
-    <!-- Download Button -->
     <button class="btn" id="downloadBtn" disabled>
       <i class="fas fa-download"></i>
-      <span>Download Post</span>
+      <span>Download Image</span>
     </button>
 
-    <!-- Footer -->
     <div class="footer">
       <div class="footer-text">
-        Secure • Free • Professional | Made with 
-        <span style="color:#ff4d4d;">❤️</span> by 
+        Secure • Free • Professional | Made with <span style="color:#ff4d4d;">❤️</span> by
         <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" style="color:#5b86e5; text-decoration:none;">Sandeep</a>
       </div>
     </div>
   </div>
 
   <!-- Back Button -->
-  <button 
-    type="button" 
-    title="Back" 
-    aria-label="Go back" 
-    onclick="(function(){ 
-      if(window.history.length>1){ 
-        history.back(); 
-      } else if(document.referrer){ 
-        location.href = document.referrer; 
-      } else { 
-        location.href = '/'; 
-      } 
-    })();" 
-    style="
-      position: fixed; 
-      top: 14px; 
-      left: 14px; 
-      z-index: 2147483647; 
-      width: 52px; 
-      height: 52px; 
-      padding: 0; 
-      border-radius: 50%; 
-      border: none; 
-      background: linear-gradient(180deg, #ffffff, #f2f2f2); 
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18); 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      cursor: pointer; 
-      transition: transform .12s ease, box-shadow .12s ease; 
-      backdrop-filter: blur(6px); 
-      opacity: 0.98;
-    ">
+  <button type="button" title="Back" aria-label="Go back" onclick="(function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })();" style="position: fixed; top: 14px; left: 14px; z-index: 2147483647; width: 52px; height: 52px; padding: 0; border-radius: 50%; border: none; background: linear-gradient(180deg, #ffffff, #f2f2f2); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; backdrop-filter: blur(6px); opacity: 0.98;">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
       <path d="M15 18l-6-6 6-6" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
     </svg>
   </button>
 
   <script>
-    // Main Application Logic
     document.addEventListener('DOMContentLoaded', () => {
-      // DOM Element References
       const textInput = document.getElementById('textInput');
       const charCount = document.getElementById('charCount');
       const bgColor = document.getElementById('bgColor');
@@ -547,44 +235,17 @@
       const uiLogoImg = document.getElementById('uiLogo');
       const uiWatermarkImg = document.getElementById('uiWatermark');
 
-      // Application State
       let vibrationInterval = null;
 
-      /**
-       * Auto-resize textarea based on content
-       */
-      function autoResizeTextarea() {
-        textInput.style.height = 'auto';
-        textInput.style.height = textInput.scrollHeight + 'px';
-        
-        // Also adjust the parent container
-        const textInputArea = textInput.closest('.text-input-area');
-        textInputArea.style.transition = 'all 0.3s ease';
-      }
-
-      /**
-       * Start vibration on supported devices
-       */
       function startVibration() {
         if ('vibrate' in navigator) {
           vibrationInterval = setInterval(() => navigator.vibrate(50), 2000);
         }
       }
-
-      /**
-       * Stop vibration
-       */
       function stopVibration() {
-        if (vibrationInterval) { 
-          clearInterval(vibrationInterval); 
-          vibrationInterval = null; 
-        }
+        if (vibrationInterval) { clearInterval(vibrationInterval); vibrationInterval = null; }
       }
 
-      /**
-       * Generate filename with timestamp
-       * @returns {string} Generated filename
-       */
       function generateFilename() {
         const now = new Date();
         const day = String(now.getDate()).padStart(2, '0');
@@ -594,56 +255,181 @@
         let hours = now.getHours();
         const minutes = String(now.getMinutes()).padStart(2,'0');
         const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12 || 12; 
+        hours = hours % 12 || 12;
         hours = String(hours).padStart(2,'0');
         return `social_post_${day}_${month}_${year}_${hours}_${minutes}${ampm}.png`;
       }
 
       /**
-       * Calculate optimal font size for text
-       * @param {Array} lines - Array of text lines
-       * @param {number} maxWidth - Maximum width available
-       * @param {number} maxHeight - Maximum height available
-       * @param {CanvasRenderingContext2D} ctx - Canvas context
-       * @returns {number} Optimal font size
+       * Wrap a single logical line into multiple lines based on maxWidth.
+       * Preserves words and emoji sequences but will fallback to character wrap if a single word is too long.
        */
-      function calculateOptimalFontSize(lines, maxWidth, maxHeight, ctx) {
-        let fontSize = 100; // Start with a large font size
-        
-        // Calculate required space for all lines
-        do {
-          fontSize -= 2;
-          ctx.font = `bold ${fontSize}px 'Inter', sans-serif`;
-          
-          // Calculate total height needed for all lines
-          const lineHeight = fontSize * 1.3;
-          const totalHeight = lines.length * lineHeight;
-          
-          // Check if any line exceeds the max width or total height exceeds max height
-          const exceedsWidth = lines.some(line => {
-            const metrics = ctx.measureText(line);
-            return metrics.width > maxWidth * 0.85; // 85% of available width
-          });
-          
-          const exceedsHeight = totalHeight > maxHeight * 0.85; // 85% of available height
-          
-          if (!exceedsWidth && !exceedsHeight) {
-            break;
+      function wrapLineToWidth(line, ctx, maxWidth) {
+        if (!line) return [''];
+        // If the whole line already fits, return as-is
+        if (ctx.measureText(line).width <= maxWidth) return [line];
+
+        const words = line.split(' ');
+        const wrapped = [];
+        let current = '';
+
+        for (let i = 0; i < words.length; i++) {
+          const word = words[i];
+          const test = current ? (current + ' ' + word) : word;
+          const w = ctx.measureText(test).width;
+          if (w <= maxWidth) {
+            current = test;
+          } else {
+            if (current) {
+              wrapped.push(current);
+              current = word;
+              // If the current word itself is too long (no spaces), break by characters
+              if (ctx.measureText(word).width > maxWidth) {
+                // break the long word into smaller parts
+                let buf = '';
+                for (const ch of word) {
+                  const t = buf + ch;
+                  if (ctx.measureText(t).width <= maxWidth) {
+                    buf = t;
+                  } else {
+                    if (buf) wrapped.push(buf);
+                    buf = ch;
+                  }
+                }
+                if (buf) {
+                  // set as current for next space
+                  current = buf;
+                } else {
+                  current = '';
+                }
+              }
+            } else {
+              // current empty and word itself is longer than width -> char-break
+              let buf = '';
+              for (const ch of word) {
+                const t = buf + ch;
+                if (ctx.measureText(t).width <= maxWidth) {
+                  buf = t;
+                } else {
+                  if (buf) wrapped.push(buf);
+                  buf = ch;
+                }
+              }
+              if (buf) current = buf;
+            }
           }
-        } while (fontSize > 20);
-        
-        return Math.max(fontSize, 20); // Minimum font size of 20px
+        }
+        if (current) wrapped.push(current);
+        return wrapped;
       }
 
-      // Text Input Event Handlers
+      /**
+       * Convert user's text preserving newlines, and wrap lines to fit maxWidth.
+       * Returns final array of lines to draw.
+       */
+      function getWrappedLinesFromText(rawText, ctx, maxWidth) {
+        const logicalLines = rawText.split('\n'); // preserve explicit newlines
+        let finalLines = [];
+        logicalLines.forEach((ln, idx) => {
+          const wrapped = wrapLineToWidth(ln, ctx, maxWidth);
+          finalLines = finalLines.concat(wrapped);
+          // If user had an explicit blank line, preserve as blank
+          if (ln === '' && idx !== logicalLines.length - 1) {
+            // ensure a blank line between paragraphs
+            finalLines.push('');
+          }
+        });
+        return finalLines;
+      }
+
+      /**
+       * Determine best font size that fits all wrapped lines into allowed box area.
+       */
+      function calculateOptimalFontSizeForText(rawText, maxWidth, maxHeight, ctx, initial = 100) {
+        let fontSize = initial;
+        // We'll try decreasing fontSize until it fits
+        while (fontSize >= 18) {
+          ctx.font = `bold ${fontSize}px 'Noto Sans Devanagari', 'Inter', sans-serif`;
+          const lines = getWrappedLinesFromText(rawText, ctx, maxWidth);
+          const lineHeight = fontSize * 1.28;
+          const totalHeight = lines.length * lineHeight;
+          // also check the widest line
+          const widest = lines.reduce((m, l) => Math.max(m, ctx.measureText(l).width), 0);
+          if (totalHeight <= maxHeight && widest <= maxWidth * 0.98) {
+            return { fontSize, lines, lineHeight };
+          }
+          fontSize -= 2;
+        }
+        // fallback minimum
+        ctx.font = `bold 18px 'Noto Sans Devanagari', 'Inter', sans-serif`;
+        const lines = getWrappedLinesFromText(rawText, ctx, maxWidth);
+        const lineHeight = 18 * 1.28;
+        return { fontSize: 18, lines, lineHeight };
+      }
+
+      // Auto-resize textarea to fit content (dynamically)
+      function autoResizeTextarea(el) {
+        el.style.height = 'auto';
+        // Add small extra padding to prevent scrollbar flicker
+        el.style.height = (el.scrollHeight + 2) + 'px';
+      }
+
+      // keep preview and download in sync with colors
+      function updatePreview() {
+        const text = textInput.value;
+        if (!text) return;
+        // preview canvas
+        const canvas = document.createElement('canvas');
+        const previewSize = 640; // medium preview resolution for quality
+        canvas.width = previewSize;
+        canvas.height = previewSize;
+        const ctx = canvas.getContext('2d');
+
+        // background
+        ctx.fillStyle = bgColor.value;
+        ctx.fillRect(0, 0, previewSize, previewSize);
+
+        // text drawing settings
+        ctx.fillStyle = textColor.value;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // reserve top area for logo (approx 16%-20%)
+        const logoAreaHeight = previewSize * 0.18;
+        const availableHeight = previewSize - logoAreaHeight - (previewSize * 0.06); // extra bottom padding
+        const paddingSides = previewSize * 0.12;
+        const maxTextWidth = previewSize - paddingSides * 2;
+
+        // compute optimal font and wrapped lines
+        const { fontSize, lines, lineHeight } = calculateOptimalFontSizeForText(text, maxTextWidth, availableHeight, ctx, 54);
+        ctx.font = `bold ${fontSize}px 'Noto Sans Devanagari', 'Inter', sans-serif`;
+
+        // vertical start
+        const totalHeight = lines.length * lineHeight;
+        const startY = logoAreaHeight + (availableHeight - totalHeight) / 2 + fontSize / 2;
+
+        // draw each line preserving user whitespace where possible
+        ctx.fillStyle = textColor.value;
+        ctx.globalAlpha = 1;
+        lines.forEach((line, i) => {
+          // Use fillText to center. For empty line, draw nothing but advance y.
+          if (line === '') {
+            // optionally we can draw a small invisible character to keep spacing — but we just skip.
+          } else {
+            ctx.fillText(line, previewSize / 2, startY + i * lineHeight);
+          }
+        });
+
+        // set preview image
+        imagePreview.src = canvas.toDataURL('image/png');
+      }
+
+      // event handlers
       textInput.addEventListener('input', () => {
-        const text = textInput.value.trim();
+        const text = textInput.value;
         charCount.textContent = text.length;
-        
-        // Auto-resize textarea
-        autoResizeTextarea();
-        
-        if (text.length > 0) {
+        autoResizeTextarea(textInput);
+        if (text.trim().length > 0) {
           downloadBtn.disabled = false;
           previewContainer.style.display = 'flex';
           overlaysContainer.style.display = 'flex';
@@ -657,92 +443,27 @@
         }
       });
 
-      // Color Change Event Handlers
+      // initial auto-resize if any placeholder content exists
+      autoResizeTextarea(textInput);
+
       bgColor.addEventListener('input', updatePreview);
       textColor.addEventListener('input', updatePreview);
 
-      /**
-       * Update the preview image
-       */
-      function updatePreview() {
-        const text = textInput.value.trim();
-        if (!text) return;
-        
-        // Create a temporary canvas for preview
-        const canvas = document.createElement('canvas');
-        const previewSize = 300; // Preview size
-        canvas.width = previewSize;
-        canvas.height = previewSize;
-        const ctx = canvas.getContext('2d');
-        
-        // Draw background
-        ctx.fillStyle = bgColor.value;
-        ctx.fillRect(0, 0, previewSize, previewSize);
-        
-        // Draw text
-        ctx.fillStyle = textColor.value;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        // Split text by lines (preserve user's line breaks)
-        const lines = text.split('\n');
-        
-        // Calculate available space for text (excluding logo area)
-        const logoAreaHeight = previewSize * 0.15; // Reserve 15% for logo
-        const availableHeight = previewSize - logoAreaHeight;
-        const padding = previewSize * 0.08; // 8% padding on sides
-        
-        // Calculate optimal font size for preview
-        const fontSize = calculateOptimalFontSize(lines, previewSize - 2*padding, availableHeight, ctx);
-        ctx.font = `bold ${fontSize}px 'Inter', sans-serif`;
-        
-        // Calculate line height and total height
-        const lineHeight = fontSize * 1.3;
-        const totalHeight = lines.length * lineHeight;
-        
-        // Start text below logo area
-        const startY = logoAreaHeight + (availableHeight - totalHeight) / 2 + fontSize / 2;
-        
-        // Draw each line exactly as the user typed
-        lines.forEach((line, index) => {
-          ctx.fillText(line, previewSize / 2, startY + index * lineHeight);
-        });
-        
-        // Update preview image
-        imagePreview.src = canvas.toDataURL('image/png');
-      }
-
-      // Download Button Event Handler
       downloadBtn.addEventListener('click', () => {
         stopVibration();
         generateAndDownloadImage();
       });
 
-      /**
-       * Update progress bar
-       * @param {number} percent - Progress percentage
-       */
       function updateProgress(percent) {
         progressContainer.style.display = 'block';
         progressBar.style.width = `${percent}%`;
       }
 
-      /**
-       * Load image with timeout and CORS handling
-       * @param {string} src - Image source
-       * @param {boolean} useCrossOrigin - Enable CORS
-       * @param {number} timeout - Load timeout in ms
-       * @returns {Promise} Promise that resolves with image element
-       */
       function loadImage(src, useCrossOrigin = true, timeout = 7000) {
         return new Promise((resolve, reject) => {
           if (!src) return reject(new Error('No src provided'));
-          
           const img = new Image();
-          if (useCrossOrigin) {
-            img.crossOrigin = 'anonymous'; // May fail if server doesn't allow CORS
-          }
-          
+          if (useCrossOrigin) img.crossOrigin = 'anonymous';
           let didFinish = false;
           const t = setTimeout(() => {
             if (!didFinish) {
@@ -751,174 +472,135 @@
               reject(new Error('Image load timed out: ' + src));
             }
           }, timeout);
-          
           img.onload = () => {
             if (didFinish) return;
             didFinish = true;
             clearTimeout(t);
             resolve(img);
           };
-          
-          img.onerror = (ev) => {
+          img.onerror = () => {
             if (didFinish) return;
             didFinish = true;
             clearTimeout(t);
             reject(new Error('Failed to load image: ' + src));
           };
-          
           img.src = src;
         });
       }
 
-      /**
-       * Main processing function - generates square image with text, logo and watermark
-       */
       async function generateAndDownloadImage() {
-        const text = textInput.value.trim();
-        
-        // Validate text input
-        if (!text) { 
-          alert('Please enter some text'); 
-          return; 
-        }
-        
-        // Disable download button and show progress
+        const text = textInput.value;
+        if (!text) { alert('Please enter some text'); return; }
+
         downloadBtn.disabled = true;
         updateProgress(0);
 
         try {
-          // Create canvas with square dimensions (1080x1080 for social media)
           const canvas = document.createElement('canvas');
-          const size = 1080; // Standard square size for social media
+          const size = 1080;
           canvas.width = size;
           canvas.height = size;
           const ctx = canvas.getContext('2d');
 
-          updateProgress(20);
+          updateProgress(15);
 
-          // Draw background
+          // Background
           ctx.fillStyle = bgColor.value;
           ctx.fillRect(0, 0, size, size);
 
-          updateProgress(30);
+          updateProgress(28);
 
-          // Load logo and watermark images
-          let logoImg = null;
-          let watermarkImg = null;
-
-          // Get source URLs from UI elements
+          // load logo and watermark
+          let logoImg = null, watermarkImg = null;
           const logoSrc = uiLogoImg && uiLogoImg.src ? uiLogoImg.src : null;
           const watermarkSrc = uiWatermarkImg && uiWatermarkImg.src ? uiWatermarkImg.src : null;
 
-          // Load logo with error handling
           if (logoSrc) {
-            try {
-              logoImg = await loadImage(logoSrc, true);
-            } catch (e) {
-              console.warn('Logo failed to load (will skip):', e.message);
-              logoImg = null;
-            }
+            try { logoImg = await loadImage(logoSrc, true); } catch (e) { console.warn('Logo failed to load', e.message); logoImg = null; }
           }
-
-          updateProgress(50);
-
-          // Load watermark with error handling
+          updateProgress(48);
           if (watermarkSrc) {
-            try {
-              watermarkImg = await loadImage(watermarkSrc, true);
-            } catch (e) {
-              console.warn('Watermark failed to load (will skip):', e.message);
-              watermarkImg = null;
-            }
+            try { watermarkImg = await loadImage(watermarkSrc, true); } catch (e) { console.warn('Watermark failed to load', e.message); watermarkImg = null; }
           }
 
           updateProgress(60);
 
-          // Add logo if available
+          // Draw logo if available
           if (logoImg) {
-            // Calculate logo dimensions relative to image size
-            const logoWidth = size * 0.15; // 15% of image width
+            const logoWidth = size * 0.15;
             const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
-            const margin = size * 0.02; // 2% margin
+            const margin = size * 0.02;
             const logoX = size - logoWidth - margin;
             const logoY = margin;
-            
-            // Draw logo with high visibility
-            ctx.globalAlpha = 0.9;
+            ctx.globalAlpha = 0.95;
             ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
-          } else {
-            console.info('Skipping logo (not available or failed to load).');
+            ctx.globalAlpha = 1;
           }
 
-          // Draw text with dynamic font sizing
+          // Text drawing
           ctx.fillStyle = textColor.value;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          
-          // Split text by lines (preserve user's line breaks)
-          const lines = text.split('\n');
-          
-          // Calculate available space for text (excluding logo area)
-          const logoAreaHeight = size * 0.15; // Reserve 15% for logo
-          const availableHeight = size - logoAreaHeight;
-          const padding = size * 0.08; // 8% padding on sides
-          
-          // Calculate optimal font size for final image
-          const fontSize = calculateOptimalFontSize(lines, size - 2*padding, availableHeight, ctx);
-          ctx.font = `bold ${fontSize}px 'Inter', sans-serif`;
-          
-          // Calculate line height and total height
-          const lineHeight = fontSize * 1.3;
+
+          const logoAreaHeight = size * 0.18;
+          const availableHeight = size - logoAreaHeight - (size * 0.06);
+          const paddingSides = size * 0.1;
+          const maxTextWidth = size - paddingSides * 2;
+
+          // compute optimal font size and wrapped lines for final image
+          const { fontSize, lines, lineHeight } = calculateOptimalFontSizeForText(text, maxTextWidth, availableHeight, ctx, 64);
+          ctx.font = `bold ${fontSize}px 'Noto Sans Devanagari', 'Inter', sans-serif`;
+
           const totalHeight = lines.length * lineHeight;
-          
-          // Start text below logo area
           const startY = logoAreaHeight + (availableHeight - totalHeight) / 2 + fontSize / 2;
-          
-          // Draw each line exactly as the user typed
-          lines.forEach((line, index) => {
-            ctx.fillText(line, size / 2, startY + index * lineHeight);
+
+          ctx.fillStyle = textColor.value;
+          ctx.globalAlpha = 1;
+          lines.forEach((line, i) => {
+            if (line === '') {
+              // skip drawing but keep spacing
+            } else {
+              ctx.fillText(line, size / 2, startY + i * lineHeight);
+            }
           });
 
           updateProgress(80);
 
-          // Add watermark if available, otherwise use text fallback
+          // watermark
           if (watermarkImg) {
-            // Calculate watermark dimensions relative to image size
-            const wmWidth = size * 0.25; // 25% of image width
+            const wmWidth = size * 0.25;
             const wmHeight = (watermarkImg.height * wmWidth) / watermarkImg.width;
             const wmX = (size - wmWidth) / 2;
             const wmY = (size - wmHeight) / 2;
-            
-            // Draw watermark with low opacity
-            ctx.globalAlpha = 0.3;
+            ctx.globalAlpha = 0.28;
             ctx.drawImage(watermarkImg, wmX, wmY, wmWidth, wmHeight);
+            ctx.globalAlpha = 1;
           } else {
-            // Fallback text watermark
-            ctx.globalAlpha = 0.15;
-            const text = 'SAMPLE';
-            const fontSize = Math.floor(size / 10);
-            ctx.font = `${fontSize}px sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            // fallback watermark text
+            ctx.globalAlpha = 0.12;
+            const wmFont = Math.floor(size / 10);
+            ctx.font = `${wmFont}px sans-serif`;
             ctx.fillStyle = 'white';
-            ctx.fillText(text, size / 2, size / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText('SAMPLE', size / 2, size / 2);
+            ctx.globalAlpha = 1;
           }
 
-          updateProgress(90);
+          updateProgress(92);
 
-          // Convert canvas to data URL and download
+          // create dataURL (catch taint issues)
           let dataURL;
           try {
             dataURL = canvas.toDataURL('image/png');
           } catch (err) {
-            console.error('toDataURL failed (likely CORS/tainted canvas):', err);
-            alert('Download failed because some overlay images are loaded from another domain without CORS permission. Make sure logo/watermark images are hosted on the same origin or allow CORS.');
+            console.error('toDataURL failed:', err);
+            alert('Download failed because an overlay image is loaded from another domain without CORS permission. Ensure logo/watermark images allow CORS or are same-origin.');
             throw err;
           }
 
           updateProgress(98);
 
-          // Create download link and trigger download
+          // trigger download
           const a = document.createElement('a');
           a.href = dataURL;
           a.download = generateFilename();
@@ -926,125 +608,37 @@
           a.click();
           document.body.removeChild(a);
 
-          // Provide haptic feedback on supported devices
           if ('vibrate' in navigator) navigator.vibrate(200);
 
           updateProgress(100);
 
-          // Reset UI after successful download
           setTimeout(() => {
             progressContainer.style.display = 'none';
             progressBar.style.width = '0%';
             downloadBtn.disabled = false;
           }, 400);
-          
+
         } catch (error) {
-          // Error handling
           console.error('Error in processing:', error);
-          alert('Error generating image — see console for details. ' + 
-                (error && error.message ? error.message : ''));
-          
-          // Reset UI
+          alert('Error generating image — see console for details. ' + (error && error.message ? error.message : ''));
           progressContainer.style.display = 'none';
           progressBar.style.width = '0%';
           downloadBtn.disabled = false;
         }
       }
 
-      // Initialize auto-resize on load
-      autoResizeTextarea();
+      // optionally pre-fill the textarea with your provided example so user can test quickly
+      const exampleText = `🇮🇳 संविधानिक जानकारी 🇮🇳  
+
+📘 अनुच्छेद 154 : राज्य की कार्यपालिका शक्ति  
+🔹 राज्य की समस्त कार्यपालिका शक्ति राज्यपाल में निहित होगी।  
+🔹 वह इन शक्तियों का प्रयोग तो सीधे या अपने अधीनस्थ अधिकारियों के माध्यम से करेगा।`;
+      // COMMENT the next two lines if you don't want the demo text auto-filled:
+      // textInput.value = exampleText;
+      // textInput.dispatchEvent(new Event('input'));
     });
   </script>
 
-  <!-- Floating Fullscreen Toggle Button -->
-  <script>
-    (function(){
-      /* === Inject CSS === */
-      const css = `
-      .floating-fs-btn {
-        position: fixed;
-        top: 18px;
-        right: 18px;
-        z-index: 999999;
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: transparent;
-        color: #fff;
-        border: none;
-        border-radius: 50%;
-        backdrop-filter: blur(8px);
-        cursor: pointer;
-        transition: all 0.35s cubic-bezier(.4,.2,.2,1);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-        animation: fsFloat 5.5s ease-in-out infinite;
-      }
-      .floating-fs-btn:hover {
-        transform: translateY(-4px) scale(1.1) rotate(6deg);
-        box-shadow: 0 0 15px rgba(91,134,229,0.4), 0 0 25px rgba(91,134,229,0.25);
-      }
-      .floating-fs-btn.is-fullscreen {
-        animation: fsPulse 1.8s ease-in-out infinite;
-        box-shadow: 0 0 20px rgba(91,134,229,0.55), 0 0 35px rgba(91,134,229,0.35);
-      }
-      @keyframes fsFloat {
-        0% { transform: translateY(0) rotate(0); }
-        50% { transform: translateY(-6px) rotate(1deg); }
-        100% { transform: translateY(0) rotate(0); }
-      }
-      @keyframes fsPulse {
-        0%,100% { transform: scale(1); opacity: 0.9; }
-        50% { transform: scale(1.15); opacity: 1; }
-      }
-      .floating-fs-btn svg {
-        width: 22px;
-        height: 22px;
-        fill: currentColor;
-        transition: transform 0.3s ease;
-      }
-      @media(max-width:480px){
-        .floating-fs-btn{top:12px;right:12px;width:42px;height:42px;}
-      }`;
-      const s=document.createElement('style');
-      s.textContent=css;
-      document.head.appendChild(s);
-
-      /* === Create floating button === */
-      const btn=document.createElement('button');
-      btn.className='floating-fs-btn';
-      btn.id='floatingFullscreen';
-      btn.title='Enter Fullscreen';
-      btn.setAttribute('aria-label','Toggle fullscreen');
-      btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4h2V5h4V3zm6 0v2h4v4h2V5a2 2 0 0 0-2-2h-4zM5 15H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 0h-2v4h-4v2h4a2 2 0 0 0 2-2v-4z"/></svg>`;
-      document.body.appendChild(btn);
-
-      /* === Fullscreen helpers === */
-      const path=btn.querySelector('path');
-      function isFull(){return !!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement);}
-      function enterFull(){const el=document.documentElement;return el.requestFullscreen?.()||el.webkitRequestFullscreen?.()||el.mozRequestFullScreen?.()||el.msRequestFullscreen?.();}
-      function exitFull(){return document.exitFullscreen?.()||document.webkitExitFullscreen?.()||document.mozCancelFullScreen?.()||document.msExitFullscreen?.();}
-      
-      btn.onclick=async()=>{
-        try{ if(!isFull()) await enterFull(); else await exitFull(); }catch(e){console.error(e);}
-      };
-
-      function updateIcon(){
-        if(isFull()){
-          btn.classList.add('is-fullscreen');
-          btn.title='Exit Fullscreen';
-          path.setAttribute('d','M16 14h2v4h-4v2h4a2 2 0 0 0 2-2v-4h-2v2h-2v-2zm-8 0H6v2H4v-4a2 2 0 0 1 2-2h4v2H8v2h0zM8 6h2V4H6v4h2V6zm8 0v2h2V6h-2z');
-        } else {
-          btn.classList.remove('is-fullscreen');
-          btn.title='Enter Fullscreen';
-          path.setAttribute('d','M9 3H5a2 2 0 0 0-2 2v4h2V5h4V3zm6 0v2h4v4h2V5a2 2 0 0 0-2-2h-4zM5 15H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 0h-2v4h-4v2h4a2 2 0 0 0 2-2v-4z');
-        }
-      }
-      ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(ev=>{
-        document.addEventListener(ev,updateIcon);
-      });
-    })();
-  </script>
+  <!-- Floating Fullscreen Toggle Button (unchanged existing script could be appended here if needed) -->
 </body>
 </html>
