@@ -130,6 +130,87 @@
       cursor: pointer;
     }
 
+    /* Text Input Area */
+    .text-input-area {
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: none;
+    }
+
+    .text-input-area h3 {
+      color: #f0f0f0;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .text-input-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .text-input {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.15);
+      color: #f0f0f0;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .text-input:focus {
+      border-color: #5b86e5;
+      box-shadow: 0 0 0 2px rgba(91, 134, 229, 0.3);
+    }
+
+    .text-input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .text-preview {
+      margin-top: 15px;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      text-align: center;
+      display: none;
+    }
+
+    .text-preview h4 {
+      color: #f0f0f0;
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .text-preview-canvas {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      background: #5b86e5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+    }
+
+    .text-preview-content {
+      color: white;
+      font-weight: 600;
+      text-align: center;
+      word-break: break-word;
+      max-width: 100%;
+    }
+
     /* File Info Display with Shine Effect */
     .file-info {
       color: white;
@@ -410,6 +491,12 @@
         flex-direction: column;
         align-items: center;
       }
+      .text-input-container {
+        flex-direction: column;
+      }
+      .text-input {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -428,6 +515,24 @@
       <p>Click here or drag and drop your image file</p>
       <!-- Hidden File Input -->
       <input type="file" id="imageUpload" accept="image/*">
+    </div>
+
+    <!-- Text Input Area -->
+    <div class="text-input-area" id="textInputArea">
+      <h3>Add Text Overlay</h3>
+      <div class="text-input-container">
+        <input type="text" id="textInput" class="text-input" placeholder="Enter text to display on image..." maxlength="100">
+        <button class="btn" id="updateTextBtn" style="width: auto; padding: 12px 20px;">
+          <i class="fas fa-sync-alt"></i>
+          <span>Update</span>
+        </button>
+      </div>
+      <div class="text-preview" id="textPreview">
+        <h4>Text Preview</h4>
+        <div class="text-preview-canvas">
+          <div class="text-preview-content" id="textPreviewContent"></div>
+        </div>
+      </div>
     </div>
 
     <!-- File Info Display -->
@@ -537,11 +642,17 @@
       const progressBar = document.getElementById('progressBar');
       const uiLogoImg = document.getElementById('uiLogo');
       const uiWatermarkImg = document.getElementById('uiWatermark');
+      const textInputArea = document.getElementById('textInputArea');
+      const textInput = document.getElementById('textInput');
+      const updateTextBtn = document.getElementById('updateTextBtn');
+      const textPreview = document.getElementById('textPreview');
+      const textPreviewContent = document.getElementById('textPreviewContent');
 
       // Application State
       let selectedImage = null;
       let vibrationInterval = null;
       let originalImageDimensions = { width: 0, height: 0 };
+      let userText = '';
 
       /**
        * Format file size to human readable format
@@ -552,6 +663,48 @@
         if (bytes < 1024) return bytes + ' B';
         else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
         else return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+      }
+
+      /**
+       * Calculate optimal font size for text based on its length
+       * @param {string} text - The text to measure
+       * @param {number} maxWidth - Maximum width available
+       * @param {number} maxHeight - Maximum height available
+       * @returns {number} Optimal font size in pixels
+       */
+      function calculateOptimalFontSize(text, maxWidth, maxHeight) {
+        // Base size for very short text
+        let baseSize = Math.min(maxWidth, maxHeight) * 0.3;
+        
+        // Adjust based on text length
+        const length = text.length;
+        if (length > 50) baseSize *= 0.4;
+        else if (length > 30) baseSize *= 0.6;
+        else if (length > 20) baseSize *= 0.7;
+        else if (length > 10) baseSize *= 0.8;
+        
+        // Ensure minimum and maximum sizes
+        return Math.max(12, Math.min(baseSize, 72));
+      }
+
+      /**
+       * Update text preview with user input
+       */
+      function updateTextPreview() {
+        userText = textInput.value.trim();
+        
+        if (userText) {
+          textPreviewContent.textContent = userText;
+          textPreview.style.display = 'block';
+          
+          // Calculate and apply optimal font size
+          const canvasWidth = 200; // Width of the preview canvas
+          const canvasHeight = 200; // Height of the preview canvas
+          const optimalFontSize = calculateOptimalFontSize(userText, canvasWidth, canvasHeight);
+          textPreviewContent.style.fontSize = `${optimalFontSize}px`;
+        } else {
+          textPreview.style.display = 'none';
+        }
       }
 
       /**
@@ -635,6 +788,14 @@
         }
       });
 
+      // Handle Text Input Updates
+      updateTextBtn.addEventListener('click', updateTextPreview);
+      textInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+          updateTextPreview();
+        }
+      });
+
       /**
        * Handle image selection and validation
        * @param {File} file - Selected image file
@@ -652,6 +813,7 @@
         fileInfoDisplay.textContent = `${file.name} (${formatFileSize(file.size)})`;
         fileInfoDisplay.style.display = 'block';
         downloadBtn.disabled = false;
+        textInputArea.style.display = 'block';
         startVibration();
 
         // Create preview and get original dimensions
@@ -685,9 +847,12 @@
         sizeInfoDisplay.style.display = 'none';
         previewContainer.style.display = 'none';
         overlaysContainer.style.display = 'none';
+        textInputArea.style.display = 'none';
+        textPreview.style.display = 'none';
         downloadBtn.disabled = true;
         stopVibration();
         selectedImage = null;
+        userText = '';
         originalImageDimensions = { width: 0, height: 0 };
         resetFileInput();
       }
@@ -751,7 +916,44 @@
       }
 
       /**
-       * Main processing function - adds logo and watermark then downloads
+       * Draw text on a blue square canvas
+       * @param {CanvasRenderingContext2D} ctx - Canvas context
+       * @param {number} canvasWidth - Width of the main canvas
+       * @param {number} canvasHeight - Height of the main canvas
+       */
+      function drawTextCanvas(ctx, canvasWidth, canvasHeight) {
+        if (!userText) return;
+        
+        // Calculate square size relative to image dimensions
+        const squareSize = Math.min(canvasWidth, canvasHeight) * 0.3;
+        const margin = Math.min(canvasWidth, canvasHeight) * 0.05;
+        const squareX = margin;
+        const squareY = margin;
+        
+        // Draw blue square background
+        ctx.fillStyle = '#5b86e5';
+        ctx.fillRect(squareX, squareY, squareSize, squareSize);
+        
+        // Calculate optimal font size for the text
+        const textPadding = squareSize * 0.1;
+        const textWidth = squareSize - (textPadding * 2);
+        const textHeight = squareSize - (textPadding * 2);
+        const fontSize = calculateOptimalFontSize(userText, textWidth, textHeight);
+        
+        // Configure text styling
+        ctx.fillStyle = 'white';
+        ctx.font = `bold ${fontSize}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Draw text in the center of the square
+        const textX = squareX + (squareSize / 2);
+        const textY = squareY + (squareSize / 2);
+        ctx.fillText(userText, textX, textY);
+      }
+
+      /**
+       * Main processing function - adds logo, watermark, and text then downloads
        * Now preserves original image dimensions exactly
        */
       async function addLogoAndWatermarkAndDownload() {
@@ -817,6 +1019,11 @@
           // Draw base image at original size (no resizing)
           ctx.globalAlpha = 1;
           ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+
+          // Add text overlay if user has entered text
+          if (userText) {
+            drawTextCanvas(ctx, canvas.width, canvas.height);
+          }
 
           // Add logo if available
           if (logoImg) {
@@ -913,8 +1120,6 @@
     });
   </script>
 
-
-
 <!-- Floating Fullscreen Toggle Button (CSS + JS in one block) -->
 <script>
 (function(){
@@ -1005,8 +1210,6 @@
   });
 })();
 </script>
-
-
   
 </body>
 </html>
