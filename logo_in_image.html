@@ -24,7 +24,6 @@
       align-items: center;
       padding: 24px;
       color: #f0f0f0;
-      /* Background with dark overlay */
       background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
       background-size: cover;
       background-position: center;
@@ -564,21 +563,27 @@
        * @param {CanvasRenderingContext2D} ctx - Canvas context
        * @returns {number} Optimal font size
        */
-      function calculateOptimalFontSize(lines, maxWidth, ctx) {
+      function calculateOptimalFontSize(lines, maxWidth, maxHeight, ctx) {
         let fontSize = 100; // Start with a large font size
         
-        // Reduce font size until all lines fit within the width
+        // Calculate required space for all lines
         do {
           fontSize -= 2;
           ctx.font = `bold ${fontSize}px 'Inter', sans-serif`;
           
-          // Check if any line exceeds the max width
+          // Calculate total height needed for all lines
+          const lineHeight = fontSize * 1.3;
+          const totalHeight = lines.length * lineHeight;
+          
+          // Check if any line exceeds the max width or total height exceeds max height
           const exceedsWidth = lines.some(line => {
             const metrics = ctx.measureText(line);
             return metrics.width > maxWidth * 0.9; // 90% of available width
           });
           
-          if (!exceedsWidth) break;
+          if (!exceedsWidth && totalHeight <= maxHeight) {
+            break;
+          }
         } while (fontSize > 20);
         
         return Math.max(fontSize, 20); // Minimum font size of 20px
@@ -633,14 +638,21 @@
         // Split text by lines (preserve user's line breaks)
         const lines = text.split('\n');
         
+        // Calculate available space for text (excluding logo area)
+        const logoAreaHeight = previewSize * 0.2; // Reserve 20% for logo
+        const availableHeight = previewSize - logoAreaHeight;
+        const padding = previewSize * 0.1; // 10% padding on sides
+        
         // Calculate optimal font size for preview
-        const fontSize = calculateOptimalFontSize(lines, previewSize, ctx);
+        const fontSize = calculateOptimalFontSize(lines, previewSize - 2*padding, availableHeight, ctx);
         ctx.font = `bold ${fontSize}px 'Inter', sans-serif`;
         
         // Calculate line height and total height
-        const lineHeight = fontSize * 1.2;
+        const lineHeight = fontSize * 1.3;
         const totalHeight = lines.length * lineHeight;
-        const startY = (previewSize - totalHeight) / 2 + fontSize / 2;
+        
+        // Start text below logo area
+        const startY = logoAreaHeight + (availableHeight - totalHeight) / 2 + fontSize / 2;
         
         // Draw each line exactly as the user typed
         lines.forEach((line, index) => {
@@ -741,30 +753,6 @@
 
           updateProgress(30);
 
-          // Draw text with dynamic font sizing
-          ctx.fillStyle = textColor.value;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          
-          // Split text by lines (preserve user's line breaks)
-          const lines = text.split('\n');
-          
-          // Calculate optimal font size for final image
-          const fontSize = calculateOptimalFontSize(lines, size, ctx);
-          ctx.font = `bold ${fontSize}px 'Inter', sans-serif`;
-          
-          // Calculate line height and total height
-          const lineHeight = fontSize * 1.2;
-          const totalHeight = lines.length * lineHeight;
-          const startY = (size - totalHeight) / 2 + fontSize / 2;
-          
-          // Draw each line exactly as the user typed
-          lines.forEach((line, index) => {
-            ctx.fillText(line, size / 2, startY + index * lineHeight);
-          });
-
-          updateProgress(50);
-
           // Load logo and watermark images
           let logoImg = null;
           let watermarkImg = null;
@@ -783,7 +771,7 @@
             }
           }
 
-          updateProgress(70);
+          updateProgress(50);
 
           // Load watermark with error handling
           if (watermarkSrc) {
@@ -795,7 +783,7 @@
             }
           }
 
-          updateProgress(80);
+          updateProgress(60);
 
           // Add logo if available
           if (logoImg) {
@@ -812,6 +800,37 @@
           } else {
             console.info('Skipping logo (not available or failed to load).');
           }
+
+          // Draw text with dynamic font sizing
+          ctx.fillStyle = textColor.value;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          
+          // Split text by lines (preserve user's line breaks)
+          const lines = text.split('\n');
+          
+          // Calculate available space for text (excluding logo area)
+          const logoAreaHeight = size * 0.2; // Reserve 20% for logo
+          const availableHeight = size - logoAreaHeight;
+          const padding = size * 0.1; // 10% padding on sides
+          
+          // Calculate optimal font size for final image
+          const fontSize = calculateOptimalFontSize(lines, size - 2*padding, availableHeight, ctx);
+          ctx.font = `bold ${fontSize}px 'Inter', sans-serif`;
+          
+          // Calculate line height and total height
+          const lineHeight = fontSize * 1.3;
+          const totalHeight = lines.length * lineHeight;
+          
+          // Start text below logo area
+          const startY = logoAreaHeight + (availableHeight - totalHeight) / 2 + fontSize / 2;
+          
+          // Draw each line exactly as the user typed
+          lines.forEach((line, index) => {
+            ctx.fillText(line, size / 2, startY + index * lineHeight);
+          });
+
+          updateProgress(80);
 
           // Add watermark if available, otherwise use text fallback
           if (watermarkImg) {
