@@ -134,27 +134,6 @@
     .btn:disabled { opacity:0.5; cursor:not-allowed; }
     .footer { margin-top:18px; text-align:center; color:rgba(255,255,255,0.7); font-size:14px; padding:12px; border-top:1px solid rgba(255,255,255,0.06); }
     @media (max-width:768px) { .container { padding:16px; } .header h1 { font-size:22px; } .btn { width:220px; height:50px; font-size:14px; } }
-    
-    /* Mode selector */
-    .mode-selector {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 18px;
-      gap: 10px;
-    }
-    .mode-btn {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #f0f0f0;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .mode-btn.active {
-      background: rgba(91,134,229,0.3);
-      border-color: #5b86e5;
-    }
   </style>
 </head>
 <body>
@@ -163,23 +142,17 @@
       <h1><i class="fas fa-square"></i> Text to Square Image Generator</h1>
     </div>
 
-    <!-- Mode Selector -->
-    <div class="mode-selector">
-      <button class="mode-btn active" id="textModeBtn">Text Mode</button>
-      <button class="mode-btn" id="imageModeBtn">Image Mode</button>
-    </div>
-
     <!-- Text Input Section -->
-    <div class="text-input-area" id="textInputSection">
+    <div class="text-input-area">
       <label for="textInput">Enter Your Text (Supports Hindi, English & Emojis)</label>
       <textarea id="textInput" placeholder="Type your text here..." aria-label="Text input"></textarea>
       <div class="char-count"><span id="charCount">0</span> characters</div>
     </div>
 
     <!-- Upload Area -->
-    <div class="upload-area" id="uploadArea" style="display:none;">
+    <div class="upload-area" id="uploadArea">
       <i class="fas fa-cloud-upload-alt"></i>
-      <h3>Upload Image</h3>
+      <h3>Or Upload an Image</h3>
       <p>Click here or drag and drop your image file</p>
       <input type="file" id="imageUpload" accept="image/*">
     </div>
@@ -254,59 +227,11 @@
       const fileInfoDisplay = document.getElementById('fileInfo');
       const sizeInfoDisplay = document.getElementById('sizeInfo');
       
-      // Mode selector elements
-      const textModeBtn = document.getElementById('textModeBtn');
-      const imageModeBtn = document.getElementById('imageModeBtn');
-      const textInputSection = document.getElementById('textInputSection');
-      
       // Application State
       let currentMode = 'text'; // 'text' or 'image'
       let selectedImage = null;
       let vibrationInterval = null;
       let originalImageDimensions = { width: 0, height: 0 };
-
-      // Mode switching
-      textModeBtn.addEventListener('click', () => {
-        currentMode = 'text';
-        textModeBtn.classList.add('active');
-        imageModeBtn.classList.remove('active');
-        textInputSection.style.display = 'block';
-        uploadArea.style.display = 'none';
-        fileInfoDisplay.style.display = 'none';
-        sizeInfoDisplay.style.display = 'none';
-        
-        // Reset image-related state
-        selectedImage = null;
-        originalImageDimensions = { width: 0, height: 0 };
-        
-        // Trigger preview update based on text
-        if (textInput.value.trim()) {
-          updatePreview();
-        } else {
-          previewContainer.style.display = 'none';
-          overlaysContainer.style.display = 'none';
-          downloadBtn.disabled = true;
-        }
-      });
-      
-      imageModeBtn.addEventListener('click', () => {
-        currentMode = 'image';
-        imageModeBtn.classList.add('active');
-        textModeBtn.classList.remove('active');
-        textInputSection.style.display = 'none';
-        uploadArea.style.display = 'block';
-        
-        // If we already have an uploaded image, show its preview
-        if (selectedImage) {
-          previewContainer.style.display = 'flex';
-          overlaysContainer.style.display = 'flex';
-          downloadBtn.disabled = false;
-        } else {
-          previewContainer.style.display = 'none';
-          overlaysContainer.style.display = 'none';
-          downloadBtn.disabled = true;
-        }
-      });
 
       // Format file size to human readable format
       function formatFileSize(bytes) {
@@ -369,6 +294,7 @@
         
         // Update application state
         selectedImage = file;
+        currentMode = 'image';
         fileInfoDisplay.textContent = `${file.name} (${formatFileSize(file.size)})`;
         fileInfoDisplay.style.display = 'block';
         downloadBtn.disabled = false;
@@ -412,7 +338,6 @@
         resetFileInput();
       }
 
-      let vibrationInterval = null;
       function startVibration(){ if('vibrate' in navigator){ vibrationInterval = setInterval(()=>navigator.vibrate(50),2000); } }
       function stopVibration(){ if(vibrationInterval){ clearInterval(vibrationInterval); vibrationInterval = null; } }
 
@@ -557,6 +482,10 @@
         charCount.textContent = text.length;
         autoResizeTextarea(textInput);
         if (text.trim().length > 0) {
+          currentMode = 'text';
+          fileInfoDisplay.style.display = 'none';
+          sizeInfoDisplay.style.display = 'none';
+          selectedImage = null;
           downloadBtn.disabled = false;
           previewContainer.style.display = 'flex';
           overlaysContainer.style.display = 'flex';
