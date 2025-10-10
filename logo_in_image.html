@@ -227,7 +227,7 @@
       const progressBar = document.getElementById('progressBar');
       const uiLogoImg = document.getElementById('uiLogo');
       const uiWatermarkImg = document.getElementById('uiWatermark');
-      const uiBottomBrandImg = document.getElementById('uiBottomBrand'); // NEW
+      const uiBottomBrandImg = document.getElementById('uiBottomBrand');
       
       // Upload-related elements
       const uploadArea = document.getElementById('uploadArea');
@@ -236,7 +236,7 @@
       const sizeInfoDisplay = document.getElementById('sizeInfo');
       
       // Application State
-      let currentMode = 'text'; // 'text' or 'image'
+      let currentMode = 'text';
       let selectedImage = null;
       let vibrationInterval = null;
       let originalImageDimensions = { width: 0, height: 0 };
@@ -456,21 +456,26 @@
         ctx.fillRect(0,0,previewSize,previewSize);
 
         ctx.fillStyle = textColor.value;
-        // IMPORTANT: left alignment as requested
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
 
-        const logoAreaHeight = previewSize * 0.18;
-        const availableHeight = previewSize - logoAreaHeight - (previewSize * 0.06);
-        const paddingSides = previewSize * 0.10; // left padding
+        // FIXED: Calculate safe areas for top and bottom
+        const logoAreaHeight = previewSize * 0.18; // Top area for logo
+        const bottomBrandAreaHeight = previewSize * 0.15; // Bottom area for bottom brand
+        
+        // Available height is now the space between logo area and bottom brand area
+        const availableHeight = previewSize - logoAreaHeight - bottomBrandAreaHeight;
+        const paddingSides = previewSize * 0.10;
         const maxTextWidth = previewSize - paddingSides * 2;
 
         const { fontSize, lines, lineHeight } = calculateOptimalFontSizeForText(text, maxTextWidth, availableHeight, ctx, 54);
         ctx.font = `bold ${fontSize}px 'Noto Sans Devanagari', 'Inter', sans-serif`;
 
         const totalHeight = lines.length * lineHeight;
+        
+        // FIXED: Start text after logo area and center within available space
         const startY = logoAreaHeight + (availableHeight - totalHeight) / 2;
-        const startX = paddingSides; // left-aligned start
+        const startX = paddingSides;
 
         ctx.fillStyle = textColor.value;
         ctx.globalAlpha = 1;
@@ -488,8 +493,8 @@
             const brandImg = new Image();
             brandImg.src = uiBottomBrandImg.src;
             brandImg.onload = () => {
-              // CHANGED: Increased bottom brand size from 0.18 to 0.25 (25% of canvas width)
-              const brandWidth = previewSize * 0.25; // ADJUSTABLE: Change this value (0.15-0.35) for different sizes
+              // Bottom brand size - ADJUSTABLE: Change this value (0.15-0.35) for different sizes
+              const brandWidth = previewSize * 0.25;
               const brandHeight = (brandImg.height * brandWidth) / brandImg.width;
               const marginBottom = previewSize * 0.02;
               const brandX = (previewSize - brandWidth) / 2;
@@ -599,26 +604,12 @@
             ctx.globalAlpha = 1.0;
           }
 
-          // Draw bottom-brand (bottom center, full opacity, increased size) ON TOP of background but before main text so text remains readable
-          if (bottomBrandImg) {
-            // CHANGED: Increased bottom brand size from 0.18 to 0.25 (25% of canvas width)
-            const brandWidth = size * 0.25; // ADJUSTABLE: Change this value (0.15-0.35) for different sizes
-            const brandHeight = (bottomBrandImg.height * brandWidth) / bottomBrandImg.width;
-            const marginBottom = size * 0.02;            // 2% margin from bottom edge
-            const brandX = (size - brandWidth) / 2;      // center horizontally
-            const brandY = size - brandHeight - marginBottom;
-            ctx.globalAlpha = 1.0;
-            ctx.drawImage(bottomBrandImg, brandX, brandY, brandWidth, brandHeight);
-            ctx.globalAlpha = 1.0;
-          }
-
-          // LEFT alignment for final image
-          ctx.fillStyle = textColor.value;
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'top';
-
-          const logoAreaHeight = size * 0.18;
-          const availableHeight = size - logoAreaHeight - (size * 0.06);
+          // FIXED: Calculate safe areas for text
+          const logoAreaHeight = size * 0.18; // Top area for logo
+          const bottomBrandAreaHeight = size * 0.15; // Bottom area for bottom brand
+          
+          // Available height is now the space between logo area and bottom brand area
+          const availableHeight = size - logoAreaHeight - bottomBrandAreaHeight;
           const paddingSides = size * 0.10;
           const maxTextWidth = size - paddingSides * 2;
 
@@ -626,6 +617,8 @@
           ctx.font = `bold ${fontSize}px 'Noto Sans Devanagari', 'Inter', sans-serif`;
 
           const totalHeight = lines.length * lineHeight;
+          
+          // FIXED: Start text after logo area and center within available space
           const startY = logoAreaHeight + (availableHeight - totalHeight) / 2;
           const startX = paddingSides;
 
@@ -640,6 +633,19 @@
           });
 
           updateProgress(85);
+
+          // Draw bottom-brand (bottom center, full opacity, increased size) - FIXED position
+          if (bottomBrandImg) {
+            // CHANGED: Increased bottom brand size from 0.18 to 0.25 (25% of canvas width)
+            const brandWidth = size * 0.25; // ADJUSTABLE: Change this value (0.15-0.35) for different sizes
+            const brandHeight = (bottomBrandImg.height * brandWidth) / bottomBrandImg.width;
+            const marginBottom = size * 0.02;            // 2% margin from bottom edge
+            const brandX = (size - brandWidth) / 2;      // center horizontally
+            const brandY = size - brandHeight - marginBottom;
+            ctx.globalAlpha = 1.0;
+            ctx.drawImage(bottomBrandImg, brandX, brandY, brandWidth, brandHeight);
+            ctx.globalAlpha = 1.0;
+          }
 
           if (watermarkImg) {
             const wmWidth = size * 0.25; // ADJUSTABLE: Watermark size (0.15-0.35)
