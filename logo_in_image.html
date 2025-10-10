@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Text to Square Image Generator</title>
+  <title>Social Media Post Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -24,7 +24,8 @@
       align-items: center;
       padding: 24px;
       color: #f0f0f0;
-      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                  linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -81,6 +82,7 @@
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2),
                   inset 0 1px 2px rgba(255, 255, 255, 0.3);
       margin-bottom: 24px;
+      transition: all 0.3s ease;
     }
 
     .text-input-area label {
@@ -100,8 +102,9 @@
       padding: 12px;
       color: #f0f0f0;
       font-size: 1rem;
-      resize: vertical;
+      resize: none;
       transition: all 0.3s ease;
+      overflow: hidden;
     }
 
     .text-input-area textarea:focus {
@@ -124,6 +127,7 @@
       gap: 15px;
       margin-bottom: 24px;
       flex-wrap: wrap;
+      justify-content: center;
     }
 
     .color-option {
@@ -385,6 +389,27 @@
         align-items: center;
       }
     }
+
+    /* Instructions Section */
+    .instructions {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-left: 4px solid #5b86e5;
+    }
+
+    .instructions h3 {
+      color: #f0f0f0;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+    }
+
+    .instructions p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
@@ -392,12 +417,18 @@
   <div class="container">
     <!-- Header Section -->
     <div class="header">
-      <h1><i class="fas fa-square"></i> Text to Square Image Generator</h1>
+      <h1><i class="fas fa-square"></i> Social Media Post Generator</h1>
+    </div>
+
+    <!-- Instructions -->
+    <div class="instructions">
+      <h3>How to Use</h3>
+      <p>Type your text in the box below. The text will automatically adjust to fit perfectly in your social media post. Use line breaks to create multi-line text. Supports emojis, Hindi, and English.</p>
     </div>
 
     <!-- Text Input Area -->
     <div class="text-input-area">
-      <label for="textInput">Enter Your Text (Supports Hindi, English & Emojis)</label>
+      <label for="textInput">Enter Your Post Text</label>
       <textarea id="textInput" placeholder="Type your text here..."></textarea>
       <div class="char-count">
         <span id="charCount">0</span> characters
@@ -418,7 +449,7 @@
 
     <!-- Image Preview Section -->
     <div class="preview-container" id="previewContainer">
-      <div class="preview-title">Image Preview</div>
+      <div class="preview-title">Post Preview</div>
       <img id="imagePreview" class="image-preview" src="" alt="Image Preview">
     </div>
 
@@ -427,15 +458,15 @@
       <!-- Logo Preview -->
       <div class="overlay-preview logo-preview">
         <h3>Logo (Top Right)</h3>
-        <img id="uiLogo" src="vikas_jajim_logo.png" alt="Logo">
-        <span>Logo will be added to the top right corner with high visibility</span>
+        <img id="uiLogo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Crect width='120' height='60' fill='%235b86e5' rx='8'/%3E%3Ctext x='60' y='35' font-family='Arial' font-size='14' fill='white' text-anchor='middle'%3ELOGO%3C/text%3E%3C/svg%3E" alt="Logo">
+        <span>Logo will be added to the top right corner</span>
       </div>
 
       <!-- Watermark Preview -->
       <div class="overlay-preview watermark-preview">
         <h3>Watermark (Center)</h3>
-        <img id="uiWatermark" src="vikas_jajim_watermark.png" alt="Watermark">
-        <span>Watermark will be added to the center with low opacity</span>
+        <img id="uiWatermark" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Crect width='120' height='60' fill='%2336d1dc' rx='8'/%3E%3Ctext x='60' y='35' font-family='Arial' font-size='12' fill='white' text-anchor='middle'%3EWATERMARK%3C/text%3E%3C/svg%3E" alt="Watermark">
+        <span>Watermark will be added to the center</span>
       </div>
     </div>
 
@@ -447,7 +478,7 @@
     <!-- Download Button -->
     <button class="btn" id="downloadBtn" disabled>
       <i class="fas fa-download"></i>
-      <span>Download Image</span>
+      <span>Download Post</span>
     </button>
 
     <!-- Footer -->
@@ -520,6 +551,18 @@
       let vibrationInterval = null;
 
       /**
+       * Auto-resize textarea based on content
+       */
+      function autoResizeTextarea() {
+        textInput.style.height = 'auto';
+        textInput.style.height = textInput.scrollHeight + 'px';
+        
+        // Also adjust the parent container
+        const textInputArea = textInput.closest('.text-input-area');
+        textInputArea.style.transition = 'all 0.3s ease';
+      }
+
+      /**
        * Start vibration on supported devices
        */
       function startVibration() {
@@ -560,6 +603,7 @@
        * Calculate optimal font size for text
        * @param {Array} lines - Array of text lines
        * @param {number} maxWidth - Maximum width available
+       * @param {number} maxHeight - Maximum height available
        * @param {CanvasRenderingContext2D} ctx - Canvas context
        * @returns {number} Optimal font size
        */
@@ -578,10 +622,12 @@
           // Check if any line exceeds the max width or total height exceeds max height
           const exceedsWidth = lines.some(line => {
             const metrics = ctx.measureText(line);
-            return metrics.width > maxWidth * 0.9; // 90% of available width
+            return metrics.width > maxWidth * 0.85; // 85% of available width
           });
           
-          if (!exceedsWidth && totalHeight <= maxHeight) {
+          const exceedsHeight = totalHeight > maxHeight * 0.85; // 85% of available height
+          
+          if (!exceedsWidth && !exceedsHeight) {
             break;
           }
         } while (fontSize > 20);
@@ -593,6 +639,9 @@
       textInput.addEventListener('input', () => {
         const text = textInput.value.trim();
         charCount.textContent = text.length;
+        
+        // Auto-resize textarea
+        autoResizeTextarea();
         
         if (text.length > 0) {
           downloadBtn.disabled = false;
@@ -639,9 +688,9 @@
         const lines = text.split('\n');
         
         // Calculate available space for text (excluding logo area)
-        const logoAreaHeight = previewSize * 0.2; // Reserve 20% for logo
+        const logoAreaHeight = previewSize * 0.15; // Reserve 15% for logo
         const availableHeight = previewSize - logoAreaHeight;
-        const padding = previewSize * 0.1; // 10% padding on sides
+        const padding = previewSize * 0.08; // 8% padding on sides
         
         // Calculate optimal font size for preview
         const fontSize = calculateOptimalFontSize(lines, previewSize - 2*padding, availableHeight, ctx);
@@ -810,9 +859,9 @@
           const lines = text.split('\n');
           
           // Calculate available space for text (excluding logo area)
-          const logoAreaHeight = size * 0.2; // Reserve 20% for logo
+          const logoAreaHeight = size * 0.15; // Reserve 15% for logo
           const availableHeight = size - logoAreaHeight;
-          const padding = size * 0.1; // 10% padding on sides
+          const padding = size * 0.08; // 8% padding on sides
           
           // Calculate optimal font size for final image
           const fontSize = calculateOptimalFontSize(lines, size - 2*padding, availableHeight, ctx);
@@ -901,6 +950,9 @@
           downloadBtn.disabled = false;
         }
       }
+
+      // Initialize auto-resize on load
+      autoResizeTextarea();
     });
   </script>
 
