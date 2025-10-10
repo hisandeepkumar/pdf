@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Image Logo & Watermark Adder</title>
+  <title>Text to Square Image Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -72,173 +72,80 @@
       font-size: 28px;
     }
 
-    /* Upload Area Styling */
-    .upload-area {
-      border: 2px dashed rgba(255, 255, 255, 0.4);
+    /* Text Input Area */
+    .text-input-area {
+      border: 2px solid rgba(255, 255, 255, 0.4);
       border-radius: 12px;
-      padding: 40px 20px;
-      text-align: center;
+      padding: 20px;
       background: rgba(255, 255, 255, 0.2);
-      cursor: pointer;
-      transition: all 0.3s ease;
       position: relative;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2),
                   inset 0 1px 2px rgba(255, 255, 255, 0.3);
       margin-bottom: 24px;
     }
 
-    .upload-area:hover,
-    .upload-area.active {
-      background: rgba(255, 255, 255, 0.25);
-      border-color: #5b86e5;
-      box-shadow: 0 8px 24px rgba(91, 134, 229, 0.3),
-                  inset 0 2px 4px rgba(255, 255, 255, 0.3);
-    }
-
-    .upload-area i {
-      font-size: 40px;
-      color: #5b86e5;
-      margin-bottom: 15px;
-      transition: all 0.3s;
-    }
-
-    .upload-area:hover i,
-    .upload-area.active i {
-      transform: scale(1.1);
-    }
-
-    .upload-area h3 {
+    .text-input-area label {
+      display: block;
       color: #f0f0f0;
       margin-bottom: 10px;
-      font-size: 1.6rem;
-      font-weight: 500;
-    }
-
-    .upload-area p {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 1.1rem;
-    }
-
-    /* Hidden File Input */
-    .upload-area input[type="file"] {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-    }
-
-    /* Text Input Area */
-    .text-input-area {
-      margin: 20px 0;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      display: none;
-    }
-
-    .text-input-area h3 {
-      color: #f0f0f0;
-      margin-bottom: 15px;
       font-size: 1.2rem;
       font-weight: 500;
-      text-align: center;
     }
 
-    .text-input-container {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .text-input {
-      flex: 1;
-      padding: 12px 16px;
-      border-radius: 8px;
+    .text-input-area textarea {
+      width: 100%;
+      min-height: 120px;
+      background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.3);
-      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 12px;
       color: #f0f0f0;
       font-size: 1rem;
-      outline: none;
+      resize: vertical;
       transition: all 0.3s ease;
     }
 
-    .text-input:focus {
+    .text-input-area textarea:focus {
+      outline: none;
       border-color: #5b86e5;
       box-shadow: 0 0 0 2px rgba(91, 134, 229, 0.3);
+      background: rgba(255, 255, 255, 0.15);
     }
 
-    .text-input::placeholder {
-      color: rgba(255, 255, 255, 0.6);
+    .text-input-area .char-count {
+      text-align: right;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      margin-top: 8px;
     }
 
-    .text-preview {
-      margin-top: 15px;
-      padding: 15px;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 8px;
-      text-align: center;
-      display: none;
-    }
-
-    .text-preview h4 {
-      color: #f0f0f0;
-      margin-bottom: 10px;
-      font-size: 1rem;
-    }
-
-    .text-preview-canvas {
-      width: 200px;
-      height: 200px;
-      margin: 0 auto;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      background: #5b86e5;
+    /* Color Options */
+    .color-options {
       display: flex;
+      gap: 15px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .color-option {
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 15px;
+      gap: 8px;
     }
 
-    .text-preview-content {
-      color: white;
-      font-weight: 600;
-      text-align: center;
-      word-break: break-word;
-      max-width: 100%;
+    .color-option label {
+      color: #f0f0f0;
+      font-size: 0.9rem;
     }
 
-    /* File Info Display with Shine Effect */
-    .file-info {
-      color: white;
-      font-size: 1rem;
-      margin: 10px 0;
-      text-align: center;
-      word-break: break-all;
-      padding: 0 10px;
-      display: none;
-      font-weight: bold;
-      text-decoration: underline;
-      background: linear-gradient(90deg,
-                  rgba(255, 255, 255, 0) 0%,
-                  rgba(255, 255, 255, 0.8) 50%,
-                  rgba(255, 255, 255, 0) 100%);
-      background-size: 200% 100%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: shine 2s linear infinite;
-    }
-
-    @keyframes shine {
-      from {
-        background-position: 200% 0;
-      }
-      to {
-        background-position: -200% 0;
-      }
+    .color-option input[type="color"] {
+      width: 50px;
+      height: 40px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
     }
 
     /* Preview Container */
@@ -403,19 +310,6 @@
       display: none;
     }
 
-    /* Size Info Display */
-    .size-info {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 0.9rem;
-      margin: 10px 0;
-      text-align: center;
-      display: none;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
     /* Footer Styling */
     .footer {
       margin-top: 30px;
@@ -475,8 +369,8 @@
       .header h1 {
         font-size: 24px;
       }
-      .upload-area {
-        padding: 24px 16px;
+      .text-input-area {
+        padding: 16px;
       }
       .btn {
         width: 240px;
@@ -484,18 +378,12 @@
         font-size: 14px;
         padding: 12px 24px;
       }
-      .file-info {
-        font-size: 0.9rem;
+      .color-options {
+        justify-content: center;
       }
       .overlays-container {
         flex-direction: column;
         align-items: center;
-      }
-      .text-input-container {
-        flex-direction: column;
-      }
-      .text-input {
-        width: 100%;
       }
     }
   </style>
@@ -505,41 +393,29 @@
   <div class="container">
     <!-- Header Section -->
     <div class="header">
-      <h1><i class="fas fa-images"></i> Image Logo & Watermark Adder</h1>
-    </div>
-
-    <!-- Upload Area -->
-    <div class="upload-area" id="uploadArea">
-      <i class="fas fa-cloud-upload-alt"></i>
-      <h3>Upload Image</h3>
-      <p>Click here or drag and drop your image file</p>
-      <!-- Hidden File Input -->
-      <input type="file" id="imageUpload" accept="image/*">
+      <h1><i class="fas fa-square"></i> Text to Square Image Generator</h1>
     </div>
 
     <!-- Text Input Area -->
-    <div class="text-input-area" id="textInputArea">
-      <h3>Add Text Overlay</h3>
-      <div class="text-input-container">
-        <input type="text" id="textInput" class="text-input" placeholder="Enter text to display on image..." maxlength="100">
-        <button class="btn" id="updateTextBtn" style="width: auto; padding: 12px 20px;">
-          <i class="fas fa-sync-alt"></i>
-          <span>Update</span>
-        </button>
-      </div>
-      <div class="text-preview" id="textPreview">
-        <h4>Text Preview</h4>
-        <div class="text-preview-canvas">
-          <div class="text-preview-content" id="textPreviewContent"></div>
-        </div>
+    <div class="text-input-area">
+      <label for="textInput">Enter Your Text (Supports Hindi, English & Emojis)</label>
+      <textarea id="textInput" placeholder="Type your text here..."></textarea>
+      <div class="char-count">
+        <span id="charCount">0</span> characters
       </div>
     </div>
 
-    <!-- File Info Display -->
-    <p class="file-info" id="fileInfo"></p>
-
-    <!-- Size Info Display -->
-    <div class="size-info" id="sizeInfo"></div>
+    <!-- Color Options -->
+    <div class="color-options">
+      <div class="color-option">
+        <label for="bgColor">Background Color</label>
+        <input type="color" id="bgColor" value="#5b86e5">
+      </div>
+      <div class="color-option">
+        <label for="textColor">Text Color</label>
+        <input type="color" id="textColor" value="#ffffff">
+      </div>
+    </div>
 
     <!-- Image Preview Section -->
     <div class="preview-container" id="previewContainer">
@@ -552,7 +428,6 @@
       <!-- Logo Preview -->
       <div class="overlay-preview logo-preview">
         <h3>Logo (Top Right)</h3>
-        <!-- Replace with your actual logo file name -->
         <img id="uiLogo" src="vikas_jajim_logo.png" alt="Logo">
         <span>Logo will be added to the top right corner with high visibility</span>
       </div>
@@ -560,7 +435,6 @@
       <!-- Watermark Preview -->
       <div class="overlay-preview watermark-preview">
         <h3>Watermark (Center)</h3>
-        <!-- Replace with your actual watermark file name -->
         <img id="uiWatermark" src="vikas_jajim_watermark.png" alt="Watermark">
         <span>Watermark will be added to the center with low opacity</span>
       </div>
@@ -630,11 +504,11 @@
     // Main Application Logic
     document.addEventListener('DOMContentLoaded', () => {
       // DOM Element References
-      const uploadArea = document.getElementById('uploadArea');
-      const imageInput = document.getElementById('imageUpload');
+      const textInput = document.getElementById('textInput');
+      const charCount = document.getElementById('charCount');
+      const bgColor = document.getElementById('bgColor');
+      const textColor = document.getElementById('textColor');
       const downloadBtn = document.getElementById('downloadBtn');
-      const fileInfoDisplay = document.getElementById('fileInfo');
-      const sizeInfoDisplay = document.getElementById('sizeInfo');
       const previewContainer = document.getElementById('previewContainer');
       const imagePreview = document.getElementById('imagePreview');
       const overlaysContainer = document.getElementById('overlaysContainer');
@@ -642,70 +516,9 @@
       const progressBar = document.getElementById('progressBar');
       const uiLogoImg = document.getElementById('uiLogo');
       const uiWatermarkImg = document.getElementById('uiWatermark');
-      const textInputArea = document.getElementById('textInputArea');
-      const textInput = document.getElementById('textInput');
-      const updateTextBtn = document.getElementById('updateTextBtn');
-      const textPreview = document.getElementById('textPreview');
-      const textPreviewContent = document.getElementById('textPreviewContent');
 
       // Application State
-      let selectedImage = null;
       let vibrationInterval = null;
-      let originalImageDimensions = { width: 0, height: 0 };
-      let userText = '';
-
-      /**
-       * Format file size to human readable format
-       * @param {number} bytes - File size in bytes
-       * @returns {string} Formatted file size
-       */
-      function formatFileSize(bytes) {
-        if (bytes < 1024) return bytes + ' B';
-        else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
-        else return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-      }
-
-      /**
-       * Calculate optimal font size for text based on its length
-       * @param {string} text - The text to measure
-       * @param {number} maxWidth - Maximum width available
-       * @param {number} maxHeight - Maximum height available
-       * @returns {number} Optimal font size in pixels
-       */
-      function calculateOptimalFontSize(text, maxWidth, maxHeight) {
-        // Base size for very short text
-        let baseSize = Math.min(maxWidth, maxHeight) * 0.3;
-        
-        // Adjust based on text length
-        const length = text.length;
-        if (length > 50) baseSize *= 0.4;
-        else if (length > 30) baseSize *= 0.6;
-        else if (length > 20) baseSize *= 0.7;
-        else if (length > 10) baseSize *= 0.8;
-        
-        // Ensure minimum and maximum sizes
-        return Math.max(12, Math.min(baseSize, 72));
-      }
-
-      /**
-       * Update text preview with user input
-       */
-      function updateTextPreview() {
-        userText = textInput.value.trim();
-        
-        if (userText) {
-          textPreviewContent.textContent = userText;
-          textPreview.style.display = 'block';
-          
-          // Calculate and apply optimal font size
-          const canvasWidth = 200; // Width of the preview canvas
-          const canvasHeight = 200; // Height of the preview canvas
-          const optimalFontSize = calculateOptimalFontSize(userText, canvasWidth, canvasHeight);
-          textPreviewContent.style.fontSize = `${optimalFontSize}px`;
-        } else {
-          textPreview.style.display = 'none';
-        }
-      }
 
       /**
        * Start vibration on supported devices
@@ -728,11 +541,9 @@
 
       /**
        * Generate filename with timestamp
-       * @param {string} originalName - Original filename
        * @returns {string} Generated filename
        */
-      function generateFilename(originalName) {
-        let baseName = originalName.replace(/\.[^/.]+$/, "");
+      function generateFilename() {
         const now = new Date();
         const day = String(now.getDate()).padStart(2, '0');
         const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
@@ -743,124 +554,132 @@
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12 || 12; 
         hours = String(hours).padStart(2,'0');
-        return `${baseName}_branded_${day}_${month}_${year}_${hours}_${minutes}${ampm}.png`;
+        return `social_post_${day}_${month}_${year}_${hours}_${minutes}${ampm}.png`;
       }
 
       /**
-       * Reset file input to allow same file selection again
+       * Calculate optimal font size for text
+       * @param {string} text - Text to measure
+       * @param {number} maxWidth - Maximum width available
+       * @param {CanvasRenderingContext2D} ctx - Canvas context
+       * @returns {number} Optimal font size
        */
-      function resetFileInput() {
-        imageInput.value = '';
-      }
-
-      // Drag and Drop Event Handlers
-      ['dragenter','dragover'].forEach(ev => {
-        uploadArea.addEventListener(ev, e => { 
-          e.preventDefault(); 
-          uploadArea.classList.add('active'); 
-        });
-      });
-      
-      ['dragleave','drop'].forEach(ev => {
-        uploadArea.addEventListener(ev, e => { 
-          e.preventDefault(); 
-          uploadArea.classList.remove('active'); 
-        });
-      });
-
-      // Handle File Drop
-      uploadArea.addEventListener('drop', (e) => {
-        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
-          handleImageSelection(e.dataTransfer.files[0]);
-        }
-      });
-
-      // Click to Open File Selector - RESET Input First
-      uploadArea.addEventListener('click', () => {
-        resetFileInput();
-        imageInput.click();
-      });
-      
-      // Handle File Selection - FIXED: Now Works Every Time
-      imageInput.addEventListener('change', (e) => { 
-        if (e.target.files && e.target.files.length) {
-          handleImageSelection(e.target.files[0]);
-        }
-      });
-
-      // Handle Text Input Updates
-      updateTextBtn.addEventListener('click', updateTextPreview);
-      textInput.addEventListener('keyup', (e) => {
-        if (e.key === 'Enter') {
-          updateTextPreview();
-        }
-      });
-
-      /**
-       * Handle image selection and validation
-       * @param {File} file - Selected image file
-       */
-      function handleImageSelection(file) {
-        // Validate file type
-        if (!file.type.match('image.*')) {
-          alert('Please select an image file');
-          resetUIAfterError();
-          return;
-        }
+      function calculateOptimalFontSize(text, maxWidth, ctx) {
+        // Split text into lines for better measurement
+        const lines = text.split('\n');
+        let fontSize = 100; // Start with a large font size
         
-        // Update application state
-        selectedImage = file;
-        fileInfoDisplay.textContent = `${file.name} (${formatFileSize(file.size)})`;
-        fileInfoDisplay.style.display = 'block';
-        downloadBtn.disabled = false;
-        textInputArea.style.display = 'block';
-        startVibration();
-
-        // Create preview and get original dimensions
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const img = new Image();
-          img.onload = function() {
-            // Store original dimensions
-            originalImageDimensions.width = img.width;
-            originalImageDimensions.height = img.height;
-            
-            // Update size info
-            sizeInfoDisplay.textContent = `Original Size: ${img.width} × ${img.height} pixels | ${formatFileSize(file.size)}`;
-            sizeInfoDisplay.style.display = 'block';
-            
-            // Set preview image
-            imagePreview.src = e.target.result;
-            previewContainer.style.display = 'flex';
-            overlaysContainer.style.display = 'flex';
-          };
-          img.src = e.target.result;
-        }
-        reader.readAsDataURL(file);
+        // Reduce font size until all lines fit within the width
+        do {
+          fontSize -= 2;
+          ctx.font = `bold ${fontSize}px 'Inter', sans-serif`;
+          
+          // Check if any line exceeds the max width
+          const exceedsWidth = lines.some(line => {
+            const metrics = ctx.measureText(line);
+            return metrics.width > maxWidth * 0.9; // 90% of available width
+          });
+          
+          if (!exceedsWidth) break;
+        } while (fontSize > 20);
+        
+        return Math.max(fontSize, 20); // Minimum font size of 20px
       }
 
       /**
-       * Reset UI after error
+       * Wrap text into multiple lines
+       * @param {string} text - Text to wrap
+       * @param {number} maxWidth - Maximum width per line
+       * @param {CanvasRenderingContext2D} ctx - Canvas context
+       * @returns {Array} Array of text lines
        */
-      function resetUIAfterError() {
-        fileInfoDisplay.style.display = 'none';
-        sizeInfoDisplay.style.display = 'none';
-        previewContainer.style.display = 'none';
-        overlaysContainer.style.display = 'none';
-        textInputArea.style.display = 'none';
-        textPreview.style.display = 'none';
-        downloadBtn.disabled = true;
-        stopVibration();
-        selectedImage = null;
-        userText = '';
-        originalImageDimensions = { width: 0, height: 0 };
-        resetFileInput();
+      function wrapText(text, maxWidth, ctx) {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = words[0];
+
+        for (let i = 1; i < words.length; i++) {
+          const word = words[i];
+          const width = ctx.measureText(currentLine + " " + word).width;
+          if (width < maxWidth) {
+            currentLine += " " + word;
+          } else {
+            lines.push(currentLine);
+            currentLine = word;
+          }
+        }
+        lines.push(currentLine);
+        return lines;
+      }
+
+      // Text Input Event Handlers
+      textInput.addEventListener('input', () => {
+        const text = textInput.value.trim();
+        charCount.textContent = text.length;
+        
+        if (text.length > 0) {
+          downloadBtn.disabled = false;
+          previewContainer.style.display = 'flex';
+          overlaysContainer.style.display = 'flex';
+          startVibration();
+          updatePreview();
+        } else {
+          downloadBtn.disabled = true;
+          previewContainer.style.display = 'none';
+          overlaysContainer.style.display = 'none';
+          stopVibration();
+        }
+      });
+
+      // Color Change Event Handlers
+      bgColor.addEventListener('input', updatePreview);
+      textColor.addEventListener('input', updatePreview);
+
+      /**
+       * Update the preview image
+       */
+      function updatePreview() {
+        const text = textInput.value.trim();
+        if (!text) return;
+        
+        // Create a temporary canvas for preview
+        const canvas = document.createElement('canvas');
+        const previewSize = 300; // Preview size
+        canvas.width = previewSize;
+        canvas.height = previewSize;
+        const ctx = canvas.getContext('2d');
+        
+        // Draw background
+        ctx.fillStyle = bgColor.value;
+        ctx.fillRect(0, 0, previewSize, previewSize);
+        
+        // Draw text
+        ctx.fillStyle = textColor.value;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Calculate optimal font size for preview
+        const fontSize = calculateOptimalFontSize(text, previewSize, ctx);
+        ctx.font = `bold ${fontSize}px 'Inter', sans-serif`;
+        
+        // Wrap text and draw
+        const lines = wrapText(text, previewSize * 0.9, ctx);
+        const lineHeight = fontSize * 1.2;
+        const totalHeight = lines.length * lineHeight;
+        const startY = (previewSize - totalHeight) / 2 + fontSize / 2;
+        
+        lines.forEach((line, index) => {
+          ctx.fillText(line, previewSize / 2, startY + index * lineHeight);
+        });
+        
+        // Update preview image
+        imagePreview.src = canvas.toDataURL('image/png');
       }
 
       // Download Button Event Handler
       downloadBtn.addEventListener('click', () => {
         stopVibration();
-        addLogoAndWatermarkAndDownload();
+        generateAndDownloadImage();
       });
 
       /**
@@ -916,50 +735,14 @@
       }
 
       /**
-       * Draw text on a blue square canvas
-       * @param {CanvasRenderingContext2D} ctx - Canvas context
-       * @param {number} canvasWidth - Width of the main canvas
-       * @param {number} canvasHeight - Height of the main canvas
+       * Main processing function - generates square image with text, logo and watermark
        */
-      function drawTextCanvas(ctx, canvasWidth, canvasHeight) {
-        if (!userText) return;
+      async function generateAndDownloadImage() {
+        const text = textInput.value.trim();
         
-        // Calculate square size relative to image dimensions
-        const squareSize = Math.min(canvasWidth, canvasHeight) * 0.3;
-        const margin = Math.min(canvasWidth, canvasHeight) * 0.05;
-        const squareX = margin;
-        const squareY = margin;
-        
-        // Draw blue square background
-        ctx.fillStyle = '#5b86e5';
-        ctx.fillRect(squareX, squareY, squareSize, squareSize);
-        
-        // Calculate optimal font size for the text
-        const textPadding = squareSize * 0.1;
-        const textWidth = squareSize - (textPadding * 2);
-        const textHeight = squareSize - (textPadding * 2);
-        const fontSize = calculateOptimalFontSize(userText, textWidth, textHeight);
-        
-        // Configure text styling
-        ctx.fillStyle = 'white';
-        ctx.font = `bold ${fontSize}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        // Draw text in the center of the square
-        const textX = squareX + (squareSize / 2);
-        const textY = squareY + (squareSize / 2);
-        ctx.fillText(userText, textX, textY);
-      }
-
-      /**
-       * Main processing function - adds logo, watermark, and text then downloads
-       * Now preserves original image dimensions exactly
-       */
-      async function addLogoAndWatermarkAndDownload() {
-        // Validate selected image
-        if (!selectedImage) { 
-          alert('Please upload an image'); 
+        // Validate text input
+        if (!text) { 
+          alert('Please enter some text'); 
           return; 
         }
         
@@ -968,15 +751,41 @@
         updateProgress(0);
 
         try {
-          // Load uploaded image via object URL
-          const imgObjUrl = URL.createObjectURL(selectedImage);
-          const baseImage = await loadImage(imgObjUrl, false).catch(err => { 
-            throw new Error('Uploaded image could not be loaded: ' + err.message); 
-          });
-          updateProgress(25);
+          // Create canvas with square dimensions (1080x1080 for social media)
+          const canvas = document.createElement('canvas');
+          const size = 1080; // Standard square size for social media
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+
+          updateProgress(20);
+
+          // Draw background
+          ctx.fillStyle = bgColor.value;
+          ctx.fillRect(0, 0, size, size);
+
+          updateProgress(30);
+
+          // Draw text with dynamic font sizing
+          ctx.fillStyle = textColor.value;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
           
-          // Clean up object URL
-          URL.revokeObjectURL(imgObjUrl);
+          // Calculate optimal font size for final image
+          const fontSize = calculateOptimalFontSize(text, size, ctx);
+          ctx.font = `bold ${fontSize}px 'Inter', sans-serif`;
+          
+          // Wrap text and draw
+          const lines = wrapText(text, size * 0.9, ctx);
+          const lineHeight = fontSize * 1.2;
+          const totalHeight = lines.length * lineHeight;
+          const startY = (size - totalHeight) / 2 + fontSize / 2;
+          
+          lines.forEach((line, index) => {
+            ctx.fillText(line, size / 2, startY + index * lineHeight);
+          });
+
+          updateProgress(50);
 
           // Load logo and watermark images
           let logoImg = null;
@@ -996,7 +805,7 @@
             }
           }
 
-          updateProgress(50);
+          updateProgress(70);
 
           // Load watermark with error handling
           if (watermarkSrc) {
@@ -1008,30 +817,15 @@
             }
           }
 
-          updateProgress(70);
-
-          // Create canvas with EXACT original image dimensions
-          const canvas = document.createElement('canvas');
-          canvas.width = originalImageDimensions.width;
-          canvas.height = originalImageDimensions.height;
-          const ctx = canvas.getContext('2d');
-
-          // Draw base image at original size (no resizing)
-          ctx.globalAlpha = 1;
-          ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-
-          // Add text overlay if user has entered text
-          if (userText) {
-            drawTextCanvas(ctx, canvas.width, canvas.height);
-          }
+          updateProgress(80);
 
           // Add logo if available
           if (logoImg) {
-            // Calculate logo dimensions relative to original image size
-            const logoWidth = canvas.width * 0.15; // 15% of image width
+            // Calculate logo dimensions relative to image size
+            const logoWidth = size * 0.15; // 15% of image width
             const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
-            const margin = Math.min(canvas.width, canvas.height) * 0.02; // 2% margin
-            const logoX = canvas.width - logoWidth - margin;
+            const margin = size * 0.02; // 2% margin
+            const logoX = size - logoWidth - margin;
             const logoY = margin;
             
             // Draw logo with high visibility
@@ -1043,11 +837,11 @@
 
           // Add watermark if available, otherwise use text fallback
           if (watermarkImg) {
-            // Calculate watermark dimensions relative to original image size
-            const wmWidth = canvas.width * 0.25; // 25% of image width
+            // Calculate watermark dimensions relative to image size
+            const wmWidth = size * 0.25; // 25% of image width
             const wmHeight = (watermarkImg.height * wmWidth) / watermarkImg.width;
-            const wmX = (canvas.width - wmWidth) / 2;
-            const wmY = (canvas.height - wmHeight) / 2;
+            const wmX = (size - wmWidth) / 2;
+            const wmY = (size - wmHeight) / 2;
             
             // Draw watermark with low opacity
             ctx.globalAlpha = 0.3;
@@ -1056,18 +850,17 @@
             // Fallback text watermark
             ctx.globalAlpha = 0.15;
             const text = 'SAMPLE';
-            const fontSize = Math.floor(Math.min(canvas.width, canvas.height) / 10);
+            const fontSize = Math.floor(size / 10);
             ctx.font = `${fontSize}px sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillStyle = 'white';
-            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+            ctx.fillText(text, size / 2, size / 2);
           }
 
           updateProgress(90);
 
           // Convert canvas to data URL and download
-          // Use original image quality settings
           let dataURL;
           try {
             dataURL = canvas.toDataURL('image/png');
@@ -1082,7 +875,7 @@
           // Create download link and trigger download
           const a = document.createElement('a');
           a.href = dataURL;
-          a.download = generateFilename(selectedImage.name || 'image.png');
+          a.download = generateFilename();
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -1097,119 +890,112 @@
             progressContainer.style.display = 'none';
             progressBar.style.width = '0%';
             downloadBtn.disabled = false;
-            // Reset file input to allow same file selection again
-            resetFileInput();
           }, 400);
           
         } catch (error) {
           // Error handling
           console.error('Error in processing:', error);
-          alert('Error adding logo/watermark — see console for details. ' + 
+          alert('Error generating image — see console for details. ' + 
                 (error && error.message ? error.message : ''));
           
           // Reset UI
           progressContainer.style.display = 'none';
           progressBar.style.width = '0%';
           downloadBtn.disabled = false;
-          resetFileInput();
         }
       }
-
-      // Initialize file input
-      resetFileInput();
     });
   </script>
 
-<!-- Floating Fullscreen Toggle Button (CSS + JS in one block) -->
-<script>
-(function(){
-  /* === Inject CSS === */
-  const css = `
-  .floating-fs-btn {
-    position: fixed;
-    top: 18px;
-    right: 18px;
-    z-index: 999999;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    backdrop-filter: blur(8px);
-    cursor: pointer;
-    transition: all 0.35s cubic-bezier(.4,.2,.2,1);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-    animation: fsFloat 5.5s ease-in-out infinite;
-  }
-  .floating-fs-btn:hover {
-    transform: translateY(-4px) scale(1.1) rotate(6deg);
-    box-shadow: 0 0 15px rgba(91,134,229,0.4), 0 0 25px rgba(91,134,229,0.25);
-  }
-  .floating-fs-btn.is-fullscreen {
-    animation: fsPulse 1.8s ease-in-out infinite;
-    box-shadow: 0 0 20px rgba(91,134,229,0.55), 0 0 35px rgba(91,134,229,0.35);
-  }
-  @keyframes fsFloat {
-    0% { transform: translateY(0) rotate(0); }
-    50% { transform: translateY(-6px) rotate(1deg); }
-    100% { transform: translateY(0) rotate(0); }
-  }
-  @keyframes fsPulse {
-    0%,100% { transform: scale(1); opacity: 0.9; }
-    50% { transform: scale(1.15); opacity: 1; }
-  }
-  .floating-fs-btn svg {
-    width: 22px;
-    height: 22px;
-    fill: currentColor;
-    transition: transform 0.3s ease;
-  }
-  @media(max-width:480px){
-    .floating-fs-btn{top:12px;right:12px;width:42px;height:42px;}
-  }`;
-  const s=document.createElement('style');
-  s.textContent=css;
-  document.head.appendChild(s);
+  <!-- Floating Fullscreen Toggle Button -->
+  <script>
+    (function(){
+      /* === Inject CSS === */
+      const css = `
+      .floating-fs-btn {
+        position: fixed;
+        top: 18px;
+        right: 18px;
+        z-index: 999999;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        backdrop-filter: blur(8px);
+        cursor: pointer;
+        transition: all 0.35s cubic-bezier(.4,.2,.2,1);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+        animation: fsFloat 5.5s ease-in-out infinite;
+      }
+      .floating-fs-btn:hover {
+        transform: translateY(-4px) scale(1.1) rotate(6deg);
+        box-shadow: 0 0 15px rgba(91,134,229,0.4), 0 0 25px rgba(91,134,229,0.25);
+      }
+      .floating-fs-btn.is-fullscreen {
+        animation: fsPulse 1.8s ease-in-out infinite;
+        box-shadow: 0 0 20px rgba(91,134,229,0.55), 0 0 35px rgba(91,134,229,0.35);
+      }
+      @keyframes fsFloat {
+        0% { transform: translateY(0) rotate(0); }
+        50% { transform: translateY(-6px) rotate(1deg); }
+        100% { transform: translateY(0) rotate(0); }
+      }
+      @keyframes fsPulse {
+        0%,100% { transform: scale(1); opacity: 0.9; }
+        50% { transform: scale(1.15); opacity: 1; }
+      }
+      .floating-fs-btn svg {
+        width: 22px;
+        height: 22px;
+        fill: currentColor;
+        transition: transform 0.3s ease;
+      }
+      @media(max-width:480px){
+        .floating-fs-btn{top:12px;right:12px;width:42px;height:42px;}
+      }`;
+      const s=document.createElement('style');
+      s.textContent=css;
+      document.head.appendChild(s);
 
-  /* === Create floating button === */
-  const btn=document.createElement('button');
-  btn.className='floating-fs-btn';
-  btn.id='floatingFullscreen';
-  btn.title='Enter Fullscreen';
-  btn.setAttribute('aria-label','Toggle fullscreen');
-  btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4h2V5h4V3zm6 0v2h4v4h2V5a2 2 0 0 0-2-2h-4zM5 15H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 0h-2v4h-4v2h4a2 2 0 0 0 2-2v-4z"/></svg>`;
-  document.body.appendChild(btn);
-
-  /* === Fullscreen helpers === */
-  const path=btn.querySelector('path');
-  function isFull(){return !!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement);}
-  function enterFull(){const el=document.documentElement;return el.requestFullscreen?.()||el.webkitRequestFullscreen?.()||el.mozRequestFullScreen?.()||el.msRequestFullscreen?.();}
-  function exitFull(){return document.exitFullscreen?.()||document.webkitExitFullscreen?.()||document.mozCancelFullScreen?.()||document.msExitFullscreen?.();}
-  
-  btn.onclick=async()=>{
-    try{ if(!isFull()) await enterFull(); else await exitFull(); }catch(e){console.error(e);}
-  };
-
-  function updateIcon(){
-    if(isFull()){
-      btn.classList.add('is-fullscreen');
-      btn.title='Exit Fullscreen';
-      path.setAttribute('d','M16 14h2v4h-4v2h4a2 2 0 0 0 2-2v-4h-2v2h-2v-2zm-8 0H6v2H4v-4a2 2 0 0 1 2-2h4v2H8v2h0zM8 6h2V4H6v4h2V6zm8 0v2h2V6h-2z');
-    } else {
-      btn.classList.remove('is-fullscreen');
+      /* === Create floating button === */
+      const btn=document.createElement('button');
+      btn.className='floating-fs-btn';
+      btn.id='floatingFullscreen';
       btn.title='Enter Fullscreen';
-      path.setAttribute('d','M9 3H5a2 2 0 0 0-2 2v4h2V5h4V3zm6 0v2h4v4h2V5a2 2 0 0 0-2-2h-4zM5 15H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 0h-2v4h-4v2h4a2 2 0 0 0 2-2v-4z');
-    }
-  }
-  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(ev=>{
-    document.addEventListener(ev,updateIcon);
-  });
-})();
-</script>
-  
+      btn.setAttribute('aria-label','Toggle fullscreen');
+      btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4h2V5h4V3zm6 0v2h4v4h2V5a2 2 0 0 0-2-2h-4zM5 15H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 0h-2v4h-4v2h4a2 2 0 0 0 2-2v-4z"/></svg>`;
+      document.body.appendChild(btn);
+
+      /* === Fullscreen helpers === */
+      const path=btn.querySelector('path');
+      function isFull(){return !!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement);}
+      function enterFull(){const el=document.documentElement;return el.requestFullscreen?.()||el.webkitRequestFullscreen?.()||el.mozRequestFullScreen?.()||el.msRequestFullscreen?.();}
+      function exitFull(){return document.exitFullscreen?.()||document.webkitExitFullscreen?.()||document.mozCancelFullScreen?.()||document.msExitFullscreen?.();}
+      
+      btn.onclick=async()=>{
+        try{ if(!isFull()) await enterFull(); else await exitFull(); }catch(e){console.error(e);}
+      };
+
+      function updateIcon(){
+        if(isFull()){
+          btn.classList.add('is-fullscreen');
+          btn.title='Exit Fullscreen';
+          path.setAttribute('d','M16 14h2v4h-4v2h4a2 2 0 0 0 2-2v-4h-2v2h-2v-2zm-8 0H6v2H4v-4a2 2 0 0 1 2-2h4v2H8v2h0zM8 6h2V4H6v4h2V6zm8 0v2h2V6h-2z');
+        } else {
+          btn.classList.remove('is-fullscreen');
+          btn.title='Enter Fullscreen';
+          path.setAttribute('d','M9 3H5a2 2 0 0 0-2 2v4h2V5h4V3zm6 0v2h4v4h2V5a2 2 0 0 0-2-2h-4zM5 15H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 0h-2v4h-4v2h4a2 2 0 0 0 2-2v-4z');
+        }
+      }
+      ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(ev=>{
+        document.addEventListener(ev,updateIcon);
+      });
+    })();
+  </script>
 </body>
 </html>
