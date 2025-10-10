@@ -559,14 +559,12 @@
 
       /**
        * Calculate optimal font size for text
-       * @param {string} text - Text to measure
+       * @param {Array} lines - Array of text lines
        * @param {number} maxWidth - Maximum width available
        * @param {CanvasRenderingContext2D} ctx - Canvas context
        * @returns {number} Optimal font size
        */
-      function calculateOptimalFontSize(text, maxWidth, ctx) {
-        // Split text into lines for better measurement
-        const lines = text.split('\n');
+      function calculateOptimalFontSize(lines, maxWidth, ctx) {
         let fontSize = 100; // Start with a large font size
         
         // Reduce font size until all lines fit within the width
@@ -584,32 +582,6 @@
         } while (fontSize > 20);
         
         return Math.max(fontSize, 20); // Minimum font size of 20px
-      }
-
-      /**
-       * Wrap text into multiple lines
-       * @param {string} text - Text to wrap
-       * @param {number} maxWidth - Maximum width per line
-       * @param {CanvasRenderingContext2D} ctx - Canvas context
-       * @returns {Array} Array of text lines
-       */
-      function wrapText(text, maxWidth, ctx) {
-        const words = text.split(' ');
-        const lines = [];
-        let currentLine = words[0];
-
-        for (let i = 1; i < words.length; i++) {
-          const word = words[i];
-          const width = ctx.measureText(currentLine + " " + word).width;
-          if (width < maxWidth) {
-            currentLine += " " + word;
-          } else {
-            lines.push(currentLine);
-            currentLine = word;
-          }
-        }
-        lines.push(currentLine);
-        return lines;
       }
 
       // Text Input Event Handlers
@@ -658,16 +630,19 @@
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
+        // Split text by lines (preserve user's line breaks)
+        const lines = text.split('\n');
+        
         // Calculate optimal font size for preview
-        const fontSize = calculateOptimalFontSize(text, previewSize, ctx);
+        const fontSize = calculateOptimalFontSize(lines, previewSize, ctx);
         ctx.font = `bold ${fontSize}px 'Inter', sans-serif`;
         
-        // Wrap text and draw
-        const lines = wrapText(text, previewSize * 0.9, ctx);
+        // Calculate line height and total height
         const lineHeight = fontSize * 1.2;
         const totalHeight = lines.length * lineHeight;
         const startY = (previewSize - totalHeight) / 2 + fontSize / 2;
         
+        // Draw each line exactly as the user typed
         lines.forEach((line, index) => {
           ctx.fillText(line, previewSize / 2, startY + index * lineHeight);
         });
@@ -771,16 +746,19 @@
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           
+          // Split text by lines (preserve user's line breaks)
+          const lines = text.split('\n');
+          
           // Calculate optimal font size for final image
-          const fontSize = calculateOptimalFontSize(text, size, ctx);
+          const fontSize = calculateOptimalFontSize(lines, size, ctx);
           ctx.font = `bold ${fontSize}px 'Inter', sans-serif`;
           
-          // Wrap text and draw
-          const lines = wrapText(text, size * 0.9, ctx);
+          // Calculate line height and total height
           const lineHeight = fontSize * 1.2;
           const totalHeight = lines.length * lineHeight;
           const startY = (size - totalHeight) / 2 + fontSize / 2;
           
+          // Draw each line exactly as the user typed
           lines.forEach((line, index) => {
             ctx.fillText(line, size / 2, startY + index * lineHeight);
           });
