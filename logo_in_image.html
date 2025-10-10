@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Text to Square Image Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+      min-height: 100vh; display:flex; justify-content:center; align-items:center; padding:24px;
+      color:#f0f0f0;
+      background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)), url('images/background.jpg');
+      background-size:cover; background-position:center; background-attachment:fixed;
+    }
+    .container {
+      width:100%; max-width:900px; background: rgba(255,255,255,0.15); backdrop-filter: blur(16px);
+      border-radius:20px; box-shadow:0 8px 32px rgba(0,0,0,0.2); overflow:hidden; border:1px solid rgba(255,255,255,0.3);
+      transition: transform .3s; padding:24px;
+    }
+    .header { padding:18px; text-align:center; background: rgba(255,255,255,0.03); border-bottom:1px solid rgba(255,255,255,0.3); margin-bottom:18px; border-radius:12px; }
+    .header h1 { font-size:26px; font-weight:600; color:#f0f0f0; display:flex; gap:12px; align-items:center; justify-content:center; }
+    .text-input-area { border:2px solid rgba(255,255,255,0.14); border-radius:12px; padding:16px; background:rgba(255,255,255,0.04); margin-bottom:18px; }
+    .text-input-area label { display:block; color:#f0f0f0; margin-bottom:10px; font-size:1.05rem; font-weight:500; }
+    .text-input-area textarea {
+      width:100%; min-height:72px; max-height:60vh; overflow:hidden; resize:none; background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px; color:#f0f0f0; font-size:1rem; line-height:1.3; font-family:inherit;
+      white-space: pre-wrap;
+    }
+    .text-input-area textarea:focus { outline:none; border-color:#5b86e5; box-shadow:0 0 0 4px rgba(91,134,229,0.08); }
+    .char-count { text-align:right; color:rgba(255,255,255,0.7); font-size:0.9rem; margin-top:8px; }
+    .color-options { display:flex; gap:15px; margin-bottom:18px; flex-wrap:wrap; }
+    .color-option { display:flex; flex-direction:column; align-items:center; gap:8px; }
+    .color-option input[type="color"] { width:50px; height:40px; border:2px solid rgba(255,255,255,0.12); border-radius:8px; cursor:pointer; background:transparent; }
+    
+    /* Upload Area Styles */
+    .upload-area {
+      border: 2px dashed rgba(255, 255, 255, 0.4);
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2),
+                  inset 0 1px 2px rgba(255, 255, 255, 0.3);
+      margin-bottom: 18px;
+    }
+    .upload-area:hover,
+    .upload-area.active {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: #5b86e5;
+      box-shadow: 0 8px 24px rgba(91, 134, 229, 0.3),
+                  inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+    .upload-area i {
+      font-size: 40px;
+      color: #5b86e5;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+    }
+    .upload-area:hover i,
+    .upload-area.active i {
+      transform: scale(1.1);
+    }
+    .upload-area h3 {
+      color: #f0f0f0;
+      margin-bottom: 10px;
+      font-size: 1.6rem;
+      font-weight: 500;
+    }
+    .upload-area p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+    }
+    .upload-area input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .file-info {
+      color: white;
+      font-size: 1rem;
+      margin: 10px 0;
+      text-align: center;
+      word-break: break-all;
+      padding: 0 10px;
+      display: none;
+      font-weight: bold;
+      text-decoration: underline;
+      background: linear-gradient(90deg,
+                  rgba(255, 255, 255, 0) 0%,
+                  rgba(255, 255, 255, 0.8) 50%,
+                  rgba(255, 255, 255, 0) 100%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 2s linear infinite;
+    }
+    @keyframes shine {
+      from {
+        background-position: 200% 0;
+      }
+      to {
+        background-position: -200% 0;
+      }
+    }
+    .size-info {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      margin: 10px 0;
+      text-align: center;
+      display: none;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .preview-container { display:flex; flex-direction:column; align-items:center; margin:16px 0; display:none; }
+    .image-preview { max-width:100%; max-height:300px; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.3); border:2px solid rgba(255,255,255,0.12); }
+    .overlays-container { display:flex; justify-content:space-around; flex-wrap:wrap; margin:20px 0; display:none; gap:20px; }
+    .overlay-preview { display:flex; flex-direction:column; align-items:center; text-align:center; background:rgba(255,255,255,0.03); padding:12px; border-radius:12px; width:200px; }
+    .progress-container { width:100%; height:8px; background: rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; margin-top:12px; display:none; }
+    .progress-bar { width:0; height:100%; background: linear-gradient(90deg,#5b86e5,#36d1dc); transition: width 0.3s ease; }
+    .btn { background: rgba(255,255,255,0.12); backdrop-filter: blur(8px); color:#f0f0f0; border:1px solid rgba(255,255,255,0.14); padding:12px 28px; border-radius:28px; width:260px; height:54px; font-size:15px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; margin:18px auto 0; }
+    .btn:disabled { opacity:0.5; cursor:not-allowed; }
+    .footer { margin-top:18px; text-align:center; color:rgba(255,255,255,0.7); font-size:14px; padding:12px; border-top:1px solid rgba(255,255,255,0.06); }
+    @media (max-width:768px) { .container { padding:16px; } .header h1 { font-size:22px; } .btn { width:220px; height:50px; font-size:14px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-square"></i> Text to Square Image Generator</h1>
+    </div>
+
+    <!-- Text Input Section -->
+    <div class="text-input-area">
+      <label for="textInput">Enter Your Text (Supports Hindi, English & Emojis)</label>
+      <textarea id="textInput" placeholder="Type your text here..." aria-label="Text input"></textarea>
+      <div class="char-count"><span id="charCount">0</span> characters</div>
+    </div>
+
+    <!-- Upload Area -->
+    <div class="upload-area" id="uploadArea">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <h3>Or Upload an Image</h3>
+      <p>Click here or drag and drop your image file</p>
+      <input type="file" id="imageUpload" accept="image/*">
+    </div>
+    
+    <!-- File Info Display -->
+    <p class="file-info" id="fileInfo"></p>
+    <div class="size-info" id="sizeInfo"></div>
+
+    <div class="color-options">
+      <div class="color-option">
+        <label for="bgColor">Background Color</label>
+        <input type="color" id="bgColor" value="#071E3A">
+      </div>
+      <div class="color-option">
+        <label for="textColor">Text Color</label>
+        <input type="color" id="textColor" value="#ffffff">
+      </div>
+    </div>
+
+    <div class="preview-container" id="previewContainer">
+      <div class="preview-title">Image Preview</div>
+      <img id="imagePreview" class="image-preview" src="" alt="Image Preview">
+    </div>
+
+    <div class="overlays-container" id="overlaysContainer">
+      <div class="overlay-preview logo-preview">
+        <h3>Logo (Top Right)</h3>
+        <img id="uiLogo" src="vikas_jajim_logo.png" alt="Logo" style="width:120px;height:60px;object-fit:contain;">
+        <span>Logo will be added to the top right corner</span>
+      </div>
+
+      <div class="overlay-preview watermark-preview">
+        <h3>Watermark (Center)</h3>
+        <img id="uiWatermark" src="vikas_jajim_watermark.png" alt="Watermark" style="width:120px;height:60px;object-fit:contain;">
+        <span>Watermark will be added to the center with low opacity</span>
+      </div>
+
+      <!-- New bottom-center brand preview -->
+      <div class="overlay-preview bottom-brand-preview">
+        <h3>Brand (Bottom Center)</h3>
+        <img id="uiBottomBrand" src="bottomlogo.png" alt="Bottom Brand" style="width:140px;height:48px;object-fit:contain;">
+        <span>Will be added bottom-center, full opacity, small size</span>
+      </div>
+    </div>
+
+    <div class="progress-container" id="progressContainer"><div class="progress-bar" id="progressBar"></div></div>
+
+    <button class="btn" id="downloadBtn" disabled><i class="fas fa-download"></i><span>Download Image</span></button>
+
+    <div class="footer">
+      <div class="footer-text">Secure • Free • Professional | Made with <span style="color:#ff4d4d;">❤️</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" style="color:#5b86e5; text-decoration:none;">Sandeep</a></div>
+    </div>
+  </div>
+
+  <!-- Back Button -->
+  <button type="button" title="Back" aria-label="Go back" onclick="(function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })();" style="position: fixed; top: 14px; left: 14px; z-index: 2147483647; width: 52px; height: 52px; padding: 0; border-radius: 50%; border: none; background: linear-gradient(180deg, #ffffff, #f2f2f2); box-shadow: 0 4px 12px rgba(0,0,0,0.18); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; backdrop-filter: blur(6px); opacity: 0.98;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M15 18l-6-6 6-6" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  </button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // DOM Element References
+      const textInput = document.getElementById('textInput');
+      const charCount = document.getElementById('charCount');
+      const bgColor = document.getElementById('bgColor');
+      const textColor = document.getElementById('textColor');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const previewContainer = document.getElementById('previewContainer');
+      const imagePreview = document.getElementById('imagePreview');
+      const overlaysContainer = document.getElementById('overlaysContainer');
+      const progressContainer = document.getElementById('progressContainer');
+      const progressBar = document.getElementById('progressBar');
+      const uiLogoImg = document.getElementById('uiLogo');
+      const uiWatermarkImg = document.getElementById('uiWatermark');
+      const uiBottomBrandImg = document.getElementById('uiBottomBrand'); // NEW
+      
+      // Upload-related elements
+      const uploadArea = document.getElementById('uploadArea');
+      const imageInput = document.getElementById('imageUpload');
+      const fileInfoDisplay = document.getElementById('fileInfo');
+      const sizeInfoDisplay = document.getElementById('sizeInfo');
+      
+      // Application State
+      let currentMode = 'text'; // 'text' or 'image'
+      let selectedImage = null;
+      let vibrationInterval = null;
+      let originalImageDimensions = { width: 0, height: 0 };
+
+      // Format file size to human readable format
+      function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+        else return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+      }
+
+      // Reset file input to allow same file selection again
+      function resetFileInput() {
+        imageInput.value = '';
+      }
+
+      // Drag and Drop Event Handlers
+      ['dragenter','dragover'].forEach(ev => {
+        uploadArea.addEventListener(ev, e => { 
+          e.preventDefault(); 
+          uploadArea.classList.add('active'); 
+        });
+      });
+      
+      ['dragleave','drop'].forEach(ev => {
+        uploadArea.addEventListener(ev, e => { 
+          e.preventDefault(); 
+          uploadArea.classList.remove('active'); 
+        });
+      });
+
+      // Handle File Drop
+      uploadArea.addEventListener('drop', (e) => {
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+          handleImageSelection(e.dataTransfer.files[0]);
+        }
+      });
+
+      // Click to Open File Selector - RESET Input First
+      uploadArea.addEventListener('click', () => {
+        resetFileInput();
+        imageInput.click();
+      });
+      
+      // Handle File Selection - FIXED: Now Works Every Time
+      imageInput.addEventListener('change', (e) => { 
+        if (e.target.files && e.target.files.length) {
+          handleImageSelection(e.target.files[0]);
+        }
+      });
+
+      /**
+       * Handle image selection and validation
+       * @param {File} file - Selected image file
+       */
+      function handleImageSelection(file) {
+        // Validate file type
+        if (!file.type.match('image.*')) {
+          alert('Please select an image file');
+          resetUIAfterError();
+          return;
+        }
+        
+        // Update application state
+        selectedImage = file;
+        currentMode = 'image';
+        fileInfoDisplay.textContent = `${file.name} (${formatFileSize(file.size)})`;
+        fileInfoDisplay.style.display = 'block';
+        downloadBtn.disabled = false;
+        startVibration();
+
+        // Create preview and get original dimensions
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            // Store original dimensions
+            originalImageDimensions.width = img.width;
+            originalImageDimensions.height = img.height;
+            
+            // Update size info
+            sizeInfoDisplay.textContent = `Original Size: ${img.width} × ${img.height} pixels | ${formatFileSize(file.size)}`;
+            sizeInfoDisplay.style.display = 'block';
+            
+            // Set preview image
+            imagePreview.src = e.target.result;
+            previewContainer.style.display = 'flex';
+            overlaysContainer.style.display = 'flex';
+          };
+          img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+
+      /**
+       * Reset UI after error
+       */
+      function resetUIAfterError() {
+        fileInfoDisplay.style.display = 'none';
+        sizeInfoDisplay.style.display = 'none';
+        previewContainer.style.display = 'none';
+        overlaysContainer.style.display = 'none';
+        downloadBtn.disabled = true;
+        stopVibration();
+        selectedImage = null;
+        originalImageDimensions = { width: 0, height: 0 };
+        resetFileInput();
+      }
+
+      function startVibration(){ if('vibrate' in navigator){ vibrationInterval = setInterval(()=>navigator.vibrate(50),2000); } }
+      function stopVibration(){ if(vibrationInterval){ clearInterval(vibrationInterval); vibrationInterval = null; } }
+
+      function generateFilename(){
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2,'0');
+        const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        const month = months[now.getMonth()];
+        const year = now.getFullYear();
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2,'0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+        hours = String(hours).padStart(2,'0');
+        
+        if (currentMode === 'image' && selectedImage) {
+          let baseName = selectedImage.name.replace(/\.[^/.]+$/, "");
+          return `${baseName}_branded_${day}_${month}_${year}_${hours}_${minutes}${ampm}.png`;
+        } else {
+          return `social_post_${day}_${month}_${year}_${hours}_${minutes}${ampm}.png`;
+        }
+      }
+
+      function wrapLineToWidth(line, ctx, maxWidth) {
+        if (!line) return [''];
+        if (ctx.measureText(line).width <= maxWidth) return [line];
+        const words = line.split(' ');
+        const wrapped = [];
+        let current = '';
+        for (let i = 0; i < words.length; i++) {
+          const word = words[i];
+          const test = current ? (current + ' ' + word) : word;
+          const w = ctx.measureText(test).width;
+          if (w <= maxWidth) {
+            current = test;
+          } else {
+            if (current) {
+              wrapped.push(current);
+              current = word;
+              if (ctx.measureText(word).width > maxWidth) {
+                let buf = '';
+                for (const ch of word) {
+                  const t = buf + ch;
+                  if (ctx.measureText(t).width <= maxWidth) { buf = t; } else { if (buf) wrapped.push(buf); buf = ch; }
+                }
+                if (buf) current = buf; else current = '';
+              }
+            } else {
+              let buf = '';
+              for (const ch of word) {
+                const t = buf + ch;
+                if (ctx.measureText(t).width <= maxWidth) { buf = t; } else { if (buf) wrapped.push(buf); buf = ch; }
+              }
+              if (buf) current = buf;
+            }
+          }
+        }
+        if (current) wrapped.push(current);
+        return wrapped;
+      }
+
+      function getWrappedLinesFromText(rawText, ctx, maxWidth) {
+        const logicalLines = rawText.split('\n');
+        let finalLines = [];
+        logicalLines.forEach((ln, idx) => {
+          const wrapped = wrapLineToWidth(ln, ctx, maxWidth);
+          finalLines = finalLines.concat(wrapped);
+          if (ln === '' && idx !== logicalLines.length - 1) {
+            finalLines.push('');
+          }
+        });
+        return finalLines;
+      }
+
+      function calculateOptimalFontSizeForText(rawText, maxWidth, maxHeight, ctx, initial = 100) {
+        let fontSize = initial;
+        while (fontSize >= 18) {
+          ctx.font = `bold ${fontSize}px 'Noto Sans Devanagari', 'Inter', sans-serif`;
+          const lines = getWrappedLinesFromText(rawText, ctx, maxWidth);
+          const lineHeight = fontSize * 1.28;
+          const totalHeight = lines.length * lineHeight;
+          const widest = lines.reduce((m, l) => Math.max(m, ctx.measureText(l).width), 0);
+          if (totalHeight <= maxHeight && widest <= maxWidth * 0.98) {
+            return { fontSize, lines, lineHeight };
+          }
+          fontSize -= 2;
+        }
+        ctx.font = `bold 18px 'Noto Sans Devanagari', 'Inter', sans-serif`;
+        const lines = getWrappedLinesFromText(rawText, ctx, maxWidth);
+        const lineHeight = 18 * 1.28;
+        return { fontSize: 18, lines, lineHeight };
+      }
+
+      function autoResizeTextarea(el) {
+        el.style.height = 'auto';
+        el.style.height = (el.scrollHeight + 2) + 'px';
+      }
+
+      function updatePreview() {
+        const text = textInput.value;
+        if (!text) return;
+        const canvas = document.createElement('canvas');
+        const previewSize = 640;
+        canvas.width = previewSize; canvas.height = previewSize;
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = bgColor.value;
+        ctx.fillRect(0,0,previewSize,previewSize);
+
+        ctx.fillStyle = textColor.value;
+        // IMPORTANT: left alignment as requested
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+
+        const logoAreaHeight = previewSize * 0.18;
+        const availableHeight = previewSize - logoAreaHeight - (previewSize * 0.06);
+        const paddingSides = previewSize * 0.10; // left padding
+        const maxTextWidth = previewSize - paddingSides * 2;
+
+        const { fontSize, lines, lineHeight } = calculateOptimalFontSizeForText(text, maxTextWidth, availableHeight, ctx, 54);
+        ctx.font = `bold ${fontSize}px 'Noto Sans Devanagari', 'Inter', sans-serif`;
+
+        const totalHeight = lines.length * lineHeight;
+        const startY = logoAreaHeight + (availableHeight - totalHeight) / 2;
+        const startX = paddingSides; // left-aligned start
+
+        ctx.fillStyle = textColor.value;
+        ctx.globalAlpha = 1;
+        lines.forEach((line, i) => {
+          if (line === '') {
+            // blank line; skip drawing but preserve space
+          } else {
+            ctx.fillText(line, startX, startY + i * lineHeight);
+          }
+        });
+
+        // draw bottom brand in preview (if available)
+        try {
+          if (uiBottomBrandImg && uiBottomBrandImg.src) {
+            const brandImg = new Image();
+            brandImg.src = uiBottomBrandImg.src;
+            brandImg.onload = () => {
+              const brandWidth = previewSize * 0.18;
+              const brandHeight = (brandImg.height * brandWidth) / brandImg.width;
+              const marginBottom = previewSize * 0.02;
+              const brandX = (previewSize - brandWidth) / 2;
+              const brandY = previewSize - brandHeight - marginBottom;
+              ctx.globalAlpha = 1.0;
+              ctx.drawImage(brandImg, brandX, brandY, brandWidth, brandHeight);
+              imagePreview.src = canvas.toDataURL('image/png');
+            };
+            brandImg.onerror = () => { imagePreview.src = canvas.toDataURL('image/png'); };
+          } else {
+            imagePreview.src = canvas.toDataURL('image/png');
+          }
+        } catch (e) {
+          imagePreview.src = canvas.toDataURL('image/png');
+        }
+      }
+
+      textInput.addEventListener('input', () => {
+        const text = textInput.value;
+        charCount.textContent = text.length;
+        autoResizeTextarea(textInput);
+        if (text.trim().length > 0) {
+          currentMode = 'text';
+          fileInfoDisplay.style.display = 'none';
+          sizeInfoDisplay.style.display = 'none';
+          selectedImage = null;
+          downloadBtn.disabled = false;
+          previewContainer.style.display = 'flex';
+          overlaysContainer.style.display = 'flex';
+          startVibration();
+          updatePreview();
+        } else {
+          downloadBtn.disabled = true;
+          previewContainer.style.display = 'none';
+          overlaysContainer.style.display = 'none';
+          stopVibration();
+        }
+      });
+
+      autoResizeTextarea(textInput);
+      bgColor.addEventListener('input', updatePreview);
+      textColor.addEventListener('input', updatePreview);
+
+      downloadBtn.addEventListener('click', () => { 
+        stopVibration(); 
+        if (currentMode === 'image') {
+          addLogoAndWatermarkAndDownload();
+        } else {
+          generateAndDownloadImage();
+        }
+      });
+
+      function updateProgress(percent) { progressContainer.style.display = 'block'; progressBar.style.width = `${percent}%`; }
+
+      function loadImage(src, useCrossOrigin = true, timeout = 7000) {
+        return new Promise((resolve, reject) => {
+          if (!src) return reject(new Error('No src provided'));
+          const img = new Image();
+          if (useCrossOrigin) img.crossOrigin = 'anonymous';
+          let done = false;
+          const t = setTimeout(() => { if (!done) { done = true; img.onload = img.onerror = null; reject(new Error('Image load timed out: ' + src)); } }, timeout);
+          img.onload = () => { if (done) return; done = true; clearTimeout(t); resolve(img); };
+          img.onerror = () => { if (done) return; done = true; clearTimeout(t); reject(new Error('Failed to load image: ' + src)); };
+          img.src = src;
+        });
+      }
+
+      async function generateAndDownloadImage() {
+        const text = textInput.value;
+        if (!text) { alert('Please enter some text'); return; }
+
+        downloadBtn.disabled = true;
+        updateProgress(0);
+
+        try {
+          const canvas = document.createElement('canvas');
+          const size = 1080;
+          canvas.width = size; canvas.height = size;
+          const ctx = canvas.getContext('2d');
+
+          updateProgress(15);
+          ctx.fillStyle = bgColor.value; ctx.fillRect(0,0,size,size);
+          updateProgress(28);
+
+          let logoImg = null, watermarkImg = null, bottomBrandImg = null;
+          const logoSrc = uiLogoImg && uiLogoImg.src ? uiLogoImg.src : null;
+          const watermarkSrc = uiWatermarkImg && uiWatermarkImg.src ? uiWatermarkImg.src : null;
+          const bottomBrandSrc = uiBottomBrandImg && uiBottomBrandImg.src ? uiBottomBrandImg.src : null;
+
+          if (bottomBrandSrc) { try { bottomBrandImg = await loadImage(bottomBrandSrc, true); } catch (e) { console.warn('Bottom brand failed to load', e.message); bottomBrandImg = null; } }
+          updateProgress(40);
+
+          if (logoSrc) { try { logoImg = await loadImage(logoSrc, true); } catch (e) { console.warn('Logo failed to load', e.message); logoImg = null; } }
+          updateProgress(55);
+          if (watermarkSrc) { try { watermarkImg = await loadImage(watermarkSrc, true); } catch (e) { console.warn('Watermark failed to load', e.message); watermarkImg = null; } }
+          updateProgress(70);
+
+          // Draw bottom-brand (bottom center, full opacity, small size) ON TOP of background but before main text so text remains readable
+          if (bottomBrandImg) {
+            const brandWidth = size * 0.18;              // 18% of canvas width (small)
+            const brandHeight = (bottomBrandImg.height * brandWidth) / bottomBrandImg.width;
+            const marginBottom = size * 0.02;            // 2% margin from bottom edge
+            const brandX = (size - brandWidth) / 2;      // center horizontally
+            const brandY = size - brandHeight - marginBottom;
+            ctx.globalAlpha = 1.0;
+            ctx.drawImage(bottomBrandImg, brandX, brandY, brandWidth, brandHeight);
+            ctx.globalAlpha = 1.0;
+          }
+
+          // LEFT alignment for final image
+          ctx.fillStyle = textColor.value;
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'top';
+
+          const logoAreaHeight = size * 0.18;
+          const availableHeight = size - logoAreaHeight - (size * 0.06);
+          const paddingSides = size * 0.10;
+          const maxTextWidth = size - paddingSides * 2;
+
+          const { fontSize, lines, lineHeight } = calculateOptimalFontSizeForText(text, maxTextWidth, availableHeight, ctx, 64);
+          ctx.font = `bold ${fontSize}px 'Noto Sans Devanagari', 'Inter', sans-serif`;
+
+          const totalHeight = lines.length * lineHeight;
+          const startY = logoAreaHeight + (availableHeight - totalHeight) / 2;
+          const startX = paddingSides;
+
+          ctx.fillStyle = textColor.value;
+          ctx.globalAlpha = 1;
+          lines.forEach((line, i) => {
+            if (line === '') {
+              // blank line preserved
+            } else {
+              ctx.fillText(line, startX, startY + i * lineHeight);
+            }
+          });
+
+          updateProgress(85);
+
+          if (watermarkImg) {
+            const wmWidth = size * 0.25;
+            const wmHeight = (watermarkImg.height * wmWidth) / watermarkImg.width;
+            const wmX = (size - wmWidth) / 2;
+            const wmY = (size - wmHeight) / 2;
+            ctx.globalAlpha = 0.28;
+            ctx.drawImage(watermarkImg, wmX, wmY, wmWidth, wmHeight);
+            ctx.globalAlpha = 1;
+          } else {
+            ctx.globalAlpha = 0.12;
+            const wmFont = Math.floor(size / 10);
+            ctx.font = `${wmFont}px sans-serif`;
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText('SAMPLE', size / 2, size / 2);
+            ctx.globalAlpha = 1;
+          }
+
+          updateProgress(92);
+
+          let dataURL;
+          try {
+            dataURL = canvas.toDataURL('image/png');
+          } catch (err) {
+            console.error('toDataURL failed:', err);
+            alert('Download failed because an overlay image is loaded from another domain without CORS permission. Ensure logo/watermark images allow CORS or are same-origin.');
+            throw err;
+          }
+
+          updateProgress(98);
+          const a = document.createElement('a'); a.href = dataURL; a.download = generateFilename(); document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          if ('vibrate' in navigator) navigator.vibrate(200);
+          updateProgress(100);
+
+          setTimeout(() => { progressContainer.style.display = 'none'; progressBar.style.width = '0%'; downloadBtn.disabled = false; }, 400);
+
+        } catch (error) {
+          console.error('Error in processing:', error);
+          alert('Error generating image — see console for details. ' + (error && error.message ? error.message : ''));
+          progressContainer.style.display = 'none';
+          progressBar.style.width = '0%';
+          downloadBtn.disabled = false;
+        }
+      }
+      
+      async function addLogoAndWatermarkAndDownload() {
+        // Validate selected image
+        if (!selectedImage) { 
+          alert('Please upload an image'); 
+          return; 
+        }
+        
+        // Disable download button and show progress
+        downloadBtn.disabled = true;
+        updateProgress(0);
+
+        try {
+          // Load uploaded image via object URL
+          const imgObjUrl = URL.createObjectURL(selectedImage);
+          const baseImage = await loadImage(imgObjUrl, false).catch(err => { 
+            throw new Error('Uploaded image could not be loaded: ' + err.message); 
+          });
+          updateProgress(25);
+          
+          // Clean up object URL
+          URL.revokeObjectURL(imgObjUrl);
+
+          // Load logo, watermark, bottomBrand images
+          let logoImg = null;
+          let watermarkImg = null;
+          let bottomBrandImg = null;
+
+          const logoSrc = uiLogoImg && uiLogoImg.src ? uiLogoImg.src : null;
+          const watermarkSrc = uiWatermarkImg && uiWatermarkImg.src ? uiWatermarkImg.src : null;
+          const bottomBrandSrc = uiBottomBrandImg && uiBottomBrandImg.src ? uiBottomBrandImg.src : null;
+
+          if (bottomBrandSrc) {
+            try { bottomBrandImg = await loadImage(bottomBrandSrc, true); } 
+            catch (e) { console.warn('Bottom brand failed to load (will skip):', e.message); bottomBrandImg = null; }
+          }
+          updateProgress(50);
+
+          if (logoSrc) {
+            try { logoImg = await loadImage(logoSrc, true); } catch (e) { console.warn('Logo failed to load (will skip):', e.message); logoImg = null; }
+          }
+
+          updateProgress(70);
+
+          if (watermarkSrc) {
+            try { watermarkImg = await loadImage(watermarkSrc, true); } catch (e) { console.warn('Watermark failed to load (will skip):', e.message); watermarkImg = null; }
+          }
+
+          updateProgress(80);
+
+          // Create canvas with EXACT original image dimensions
+          const canvas = document.createElement('canvas');
+          canvas.width = originalImageDimensions.width;
+          canvas.height = originalImageDimensions.height;
+          const ctx = canvas.getContext('2d');
+
+          // Draw base image at original size (no resizing)
+          ctx.globalAlpha = 1;
+          ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+
+          // Draw bottom brand on the base image (bottom-center small)
+          if (bottomBrandImg) {
+            const brandWidth = canvas.width * 0.12; // 12% of image width -> small
+            const brandHeight = (bottomBrandImg.height * brandWidth) / bottomBrandImg.width;
+            const marginBottom = Math.min(canvas.width, canvas.height) * 0.02;
+            const brandX = (canvas.width - brandWidth) / 2;
+            const brandY = canvas.height - brandHeight - marginBottom;
+            ctx.globalAlpha = 1.0;
+            ctx.drawImage(bottomBrandImg, brandX, brandY, brandWidth, brandHeight);
+          }
+
+          // Add logo if available (top-right)
+          if (logoImg) {
+            const logoWidth = canvas.width * 0.15; // 15% of image width
+            const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
+            const margin = Math.min(canvas.width, canvas.height) * 0.02; // 2% margin
+            const logoX = canvas.width - logoWidth - margin;
+            const logoY = margin;
+            ctx.globalAlpha = 0.9;
+            ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+          } else {
+            console.info('Skipping logo (not available or failed to load).');
+          }
+
+          // Add watermark if available, otherwise use text fallback
+          if (watermarkImg) {
+            const wmWidth = canvas.width * 0.25; // 25% of image width
+            const wmHeight = (watermarkImg.height * wmWidth) / watermarkImg.width;
+            const wmX = (canvas.width - wmWidth) / 2;
+            const wmY = (canvas.height - wmHeight) / 2;
+            ctx.globalAlpha = 0.3;
+            ctx.drawImage(watermarkImg, wmX, wmY, wmWidth, wmHeight);
+          } else {
+            ctx.globalAlpha = 0.15;
+            const text = 'SAMPLE';
+            const fontSize = Math.floor(Math.min(canvas.width, canvas.height) / 10);
+            ctx.font = `${fontSize}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'white';
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+          }
+
+          updateProgress(90);
+
+          // Convert canvas to data URL and download
+          let dataURL;
+          try {
+            dataURL = canvas.toDataURL('image/png');
+          } catch (err) {
+            console.error('toDataURL failed (likely CORS/tainted canvas):', err);
+            alert('Download failed because some overlay images are loaded from another domain without CORS permission. Make sure logo/watermark images are hosted on the same origin or allow CORS.');
+            throw err;
+          }
+
+          updateProgress(98);
+
+          // Create download link and trigger download
+          const a = document.createElement('a');
+          a.href = dataURL;
+          a.download = generateFilename();
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+
+          // Provide haptic feedback on supported devices
+          if ('vibrate' in navigator) navigator.vibrate(200);
+
+          updateProgress(100);
+
+          // Reset UI after successful download
+          setTimeout(() => {
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            downloadBtn.disabled = false;
+            // Reset file input to allow same file selection again
+            resetFileInput();
+          }, 400);
+          
+        } catch (error) {
+          // Error handling
+          console.error('Error in processing:', error);
+          alert('Error adding logo/watermark — see console for details. ' + 
+                (error && error.message ? error.message : ''));
+          
+          // Reset UI
+          progressContainer.style.display = 'none';
+          progressBar.style.width = '0%';
+          downloadBtn.disabled = false;
+          resetFileInput();
+        }
+      }
+
+      // Example text (comment/uncomment as desired)
+      const exampleText = `🇮🇳 संविधानिक जानकारी 🇮🇳  
+
+📘 अनुच्छेद 154 : राज्य की कार्यपालिका शक्ति  
+🔹 राज्य की समस्त कार्यपालिका शक्ति राज्यपाल में निहित होगी।  
+🔹 वह इन शक्तियों का प्रयोग तो सीधे या अपने अधीनस्थ अधिकारियों के माध्यम से करेगा।`;
+      // textInput.value = exampleText;
+      // textInput.dispatchEvent(new Event('input'));
+    });
+  </script>
+</body>
+</html>
