@@ -488,7 +488,8 @@
             const brandImg = new Image();
             brandImg.src = uiBottomBrandImg.src;
             brandImg.onload = () => {
-              const brandWidth = previewSize * 0.18;
+              // CHANGED: Increased bottom brand size from 0.18 to 0.25 (25% of canvas width)
+              const brandWidth = previewSize * 0.25; // ADJUSTABLE: Change this value (0.15-0.35) for different sizes
               const brandHeight = (brandImg.height * brandWidth) / brandImg.width;
               const marginBottom = previewSize * 0.02;
               const brandX = (previewSize - brandWidth) / 2;
@@ -586,9 +587,22 @@
           if (watermarkSrc) { try { watermarkImg = await loadImage(watermarkSrc, true); } catch (e) { console.warn('Watermark failed to load', e.message); watermarkImg = null; } }
           updateProgress(70);
 
-          // Draw bottom-brand (bottom center, full opacity, small size) ON TOP of background but before main text so text remains readable
+          // FIXED: Draw logo (top-right) - This was missing in text-to-image mode
+          if (logoImg) {
+            const logoWidth = size * 0.18; // ADJUSTABLE: Logo width as percentage of canvas (0.10-0.25)
+            const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
+            const margin = size * 0.03; // ADJUSTABLE: Margin from edges (0.02-0.05)
+            const logoX = size - logoWidth - margin;
+            const logoY = margin;
+            ctx.globalAlpha = 0.9;
+            ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+            ctx.globalAlpha = 1.0;
+          }
+
+          // Draw bottom-brand (bottom center, full opacity, increased size) ON TOP of background but before main text so text remains readable
           if (bottomBrandImg) {
-            const brandWidth = size * 0.18;              // 18% of canvas width (small)
+            // CHANGED: Increased bottom brand size from 0.18 to 0.25 (25% of canvas width)
+            const brandWidth = size * 0.25; // ADJUSTABLE: Change this value (0.15-0.35) for different sizes
             const brandHeight = (bottomBrandImg.height * brandWidth) / bottomBrandImg.width;
             const marginBottom = size * 0.02;            // 2% margin from bottom edge
             const brandX = (size - brandWidth) / 2;      // center horizontally
@@ -628,11 +642,11 @@
           updateProgress(85);
 
           if (watermarkImg) {
-            const wmWidth = size * 0.25;
+            const wmWidth = size * 0.25; // ADJUSTABLE: Watermark size (0.15-0.35)
             const wmHeight = (watermarkImg.height * wmWidth) / watermarkImg.width;
             const wmX = (size - wmWidth) / 2;
             const wmY = (size - wmHeight) / 2;
-            ctx.globalAlpha = 0.28;
+            ctx.globalAlpha = 0.28; // ADJUSTABLE: Watermark opacity (0.1-0.4)
             ctx.drawImage(watermarkImg, wmX, wmY, wmWidth, wmHeight);
             ctx.globalAlpha = 1;
           } else {
@@ -731,9 +745,10 @@
           ctx.globalAlpha = 1;
           ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
 
-          // Draw bottom brand on the base image (bottom-center small)
+          // Draw bottom brand on the base image (bottom-center with increased size)
           if (bottomBrandImg) {
-            const brandWidth = canvas.width * 0.12; // 12% of image width -> small
+            // CHANGED: Increased bottom brand size from 0.12 to 0.20 (20% of image width)
+            const brandWidth = canvas.width * 0.20; // ADJUSTABLE: Change this value (0.15-0.30) for different sizes
             const brandHeight = (bottomBrandImg.height * brandWidth) / bottomBrandImg.width;
             const marginBottom = Math.min(canvas.width, canvas.height) * 0.02;
             const brandX = (canvas.width - brandWidth) / 2;
@@ -744,12 +759,12 @@
 
           // Add logo if available (top-right)
           if (logoImg) {
-            const logoWidth = canvas.width * 0.15; // 15% of image width
+            const logoWidth = canvas.width * 0.15; // ADJUSTABLE: Logo width as percentage of canvas (0.10-0.25)
             const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
-            const margin = Math.min(canvas.width, canvas.height) * 0.02; // 2% margin
+            const margin = Math.min(canvas.width, canvas.height) * 0.02; // ADJUSTABLE: Margin from edges (0.02-0.05)
             const logoX = canvas.width - logoWidth - margin;
             const logoY = margin;
-            ctx.globalAlpha = 0.9;
+            ctx.globalAlpha = 0.9; // ADJUSTABLE: Logo opacity (0.7-1.0)
             ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
           } else {
             console.info('Skipping logo (not available or failed to load).');
@@ -757,11 +772,11 @@
 
           // Add watermark if available, otherwise use text fallback
           if (watermarkImg) {
-            const wmWidth = canvas.width * 0.25; // 25% of image width
+            const wmWidth = canvas.width * 0.25; // ADJUSTABLE: Watermark size (0.15-0.35)
             const wmHeight = (watermarkImg.height * wmWidth) / watermarkImg.width;
             const wmX = (canvas.width - wmWidth) / 2;
             const wmY = (canvas.height - wmHeight) / 2;
-            ctx.globalAlpha = 0.3;
+            ctx.globalAlpha = 0.3; // ADJUSTABLE: Watermark opacity (0.1-0.4)
             ctx.drawImage(watermarkImg, wmX, wmY, wmWidth, wmHeight);
           } else {
             ctx.globalAlpha = 0.15;
