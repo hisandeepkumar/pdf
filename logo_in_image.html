@@ -370,192 +370,167 @@
       }
 
       /**
-       * NEW: Parse text and extract highlighted parts
-       * @param {string} text - Input text with **highlighted** parts
-       * @returns {Array} Array of objects with text and highlight property
+       * SIMPLE TEXT WRAPPING - FIXED VERSION
        */
-      function parseHighlightedText(text) {
-        const parts = [];
-        const regex = /\*\*(.*?)\*\*/g;
-        let lastIndex = 0;
-        let match;
-        
-        while ((match = regex.exec(text)) !== null) {
-          // Add normal text before the highlight
-          if (match.index > lastIndex) {
-            parts.push({
-              text: text.substring(lastIndex, match.index),
-              highlight: false
-            });
-          }
-          
-          // Add highlighted text
-          parts.push({
-            text: match[1],
-            highlight: true
-          });
-          
-          lastIndex = match.index + match[0].length;
-        }
-        
-        // Add remaining normal text
-        if (lastIndex < text.length) {
-          parts.push({
-            text: text.substring(lastIndex),
-            highlight: false
-          });
-        }
-        
-        return parts;
-      }
+      function wrapText(text, ctx, maxWidth) {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = words[0];
 
-      function wrapLineToWidth(line, ctx, maxWidth) {
-        if (!line) return [''];
-        
-        // Parse highlighted text for this line
-        const parts = parseHighlightedText(line);
-        
-        // If no wrapping needed, return the original line structure
-        const fullLineText = parts.map(part => part.text).join('');
-        if (ctx.measureText(fullLineText).width <= maxWidth) {
-          return [parts];
-        }
-        
-        const words = [];
-        // Break into words while preserving highlight information
-        parts.forEach(part => {
-          const partWords = part.text.split(' ');
-          partWords.forEach(word => {
-            words.push({ text: word, highlight: part.highlight });
-          });
-        });
-        
-        const wrapped = [];
-        let currentLine = [];
-        let currentWidth = 0;
-        
-        for (let i = 0; i < words.length; i++) {
+        for (let i = 1; i < words.length; i++) {
           const word = words[i];
-          const wordWidth = ctx.measureText(word.text).width;
-          const spaceWidth = currentLine.length > 0 ? ctx.measureText(' ').width : 0;
-          
-          if (currentWidth + spaceWidth + wordWidth <= maxWidth) {
-            // Word fits in current line
-            if (currentLine.length > 0) {
-              // Add space between words
-              currentLine.push({ text: ' ', highlight: false });
-              currentWidth += spaceWidth;
-            }
-            currentLine.push(word);
-            currentWidth += wordWidth;
+          const width = ctx.measureText(currentLine + " " + word).width;
+          if (width < maxWidth) {
+            currentLine += " " + word;
           } else {
-            // Word doesn't fit, start new line
-            if (currentLine.length > 0) {
-              wrapped.push(currentLine);
-            }
-            currentLine = [word];
-            currentWidth = wordWidth;
-            
-            // If single word is too long, break it
-            if (wordWidth > maxWidth) {
-              const broken = breakLongWord(word.text, ctx, maxWidth, word.highlight);
-              if (broken.length > 1) {
-                wrapped.push([broken[0]]);
-                currentLine = broken.slice(1);
-                currentWidth = ctx.measureText(currentLine[0].text).width;
+            lines.push(currentLine);
+            currentLine = word;
+          }
+        }
+        lines.push(currentLine);
+        return lines;
+      }
+
+      /**
+       * HIGHLIGHT PARSER - SIMPLE VERSION
+       */
+      function parseHighlights(text) {
+        const lines = text.split('\n');
+        const result = [];
+        
+        for (const line of lines) {
+          const lineData = [];
+          let currentIndex = 0;
+          let inHighlight = false;
+          let buffer = '';
+          
+          for (let i = 0; i < line.length; i++) {
+            // Check for ** pattern
+            if (line[i] === '*' && line[i + 1] === '*') {
+              if (inHighlight) {
+                // End of highlight
+                if (buffer) {
+                  lineData.push({ text: buffer, highlight: true });
+                  buffer = '';
+                }
+                inHighlight = false;
+                i++; // Skip next *
+              } else {
+                // Start of highlight
+                if (buffer) {
+                  lineData.push({ text: buffer, highlight: false });
+                  buffer = '';
+                }
+                inHighlight = true;
+                i++; // Skip next *
               }
+            } else {
+              buffer += line[i];
             }
           }
-        }
-        
-        if (currentLine.length > 0) {
-          wrapped.push(currentLine);
-        }
-        
-        return wrapped;
-      }
-
-      function breakLongWord(word, ctx, maxWidth, highlight) {
-        const broken = [];
-        let current = '';
-        
-        for (let i = 0; i < word.length; i++) {
-          const test = current + word[i];
-          if (ctx.measureText(test).width <= maxWidth) {
-            current = test;
-          } else {
-            if (current) {
-              broken.push({ text: current, highlight });
-            }
-            current = word[i];
-          }
-        }
-        
-        if (current) {
-          broken.push({ text: current, highlight });
-        }
-        
-        return broken;
-      }
-
-      function getWrappedLinesFromText(rawText, ctx, maxWidth) {
-        const logicalLines = rawText.split('\n');
-        let finalLines = [];
-        
-        logicalLines.forEach((ln, idx) => {
-          const wrapped = wrapLineToWidth(ln, ctx, maxWidth);
-          finalLines = finalLines.concat(wrapped);
           
-          // Preserve empty lines
-          if (ln === '' && idx !== logicalLines.length - 1) {
-            finalLines.push([{ text: '', highlight: false }]);
+          // Add remaining buffer
+          if (buffer) {
+            lineData.push({ text: buffer, highlight: inHighlight });
           }
-        });
+          
+          result.push(lineData);
+        }
         
-        return finalLines;
+        return result;
       }
 
-      function calculateOptimalFontSizeForText(rawText, maxWidth, maxHeight, ctx, initial = 100) {
-        let fontSize = initial;
+      function calculateOptimalFontSize(text, maxWidth, maxHeight, ctx) {
+        let fontSize = 80; // Start with larger font
+        let lines = [];
         
-        // NEW: Minimum font size reduced to 12 to prevent overflow
         while (fontSize >= 12) {
           ctx.font = `bold ${fontSize}px 'Noto Sans Devanagari', 'Inter', sans-serif`;
-          const lines = getWrappedLinesFromText(rawText, ctx, maxWidth);
-          const lineHeight = fontSize * 1.28;
-          const totalHeight = lines.length * lineHeight;
-          const widest = lines.reduce((m, line) => {
-            const lineText = line.map(part => part.text).join('');
-            return Math.max(m, ctx.measureText(lineText).width);
-          }, 0);
           
-          if (totalHeight <= maxHeight && widest <= maxWidth * 0.98) {
+          // Parse highlights first
+          const parsedLines = parseHighlights(text);
+          lines = [];
+          
+          // Wrap each parsed line
+          for (const lineData of parsedLines) {
+            let currentLine = [];
+            let currentWidth = 0;
+            
+            for (const part of lineData) {
+              const words = part.text.split(' ');
+              
+              for (const word of words) {
+                const wordWidth = ctx.measureText(word).width;
+                const spaceWidth = currentLine.length > 0 ? ctx.measureText(' ').width : 0;
+                
+                if (currentWidth + spaceWidth + wordWidth <= maxWidth) {
+                  currentLine.push({ text: word, highlight: part.highlight });
+                  currentWidth += spaceWidth + wordWidth;
+                } else {
+                  if (currentLine.length > 0) {
+                    lines.push(currentLine);
+                  }
+                  currentLine = [{ text: word, highlight: part.highlight }];
+                  currentWidth = wordWidth;
+                }
+              }
+            }
+            
+            if (currentLine.length > 0) {
+              lines.push(currentLine);
+            }
+          }
+          
+          const lineHeight = fontSize * 1.3;
+          const totalHeight = lines.length * lineHeight;
+          
+          if (totalHeight <= maxHeight) {
             return { fontSize, lines, lineHeight };
           }
+          
           fontSize -= 2;
         }
         
-        // NEW: Even at minimum font size, ensure it fits by truncating if necessary
+        // If we get here, use minimum font size and truncate if needed
         ctx.font = `bold 12px 'Noto Sans Devanagari', 'Inter', sans-serif`;
-        let lines = getWrappedLinesFromText(rawText, ctx, maxWidth);
-        const lineHeight = 12 * 1.28;
-        let totalHeight = lines.length * lineHeight;
+        const parsedLines = parseHighlights(text);
+        lines = [];
         
-        // NEW: If still too tall, remove lines from bottom
-        while (totalHeight > maxHeight && lines.length > 1) {
-          lines = lines.slice(0, -1);
-          totalHeight = lines.length * lineHeight;
+        for (const lineData of parsedLines) {
+          let currentLine = [];
+          let currentWidth = 0;
+          
+          for (const part of lineData) {
+            const words = part.text.split(' ');
+            
+            for (const word of words) {
+              const wordWidth = ctx.measureText(word).width;
+              const spaceWidth = currentLine.length > 0 ? ctx.measureText(' ').width : 0;
+              
+              if (currentWidth + spaceWidth + wordWidth <= maxWidth) {
+                currentLine.push({ text: word, highlight: part.highlight });
+                currentWidth += spaceWidth + wordWidth;
+              } else {
+                break; // Stop adding words if we exceed maxWidth at minimum font
+              }
+            }
+          }
+          
+          if (currentLine.length > 0) {
+            lines.push(currentLine);
+          }
         }
         
-        // NEW: Add ellipsis to last line if truncated
-        if (lines.length > 0) {
-          const lastLine = lines[lines.length - 1];
-          const lastLineText = lastLine.map(part => part.text).join('');
-          
-          if (lastLineText.length > 0 && ctx.measureText(lastLineText + '...').width <= maxWidth) {
-            // Replace last word with ellipsis if possible
+        // Ensure we don't exceed max height
+        const lineHeight = 12 * 1.3;
+        const maxLines = Math.floor(maxHeight / lineHeight);
+        if (lines.length > maxLines) {
+          lines = lines.slice(0, maxLines);
+          // Add ellipsis to last line if truncated
+          if (lines.length > 0) {
+            const lastLine = lines[lines.length - 1];
             if (lastLine.length > 0) {
-              lastLine[lastLine.length - 1].text = lastLine[lastLine.length - 1].text + '...';
+              lastLine[lastLine.length - 1].text += '...';
             }
           }
         }
@@ -571,71 +546,57 @@
       function updatePreview() {
         const text = textInput.value;
         if (!text) return;
+        
         const canvas = document.createElement('canvas');
         const previewSize = 640;
-        canvas.width = previewSize; canvas.height = previewSize;
+        canvas.width = previewSize; 
+        canvas.height = previewSize;
         const ctx = canvas.getContext('2d');
 
+        // Draw background
         ctx.fillStyle = bgColor.value;
-        ctx.fillRect(0,0,previewSize,previewSize);
+        ctx.fillRect(0, 0, previewSize, previewSize);
 
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
 
-        // FIXED: Calculate safe areas for top and bottom
-        const logoAreaHeight = previewSize * 0.18; // Top area for logo
-        const bottomBrandAreaHeight = previewSize * 0.15; // Bottom area for bottom brand
-        
-        // Available height is now the space between logo area and bottom brand area
+        // Calculate safe areas
+        const logoAreaHeight = previewSize * 0.18;
+        const bottomBrandAreaHeight = previewSize * 0.15;
         const availableHeight = previewSize - logoAreaHeight - bottomBrandAreaHeight;
         const paddingSides = previewSize * 0.10;
         const maxTextWidth = previewSize - paddingSides * 2;
 
-        const { fontSize, lines, lineHeight } = calculateOptimalFontSizeForText(text, maxTextWidth, availableHeight, ctx, 54);
+        // Calculate optimal font and lines
+        const { fontSize, lines, lineHeight } = calculateOptimalFontSize(text, maxTextWidth, availableHeight, ctx);
         ctx.font = `bold ${fontSize}px 'Noto Sans Devanagari', 'Inter', sans-serif`;
 
         const totalHeight = lines.length * lineHeight;
-        
-        // FIXED: Start text after logo area and center within available space
         const startY = logoAreaHeight + (availableHeight - totalHeight) / 2;
         const startX = paddingSides;
 
-        // NEW: Draw text with highlighting support
+        // Draw text with highlighting
         lines.forEach((line, lineIndex) => {
           let currentX = startX;
           const currentY = startY + lineIndex * lineHeight;
           
-          line.forEach(part => {
-            // Set color based on highlight
-            ctx.fillStyle = part.highlight ? '#FFFF00' : textColor.value; // Yellow for highlighted
+          line.forEach((part, wordIndex) => {
+            // Add space between words (except first word)
+            if (wordIndex > 0) {
+              ctx.fillStyle = textColor.value;
+              ctx.fillText(' ', currentX, currentY);
+              currentX += ctx.measureText(' ').width;
+            }
+            
+            // Draw word with appropriate color
+            ctx.fillStyle = part.highlight ? '#FFFF00' : textColor.value;
             ctx.fillText(part.text, currentX, currentY);
             currentX += ctx.measureText(part.text).width;
           });
         });
 
-        // draw bottom brand in preview (if available)
-        try {
-          if (uiBottomBrandImg && uiBottomBrandImg.src) {
-            const brandImg = new Image();
-            brandImg.src = uiBottomBrandImg.src;
-            brandImg.onload = () => {
-              // Bottom brand size - ADJUSTABLE: Change this value (0.15-0.35) for different sizes
-              const brandWidth = previewSize * 0.25;
-              const brandHeight = (brandImg.height * brandWidth) / brandImg.width;
-              const marginBottom = previewSize * 0.02;
-              const brandX = (previewSize - brandWidth) / 2;
-              const brandY = previewSize - brandHeight - marginBottom;
-              ctx.globalAlpha = 1.0;
-              ctx.drawImage(brandImg, brandX, brandY, brandWidth, brandHeight);
-              imagePreview.src = canvas.toDataURL('image/png');
-            };
-            brandImg.onerror = () => { imagePreview.src = canvas.toDataURL('image/png'); };
-          } else {
-            imagePreview.src = canvas.toDataURL('image/png');
-          }
-        } catch (e) {
-          imagePreview.src = canvas.toDataURL('image/png');
-        }
+        // Set preview image
+        imagePreview.src = canvas.toDataURL('image/png');
       }
 
       textInput.addEventListener('input', () => {
@@ -673,7 +634,10 @@
         }
       });
 
-      function updateProgress(percent) { progressContainer.style.display = 'block'; progressBar.style.width = `${percent}%`; }
+      function updateProgress(percent) { 
+        progressContainer.style.display = 'block'; 
+        progressBar.style.width = `${percent}%`; 
+      }
 
       function loadImage(src, useCrossOrigin = true, timeout = 7000) {
         return new Promise((resolve, reject) => {
@@ -681,9 +645,25 @@
           const img = new Image();
           if (useCrossOrigin) img.crossOrigin = 'anonymous';
           let done = false;
-          const t = setTimeout(() => { if (!done) { done = true; img.onload = img.onerror = null; reject(new Error('Image load timed out: ' + src)); } }, timeout);
-          img.onload = () => { if (done) return; done = true; clearTimeout(t); resolve(img); };
-          img.onerror = () => { if (done) return; done = true; clearTimeout(t); reject(new Error('Failed to load image: ' + src)); };
+          const t = setTimeout(() => { 
+            if (!done) { 
+              done = true; 
+              img.onload = img.onerror = null; 
+              reject(new Error('Image load timed out: ' + src)); 
+            } 
+          }, timeout);
+          img.onload = () => { 
+            if (done) return; 
+            done = true; 
+            clearTimeout(t); 
+            resolve(img); 
+          };
+          img.onerror = () => { 
+            if (done) return; 
+            done = true; 
+            clearTimeout(t); 
+            reject(new Error('Failed to load image: ' + src)); 
+          };
           img.src = src;
         });
       }
@@ -698,11 +678,13 @@
         try {
           const canvas = document.createElement('canvas');
           const size = 1080;
-          canvas.width = size; canvas.height = size;
+          canvas.width = size; 
+          canvas.height = size;
           const ctx = canvas.getContext('2d');
 
           updateProgress(15);
-          ctx.fillStyle = bgColor.value; ctx.fillRect(0,0,size,size);
+          ctx.fillStyle = bgColor.value; 
+          ctx.fillRect(0, 0, size, size);
           updateProgress(28);
 
           let logoImg = null, watermarkImg = null, bottomBrandImg = null;
@@ -710,19 +692,41 @@
           const watermarkSrc = uiWatermarkImg && uiWatermarkImg.src ? uiWatermarkImg.src : null;
           const bottomBrandSrc = uiBottomBrandImg && uiBottomBrandImg.src ? uiBottomBrandImg.src : null;
 
-          if (bottomBrandSrc) { try { bottomBrandImg = await loadImage(bottomBrandSrc, true); } catch (e) { console.warn('Bottom brand failed to load', e.message); bottomBrandImg = null; } }
+          if (bottomBrandSrc) { 
+            try { 
+              bottomBrandImg = await loadImage(bottomBrandSrc, true); 
+            } catch (e) { 
+              console.warn('Bottom brand failed to load', e.message); 
+              bottomBrandImg = null; 
+            } 
+          }
           updateProgress(40);
 
-          if (logoSrc) { try { logoImg = await loadImage(logoSrc, true); } catch (e) { console.warn('Logo failed to load', e.message); logoImg = null; } }
+          if (logoSrc) { 
+            try { 
+              logoImg = await loadImage(logoSrc, true); 
+            } catch (e) { 
+              console.warn('Logo failed to load', e.message); 
+              logoImg = null; 
+            } 
+          }
           updateProgress(55);
-          if (watermarkSrc) { try { watermarkImg = await loadImage(watermarkSrc, true); } catch (e) { console.warn('Watermark failed to load', e.message); watermarkImg = null; } }
+          
+          if (watermarkSrc) { 
+            try { 
+              watermarkImg = await loadImage(watermarkSrc, true); 
+            } catch (e) { 
+              console.warn('Watermark failed to load', e.message); 
+              watermarkImg = null; 
+            } 
+          }
           updateProgress(70);
 
-          // FIXED: Draw logo (top-right) - This was missing in text-to-image mode
+          // Draw logo (top-right)
           if (logoImg) {
-            const logoWidth = size * 0.18; // ADJUSTABLE: Logo width as percentage of canvas (0.10-0.25)
+            const logoWidth = size * 0.18;
             const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
-            const margin = size * 0.03; // ADJUSTABLE: Margin from edges (0.02-0.05)
+            const margin = size * 0.03;
             const logoX = size - logoWidth - margin;
             const logoY = margin;
             ctx.globalAlpha = 0.9;
@@ -730,35 +734,39 @@
             ctx.globalAlpha = 1.0;
           }
 
-          // FIXED: Calculate safe areas for text
-          const logoAreaHeight = size * 0.18; // Top area for logo
-          const bottomBrandAreaHeight = size * 0.15; // Bottom area for bottom brand
-          
-          // Available height is now the space between logo area and bottom brand area
+          // Calculate text area
+          const logoAreaHeight = size * 0.18;
+          const bottomBrandAreaHeight = size * 0.15;
           const availableHeight = size - logoAreaHeight - bottomBrandAreaHeight;
           const paddingSides = size * 0.10;
           const maxTextWidth = size - paddingSides * 2;
 
-          const { fontSize, lines, lineHeight } = calculateOptimalFontSizeForText(text, maxTextWidth, availableHeight, ctx, 64);
+          // Calculate optimal font and lines
+          const { fontSize, lines, lineHeight } = calculateOptimalFontSize(text, maxTextWidth, availableHeight, ctx);
           ctx.font = `bold ${fontSize}px 'Noto Sans Devanagari', 'Inter', sans-serif`;
 
           const totalHeight = lines.length * lineHeight;
-          
-          // FIXED: Start text after logo area and center within available space
           const startY = logoAreaHeight + (availableHeight - totalHeight) / 2;
           const startX = paddingSides;
 
-          // NEW: Draw text with highlighting support
           ctx.textAlign = 'left';
           ctx.textBaseline = 'top';
-          
+
+          // Draw text with highlighting
           lines.forEach((line, lineIndex) => {
             let currentX = startX;
             const currentY = startY + lineIndex * lineHeight;
             
-            line.forEach(part => {
-              // Set color based on highlight
-              ctx.fillStyle = part.highlight ? '#FFFF00' : textColor.value; // Yellow for highlighted
+            line.forEach((part, wordIndex) => {
+              // Add space between words (except first word)
+              if (wordIndex > 0) {
+                ctx.fillStyle = textColor.value;
+                ctx.fillText(' ', currentX, currentY);
+                currentX += ctx.measureText(' ').width;
+              }
+              
+              // Draw word with appropriate color
+              ctx.fillStyle = part.highlight ? '#FFFF00' : textColor.value;
               ctx.fillText(part.text, currentX, currentY);
               currentX += ctx.measureText(part.text).width;
             });
@@ -766,34 +774,26 @@
 
           updateProgress(85);
 
-          // Draw bottom-brand (bottom center, full opacity, increased size) - FIXED position
+          // Draw bottom brand
           if (bottomBrandImg) {
-            // CHANGED: Increased bottom brand size from 0.18 to 0.25 (25% of canvas width)
-            const brandWidth = size * 0.25; // ADJUSTABLE: Change this value (0.15-0.35) for different sizes
+            const brandWidth = size * 0.25;
             const brandHeight = (bottomBrandImg.height * brandWidth) / bottomBrandImg.width;
-            const marginBottom = size * 0.02;            // 2% margin from bottom edge
-            const brandX = (size - brandWidth) / 2;      // center horizontally
+            const marginBottom = size * 0.02;
+            const brandX = (size - brandWidth) / 2;
             const brandY = size - brandHeight - marginBottom;
             ctx.globalAlpha = 1.0;
             ctx.drawImage(bottomBrandImg, brandX, brandY, brandWidth, brandHeight);
             ctx.globalAlpha = 1.0;
           }
 
+          // Draw watermark
           if (watermarkImg) {
-            const wmWidth = size * 0.25; // ADJUSTABLE: Watermark size (0.15-0.35)
+            const wmWidth = size * 0.25;
             const wmHeight = (watermarkImg.height * wmWidth) / watermarkImg.width;
             const wmX = (size - wmWidth) / 2;
             const wmY = (size - wmHeight) / 2;
-            ctx.globalAlpha = 0.28; // ADJUSTABLE: Watermark opacity (0.1-0.4)
+            ctx.globalAlpha = 0.28;
             ctx.drawImage(watermarkImg, wmX, wmY, wmWidth, wmHeight);
-            ctx.globalAlpha = 1;
-          } else {
-            ctx.globalAlpha = 0.12;
-            const wmFont = Math.floor(size / 10);
-            ctx.font = `${wmFont}px sans-serif`;
-            ctx.fillStyle = 'white';
-            ctx.textAlign = 'center';
-            ctx.fillText('SAMPLE', size / 2, size / 2);
             ctx.globalAlpha = 1;
           }
 
@@ -809,11 +809,22 @@
           }
 
           updateProgress(98);
-          const a = document.createElement('a'); a.href = dataURL; a.download = generateFilename(); document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          
+          const a = document.createElement('a'); 
+          a.href = dataURL; 
+          a.download = generateFilename(); 
+          document.body.appendChild(a); 
+          a.click(); 
+          document.body.removeChild(a);
+          
           if ('vibrate' in navigator) navigator.vibrate(200);
           updateProgress(100);
 
-          setTimeout(() => { progressContainer.style.display = 'none'; progressBar.style.width = '0%'; downloadBtn.disabled = false; }, 400);
+          setTimeout(() => { 
+            progressContainer.style.display = 'none'; 
+            progressBar.style.width = '0%'; 
+            downloadBtn.disabled = false; 
+          }, 400);
 
         } catch (error) {
           console.error('Error in processing:', error);
@@ -825,28 +836,23 @@
       }
       
       async function addLogoAndWatermarkAndDownload() {
-        // Validate selected image
         if (!selectedImage) { 
           alert('Please upload an image'); 
           return; 
         }
         
-        // Disable download button and show progress
         downloadBtn.disabled = true;
         updateProgress(0);
 
         try {
-          // Load uploaded image via object URL
           const imgObjUrl = URL.createObjectURL(selectedImage);
           const baseImage = await loadImage(imgObjUrl, false).catch(err => { 
             throw new Error('Uploaded image could not be loaded: ' + err.message); 
           });
           updateProgress(25);
           
-          // Clean up object URL
           URL.revokeObjectURL(imgObjUrl);
 
-          // Load logo, watermark, bottomBrand images
           let logoImg = null;
           let watermarkImg = null;
           let bottomBrandImg = null;
@@ -856,37 +862,47 @@
           const bottomBrandSrc = uiBottomBrandImg && uiBottomBrandImg.src ? uiBottomBrandImg.src : null;
 
           if (bottomBrandSrc) {
-            try { bottomBrandImg = await loadImage(bottomBrandSrc, true); } 
-            catch (e) { console.warn('Bottom brand failed to load (will skip):', e.message); bottomBrandImg = null; }
+            try { 
+              bottomBrandImg = await loadImage(bottomBrandSrc, true); 
+            } catch (e) { 
+              console.warn('Bottom brand failed to load (will skip):', e.message); 
+              bottomBrandImg = null; 
+            }
           }
           updateProgress(50);
 
           if (logoSrc) {
-            try { logoImg = await loadImage(logoSrc, true); } catch (e) { console.warn('Logo failed to load (will skip):', e.message); logoImg = null; }
+            try { 
+              logoImg = await loadImage(logoSrc, true); 
+            } catch (e) { 
+              console.warn('Logo failed to load (will skip):', e.message); 
+              logoImg = null; 
+            }
           }
 
           updateProgress(70);
 
           if (watermarkSrc) {
-            try { watermarkImg = await loadImage(watermarkSrc, true); } catch (e) { console.warn('Watermark failed to load (will skip):', e.message); watermarkImg = null; }
+            try { 
+              watermarkImg = await loadImage(watermarkSrc, true); 
+            } catch (e) { 
+              console.warn('Watermark failed to load (will skip):', e.message); 
+              watermarkImg = null; 
+            }
           }
 
           updateProgress(80);
 
-          // Create canvas with EXACT original image dimensions
           const canvas = document.createElement('canvas');
           canvas.width = originalImageDimensions.width;
           canvas.height = originalImageDimensions.height;
           const ctx = canvas.getContext('2d');
 
-          // Draw base image at original size (no resizing)
           ctx.globalAlpha = 1;
           ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
 
-          // Draw bottom brand on the base image (bottom-center with increased size)
           if (bottomBrandImg) {
-            // CHANGED: Increased bottom brand size from 0.12 to 0.20 (20% of image width)
-            const brandWidth = canvas.width * 0.20; // ADJUSTABLE: Change this value (0.15-0.30) for different sizes
+            const brandWidth = canvas.width * 0.20;
             const brandHeight = (bottomBrandImg.height * brandWidth) / bottomBrandImg.width;
             const marginBottom = Math.min(canvas.width, canvas.height) * 0.02;
             const brandX = (canvas.width - brandWidth) / 2;
@@ -895,41 +911,27 @@
             ctx.drawImage(bottomBrandImg, brandX, brandY, brandWidth, brandHeight);
           }
 
-          // Add logo if available (top-right)
           if (logoImg) {
-            const logoWidth = canvas.width * 0.15; // ADJUSTABLE: Logo width as percentage of canvas (0.10-0.25)
+            const logoWidth = canvas.width * 0.15;
             const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
-            const margin = Math.min(canvas.width, canvas.height) * 0.02; // ADJUSTABLE: Margin from edges (0.02-0.05)
+            const margin = Math.min(canvas.width, canvas.height) * 0.02;
             const logoX = canvas.width - logoWidth - margin;
             const logoY = margin;
-            ctx.globalAlpha = 0.9; // ADJUSTABLE: Logo opacity (0.7-1.0)
+            ctx.globalAlpha = 0.9;
             ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
-          } else {
-            console.info('Skipping logo (not available or failed to load).');
           }
 
-          // Add watermark if available, otherwise use text fallback
           if (watermarkImg) {
-            const wmWidth = canvas.width * 0.25; // ADJUSTABLE: Watermark size (0.15-0.35)
+            const wmWidth = canvas.width * 0.25;
             const wmHeight = (watermarkImg.height * wmWidth) / watermarkImg.width;
             const wmX = (canvas.width - wmWidth) / 2;
             const wmY = (canvas.height - wmHeight) / 2;
-            ctx.globalAlpha = 0.3; // ADJUSTABLE: Watermark opacity (0.1-0.4)
+            ctx.globalAlpha = 0.3;
             ctx.drawImage(watermarkImg, wmX, wmY, wmWidth, wmHeight);
-          } else {
-            ctx.globalAlpha = 0.15;
-            const text = 'SAMPLE';
-            const fontSize = Math.floor(Math.min(canvas.width, canvas.height) / 10);
-            ctx.font = `${fontSize}px sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = 'white';
-            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
           }
 
           updateProgress(90);
 
-          // Convert canvas to data URL and download
           let dataURL;
           try {
             dataURL = canvas.toDataURL('image/png');
@@ -941,7 +943,6 @@
 
           updateProgress(98);
 
-          // Create download link and trigger download
           const a = document.createElement('a');
           a.href = dataURL;
           a.download = generateFilename();
@@ -949,27 +950,20 @@
           a.click();
           document.body.removeChild(a);
 
-          // Provide haptic feedback on supported devices
           if ('vibrate' in navigator) navigator.vibrate(200);
-
           updateProgress(100);
 
-          // Reset UI after successful download
           setTimeout(() => {
             progressContainer.style.display = 'none';
             progressBar.style.width = '0%';
             downloadBtn.disabled = false;
-            // Reset file input to allow same file selection again
             resetFileInput();
           }, 400);
           
         } catch (error) {
-          // Error handling
           console.error('Error in processing:', error);
           alert('Error adding logo/watermark — see console for details. ' + 
                 (error && error.message ? error.message : ''));
-          
-          // Reset UI
           progressContainer.style.display = 'none';
           progressBar.style.width = '0%';
           downloadBtn.disabled = false;
@@ -977,13 +971,8 @@
         }
       }
 
-      // Example text with highlighting
-      const exampleText = `🇮🇳 संविधानिक जानकारी 🇮🇳  
-
-📘 **अनुच्छेद 154** : राज्य की कार्यपालिका शक्ति  
-🔹 राज्य की **समस्त कार्यपालिका शक्ति** राज्यपाल में निहित होगी।  
-🔹 वह इन शक्तियों का प्रयोग तो सीधे या अपने अधीनस्थ अधिकारियों के माध्यम से करेगा।`;
-      // textInput.value = exampleText;
+      // Test with simple text
+      // textInput.value = "**hello**";
       // textInput.dispatchEvent(new Event('input'));
     });
   </script>
