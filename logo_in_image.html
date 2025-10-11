@@ -31,6 +31,48 @@
     }
     .text-input-area textarea:focus { outline:none; border-color:#5b86e5; box-shadow:0 0 0 4px rgba(91,134,229,0.08); }
     .char-count { text-align:right; color:rgba(255,255,255,0.7); font-size:0.9rem; margin-top:8px; }
+    
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 16px;
+      margin-bottom: 18px;
+    }
+    .action-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f0f0f0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .action-btn:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+    .action-btn.copy:hover {
+      background: rgba(91, 134, 229, 0.3);
+    }
+    .action-btn.clear:hover {
+      background: rgba(229, 91, 91, 0.3);
+    }
+    .action-btn.paste:hover {
+      background: rgba(91, 229, 134, 0.3);
+    }
+    .action-btn:active {
+      transform: translateY(0);
+    }
+    
     .color-options { display:flex; gap:15px; margin-bottom:18px; flex-wrap:wrap; }
     .color-option { display:flex; flex-direction:column; align-items:center; gap:8px; }
     .color-option input[type="color"] { width:50px; height:40px; border:2px solid rgba(255,255,255,0.12); border-radius:8px; cursor:pointer; background:transparent; }
@@ -147,6 +189,19 @@
       <label for="textInput">Enter Your Text (Supports Hindi, English & Emojis)</label>
       <textarea id="textInput" placeholder="Type your text here... Use **text** for yellow highlighting" aria-label="Text input"></textarea>
       <div class="char-count"><span id="charCount">0</span> characters</div>
+      
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="action-btn copy" id="copyBtn" title="Copy text">
+          <i class="fas fa-copy"></i>
+        </button>
+        <button class="action-btn clear" id="clearBtn" title="Clear text">
+          <i class="fas fa-trash"></i>
+        </button>
+        <button class="action-btn paste" id="pasteBtn" title="Paste text">
+          <i class="fas fa-paste"></i>
+        </button>
+      </div>
     </div>
 
     <!-- Upload Area -->
@@ -229,6 +284,11 @@
       const uiWatermarkImg = document.getElementById('uiWatermark');
       const uiBottomBrandImg = document.getElementById('uiBottomBrand');
       
+      // Action buttons
+      const copyBtn = document.getElementById('copyBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const pasteBtn = document.getElementById('pasteBtn');
+      
       // Upload-related elements
       const uploadArea = document.getElementById('uploadArea');
       const imageInput = document.getElementById('imageUpload');
@@ -240,6 +300,82 @@
       let selectedImage = null;
       let vibrationInterval = null;
       let originalImageDimensions = { width: 0, height: 0 };
+
+      // Action button event listeners
+      copyBtn.addEventListener('click', copyText);
+      clearBtn.addEventListener('click', clearText);
+      pasteBtn.addEventListener('click', pasteText);
+
+      // Copy text function
+      function copyText() {
+        if (textInput.value.trim() === '') {
+          showTemporaryMessage('Nothing to copy', copyBtn);
+          return;
+        }
+        
+        textInput.select();
+        textInput.setSelectionRange(0, 99999); // For mobile devices
+        
+        try {
+          navigator.clipboard.writeText(textInput.value).then(() => {
+            showTemporaryMessage('Copied!', copyBtn);
+          }).catch(() => {
+            // Fallback for older browsers
+            document.execCommand('copy');
+            showTemporaryMessage('Copied!', copyBtn);
+          });
+        } catch (err) {
+          // Final fallback
+          document.execCommand('copy');
+          showTemporaryMessage('Copied!', copyBtn);
+        }
+      }
+
+      // Clear text function
+      function clearText() {
+        if (textInput.value.trim() === '') {
+          showTemporaryMessage('Already empty', clearBtn);
+          return;
+        }
+        
+        textInput.value = '';
+        textInput.dispatchEvent(new Event('input'));
+        showTemporaryMessage('Cleared!', clearBtn);
+      }
+
+      // Paste text function
+      function pasteText() {
+        if (!navigator.clipboard) {
+          showTemporaryMessage('Clipboard API not supported', pasteBtn);
+          return;
+        }
+        
+        navigator.clipboard.readText().then(text => {
+          if (text.trim() === '') {
+            showTemporaryMessage('Clipboard is empty', pasteBtn);
+            return;
+          }
+          
+          textInput.value = text;
+          textInput.dispatchEvent(new Event('input'));
+          showTemporaryMessage('Pasted!', pasteBtn);
+        }).catch(err => {
+          showTemporaryMessage('Failed to paste', pasteBtn);
+          console.error('Failed to read clipboard: ', err);
+        });
+      }
+
+      // Show temporary message on button
+      function showTemporaryMessage(message, button) {
+        const originalHTML = button.innerHTML;
+        button.innerHTML = `<span style="font-size: 12px;">${message}</span>`;
+        button.style.pointerEvents = 'none';
+        
+        setTimeout(() => {
+          button.innerHTML = originalHTML;
+          button.style.pointerEvents = 'auto';
+        }, 1500);
+      }
 
       // Format file size to human readable format
       function formatFileSize(bytes) {
