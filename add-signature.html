@@ -1,959 +1,506 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Signature Adder</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PDF Signature Adder — All Pages Visible</title>
+
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    *{ box-sizing:border-box; font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial; }
+    html,body{ height:100%; margin:0; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://4kwallpapers.com/images/wallpapers/macos-big-sur-apple-layers-fluidic-colorful-wwdc-stock--1455.jpg'); color:#e6eef8; }
+     body{ display:flex; align-items:flex-start; justify-content:center; padding:28px; }
+
+    /* container will grow to fit all pages (no fixed height) */
+    .container{
+      width:100%; max-width:980px; background:rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px); border-radius:16px; padding:20px 22px 160px; /* bottom spacing for floating button */
+      border:1px solid rgba(255,255,255,0.06); box-shadow:0 12px 40px rgba(0,0,0,0.6);
+      /* No max-height or overflow so it expands to show all pages */
+      min-height: 60px;
     }
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      color: #f0f0f0;
-      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-    }
+    .header{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .header h1{ margin:0; font-size:20px; font-weight:700; color:#fff; display:flex; gap:10px; align-items:center;}
+    .header i{ color:#60a5fa; font-size:26px; }
 
-    .container {
-      width: 100%;
-      max-width: 960px;
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(16px);
-      border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(255, 255, 255, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.3);
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      transition: transform 0.3s ease;
-      padding: 32px;
-      margin-bottom: 30px;
+    .upload-area{
+      border:2px dashed rgba(255,255,255,0.18); padding:20px; border-radius:12px; text-align:center; cursor:pointer; background:rgba(255,255,255,0.02);
+      margin-bottom:14px; position:relative;
     }
+    .upload-area:hover{ border-color:#60a5fa; background:rgba(96,165,250,0.04); }
+    .upload-area i{ font-size:34px; color:#60a5fa; display:block; margin-bottom:8px; }
+    .upload-area input[type=file]{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
 
-    .header {
-      padding: 24px;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.05);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-      margin-bottom: 24px;
-    }
+    .controls{ display:flex; gap:12px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+    .controls .left{ display:flex; gap:10px; align-items:center; }
+    .controls label{ font-weight:700; color:#dbeafe; }
 
-    .header h1 {
-      font-size: 28px;
-      font-weight: 600;
-      color: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
+    /* preview-list now auto-expands — no max-height */
+    .preview-list{ display:flex; flex-direction:column; gap:18px; padding-right:6px; }
 
-    .header h1 i {
-      color: #5b86e5;
-      font-size: 28px;
-    }
+    .preview-item{ background:rgba(255,255,255,0.02); border-radius:10px; padding:12px; display:flex; flex-direction:column; align-items:center; }
+    .preview-item h3{ margin:0 0 8px; color:#cfe8ff; font-weight:700; width:100%; text-align:left; }
 
-    .upload-area {
-      border: 2px dashed rgba(255, 255, 255, 0.4);
-      border-radius: 12px;
-      padding: 40px 20px;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.2);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.3);
-      margin-bottom: 24px;
-    }
+    /* canvas-wrap fills available width (full page visible) */
+    .canvas-wrap{ position:relative; width:100%; display:flex; justify-content:center; }
+    canvas{ width:100% !important; height:auto !important; border-radius:6px; box-shadow:0 8px 30px rgba(0,0,0,0.6); background:white; display:block; }
 
-    .upload-area:hover, .upload-area.active {
-      background: rgba(255, 255, 255, 0.25);
-      border-color: #5b86e5;
-      box-shadow: 0 8px 24px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.3);
-    }
+    .sig-layer{ position:absolute; left:0; top:0; pointer-events:auto; }
 
-    .upload-area i {
-      font-size: 40px;
-      color: #5b86e5;
-      margin-bottom: 15px;
-      transition: all 0.3s;
-    }
+    .signature{ position:absolute; cursor:move; touch-action:none; user-select:none; display:flex; align-items:center; transition:transform 120ms ease; }
+    .signature img{ display:block; width:189px; height:auto; pointer-events:none; opacity:0.96; border-radius:4px; }
+    .signature.pulse{ animation: sigPulse 360ms ease; }
+    @keyframes sigPulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
 
-    .upload-area:hover i, .upload-area.active i {
-      transform: scale(1.1);
-    }
+    .delete-btn{ position:absolute; right:-10px; top:-10px; width:26px; height:26px; background:#ef4444; color:white; border-radius:50%; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; }
 
-    .upload-area h3 {
-      color: #f0f0f0;
-      margin-bottom: 10px;
-      font-size: 1.6rem;
-      font-weight: 500;
+    /* glass-like floating pill */
+    .floating-btn{
+      position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:9999;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px) saturate(1.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+      color: white; padding:12px 28px; border-radius:999px; font-weight:800; cursor:pointer; display:flex; gap:10px; align-items:center;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
     }
+    .floating-btn:hover{ transform:translateX(-50%) translateY(-4px); box-shadow:0 18px 44px rgba(0,0,0,0.6); background: rgba(255,255,255,0.08); }
+    .floating-btn:disabled{ opacity:0.6; cursor:not-allowed; }
 
-    .upload-area p {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 1.1rem;
-    }
+    .progress{ position:fixed; left:50%; transform:translateX(-50%); bottom:78px; width:420px; height:8px; background:rgba(255,255,255,0.04); border-radius:8px; overflow:hidden; display:none; z-index:9998; }
+    .progress > div{ width:0%; height:100%; background:linear-gradient(90deg,#5b86e5,#36d1dc); transition:width 200ms linear; }
 
-    .upload-area input[type="file"] {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-    }
+    .footer-note{ margin-top:12px; color:rgba(255,255,255,0.6); font-size:13px; text-align:center; }
 
-    .file-info {
-      color: white;
-      font-size: 1rem;
-      margin: 10px 0;
-      text-align: center;
-      word-break: break-all;
-      padding: 0 10px;
-      display: none;
-      font-weight: bold;
-      text-decoration: underline;
-      background: linear-gradient(
-          90deg,
-          rgba(255, 255, 255, 0) 0%,
-          rgba(255, 255, 255, 0.8) 50%,
-          rgba(255, 255, 255, 0) 100%
-      );
-      background-size: 200% 100%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: shine 2s linear infinite;
-    }
-
-    @keyframes shine {
-      from {
-        background-position: 200% 0;
-      }
-      to {
-        background-position: -200% 0;
-      }
-    }
-
-    .input-container {
-      margin: 20px 0;
-      text-align: center;
-    }
-
-    .input-container label {
-      color: #f0f0f0;
-      font-size: 1.2rem;
-      font-weight: 500;
-      display: block;
-      margin-bottom: 10px;
-    }
-
-    .input-container input[type="file"], .input-container input[type="range"] {
-      width: 100%;
-      max-width: 300px;
-      padding: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      color: #f0f0f0;
-      font-size: 1rem;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-
-    .input-container input[type="range"] {
-      -webkit-appearance: none;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-    }
-
-    .input-container input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 20px;
-      height: 20px;
-      background: #5b86e5;
-      border-radius: 50%;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .input-container input[type="range"]:focus {
-      border-color: #5b86e5;
-      box-shadow: 0 0 8px rgba(91, 134, 229, 0.3);
-    }
-
-    .input-container p {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 0.9rem;
-      margin-top: 8px;
-    }
-
-    .preview-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-      margin: 20px 0;
-      max-height: 600px;
-      overflow-y: auto;
-      padding: 10px;
-    }
-
-    .preview-item {
-      position: relative;
-      text-align: center;
-      overflow: visible;
-    }
-
-    .preview-item canvas {
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    .preview-item p {
-      color: #f0f0f0;
-      font-size: 0.9rem;
-      margin-top: 5px;
-    }
-
-    .signature-layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      background: rgba(0, 0, 0, 0);
-      cursor: pointer;
-      z-index: 10;
-    }
-
-    .signature {
-      position: absolute;
-      cursor: move;
-      user-select: none;
-    }
-
-    .signature img {
-      width: 100px;
-      height: auto;
-      opacity: 0.8;
-      pointer-events: none;
-    }
-
-    .delete-btn {
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      background: #e55b5b;
-      color: #f0f0f0;
-      border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .delete-btn:hover {
-      background: #b83a3a;
-      transform: scale(1.1);
-    }
-
-    .progress-container {
-      width: 100%;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: 20px;
-      display: none;
-    }
-
-    .progress-bar {
-      width: 0;
-      height: 100%;
-      background: #5b86e5;
-      transition: width 0.3s ease;
-    }
-
-    .btn {
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(12px);
-      color: #f0f0f0;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      padding: 14px 32px;
-      border-radius: 30px;
-      width: 280px;
-      height: 60px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      box-shadow: 0 8px 24px rgba(91, 134, 229, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
-      position: relative;
-      overflow: hidden;
-      margin: 24px auto 0;
-      white-space: nowrap;
-      text-align: center;
-    }
-
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -150%;
-      width: 150%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: all 0.6s ease;
-    }
-
-    .btn:hover::before {
-      left: 150%;
-    }
-
-    .btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
-      box-shadow: 0 12px 32px rgba(91, 134, 229, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn:disabled {
-      background: rgba(255, 255, 255, 0.1);
-      cursor: not-allowed;
-      box-shadow: none;
-      transform: none;
-    }
-
-    .btn:disabled::before {
-      display: none;
-    }
-
-    .footer {
-      margin-top: 30px;
-      text-align: center;
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 14px;
-      padding: 15px;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .footer-text {
-      display: inline-block;
-      position: relative;
-    }
-    
-    .footer-text::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 2px;
-      bottom: -5px;
-      left: 0;
-      background: linear-gradient(90deg, #5b86e5, #36d1dc);
-      transform: scaleX(0);
-      transform-origin: bottom right;
-      transition: transform 0.5s ease;
-      animation: continuousLine 3s infinite;
-    }
-    
-    @keyframes continuousLine {
-      0% {
-        transform: scaleX(0);
-        transform-origin: bottom left;
-      }
-      50% {
-        transform: scaleX(1);
-        transform-origin: bottom left;
-      }
-      51% {
-        transform: scaleX(1);
-        transform-origin: bottom right;
-      }
-      100% {
-        transform: scaleX(0);
-        transform-origin: bottom right;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        padding: 16px;
-      }
-      .header {
-        padding: 16px;
-      }
-      .header h1 {
-        font-size: 24px;
-      }
-      .upload-area {
-        padding: 24px 16px;
-      }
-      .btn {
-        width: 240px;
-        height: 50px;
-        font-size: 14px;
-        padding: 12px 24px;
-      }
-      .file-info {
-        font-size: 0.9rem;
-      }
-      .input-container input[type="file"], .input-container input[type="range"] {
-        max-width: 100%;
-      }
-      .preview-container {
-        grid-template-columns: 1fr;
-      }
-      .preview-item canvas {
-        max-width: 100%;
-      }
+    @media (max-width:760px){
+      .container{ padding-bottom:220px; }
+      .progress{ width:86%; }
+      .floating-btn{ width:86%; left:50%; transform:translateX(-50%); }
+      .signature img{ width:140px; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="container">
     <div class="header">
-      <h1><i class="fas fa-file-signature"></i> PDF Signature Adder</h1>
+      <i class="fas fa-file-signature"></i>
+      <h1>PDF Signature Adder</h1>
     </div>
+
     <div class="upload-area" id="uploadArea">
       <i class="fas fa-cloud-upload-alt"></i>
-      <h3>Upload PDF File</h3>
-      <p>Click here or drag and drop your PDF file</p>
-      <input type="file" id="pdfUpload" accept="application/pdf" hidden>
+      <h3>Upload a PDF (single)</h3>
+      <p>Select a PDF and previews for every page will appear below (container expands to show all pages).</p>
+      <input id="pdfInput" type="file" accept="application/pdf">
     </div>
-    <p class="file-info" id="fileInfo"></p>
-    <div class="input-container">
-      <label for="signatureImage">Upload Signature Image (Optional)</label>
-      <input type="file" id="signatureImage" accept="image/*">
-      <p>Upload a PNG/JPEG image or use default signature</p>
+
+    <div class="controls">
+      <div class="left">
+        <label>Signature image (optional)</label>
+        <input id="sigInput" type="file" accept="image/*" />
+        <span id="sigInfo" style="color:#cfe8ff; font-weight:600; margin-left:8px;"></span>
+      </div>
+
+      <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+        <label>Width</label>
+        <input id="sigRange" type="range" min="50" max="350" value="189" />
+        <span id="sigVal" style="font-weight:700; color:#cfe8ff;">189 px</span>
+      </div>
     </div>
-    <p class="file-info" id="imageInfo"></p>
-    <div class="input-container">
-      <label for="signatureSize">Adjust Signature Size: <span id="sizeValue">100px</span></label>
-      <input type="range" id="signatureSize" min="50" max="200" value="100">
-      <p>Slide to adjust the signature width (50-200px)</p>
-    </div>
-    <div class="preview-container" id="previewContainer"></div>
-    <div class="progress-container" id="progressContainer">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <button class="btn" id="generateBtn" disabled>
-      <i class="fas fa-download"></i>
-      <span>Generate Document</span>
-    </button>
+
+    <div class="preview-list" id="previewList" aria-live="polite"></div>
+
+    <div class="footer-note">Positions preserved exactly. Clicking on an existing signature prevents overlay (it pulses).</div>
   </div>
 
-  <div class="footer">
-    <div class="footer-text">Secure • Free • Professional | Made with <span style="color: #ff4d4d;">❤️</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" style="color: #5b86e5; text-decoration: none;">Sandeep</a></div>
-  </div>
+  <div class="progress" id="progress"><div id="progressBar"></div></div>
+  <button class="floating-btn" id="generateBtn" disabled><i class="fas fa-download"></i> Generate Signed PDF</button>
 
-<!-- Circular Floating Back Button (inline CSS + inline JS) -->
-<button
-  type="button"
-  title="Back"
-  aria-label="Go back"
-  onclick="(function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })();"
-  onkeydown="if(event.key==='Enter' || event.code==='Space'){ event.preventDefault(); (function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })(); }"
-  onmouseenter="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.25)';"
-  onmouseleave="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.18)';"
-  style="
-    position:fixed;
-    top:14px;
-    left:14px;
-    z-index:2147483647;            /* maximum safe z-index so it's on top */
-    width:52px;
-    height:52px;
-    padding:0;
-    border-radius:50%;
-    border:none;
-    background:linear-gradient(180deg,#ffffff,#f2f2f2);
-    box-shadow:0 4px 12px rgba(0,0,0,0.18);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    -webkit-tap-highlight-color:transparent;
-    transition:transform .12s ease, box-shadow .12s ease;
-    backdrop-filter:blur(6px);
-    opacity:0.98;
-  "
->
-  <!-- SVG arrow (kept small, high-contrast) -->
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-    <path d="M15 18l-6-6 6-6" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
-  </svg>
-</button>
+<script>
+document.addEventListener('DOMContentLoaded', ()=> {
+  const pdfInput = document.getElementById('pdfInput');
+  const uploadArea = document.getElementById('uploadArea');
+  const previewList = document.getElementById('previewList');
+  const sigInput = document.getElementById('sigInput');
+  const sigInfo = document.getElementById('sigInfo');
+  const sigRange = document.getElementById('sigRange');
+  const sigVal = document.getElementById('sigVal');
+  const generateBtn = document.getElementById('generateBtn');
+  const progress = document.getElementById('progress');
+  const progressBar = document.getElementById('progressBar');
+  const container = document.getElementById('container');
 
+  const DPR = window.devicePixelRatio || 1;
+  let selectedPdfFile = null;
+  let pdfLibDoc = null;
+  let pdfJsDoc = null;
+  let selectedImageFile = null;
+  let signatureImgUrl = null;
+  let signatureWidth = 189; // default
+  let pageData = [];
+  let originalFilename = ''; // Store the original filename
 
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const uploadArea = document.getElementById('uploadArea');
-      const pdfInput = document.getElementById('pdfUpload');
-      const signatureImage = document.getElementById('signatureImage');
-      const signatureSize = document.getElementById('signatureSize');
-      const sizeValue = document.getElementById('sizeValue');
-      const generateBtn = document.getElementById('generateBtn');
-      const fileInfoDisplay = document.getElementById('fileInfo');
-      const imageInfoDisplay = document.getElementById('imageInfo');
-      const previewContainer = document.getElementById('previewContainer');
-      const progressContainer = document.getElementById('progressContainer');
-      const progressBar = document.getElementById('progressBar');
+  const FALLBACK = `data:image/svg+xml;base64,${btoa("<svg xmlns='http://www.w3.org/2000/svg' width='400' height='150'><path d='M10 90 C 60 10, 140 10, 190 90 S 330 170, 390 90' stroke='#111827' stroke-width='6' fill='none' stroke-linecap='round' /></svg>")}`;
 
-      let selectedPdf = null;
-      let selectedImage = null;
-      let pdfDoc = null;
-      let signaturePositions = [];
-      let signatureImgUrl = null;
-      let signatureWidth = 100;
-      let pageSizes = [];
-      let vibrationInterval = null;
+  function fmt(bytes){ if(!bytes) return ''; if(bytes<1024) return bytes+' B'; if(bytes<1024*1024) return (bytes/1024).toFixed(2)+' KB'; return (bytes/(1024*1024)).toFixed(2)+' MB'; }
 
-      // Load default signature image
-      async function loadDefaultSignature() {
-        try {
-          const response = await fetch('default_signature.png');
-          if (!response.ok) throw new Error('Default signature not found');
-          const blob = await response.blob();
-          selectedImage = new File([blob], 'default_signature.png', { type: blob.type });
-          signatureImgUrl = URL.createObjectURL(blob);
-          imageInfoDisplay.textContent = `Signature: default_signature.png (${formatFileSize(blob.size)})`;
-          imageInfoDisplay.style.display = 'block';
-          generateBtn.disabled = !selectedPdf || signaturePositions.every(arr => arr.length === 0);
-          startVibration();
-        } catch (error) {
-          console.error('Error loading default signature:', error);
-          imageInfoDisplay.textContent = 'Default signature not found. Please upload a signature image.';
-          imageInfoDisplay.style.display = 'block';
-        }
-      }
+  // silently try to load default_signature.png if present
+  async function loadDefaultIfExists(){
+    if(selectedImageFile) return;
+    try{
+      const r = await fetch('default_signature.png', {cache:'no-store'});
+      if(!r.ok) throw new Error('not found');
+      const b = await r.blob();
+      selectedImageFile = new File([b],'default_signature.png',{type:b.type});
+      signatureImgUrl = URL.createObjectURL(b);
+      sigInfo.textContent = `Loaded default_signature.png (${fmt(b.size)})`;
+    }catch(e){
+      signatureImgUrl = FALLBACK;
+      sigInfo.textContent = `Using fallback signature`;
+      console.warn('default_signature.png not found — using fallback.');
+    }
+  }
 
-      await loadDefaultSignature();
+  sigRange.addEventListener('input', ()=> {
+    signatureWidth = parseInt(sigRange.value,10);
+    sigVal.textContent = signatureWidth + ' px';
+    document.querySelectorAll('.signature img').forEach(img => img.style.width = signatureWidth + 'px');
+    pageData.forEach(pd => pd.signatures && pd.signatures.forEach(s => s.visualWidth = signatureWidth));
+  });
 
-      // Update signature size
-      signatureSize.addEventListener('input', () => {
-        signatureWidth = parseInt(signatureSize.value);
-        sizeValue.textContent = `${signatureWidth}px`;
-        document.querySelectorAll('.signature img').forEach(img => {
-          img.style.width = `${signatureWidth}px`;
-        });
-        signaturePositions.forEach(pageSignatures => {
-          pageSignatures.forEach(signature => {
-            signature.width = signatureWidth;
-          });
-        });
-      });
+  sigInput.addEventListener('change', (e)=>{
+    if(!e.target.files?.length) return;
+    const f = e.target.files[0];
+    if(!f.type.startsWith('image/')) { alert('Select an image (PNG/JPEG/SVG)'); return; }
+    selectedImageFile = f;
+    signatureImgUrl = URL.createObjectURL(f);
+    sigInfo.textContent = `Signature: ${f.name} (${fmt(f.size)})`;
+  });
 
-      // Format file size
-      function formatFileSize(bytes) {
-        if (bytes < 1024) return bytes + ' B';
-        else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
-        else return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-      }
+  // drag/drop UI
+  ['dragenter','dragover'].forEach(ev => uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.classList.add('active'); }));
+  ['dragleave','drop'].forEach(ev => uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.classList.remove('active'); }));
+  uploadArea.addEventListener('drop', e=> { if(e.dataTransfer?.files?.length) handlePdf(e.dataTransfer.files[0]); });
 
-      // Vibration
-      function startVibration() {
-        if ('vibrate' in navigator) {
-          vibrationInterval = setInterval(() => {
-            navigator.vibrate(50);
-          }, 2000);
-        }
-      }
+  pdfInput.addEventListener('change', (e)=> { 
+    if(e.target.files?.length) {
+      handlePdf(e.target.files[0]);
+      // Store the original filename without extension
+      originalFilename = e.target.files[0].name.replace(/\.pdf$/i, '');
+    }
+  });
 
-      function stopVibration() {
-        if (vibrationInterval) {
-          clearInterval(vibrationInterval);
-          vibrationInterval = null;
-        }
-      }
+  async function handlePdf(file){
+    if(!file) return;
+    if(file.type !== 'application/pdf'){ alert('Please upload a PDF'); return; }
+    selectedPdfFile = file;
+    previewList.innerHTML = '';
+    pageData = [];
+    generateBtn.disabled = true;
 
-      // Generate filename
-      function generateFilename() {
-        let originalName = selectedPdf.name;
-        const pattern = /\d{1,2}[APap][Mm]\.pdf$/i;
-        
-        // Remove the extension
-        let baseName = originalName.replace(/\.pdf$/i, '');
-        
-        // Check if the filename ends with the pattern and has at least 22 characters
-        if (pattern.test(originalName) && baseName.length >= 22) {
-          baseName = baseName.substring(0, baseName.length - 22);
-        }
-        
-        const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const month = months[now.getMonth()];
-        const year = now.getFullYear();
-        let hours = now.getHours();
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12 || 12;
-        hours = String(hours).padStart(2, '0');
-        
-        return `${baseName}_${day}_${month}_${year}_${hours}_${minutes}${ampm}.pdf`;
-      }
+    await loadDefaultIfExists();
 
-      // Upload area handlers
-      uploadArea.addEventListener('click', () => pdfInput.click());
+    try{
+      const ab = await file.arrayBuffer();
+      pdfLibDoc = await PDFLib.PDFDocument.load(ab);
+      pdfJsDoc = await pdfjsLib.getDocument({data:ab}).promise;
+      const total = pdfLibDoc.getPageCount();
 
-      ['dragenter', 'dragover'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, (e) => {
-          e.preventDefault();
-          uploadArea.classList.add('active');
-        });
-      });
+      // measure container inner width (account for padding)
+      const cs = getComputedStyle(container);
+      const padLeft = parseFloat(cs.paddingLeft || 20);
+      const padRight = parseFloat(cs.paddingRight || 20);
+      const availableWidth = Math.max(300, container.clientWidth - padLeft - padRight - 4);
 
-      ['dragleave', 'drop'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, (e) => {
-          e.preventDefault();
-          uploadArea.classList.remove('active');
-        });
-      });
+      for(let p=1;p<=total;p++){
+        const page = await pdfJsDoc.getPage(p);
+        const base = page.getViewport({scale:1});
+        const scale = (availableWidth / base.width);
+        const viewport = page.getViewport({scale});
+        const cssW = Math.round(viewport.width);
+        const cssH = Math.round(viewport.height);
 
-      uploadArea.addEventListener('drop', (e) => {
-        if (e.dataTransfer.files.length) {
-          handlePdfSelection(e.dataTransfer.files[0]);
-        }
-      });
+        const canvas = document.createElement('canvas');
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+        canvas.width = Math.floor(cssW * DPR);
+        canvas.height = Math.floor(cssH * DPR);
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(DPR,0,0,DPR,0,0);
+        await page.render({ canvasContext: ctx, viewport }).promise;
 
-      pdfInput.addEventListener('change', (e) => {
-        if (e.target.files.length) {
-          handlePdfSelection(e.target.files[0]);
-        }
-      });
+        const libPage = pdfLibDoc.getPage(p-1);
+        const psize = libPage.getSize();
 
-      signatureImage.addEventListener('change', (e) => {
-        if (e.target.files.length) {
-          handleImageSelection(e.target.files[0]);
-        }
-      });
+        const item = document.createElement('div');
+        item.className = 'preview-item';
+        const title = document.createElement('h3');
+        title.textContent = `Page ${p}`;
+        item.appendChild(title);
 
-      // Handle PDF selection
-      async function handlePdfSelection(file) {
-        if (file.type !== 'application/pdf') {
-          alert('Please select a PDF file');
-          fileInfoDisplay.textContent = '';
-          fileInfoDisplay.style.display = 'none';
-          generateBtn.disabled = true;
-          stopVibration();
-          selectedPdf = null;
-          previewContainer.innerHTML = '';
-          signaturePositions = [];
-          pageSizes = [];
-          return;
-        }
-        selectedPdf = file;
-        fileInfoDisplay.textContent = `${file.name} (${formatFileSize(file.size)})`;
-        fileInfoDisplay.style.display = 'block';
-        startVibration();
-        await loadPdfPreviews(file);
-        generateBtn.disabled = signaturePositions.every(arr => arr.length === 0);
-        pdfInput.value = '';
-      }
+        const wrap = document.createElement('div');
+        wrap.className = 'canvas-wrap';
+        wrap.style.width = cssW + 'px';
+        wrap.style.height = cssH + 'px';
+        wrap.appendChild(canvas);
 
-      // Handle image selection
-      function handleImageSelection(file) {
-        if (!file.type.startsWith('image/')) {
-          alert('Please select an image file (PNG/JPEG)');
-          imageInfoDisplay.textContent = 'Default signature not found. Please upload a signature image.';
-          imageInfoDisplay.style.display = 'block';
-          generateBtn.disabled = true;
-          selectedImage = null;
-          signatureImgUrl = null;
-          return;
-        }
-        selectedImage = file;
-        signatureImgUrl = URL.createObjectURL(file);
-        imageInfoDisplay.textContent = `Signature: ${file.name} (${formatFileSize(file.size)})`;
-        imageInfoDisplay.style.display = 'block';
-        generateBtn.disabled = !selectedPdf || signaturePositions.every(arr => arr.length === 0);
-        startVibration();
-        signatureImage.value = '';
-      }
+        // layer same size as canvas, positioned top-left within wrap
+        const layer = document.createElement('div');
+        layer.className = 'sig-layer';
+        layer.style.width = cssW + 'px';
+        layer.style.height = cssH + 'px';
+        layer.style.left = '0';
+        layer.style.top = '0';
+        layer.style.position = 'absolute';
+        wrap.style.position = 'relative';
+        wrap.appendChild(layer);
 
-      // Load PDF previews
-      async function loadPdfPreviews(file) {
-        previewContainer.innerHTML = '';
-        const arrayBuffer = await file.arrayBuffer();
-        pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
-        const totalPages = pdfDoc.getPageCount();
-        signaturePositions = new Array(totalPages).fill().map(() => []);
-        pageSizes = new Array(totalPages);
+        item.appendChild(wrap);
+        previewList.appendChild(item);
 
-        const pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        for (let i = 1; i <= totalPages; i++) {
-          const page = await pdfJsDoc.getPage(i);
-          const viewport = page.getViewport({ scale: 1.0 });
-          const canvas = document.createElement('canvas');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const context = canvas.getContext('2d');
-          await page.render({ canvasContext: context, viewport }).promise;
+        pageData[p-1] = {
+          pdfSize: { width: psize.width, height: psize.height },
+          viewport: { width: viewport.width, height: viewport.height },
+          canvasElem: canvas,
+          layerElem: layer,
+          wrapElem: wrap,
+          signatures: []
+        };
 
-          const pdfPage = pdfDoc.getPage(i - 1);
-          pageSizes[i - 1] = pdfPage.getSize();
+        layer.addEventListener('click', async (ev) => {
+          ev.preventDefault();
+          await loadDefaultIfExists();
+          if(!signatureImgUrl){ alert('Signature missing'); return; }
 
-          const previewItem = document.createElement('div');
-          previewItem.className = 'preview-item';
-          previewItem.innerHTML = `<p>Page ${i}</p>`;
-          previewItem.appendChild(canvas);
+          const rect = layer.getBoundingClientRect();
+          const clickX = ev.clientX - rect.left;
+          const clickY = ev.clientY - rect.top;
 
-          // Create transparent signature layer
-          const signatureLayer = document.createElement('div');
-          signatureLayer.className = 'signature-layer';
-          const canvasRect = canvas.getBoundingClientRect();
-          signatureLayer.style.width = `${canvasRect.width}px`;
-          signatureLayer.style.height = `${canvasRect.height}px`;
-          previewItem.appendChild(signatureLayer);
-          previewContainer.appendChild(previewItem);
-
-          // Add click event to layer for signature placement
-          signatureLayer.addEventListener('click', (e) => {
-            if (!selectedImage) {
-              alert('Please ensure a signature image is available');
+          // prevent overlay: if click inside existing signature rect => pulse and return
+          const existing = Array.from(layer.querySelectorAll('.signature'));
+          for(const el of existing){
+            const br = el.getBoundingClientRect();
+            const relLeft = br.left - rect.left;
+            const relTop  = br.top - rect.top;
+            const relRight = relLeft + br.width;
+            const relBottom = relTop + br.height;
+            if(clickX >= relLeft && clickX <= relRight && clickY >= relTop && clickY <= relBottom){
+              el.classList.add('pulse');
+              setTimeout(()=> el.classList.remove('pulse'), 360);
               return;
             }
-            addSignature(i - 1, e, signatureLayer, canvas);
-          });
-        }
-      }
+          }
 
-      // Add signature to layer
-      function addSignature(pageIndex, event, layer, canvas) {
-        const canvasRect = canvas.getBoundingClientRect();
-        const layerRect = layer.getBoundingClientRect();
-        const layerX = (event.clientX - layerRect.left) / window.devicePixelRatio;
-        const layerY = (event.clientY - layerRect.top) / window.devicePixelRatio;
-        const signatureId = `signature-${pageIndex}-${Date.now()}`;
-        const signature = document.createElement('div');
-        signature.className = 'signature';
-        signature.id = signatureId;
-        signature.style.left = `${layerX}px`;
-        signature.style.top = `${layerY}px`;
-
-        const img = document.createElement('img');
-        img.src = signatureImgUrl;
-        img.style.width = `${signatureWidth}px`;
-        signature.appendChild(img);
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'delete-btn';
-        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-        deleteBtn.addEventListener('click', () => {
-          signature.remove();
-          signaturePositions[pageIndex] = signaturePositions[pageIndex].filter(pos => pos.id !== signatureId);
-          generateBtn.disabled = signaturePositions.every(arr => arr.length === 0);
-          if ('vibrate' in navigator) navigator.vibrate(50);
+          addSignatureToPage(p-1, clickX, clickY);
         });
-        signature.appendChild(deleteBtn);
-
-        layer.appendChild(signature);
-
-        const { width: pdfWidth, height: pdfHeight } = pageSizes[pageIndex];
-        const scaleX = pdfWidth / canvasRect.width;
-        const scaleY = pdfHeight / canvasRect.height;
-        const pdfX = layerX * scaleX;
-        const pdfY = pdfHeight - (layerY * scaleY);
-
-        signaturePositions[pageIndex].push({
-          id: signatureId,
-          x: pdfX,
-          y: pdfY,
-          width: signatureWidth * scaleX,
-        });
-
-        makeDraggable(signature, pageIndex, layer, canvas, signatureId);
-
-        generateBtn.disabled = false;
-        if ('vibrate' in navigator) navigator.vibrate(50);
       }
 
-      // Make signature draggable
-      function makeDraggable(element, pageIndex, layer, canvas, signatureId) {
-        let isDragging = false;
-        let currentX, currentY;
+      // container automatically expands since no fixed heights
+      // ensure generate disabled until user places at least one signature
+      generateBtn.disabled = pageData.every(pd => !pd.signatures || pd.signatures.length === 0);
 
-        element.addEventListener('mousedown', startDragging);
-        element.addEventListener('touchstart', startDragging);
+      // scroll to top of previews
+      previewList.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-        function startDragging(e) {
-          e.preventDefault();
-          isDragging = true;
-          const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-          const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-          currentX = clientX - parseFloat(element.style.left || 0);
-          currentY = clientY - parseFloat(element.style.top || 0);
-          document.addEventListener('mousemove', onDragging);
-          document.addEventListener('touchmove', onDragging);
-          document.addEventListener('mouseup', stopDragging);
-          document.addEventListener('touchend', stopDragging);
-        }
+    }catch(err){
+      console.error('PDF load/render error', err);
+      alert('Error loading PDF: ' + (err.message || err));
+    }
+  }
 
-        function onDragging(e) {
-          if (!isDragging) return;
-          const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-          const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-          const layerRect = layer.getBoundingClientRect();
-          let newX = (clientX - currentX) / window.devicePixelRatio;
-          let newY = (clientY - currentY) / window.devicePixelRatio;
+  function addSignatureToPage(pageIndex, x_css, y_css){
+    const pd = pageData[pageIndex];
+    if(!pd) return;
+    const layer = pd.layerElem;
+    const id = `sig-${pageIndex}-${Date.now()}`;
+    const sig = document.createElement('div');
+    sig.className = 'signature';
+    sig.id = id;
 
-          newX = Math.max(0, Math.min(newX, layerRect.width - element.offsetWidth));
-          newY = Math.max(0, Math.min(newY, layerRect.height - element.offsetHeight));
+    const left = x_css - (signatureWidth/2);
+    const top = y_css - (signatureWidth/2);
+    sig.style.left = Math.max(0,left) + 'px';
+    sig.style.top = Math.max(0,top) + 'px';
+    sig.style.width = signatureWidth + 'px';
 
-          element.style.left = `${newX}px`;
-          element.style.top = `${newY}px`;
+    const img = document.createElement('img');
+    img.src = signatureImgUrl || FALLBACK;
+    img.style.width = signatureWidth + 'px';
+    sig.appendChild(img);
 
-          const canvasRect = canvas.getBoundingClientRect();
-          const { width: pdfWidth, height: pdfHeight } = pageSizes[pageIndex];
-          const scaleX = pdfWidth / canvasRect.width;
-          const scaleY = pdfHeight / canvasRect.height;
-          const pdfX = newX * scaleX;
-          const pdfY = pdfHeight - (newY * scaleY);
-
-          const signature = signaturePositions[pageIndex].find(pos => pos.id === signatureId);
-          if (signature) {
-            signature.x = pdfX;
-            signature.y = pdfY;
-            signature.width = signatureWidth * scaleX;
-          }
-        }
-
-        function stopDragging() {
-          isDragging = false;
-          document.removeEventListener('mousemove', onDragging);
-          document.removeEventListener('touchmove', onDragging);
-          document.removeEventListener('mouseup', stopDragging);
-          document.removeEventListener('touchend', stopDragging);
-        }
-      }
-
-      // Progress bar
-      function updateProgress(percent) {
-        progressContainer.style.display = 'block';
-        progressBar.style.width = `${percent}%`;
-      }
-
-      // Generate PDF
-      async function generateDocument() {
-        if (!selectedPdf) {
-          alert('Please upload a PDF file');
-          return;
-        }
-        if (!selectedImage) {
-          alert('No signature image available');
-          return;
-        }
-        if (signaturePositions.every(arr => arr.length === 0)) {
-          alert('Please add at least one signature to a page');
-          return;
-        }
-
-        generateBtn.disabled = true;
-        try {
-          updateProgress(0);
-          const arrayBuffer = await selectedPdf.arrayBuffer();
-          updateProgress(20);
-
-          const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
-          const pages = pdfDoc.getPages();
-          updateProgress(40);
-
-          const imageBytes = await selectedImage.arrayBuffer();
-          let image;
-          if (selectedImage.type === 'image/png') {
-            image = await pdfDoc.embedPng(imageBytes);
-          } else if (selectedImage.type === 'image/jpeg') {
-            image = await pdfDoc.embedJpg(imageBytes);
-          } else {
-            throw new Error('Unsupported image format');
-          }
-          updateProgress(60);
-
-          for (let i = 0; i < pages.length; i++) {
-            const page = pages[i];
-            const { height: pdfHeight } = pageSizes[i];
-            for (const signature of signaturePositions[i]) {
-              const imgWidth = signature.width;
-              const imgHeight = (imgWidth / image.width) * image.height;
-              page.drawImage(image, {
-                x: signature.x,
-                y: signature.y - imgHeight,
-                width: imgWidth,
-                height: imgHeight,
-                opacity: 0.8,
-              });
-            }
-          }
-          updateProgress(80);
-
-          const pdfBytes = await pdfDoc.save();
-          updateProgress(95);
-
-          const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = generateFilename();
-
-          if ('vibrate' in navigator) navigator.vibrate(200);
-
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-          updateProgress(100);
-
-          selectedPdf = null;
-          signaturePositions = [];
-          pageSizes = [];
-          fileInfoDisplay.textContent = '';
-          fileInfoDisplay.style.display = 'none';
-          previewContainer.innerHTML = '';
-          generateBtn.disabled = true;
-          setTimeout(() => {
-            progressContainer.style.display = 'none';
-            progressBar.style.width = '0%';
-          }, 500);
-          await loadDefaultSignature();
-        } catch (error) {
-          console.error('Error generating document:', error);
-          alert(`Error generating document: ${error.message}`);
-          generateBtn.disabled = false;
-          fileInfoDisplay.style.display = 'block';
-          imageInfoDisplay.style.display = 'block';
-          progressContainer.style.display = 'none';
-          progressBar.style.width = '0%';
-          stopVibration();
-        }
-      }
-
-      generateBtn.addEventListener('click', () => {
-        stopVibration();
-        generateDocument();
-      });
+    const del = document.createElement('button');
+    del.className = 'delete-btn';
+    del.innerHTML = '<i class="fas fa-trash"></i>';
+    del.addEventListener('click', (e)=> {
+      e.stopPropagation();
+      sig.remove();
+      pd.signatures = pd.signatures.filter(s => s.id !== id);
+      generateBtn.disabled = pageData.every(p=> p.signatures.length===0);
     });
-  </script>
+    sig.appendChild(del);
+
+    layer.appendChild(sig);
+
+    const scaleX = pd.pdfSize.width / pd.viewport.width;
+    const scaleY = pd.pdfSize.height / pd.viewport.height;
+    const pdfX = (left) * scaleX;
+    const pdfTop = (top) * scaleY;
+
+    const stored = { id, x_pdf: pdfX, top_pdf: pdfTop, visualWidth: signatureWidth };
+    pd.signatures.push(stored);
+
+    makeDraggable(sig, pageIndex, stored);
+    generateBtn.disabled = false;
+  }
+
+  function makeDraggable(domEl, pageIndex, stored){
+    let dragging=false, startX=0, startY=0, startLeft=0, startTop=0;
+    const layer = pageData[pageIndex].layerElem;
+
+    const down = (e) => {
+      e.preventDefault();
+      dragging = true;
+      const cx = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+      const cy = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+      startX = cx; startY = cy;
+      startLeft = parseFloat(domEl.style.left || 0);
+      startTop = parseFloat(domEl.style.top || 0);
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', up);
+      document.addEventListener('touchmove', move, {passive:false});
+      document.addEventListener('touchend', up);
+    };
+
+    const move = (e) => {
+      if(!dragging) return;
+      e.preventDefault();
+      const cx = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+      const cy = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+      const dx = cx - startX, dy = cy - startY;
+      let newLeft = startLeft + dx, newTop = startTop + dy;
+      newLeft = Math.max(0, Math.min(newLeft, layer.clientWidth - domEl.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, layer.clientHeight - domEl.offsetHeight));
+      domEl.style.left = newLeft + 'px';
+      domEl.style.top = newTop + 'px';
+
+      const pd = pageData[pageIndex];
+      const sX = pd.pdfSize.width / pd.viewport.width;
+      const sY = pd.pdfSize.height / pd.viewport.height;
+      stored.x_pdf = newLeft * sX;
+      stored.top_pdf = newTop * sY;
+      stored.visualWidth = parseFloat(domEl.offsetWidth);
+    };
+
+    const up = (e) => {
+      dragging = false;
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+      document.removeEventListener('touchmove', move);
+      document.removeEventListener('touchend', up);
+    };
+
+    domEl.addEventListener('mousedown', down);
+    domEl.addEventListener('touchstart', down, {passive:false});
+  }
+
+  // generation logic (same embedding/draw approach)
+  generateBtn.addEventListener('click', async ()=>{
+    if(!selectedPdfFile) { alert('Upload a PDF first'); return; }
+    if(pageData.every(pd => !pd.signatures || pd.signatures.length===0)) { alert('Place at least one signature'); return; }
+    await loadDefaultIfExists();
+    try{
+      generateBtn.disabled = true;
+      progress.style.display = 'block';
+      progressBar.style.width = '6%';
+
+      const ab = await selectedPdfFile.arrayBuffer();
+      progressBar.style.width = '18%';
+      const pdfDoc = await PDFLib.PDFDocument.load(ab);
+      progressBar.style.width = '36%';
+
+      const imgBytes = await selectedImageFile.arrayBuffer();
+      let embedded;
+      if(selectedImageFile.type === 'image/svg+xml' || selectedImageFile.name.endsWith('.svg')){
+        const svgText = await (new Response(imgBytes)).text();
+        const imgEl = new Image();
+        const blob = new Blob([svgText], {type:'image/svg+xml'});
+        const url = URL.createObjectURL(blob);
+        await new Promise((res, rej)=> { imgEl.onload = res; imgEl.onerror = rej; imgEl.src = url; });
+        const c = document.createElement('canvas');
+        c.width = imgEl.naturalWidth || 400;
+        c.height = imgEl.naturalHeight || 150;
+        c.getContext('2d').drawImage(imgEl,0,0,c.width,c.height);
+        const png = c.toDataURL('image/png');
+        const raw = atob(png.split(',')[1]);
+        const u8 = new Uint8Array(raw.length);
+        for(let i=0;i<raw.length;i++) u8[i]=raw.charCodeAt(i);
+        embedded = await pdfDoc.embedPng(u8);
+      } else if(selectedImageFile.type === 'image/png'){
+        embedded = await pdfDoc.embedPng(imgBytes);
+      } else {
+        embedded = await pdfDoc.embedJpg(imgBytes);
+      }
+      progressBar.style.width = '62%';
+
+      const pages = pdfDoc.getPages();
+      for(let i=0;i<pages.length;i++){
+        const page = pages[i];
+        const pd = pageData[i];
+        if(!pd) continue;
+        for(const s of pd.signatures){
+          const pdfW = (s.visualWidth || signatureWidth) * (pd.pdfSize.width / pd.viewport.width);
+          const imgW = embedded.width, imgH = embedded.height;
+          const pdfH = (pdfW / imgW) * imgH;
+          const yBottom = pd.pdfSize.height - s.top_pdf - pdfH;
+          page.drawImage(embedded, { x: s.x_pdf, y: yBottom, width: pdfW, height: pdfH, opacity:1 });
+        }
+      }
+      progressBar.style.width = '86%';
+      const out = await pdfDoc.save();
+      progressBar.style.width = '96%';
+
+      const blob = new Blob([out], { type:'application/pdf' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      
+      // Use original filename with "_signed" suffix instead of random timestamp
+      const downloadFilename = originalFilename ? `${originalFilename}_signed.pdf` : `signed_document.pdf`;
+      a.download = downloadFilename;
+      
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      progressBar.style.width = '100%';
+      setTimeout(()=> { progress.style.display='none'; progressBar.style.width='0%'; }, 600);
+
+      // clear previews (keep default signature loaded)
+      previewList.innerHTML = '';
+      pageData = [];
+      selectedPdfFile = null;
+      originalFilename = ''; // Reset filename
+      generateBtn.disabled = true;
+    }catch(err){
+      console.error(err);
+      alert('Error generating signed PDF: ' + (err.message || err));
+      generateBtn.disabled = false;
+      progress.style.display = 'none';
+      progressBar.style.width = '0%';
+    }
+  });
+
+  // toggle generate button depending on signatures present
+  const mo = new MutationObserver(()=> {
+    generateBtn.disabled = pageData.every(pd => !pd.signatures || pd.signatures.length===0);
+  });
+  mo.observe(previewList, { childList:true, subtree:true });
+
+});
+</script>
 </body>
 </html>
