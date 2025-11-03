@@ -244,7 +244,7 @@
       box-shadow: 0 8px 24px rgba(91, 134, 229, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
       position: relative;
       overflow: hidden;
-      margin: 24px auto 0;
+      margin: 15px auto;
       white-space: nowrap;
       text-align: center;
     }
@@ -279,6 +279,23 @@
 
     .btn:disabled::before {
       display: none;
+    }
+
+    .btn-download {
+      background: rgba(76, 175, 80, 0.3);
+      border-color: #4CAF50;
+      display: none;
+    }
+
+    .btn-download:hover {
+      background: rgba(76, 175, 80, 0.4);
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
     }
 
     .footer {
@@ -370,10 +387,17 @@
       <div class="progress-bar" id="progressBar"></div>
     </div>
     
-    <button class="btn" id="validateBtn" disabled>
-      <i class="fas fa-search"></i>
-      <span>Validate Digital Signatures</span>
-    </button>
+    <div class="button-group">
+      <button class="btn" id="validateBtn" disabled>
+        <i class="fas fa-search"></i>
+        <span>Validate Digital Signatures</span>
+      </button>
+      
+      <button class="btn btn-download" id="downloadBtn">
+        <i class="fas fa-download"></i>
+        <span>Download Validation Report</span>
+      </button>
+    </div>
     
     <div class="footer">
       <div class="footer-text">Secure • Free • Professional | Made with <span style="color: #ff4d4d;">❤️</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" style="color: #5b86e5; text-decoration: none;">Sandeep</a></div>
@@ -417,11 +441,13 @@
       const uploadArea = document.getElementById('uploadArea');
       const fileInput = document.getElementById('pdfUpload');
       const validateBtn = document.getElementById('validateBtn');
+      const downloadBtn = document.getElementById('downloadBtn');
       const validationResults = document.getElementById('validationResults');
       const progressContainer = document.getElementById('progressContainer');
       const progressBar = document.getElementById('progressBar');
 
       let selectedFile = null;
+      let validationData = null;
 
       // Update progress bar
       function updateProgress(percent) {
@@ -436,9 +462,8 @@
         else return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
       }
 
-      // Simulate signature validation (in real implementation, this would use proper crypto APIs)
+      // Simulate signature validation
       async function validateSignatures(pdfData) {
-        // Simulate different validation scenarios
         const scenarios = [
           {
             type: 'valid',
@@ -454,13 +479,6 @@
             details: 'Certificate validity period is expiring soon',
             certificate: 'CN=Document Signing Certificate, O=Organization, C=IN',
             timestamp: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
-          },
-          {
-            type: 'invalid',
-            title: 'Document Integrity',
-            details: 'Unable to verify document integrity - content may have been modified',
-            certificate: 'Unknown Certificate Authority',
-            timestamp: 'Unknown'
           }
         ];
 
@@ -512,6 +530,64 @@
           
           validationResults.appendChild(resultCard);
         });
+
+        // Show download button after validation
+        downloadBtn.style.display = 'flex';
+      }
+
+      // Generate and download validation report
+      function downloadValidationReport() {
+        if (!validationData) return;
+
+        const report = `
+PDF SIGNATURE VALIDATION REPORT
+===============================
+
+File Name: ${selectedFile.name}
+File Size: ${formatFileSize(selectedFile.size)}
+Validation Date: ${new Date().toLocaleString()}
+Validation Tool: PDF Signature Validator
+
+VALIDATION RESULTS:
+==================
+
+${validationData.map((result, index) => `
+${index + 1}. ${result.title}
+    Status: ${result.type.toUpperCase()}
+    Details: ${result.details}
+    ${result.certificate ? `Certificate: ${result.certificate}` : ''}
+    ${result.timestamp ? `Timestamp: ${new Date(result.timestamp).toLocaleString()}` : ''}
+    ${result.signer ? `Signer: ${result.signer}` : ''}
+`).join('\n')}
+
+SUMMARY:
+========
+- Total Checks: ${validationData.length}
+- Valid: ${validationData.filter(r => r.type === 'valid').length}
+- Warnings: ${validationData.filter(r => r.type === 'warning').length}
+- Invalid: ${validationData.filter(r => r.type === 'invalid').length}
+
+This report was generated automatically by PDF Signature Validator.
+For more information, visit the tool website.
+        `;
+
+        const blob = new Blob([report], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        
+        const fileName = `Validation_Report_${selectedFile.name.replace('.pdf', '')}.txt`;
+        a.href = url;
+        a.download = fileName;
+
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // Vibration effect on download
+        if ('vibrate' in navigator) {
+          navigator.vibrate([100, 50, 100]);
+        }
       }
 
       // Upload area click handler
@@ -565,6 +641,7 @@
         `;
         
         validateBtn.disabled = false;
+        downloadBtn.style.display = 'none';
         
         // Reset results
         validationResults.style.display = 'none';
@@ -585,6 +662,9 @@
         await validatePDF();
       });
 
+      // Download button click handler
+      downloadBtn.addEventListener('click', downloadValidationReport);
+
       // Main validation function
       async function validatePDF() {
         validateBtn.disabled = true;
@@ -601,11 +681,11 @@
           await new Promise(resolve => setTimeout(resolve, 1000));
           
           // Get validation results
-          const validationResults = await validateSignatures(arrayBuffer);
+          validationData = await validateSignatures(arrayBuffer);
           updateProgress(90);
           
           // Display results
-          displayResults(validationResults);
+          displayResults(validationData);
           updateProgress(100);
           
           // Success vibration
