@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Word Document Merger</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.2/docx.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -325,6 +324,29 @@
         transform-origin: bottom right;
       }
     }
+    
+    .error-message {
+      background: rgba(255, 0, 0, 0.2);
+      border: 1px solid rgba(255, 100, 100, 0.5);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 10px 0;
+      color: #ffaaaa;
+      font-size: 14px;
+      display: none;
+    }
+    
+    .success-message {
+      background: rgba(0, 255, 0, 0.2);
+      border: 1px solid rgba(100, 255, 100, 0.5);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 10px 0;
+      color: #aaffaa;
+      font-size: 14px;
+      display: none;
+    }
+    
     @media (max-width: 768px) {
       .container {
         padding: 16px;
@@ -355,6 +377,10 @@
     <div class="header">
       <h1><i class="fas fa-file-word"></i> Word Document Merger</h1>
     </div>
+    
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+    
     <div class="upload-area" id="uploadArea">
       <i class="fas fa-cloud-upload-alt"></i>
       <h3>Upload Word Files</h3>
@@ -423,6 +449,8 @@
       const addFileBtn = document.getElementById('addFileBtn');
       const progressContainer = document.getElementById('progressContainer');
       const progressBar = document.getElementById('progressBar');
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
 
       let files = []; // Store selected Word files
       let vibrationIntervals = []; // Store vibration intervals for each file
@@ -459,7 +487,31 @@
         hours = hours ? hours : 12; // Convert 0 to 12
         
         // Format the filename
-        return `${baseName}_${day}_${month}_${year}_${hours}_${minutes}${ampm}.docx`;
+        return `${baseName}_${day}_${month}_${year}_${hours}_${minutes}${ampm}.html`;
+      }
+
+      // Show error message
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        successMessage.style.display = 'none';
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+          errorMessage.style.display = 'none';
+        }, 5000);
+      }
+
+      // Show success message
+      function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+        
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+          successMessage.style.display = 'none';
+        }, 3000);
       }
 
       // Start vibration synchronized with shine animation
@@ -545,7 +597,7 @@
         );
         
         if (validFiles.length !== selectedFiles.length) {
-          alert('Please select only Word documents (.docx or .doc files)');
+          showError('Please select only Word documents (.docx or .doc files)');
         }
         files = [...files, ...validFiles];
         renderFileList();
@@ -587,60 +639,146 @@
         progressBar.style.width = `${percent}%`;
       }
 
+      // Process a single document with error handling
+      async function processDocument(file) {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const result = await mammoth.convertToHtml({arrayBuffer: arrayBuffer});
+          
+          if (result.messages && result.messages.length > 0) {
+            console.warn('Conversion warnings for', file.name, result.messages);
+          }
+          
+          return {
+            success: true,
+            content: result.value,
+            title: file.name.replace(/\.(docx|doc)$/i, '')
+          };
+        } catch (error) {
+          console.error('Error processing', file.name, error);
+          return {
+            success: false,
+            error: error.message,
+            fileName: file.name
+          };
+        }
+      }
+
       // Merge Word Documents
       async function mergeDocuments() {
         if (files.length < 2) {
-          alert('Please upload at least two Word documents');
+          showError('Please upload at least two Word documents');
           return;
         }
 
         mergeBtn.disabled = true;
         try {
           updateProgress(0);
-          
-          // This is a simplified implementation
-          // In a real scenario, you would need a more complex approach
-          // or a server-side solution for merging Word documents
+          errorMessage.style.display = 'none';
           
           let mergedContent = "";
+          let failedFiles = [];
           
           for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            const arrayBuffer = await file.arrayBuffer();
+            const result = await processDocument(file);
             
-            // Using Mammoth to convert to HTML for demonstration
-            // Note: This is not a true merge - it just extracts text content
-            const result = await mammoth.convertToHtml({arrayBuffer: arrayBuffer});
-            mergedContent += result.value + "<br><hr><br>";
+            if (result.success) {
+              mergedContent += `<div class="document-section">
+                <h2>${result.title}</h2>
+                <div class="document-content">${result.content}</div>
+                <hr class="document-divider">
+              </div>`;
+            } else {
+              failedFiles.push({
+                name: result.fileName,
+                error: result.error
+              });
+            }
             
             updateProgress(10 + ((i + 1) / files.length) * 80);
           }
           
+          // Show warning if some files failed
+          if (failedFiles.length > 0) {
+            const failedNames = failedFiles.map(f => f.name).join(', ');
+            showError(`Warning: Some files could not be processed: ${failedNames}. The merged document may be incomplete.`);
+          }
+          
           updateProgress(95);
           
-          // Create a simple HTML file with the merged content
-          const blob = new Blob([`
+          // Create a styled HTML file with the merged content
+          const htmlContent = `
             <!DOCTYPE html>
             <html>
             <head>
               <meta charset="UTF-8">
               <title>Merged Document</title>
               <style>
-                body { font-family: Arial, sans-serif; margin: 40px; }
-                hr { margin: 20px 0; border: none; border-top: 1px solid #ccc; }
+                body { 
+                  font-family: Arial, sans-serif; 
+                  margin: 40px; 
+                  line-height: 1.6;
+                  color: #333;
+                }
+                .document-section { 
+                  margin-bottom: 40px; 
+                }
+                .document-section h2 {
+                  color: #2c3e50;
+                  border-bottom: 2px solid #3498db;
+                  padding-bottom: 10px;
+                }
+                .document-content {
+                  margin: 20px 0;
+                }
+                .document-divider { 
+                  margin: 30px 0; 
+                  border: none; 
+                  border-top: 2px dashed #bdc3c7; 
+                }
+                p { margin: 10px 0; }
+                table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+                table, th, td { border: 1px solid #ddd; }
+                th, td { padding: 8px 12px; text-align: left; }
+                th { background-color: #f2f2f2; }
+                ul, ol { margin: 10px 0; padding-left: 30px; }
+                blockquote { 
+                  border-left: 4px solid #3498db; 
+                  margin: 15px 0; 
+                  padding-left: 15px; 
+                  color: #7f8c8d;
+                  font-style: italic;
+                }
               </style>
             </head>
             <body>
+              <h1>Merged Document</h1>
+              <p>Created on ${new Date().toLocaleString()}</p>
+              <hr>
               ${mergedContent}
+              ${failedFiles.length > 0 ? `
+                <div class="failed-files">
+                  <h2>Files that could not be processed:</h2>
+                  <ul>
+                    ${failedFiles.map(f => `<li>${f.name}: ${f.error}</li>`).join('')}
+                  </ul>
+                </div>
+              ` : ''}
             </body>
             </html>
-          `], { type: 'text/html' });
+          `;
           
+          const blob = new Blob([htmlContent], { type: 'text/html' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           
-          // Generate filename based on the first file's name
-          const fileName = generateFileName(files[0].name).replace('.docx', '.html');
+          // Generate filename based on the first successfully processed file
+          const firstValidFile = files.find(f => !failedFiles.some(ff => ff.name === f.name));
+          const fileName = firstValidFile ? 
+            generateFileName(firstValidFile.name) : 
+            `merged_document_${new Date().getTime()}.html`;
+            
           a.href = url;
           a.download = fileName;
 
@@ -655,17 +793,25 @@
           URL.revokeObjectURL(url);
           updateProgress(100);
 
+          // Show success message
+          if (failedFiles.length === 0) {
+            showSuccess('All documents merged successfully!');
+          } else {
+            showSuccess(`Merged ${files.length - failedFiles.length} of ${files.length} documents. Check the downloaded file for details.`);
+          }
+
           // Reset UI
-          files = [];
-          fileList.innerHTML = '';
-          mergeBtn.disabled = true;
-          stopAllVibrations();
           setTimeout(() => {
+            files = [];
+            fileList.innerHTML = '';
+            mergeBtn.disabled = true;
+            stopAllVibrations();
             progressContainer.style.display = 'none';
             progressBar.style.width = '0%';
-          }, 500);
+          }, 2000);
         } catch (error) {
-          alert(`Error merging documents: ${error.message}`);
+          console.error('Merging error:', error);
+          showError(`Error merging documents: ${error.message}`);
           mergeBtn.disabled = false;
           progressContainer.style.display = 'none';
           progressBar.style.width = '0%';
