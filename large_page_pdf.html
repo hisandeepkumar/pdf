@@ -259,6 +259,27 @@
       background: rgba(0, 0, 0, 0.8);
     }
 
+    .auto-info {
+      background: rgba(255, 107, 107, 0.2);
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+      border-left: 4px solid #ff6b6b;
+    }
+
+    .auto-info p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .auto-info i {
+      color: #ff6b6b;
+      font-size: 1.2rem;
+    }
+
     .preview-container {
       background: rgba(255, 255, 255, 0.1);
       border-radius: 12px;
@@ -278,6 +299,34 @@
     }
 
     .preview-container h3 i {
+      color: #ff6b6b;
+    }
+
+    .preview-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .preview-info-item {
+      flex: 1;
+      min-width: 120px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .preview-info-item .label {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 5px;
+    }
+
+    .preview-info-item .value {
+      font-size: 1.1rem;
+      font-weight: 600;
       color: #ff6b6b;
     }
 
@@ -444,6 +493,9 @@
       .option-group {
         flex-direction: column;
       }
+      .preview-info {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -467,45 +519,42 @@
     </div>
     
     <div class="options-section">
-      <h3><i class="fas fa-cog"></i> Layout Options</h3>
+      <h3><i class="fas fa-cog"></i> Auto Layout Options</h3>
       <div class="option-group">
-        <div class="option-item">
-          <label for="pageSize">Page Size</label>
-          <select id="pageSize">
-            <option value="a3">A3 (297×420mm)</option>
-            <option value="a2">A2 (420×594mm)</option>
-            <option value="a1">A1 (594×841mm)</option>
-            <option value="a0">A0 (841×1189mm)</option>
-            <option value="custom">Custom Size</option>
-          </select>
-        </div>
         <div class="option-item">
           <label for="layoutType">Layout Type</label>
           <select id="layoutType">
-            <option value="grid">Grid Layout</option>
+            <option value="auto">Auto Grid (Recommended)</option>
             <option value="horizontal">Horizontal Strip</option>
             <option value="vertical">Vertical Strip</option>
           </select>
         </div>
-      </div>
-      <div class="option-group">
-        <div class="option-item">
-          <label for="rows">Rows</label>
-          <input type="number" id="rows" min="1" max="10" value="2">
-        </div>
-        <div class="option-item">
-          <label for="columns">Columns</label>
-          <input type="number" id="columns" min="1" max="10" value="2">
-        </div>
         <div class="option-item">
           <label for="spacing">Spacing (mm)</label>
-          <input type="number" id="spacing" min="0" max="50" value="5">
+          <input type="number" id="spacing" min="0" max="50" value="10">
         </div>
+      </div>
+      <div class="auto-info">
+        <p><i class="fas fa-info-circle"></i> Page size will be automatically calculated based on your PDFs and layout</p>
       </div>
     </div>
     
     <div class="preview-container" id="previewContainer">
       <h3><i class="fas fa-eye"></i> Layout Preview</h3>
+      <div class="preview-info">
+        <div class="preview-info-item">
+          <div class="label">Page Size</div>
+          <div class="value" id="previewPageSize">Auto</div>
+        </div>
+        <div class="preview-info-item">
+          <div class="label">Grid</div>
+          <div class="value" id="previewGridSize">Auto</div>
+        </div>
+        <div class="preview-info-item">
+          <div class="label">Total Pages</div>
+          <div class="value" id="previewTotalPages">0</div>
+        </div>
+      </div>
       <div class="preview-grid" id="previewGrid"></div>
     </div>
     
@@ -570,15 +619,16 @@
       const progressBar = document.getElementById('progressBar');
       const previewContainer = document.getElementById('previewContainer');
       const previewGrid = document.getElementById('previewGrid');
+      const previewPageSize = document.getElementById('previewPageSize');
+      const previewGridSize = document.getElementById('previewGridSize');
+      const previewTotalPages = document.getElementById('previewTotalPages');
       
       // Layout options
-      const pageSizeSelect = document.getElementById('pageSize');
       const layoutTypeSelect = document.getElementById('layoutType');
-      const rowsInput = document.getElementById('rows');
-      const columnsInput = document.getElementById('columns');
       const spacingInput = document.getElementById('spacing');
 
       let files = []; // Store selected PDF files
+      let totalPages = 0; // Total number of pages across all PDFs
       let vibrationIntervals = []; // Store vibration intervals for each file
 
       // Format file size to human-readable format
@@ -632,9 +682,41 @@
         vibrationIntervals = [];
       }
 
+      // Calculate optimal grid dimensions based on number of pages
+      function calculateGridDimensions(pageCount) {
+        if (pageCount <= 0) return { rows: 0, cols: 0 };
+        
+        // Try to create a roughly square grid
+        const sqrt = Math.sqrt(pageCount);
+        let rows = Math.floor(sqrt);
+        let cols = Math.ceil(pageCount / rows);
+        
+        // If the grid is too wide, adjust
+        if (cols > rows + 1) {
+          rows = Math.ceil(sqrt);
+          cols = Math.ceil(pageCount / rows);
+        }
+        
+        return { rows, cols };
+      }
+
       // Render file list
-      function renderFileList() {
+      async function renderFileList() {
         fileList.innerHTML = '';
+        totalPages = 0;
+        
+        // Calculate total pages
+        for (let i = 0; i < files.length; i++) {
+          try {
+            const arrayBuffer = await files[i].arrayBuffer();
+            const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+            totalPages += pdf.getPageCount();
+          } catch (error) {
+            console.error(`Error reading PDF ${files[i].name}:`, error);
+          }
+        }
+        
+        // Render file items
         files.forEach((file, index) => {
           const fileItem = document.createElement('div');
           fileItem.className = 'file-item';
@@ -649,6 +731,7 @@
           fileList.appendChild(fileItem);
           startVibration(); // Start vibration for each file item
         });
+        
         createBtn.disabled = files.length < 1; // Enable create button if at least 1 file
         
         // Update preview
@@ -657,17 +740,31 @@
 
       // Update layout preview
       function updatePreview() {
-        const rows = parseInt(rowsInput.value) || 2;
-        const cols = parseInt(columnsInput.value) || 2;
+        const layoutType = layoutTypeSelect.value;
+        const { rows, cols } = calculateGridDimensions(totalPages);
         const totalCells = rows * cols;
         
+        // Update preview info
+        previewPageSize.textContent = 'Auto';
+        previewGridSize.textContent = `${rows} × ${cols}`;
+        previewTotalPages.textContent = totalPages;
+        
+        // Update grid preview
         previewGrid.innerHTML = '';
         previewGrid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
         
         for (let i = 0; i < totalCells; i++) {
           const cell = document.createElement('div');
           cell.className = 'preview-cell';
-          cell.textContent = i < files.length ? `Page ${i+1}` : 'Empty';
+          
+          if (i < totalPages) {
+            cell.textContent = `Page ${i+1}`;
+            cell.style.background = 'rgba(255, 107, 107, 0.3)';
+          } else {
+            cell.textContent = 'Empty';
+            cell.style.background = 'rgba(255, 255, 255, 0.1)';
+          }
+          
           previewGrid.appendChild(cell);
         }
         
@@ -747,7 +844,7 @@
       });
 
       // Layout options change handlers
-      [pageSizeSelect, layoutTypeSelect, rowsInput, columnsInput, spacingInput].forEach(element => {
+      [layoutTypeSelect, spacingInput].forEach(element => {
         element.addEventListener('change', updatePreview);
       });
 
@@ -763,25 +860,6 @@
         progressBar.style.width = `${percent}%`;
       }
 
-      // Get page dimensions based on selected size
-      function getPageDimensions(size) {
-        // PDF units are in points (1 point = 1/72 inch)
-        const mmToPoints = (mm) => mm * 2.83465;
-        
-        switch(size) {
-          case 'a3':
-            return { width: mmToPoints(297), height: mmToPoints(420) };
-          case 'a2':
-            return { width: mmToPoints(420), height: mmToPoints(594) };
-          case 'a1':
-            return { width: mmToPoints(594), height: mmToPoints(841) };
-          case 'a0':
-            return { width: mmToPoints(841), height: mmToPoints(1189) };
-          default:
-            return { width: mmToPoints(297), height: mmToPoints(420) };
-        }
-      }
-
       // Create Poster PDF
       async function createPosterPDF() {
         if (files.length < 1) {
@@ -794,29 +872,18 @@
           updateProgress(0);
           
           // Get layout parameters
-          const pageSize = pageSizeSelect.value;
           const layoutType = layoutTypeSelect.value;
-          const rows = parseInt(rowsInput.value) || 2;
-          const columns = parseInt(columnsInput.value) || 2;
-          const spacing = parseInt(spacingInput.value) || 5;
-          
-          const { width: pageWidth, height: pageHeight } = getPageDimensions(pageSize);
+          const spacing = parseInt(spacingInput.value) || 10;
           const spacingPoints = spacing * 2.83465; // Convert mm to points
-          
-          // Calculate cell dimensions
-          const cellWidth = (pageWidth - (columns + 1) * spacingPoints) / columns;
-          const cellHeight = (pageHeight - (rows + 1) * spacingPoints) / rows;
           
           // Create new PDF document
           const pdfDoc = await PDFLib.PDFDocument.create();
-          const page = pdfDoc.addPage([pageWidth, pageHeight]);
-          
           updateProgress(10);
           
-          // Process each PDF file
-          let currentRow = 0;
-          let currentCol = 0;
-          let pageIndex = 0;
+          // First, get all pages from all PDFs
+          let allPages = [];
+          let maxPageWidth = 0;
+          let maxPageHeight = 0;
           
           for (let i = 0; i < files.length; i++) {
             const arrayBuffer = await files[i].arrayBuffer();
@@ -824,51 +891,70 @@
             const pdfPages = pdf.getPages();
             
             for (let j = 0; j < pdfPages.length; j++) {
-              // If we've filled the current page, create a new one
-              if (currentRow >= rows) {
-                currentRow = 0;
-                currentCol = 0;
-                pageIndex++;
-                
-                // Add new page
-                pdfDoc.addPage([pageWidth, pageHeight]);
-              }
-              
-              // Calculate position for this cell
-              const x = currentCol * cellWidth + (currentCol + 1) * spacingPoints;
-              const y = pageHeight - (currentRow + 1) * cellHeight - (currentRow + 1) * spacingPoints;
-              
-              // Embed the page and draw it
-              const [embeddedPage] = await pdfDoc.embedPage(pdfPages[j]);
               const { width, height } = pdfPages[j].getSize();
+              maxPageWidth = Math.max(maxPageWidth, width);
+              maxPageHeight = Math.max(maxPageHeight, height);
               
-              // Calculate scaling to fit the cell
-              const scale = Math.min(cellWidth / width, cellHeight / height);
-              const scaledWidth = width * scale;
-              const scaledHeight = height * scale;
-              
-              // Center the page in the cell
-              const xOffset = x + (cellWidth - scaledWidth) / 2;
-              const yOffset = y + (cellHeight - scaledHeight) / 2;
-              
-              // Draw the page
-              const currentPage = pdfDoc.getPages()[pageIndex];
-              currentPage.drawPage(embeddedPage, {
-                x: xOffset,
-                y: yOffset,
-                width: scaledWidth,
-                height: scaledHeight,
+              // Embed the page
+              const [embeddedPage] = await pdfDoc.embedPage(pdfPages[j]);
+              allPages.push({
+                embeddedPage,
+                width,
+                height
               });
-              
-              // Move to next cell
-              currentCol++;
-              if (currentCol >= columns) {
-                currentCol = 0;
-                currentRow++;
-              }
-              
-              updateProgress(10 + ((i + j/pdfPages.length) / files.length) * 80);
             }
+            
+            updateProgress(10 + (i / files.length) * 30);
+          }
+          
+          // Calculate optimal grid
+          const { rows, cols } = calculateGridDimensions(allPages.length);
+          
+          // Calculate poster page dimensions
+          const posterWidth = (maxPageWidth * cols) + (spacingPoints * (cols + 1));
+          const posterHeight = (maxPageHeight * rows) + (spacingPoints * (rows + 1));
+          
+          // Create the poster page
+          const posterPage = pdfDoc.addPage([posterWidth, posterHeight]);
+          
+          updateProgress(50);
+          
+          // Arrange pages on the poster
+          let currentRow = 0;
+          let currentCol = 0;
+          
+          for (let i = 0; i < allPages.length; i++) {
+            const page = allPages[i];
+            
+            // Calculate position for this cell
+            const x = currentCol * maxPageWidth + (currentCol + 1) * spacingPoints;
+            const y = posterHeight - (currentRow + 1) * maxPageHeight - (currentRow + 1) * spacingPoints;
+            
+            // Calculate scaling to fit the cell (maintain aspect ratio)
+            const scale = Math.min(maxPageWidth / page.width, maxPageHeight / page.height);
+            const scaledWidth = page.width * scale;
+            const scaledHeight = page.height * scale;
+            
+            // Center the page in the cell
+            const xOffset = x + (maxPageWidth - scaledWidth) / 2;
+            const yOffset = y + (maxPageHeight - scaledHeight) / 2;
+            
+            // Draw the page
+            posterPage.drawPage(page.embeddedPage, {
+              x: xOffset,
+              y: yOffset,
+              width: scaledWidth,
+              height: scaledHeight,
+            });
+            
+            // Move to next cell
+            currentCol++;
+            if (currentCol >= cols) {
+              currentCol = 0;
+              currentRow++;
+            }
+            
+            updateProgress(50 + ((i + 1) / allPages.length) * 45);
           }
           
           updateProgress(95);
