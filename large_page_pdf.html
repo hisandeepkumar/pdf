@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Poster Creator</title>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: #f0f0f0;
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(255, 255, 255, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: transform 0.3s ease;
+      padding: 32px;
+      position: relative;
+    }
+
+    .header {
+      padding: 24px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .header h1 i {
+      color: #ff6b6b;
+      font-size: 28px;
+    }
+
+    .upload-area {
+      border: 2px dashed rgba(255, 255, 255, 0.4);
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+      margin-bottom: 24px;
+    }
+
+    .upload-area:hover, .upload-area.active {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: #ff6b6b;
+      box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+
+    .upload-area i {
+      font-size: 40px;
+      color: #ff6b6b;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+    }
+
+    .upload-area:hover i, .upload-area.active i {
+      transform: scale(1.1);
+    }
+
+    .upload-area h3 {
+      color: #f0f0f0;
+      margin-bottom: 10px;
+      font-size: 1.6rem;
+      font-weight: 500;
+    }
+
+    .upload-area p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+    }
+
+    .upload-area input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-list {
+      margin: 20px 0;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 0 10px;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      color: white;
+      font-size: 1rem;
+      word-break: break-all;
+      font-weight: bold;
+      text-decoration: underline;
+      background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.8) 50%,
+          rgba(255, 255, 255, 0) 100%
+      );
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 2s linear infinite;
+    }
+
+    @keyframes shine {
+      from {
+        background-position: 200% 0;
+      }
+      to {
+        background-position: -200% 0;
+      }
+    }
+
+    .file-item span {
+      flex-grow: 1;
+      margin-left: 10px;
+    }
+
+    .file-item .controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .file-item .controls i {
+      cursor: pointer;
+      color: #ff6b6b;
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+
+    .file-item .controls i:hover {
+      transform: scale(1.2);
+    }
+
+    .file-item .controls i.disabled {
+      color: rgba(255, 255, 255, 0.3);
+      cursor: not-allowed;
+    }
+
+    .add-file-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: #ff6b6b;
+      border-radius: 50%;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      margin: 10px auto;
+      transition: transform 0.3s ease;
+    }
+
+    .add-file-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .options-section {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .options-section h3 {
+      color: #f0f0f0;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .options-section h3 i {
+      color: #ff6b6b;
+    }
+
+    .option-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .option-item {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .option-item label {
+      display: block;
+      margin-bottom: 8px;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+    }
+
+    .option-item select, .option-item input {
+      width: 100%;
+      padding: 10px 15px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      color: #f0f0f0;
+      font-size: 1rem;
+      backdrop-filter: blur(5px);
+    }
+
+    .option-item select option {
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .preview-container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      display: none;
+    }
+
+    .preview-container h3 {
+      color: #f0f0f0;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .preview-container h3 i {
+      color: #ff6b6b;
+    }
+
+    .preview-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .preview-cell {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      background: #ff6b6b;
+      transition: width 0.3s ease;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      color: #f0f0f0;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 14px 32px;
+      border-radius: 30px;
+      width: 280px;
+      height: 60px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+      margin: 24px auto 0;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -150%;
+      width: 150%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: all 0.6s ease;
+    }
+
+    .btn:hover::before {
+      left: 150%;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+      box-shadow: 0 12px 32px rgba(255, 107, 107, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn:disabled::before {
+      display: none;
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      padding: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .footer-text {
+      display: inline-block;
+      position: relative;
+    }
+    
+    .footer-text::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      bottom: -5px;
+      left: 0;
+      background: linear-gradient(90deg, #ff6b6b, #ffd166);
+      transform: scaleX(0);
+      transform-origin: bottom right;
+      transition: transform 0.5s ease;
+      animation: continuousLine 3s infinite;
+    }
+    
+    @keyframes continuousLine {
+      0% {
+        transform: scaleX(0);
+        transform-origin: bottom left;
+      }
+      50% {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+      }
+      51% {
+        transform: scaleX(1);
+        transform-origin: bottom right;
+      }
+      100% {
+        transform: scaleX(0);
+        transform-origin: bottom right;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+      .header {
+        padding: 16px;
+      }
+      .header h1 {
+        font-size: 24px;
+      }
+      .upload-area {
+        padding: 24px 16px;
+      }
+      .btn {
+        width: 240px;
+        height: 50px;
+        font-size: 14px;
+        padding: 12px 24px;
+      }
+      .file-item {
+        font-size: 0.9rem;
+      }
+      .option-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-file-pdf"></i> PDF Poster Creator</h1>
+    </div>
+    
+    <div class="upload-area" id="uploadArea">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <h3>Upload PDF Files</h3>
+      <p>Click here or drag and drop your PDF files</p>
+      <input type="file" id="pdfUpload" accept="application/pdf" multiple hidden>
+    </div>
+    
+    <div class="file-list" id="fileList"></div>
+    
+    <div class="add-file-btn" id="addFileBtn" title="Add another PDF">
+      <i class="fas fa-plus"></i>
+    </div>
+    
+    <div class="options-section">
+      <h3><i class="fas fa-cog"></i> Layout Options</h3>
+      <div class="option-group">
+        <div class="option-item">
+          <label for="pageSize">Page Size</label>
+          <select id="pageSize">
+            <option value="a3">A3 (297×420mm)</option>
+            <option value="a2">A2 (420×594mm)</option>
+            <option value="a1">A1 (594×841mm)</option>
+            <option value="a0">A0 (841×1189mm)</option>
+            <option value="custom">Custom Size</option>
+          </select>
+        </div>
+        <div class="option-item">
+          <label for="layoutType">Layout Type</label>
+          <select id="layoutType">
+            <option value="grid">Grid Layout</option>
+            <option value="horizontal">Horizontal Strip</option>
+            <option value="vertical">Vertical Strip</option>
+          </select>
+        </div>
+      </div>
+      <div class="option-group">
+        <div class="option-item">
+          <label for="rows">Rows</label>
+          <input type="number" id="rows" min="1" max="10" value="2">
+        </div>
+        <div class="option-item">
+          <label for="columns">Columns</label>
+          <input type="number" id="columns" min="1" max="10" value="2">
+        </div>
+        <div class="option-item">
+          <label for="spacing">Spacing (mm)</label>
+          <input type="number" id="spacing" min="0" max="50" value="5">
+        </div>
+      </div>
+    </div>
+    
+    <div class="preview-container" id="previewContainer">
+      <h3><i class="fas fa-eye"></i> Layout Preview</h3>
+      <div class="preview-grid" id="previewGrid"></div>
+    </div>
+    
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <button class="btn" id="createBtn" disabled>
+      <i class="fas fa-cogs"></i>
+      <span>Create Poster PDF</span>
+    </button>
+    
+    <div class="footer">
+      <div class="footer-text">Secure • Free • Professional | Made with <span style="color: #ff4d4d;">❤️</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" style="color: #ff6b6b; text-decoration: none;">Sandeep</a></div>
+    </div>
+  </div>
+
+  <!-- Circular Floating Back Button -->
+  <button
+    type="button"
+    title="Back"
+    aria-label="Go back"
+    onclick="(function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })();"
+    onkeydown="if(event.key==='Enter' || event.code==='Space'){ event.preventDefault(); (function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })(); }"
+    onmouseenter="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.25)';"
+    onmouseleave="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.18)';"
+    style="
+      position:fixed;
+      top:14px;
+      left:14px;
+      z-index:2147483647;
+      width:52px;
+      height:52px;
+      padding:0;
+      border-radius:50%;
+      border:none;
+      background:linear-gradient(180deg,#ffffff,#f2f2f2);
+      box-shadow:0 4px 12px rgba(0,0,0,0.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      transition:transform .12s ease, box-shadow .12s ease;
+      backdrop-filter:blur(6px);
+      opacity:0.98;
+    "
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+      <path d="M15 18l-6-6 6-6" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const uploadArea = document.getElementById('uploadArea');
+      const fileInput = document.getElementById('pdfUpload');
+      const createBtn = document.getElementById('createBtn');
+      const fileList = document.getElementById('fileList');
+      const addFileBtn = document.getElementById('addFileBtn');
+      const progressContainer = document.getElementById('progressContainer');
+      const progressBar = document.getElementById('progressBar');
+      const previewContainer = document.getElementById('previewContainer');
+      const previewGrid = document.getElementById('previewGrid');
+      
+      // Layout options
+      const pageSizeSelect = document.getElementById('pageSize');
+      const layoutTypeSelect = document.getElementById('layoutType');
+      const rowsInput = document.getElementById('rows');
+      const columnsInput = document.getElementById('columns');
+      const spacingInput = document.getElementById('spacing');
+
+      let files = []; // Store selected PDF files
+      let vibrationIntervals = []; // Store vibration intervals for each file
+
+      // Format file size to human-readable format
+      function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+        else return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+      }
+
+      // Generate filename based on requirements
+      function generateFileName(originalName) {
+        // Remove extension
+        let baseName = originalName.replace(/\.pdf$/i, '');
+        
+        // Check if filename ends with pattern like "0PM" or "5AM" before ".pdf"
+        const pattern = /\d{1,2}[APMapm]{2}$/;
+        if (pattern.test(baseName) && baseName.length >= 22) {
+          baseName = baseName.substring(0, baseName.length - 22);
+        }
+        
+        // Get current date and time components
+        const now = new Date();
+        const day = now.getDate();
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = monthNames[now.getMonth()];
+        const year = now.getFullYear();
+        
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // Convert 0 to 12
+        
+        // Format the filename
+        return `${baseName}_poster_${day}_${month}_${year}_${hours}_${minutes}${ampm}.pdf`;
+      }
+
+      // Start vibration synchronized with shine animation
+      function startVibration() {
+        if ('vibrate' in navigator) {
+          const interval = setInterval(() => {
+            navigator.vibrate(50); // Short 50ms vibration
+          }, 2000); // Matches the 2-second shine animation
+          vibrationIntervals.push(interval);
+        }
+      }
+
+      // Stop all vibrations
+      function stopAllVibrations() {
+        vibrationIntervals.forEach(interval => clearInterval(interval));
+        vibrationIntervals = [];
+      }
+
+      // Render file list
+      function renderFileList() {
+        fileList.innerHTML = '';
+        files.forEach((file, index) => {
+          const fileItem = document.createElement('div');
+          fileItem.className = 'file-item';
+          fileItem.innerHTML = `
+            <span>${index + 1}. ${file.name} (${formatFileSize(file.size)})</span>
+            <div class="controls">
+              <i class="fas fa-arrow-up ${index === 0 ? 'disabled' : ''}" data-index="${index}" title="Move Up"></i>
+              <i class="fas fa-arrow-down ${index === files.length - 1 ? 'disabled' : ''}" data-index="${index}" title="Move Down"></i>
+              <i class="fas fa-trash" data-index="${index}" title="Remove"></i>
+            </div>
+          `;
+          fileList.appendChild(fileItem);
+          startVibration(); // Start vibration for each file item
+        });
+        createBtn.disabled = files.length < 1; // Enable create button if at least 1 file
+        
+        // Update preview
+        updatePreview();
+      }
+
+      // Update layout preview
+      function updatePreview() {
+        const rows = parseInt(rowsInput.value) || 2;
+        const cols = parseInt(columnsInput.value) || 2;
+        const totalCells = rows * cols;
+        
+        previewGrid.innerHTML = '';
+        previewGrid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        
+        for (let i = 0; i < totalCells; i++) {
+          const cell = document.createElement('div');
+          cell.className = 'preview-cell';
+          cell.textContent = i < files.length ? `Page ${i+1}` : 'Empty';
+          previewGrid.appendChild(cell);
+        }
+        
+        previewContainer.style.display = files.length > 0 ? 'block' : 'none';
+      }
+
+      // Upload area click handler
+      uploadArea.addEventListener('click', () => {
+        fileInput.click();
+      });
+
+      // Add file button click handler
+      addFileBtn.addEventListener('click', () => {
+        fileInput.click();
+      });
+
+      // Drag and drop functionality
+      ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          uploadArea.classList.add('active');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          uploadArea.classList.remove('active');
+        });
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        if (e.dataTransfer.files.length) {
+          handleFileSelection(e.dataTransfer.files);
+        }
+      });
+
+      // File input change handler
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+          handleFileSelection(e.target.files);
+        }
+      });
+
+      // Handle file selection
+      function handleFileSelection(selectedFiles) {
+        const validFiles = Array.from(selectedFiles).filter(file => file.type === 'application/pdf');
+        if (validFiles.length !== selectedFiles.length) {
+          alert('Please select only PDF files');
+        }
+        files = [...files, ...validFiles];
+        renderFileList();
+        fileInput.value = ''; // Reset input
+      }
+
+      // File list controls (move up, down, remove)
+      fileList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('fa-arrow-up')) {
+          const index = parseInt(e.target.dataset.index);
+          if (index > 0) {
+            [files[index], files[index - 1]] = [files[index - 1], files[index]];
+            renderFileList();
+          }
+        } else if (e.target.classList.contains('fa-arrow-down')) {
+          const index = parseInt(e.target.dataset.index);
+          if (index < files.length - 1) {
+            [files[index], files[index + 1]] = [files[index + 1], files[index]];
+            renderFileList();
+          }
+        } else if (e.target.classList.contains('fa-trash')) {
+          const index = parseInt(e.target.dataset.index);
+          files.splice(index, 1);
+          clearInterval(vibrationIntervals[index]); // Stop vibration for removed file
+          vibrationIntervals.splice(index, 1);
+          renderFileList();
+        }
+      });
+
+      // Layout options change handlers
+      [pageSizeSelect, layoutTypeSelect, rowsInput, columnsInput, spacingInput].forEach(element => {
+        element.addEventListener('change', updatePreview);
+      });
+
+      // Create button click handler
+      createBtn.addEventListener('click', () => {
+        stopAllVibrations(); // Stop all vibrations when create button is clicked
+        createPosterPDF();
+      });
+
+      // Simulate progress for the progress bar
+      function updateProgress(percent) {
+        progressContainer.style.display = 'block';
+        progressBar.style.width = `${percent}%`;
+      }
+
+      // Get page dimensions based on selected size
+      function getPageDimensions(size) {
+        // PDF units are in points (1 point = 1/72 inch)
+        const mmToPoints = (mm) => mm * 2.83465;
+        
+        switch(size) {
+          case 'a3':
+            return { width: mmToPoints(297), height: mmToPoints(420) };
+          case 'a2':
+            return { width: mmToPoints(420), height: mmToPoints(594) };
+          case 'a1':
+            return { width: mmToPoints(594), height: mmToPoints(841) };
+          case 'a0':
+            return { width: mmToPoints(841), height: mmToPoints(1189) };
+          default:
+            return { width: mmToPoints(297), height: mmToPoints(420) };
+        }
+      }
+
+      // Create Poster PDF
+      async function createPosterPDF() {
+        if (files.length < 1) {
+          alert('Please upload at least one PDF file');
+          return;
+        }
+
+        createBtn.disabled = true;
+        try {
+          updateProgress(0);
+          
+          // Get layout parameters
+          const pageSize = pageSizeSelect.value;
+          const layoutType = layoutTypeSelect.value;
+          const rows = parseInt(rowsInput.value) || 2;
+          const columns = parseInt(columnsInput.value) || 2;
+          const spacing = parseInt(spacingInput.value) || 5;
+          
+          const { width: pageWidth, height: pageHeight } = getPageDimensions(pageSize);
+          const spacingPoints = spacing * 2.83465; // Convert mm to points
+          
+          // Calculate cell dimensions
+          const cellWidth = (pageWidth - (columns + 1) * spacingPoints) / columns;
+          const cellHeight = (pageHeight - (rows + 1) * spacingPoints) / rows;
+          
+          // Create new PDF document
+          const pdfDoc = await PDFLib.PDFDocument.create();
+          const page = pdfDoc.addPage([pageWidth, pageHeight]);
+          
+          updateProgress(10);
+          
+          // Process each PDF file
+          let currentRow = 0;
+          let currentCol = 0;
+          let pageIndex = 0;
+          
+          for (let i = 0; i < files.length; i++) {
+            const arrayBuffer = await files[i].arrayBuffer();
+            const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+            const pdfPages = pdf.getPages();
+            
+            for (let j = 0; j < pdfPages.length; j++) {
+              // If we've filled the current page, create a new one
+              if (currentRow >= rows) {
+                currentRow = 0;
+                currentCol = 0;
+                pageIndex++;
+                
+                // Add new page
+                pdfDoc.addPage([pageWidth, pageHeight]);
+              }
+              
+              // Calculate position for this cell
+              const x = currentCol * cellWidth + (currentCol + 1) * spacingPoints;
+              const y = pageHeight - (currentRow + 1) * cellHeight - (currentRow + 1) * spacingPoints;
+              
+              // Embed the page and draw it
+              const [embeddedPage] = await pdfDoc.embedPage(pdfPages[j]);
+              const { width, height } = pdfPages[j].getSize();
+              
+              // Calculate scaling to fit the cell
+              const scale = Math.min(cellWidth / width, cellHeight / height);
+              const scaledWidth = width * scale;
+              const scaledHeight = height * scale;
+              
+              // Center the page in the cell
+              const xOffset = x + (cellWidth - scaledWidth) / 2;
+              const yOffset = y + (cellHeight - scaledHeight) / 2;
+              
+              // Draw the page
+              const currentPage = pdfDoc.getPages()[pageIndex];
+              currentPage.drawPage(embeddedPage, {
+                x: xOffset,
+                y: yOffset,
+                width: scaledWidth,
+                height: scaledHeight,
+              });
+              
+              // Move to next cell
+              currentCol++;
+              if (currentCol >= columns) {
+                currentCol = 0;
+                currentRow++;
+              }
+              
+              updateProgress(10 + ((i + j/pdfPages.length) / files.length) * 80);
+            }
+          }
+          
+          updateProgress(95);
+          
+          // Save and download
+          const pdfBytes = await pdfDoc.save();
+          const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          
+          // Generate filename based on the first file's name
+          const fileName = generateFileName(files[0].name);
+          a.href = url;
+          a.download = fileName;
+
+          // Trigger vibration on mobile devices for download
+          if ('vibrate' in navigator) {
+            navigator.vibrate(200); // Vibrate for 200ms
+          }
+
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          updateProgress(100);
+
+          // Reset UI
+          files = [];
+          fileList.innerHTML = '';
+          createBtn.disabled = true;
+          stopAllVibrations();
+          setTimeout(() => {
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            previewContainer.style.display = 'none';
+          }, 500);
+        } catch (error) {
+          alert(`Error creating poster PDF: ${error.message}`);
+          createBtn.disabled = false;
+          progressContainer.style.display = 'none';
+          progressBar.style.width = '0%';
+          stopAllVibrations();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
