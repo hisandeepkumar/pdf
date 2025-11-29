@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PDF Annotation Tool — Add Marks & Annotations</title>
+
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    *{ box-sizing:border-box; font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial; }
+    html,body{ height:100%; margin:0; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg'); color:#e6eef8; }
+     body{ display:flex; align-items:flex-start; justify-content:center; padding:28px; }
+
+    .container{
+      width:100%; max-width:1100px; background:rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px); border-radius:16px; padding:20px 22px 160px;
+      border:1px solid rgba(255,255,255,0.06); box-shadow:0 12px 40px rgba(0,0,0,0.6);
+      min-height: 60px;
+    }
+
+    .header{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .header h1{ margin:0; font-size:20px; font-weight:700; color:#fff; display:flex; gap:10px; align-items:center;}
+    .header i{ color:#60a5fa; font-size:26px; }
+
+    .upload-area{
+      border:2px dashed rgba(255,255,255,0.18); padding:20px; border-radius:12px; text-align:center; cursor:pointer; background:rgba(255,255,255,0.02);
+      margin-bottom:14px; position:relative;
+    }
+    .upload-area:hover{ border-color:#60a5fa; background:rgba(96,165,250,0.04); }
+    .upload-area i{ font-size:34px; color:#60a5fa; display:block; margin-bottom:8px; }
+    .upload-area input[type=file]{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+
+    .controls{ display:flex; gap:12px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+    .controls .left{ display:flex; gap:10px; align-items:center; }
+    .controls label{ font-weight:700; color:#dbeafe; }
+
+    .annotation-tools{
+      display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;
+    }
+    .tool-btn{
+      background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); 
+      color:#e6eef8; padding:8px 14px; border-radius:8px; cursor:pointer;
+      display:flex; align-items:center; gap:6px; font-weight:500; transition:all 0.2s;
+    }
+    .tool-btn:hover{ background:rgba(96,165,250,0.2); }
+    .tool-btn.active{ background:rgba(96,165,250,0.4); border-color:#60a5fa; }
+    
+    .color-picker{ display:flex; gap:6px; align-items:center; margin-left:12px; }
+    .color-option{ width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid transparent; }
+    .color-option.active{ border-color:#fff; }
+    
+    .size-control{ display:flex; gap:6px; align-items:center; margin-left:12px; }
+    .size-option{ width:24px; height:24px; border-radius:50%; background:#e6eef8; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:12px; }
+    .size-option.active{ background:#60a5fa; }
+
+    .preview-list{ display:flex; flex-direction:column; gap:18px; padding-right:6px; }
+
+    .preview-item{ background:rgba(255,255,255,0.02); border-radius:10px; padding:12px; display:flex; flex-direction:column; align-items:center; }
+    .preview-item h3{ margin:0 0 8px; color:#cfe8ff; font-weight:700; width:100%; text-align:left; }
+
+    .canvas-wrap{ position:relative; width:100%; display:flex; justify-content:center; }
+    canvas{ width:100% !important; height:auto !important; border-radius:6px; box-shadow:0 8px 30px rgba(0,0,0,0.6); background:white; display:block; }
+
+    .annotation-layer{ position:absolute; left:0; top:0; pointer-events:auto; }
+
+    .annotation{ position:absolute; cursor:move; touch-action:none; user-select:none; display:flex; align-items:center; transition:transform 120ms ease; }
+    .annotation.pulse{ animation: sigPulse 360ms ease; }
+    @keyframes sigPulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
+
+    .delete-btn{ position:absolute; right:-10px; top:-10px; width:26px; height:26px; background:#ef4444; color:white; border-radius:50%; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10; }
+
+    .floating-btn{
+      position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:9999;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px) saturate(1.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+      color: black; padding:12px 28px; border-radius:999px; font-weight:800; cursor:pointer; display:flex; gap:10px; align-items:center;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    .floating-btn:hover{ transform:translateX(-50%) translateY(-4px); box-shadow:0 18px 44px rgba(0,0,0,0.6); background: rgba(255,255,255,0.08); }
+    .floating-btn:disabled{ opacity:0.6; cursor:not-allowed; }
+
+    .progress{ position:fixed; left:50%; transform:translateX(-50%); bottom:78px; width:420px; height:8px; background:rgba(255,255,255,0.04); border-radius:8px; overflow:hidden; display:none; z-index:9998; }
+    .progress > div{ width:0%; height:100%; background:linear-gradient(90deg,#5b86e5,#36d1dc); transition:width 200ms linear; }
+
+    .footer-note{ margin-top:12px; color:rgba(255,255,255,0.6); font-size:13px; text-align:center; }
+
+    .text-annotation{ 
+      background: rgba(255,255,255,0.9); 
+      color: #111; 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 14px; 
+      font-weight: 500; 
+      max-width: 200px; 
+      word-break: break-word; 
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    @media (max-width:760px){
+      .container{ padding-bottom:220px; }
+      .progress{ width:86%; }
+      .floating-btn{ width:86%; left:50%; transform:translateX(-50%); }
+      .annotation-tools{ gap:6px; }
+      .tool-btn{ padding:6px 10px; font-size:13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <div class="header">
+      <i class="fas fa-edit"></i>
+      <h1>PDF Annotation Tool</h1>
+    </div>
+
+    <div class="upload-area" id="uploadArea">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <h3>Upload a PDF</h3>
+      <p>Select a PDF and previews for every page will appear below. You can then add annotations.</p>
+      <input id="pdfInput" type="file" accept="application/pdf">
+    </div>
+
+    <div class="annotation-tools">
+      <div class="tool-btn active" id="toolArrow" data-tool="arrow">
+        <i class="fas fa-arrow-right"></i> Arrow
+      </div>
+      <div class="tool-btn" id="toolCheck" data-tool="check">
+        <i class="fas fa-check"></i> Check
+      </div>
+      <div class="tool-btn" id="toolCross" data-tool="cross">
+        <i class="fas fa-times"></i> Cross
+      </div>
+      <div class="tool-btn" id="toolCircle" data-tool="circle">
+        <i class="far fa-circle"></i> Circle
+      </div>
+      <div class="tool-btn" id="toolRectangle" data-tool="rectangle">
+        <i class="far fa-square"></i> Rectangle
+      </div>
+      <div class="tool-btn" id="toolText" data-tool="text">
+        <i class="fas fa-font"></i> Text
+      </div>
+      
+      <div class="color-picker">
+        <div class="color-option active" style="background:#ef4444;" data-color="#ef4444"></div>
+        <div class="color-option" style="background:#3b82f6;" data-color="#3b82f6"></div>
+        <div class="color-option" style="background:#10b981;" data-color="#10b981"></div>
+        <div class="color-option" style="background:#f59e0b;" data-color="#f59e0b"></div>
+        <div class="color-option" style="background:#8b5cf6;" data-color="#8b5cf6"></div>
+      </div>
+      
+      <div class="size-control">
+        <div class="size-option active" data-size="1">1</div>
+        <div class="size-option" data-size="2">2</div>
+        <div class="size-option" data-size="3">3</div>
+      </div>
+    </div>
+
+    <div class="preview-list" id="previewList" aria-live="polite"></div>
+
+    <div class="footer-note">Click on a page to add annotations. Drag to move existing annotations.</div>
+  </div>
+
+  <div class="progress" id="progress"><div id="progressBar"></div></div>
+  <button class="floating-btn" id="generateBtn" disabled><i class="fas fa-download"></i> Generate Annotated PDF</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', ()=> {
+  const pdfInput = document.getElementById('pdfInput');
+  const uploadArea = document.getElementById('uploadArea');
+  const previewList = document.getElementById('previewList');
+  const generateBtn = document.getElementById('generateBtn');
+  const progress = document.getElementById('progress');
+  const progressBar = document.getElementById('progressBar');
+  const container = document.getElementById('container');
+  const toolButtons = document.querySelectorAll('.tool-btn');
+  const colorOptions = document.querySelectorAll('.color-option');
+  const sizeOptions = document.querySelectorAll('.size-option');
+
+  const DPR = window.devicePixelRatio || 1;
+  let selectedPdfFile = null;
+  let pdfLibDoc = null;
+  let pdfJsDoc = null;
+  let pageData = [];
+  let originalFilename = '';
+  
+  // Annotation settings
+  let currentTool = 'arrow';
+  let currentColor = '#ef4444';
+  let currentSize = 1;
+
+  // Set up tool selection
+  toolButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      toolButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentTool = btn.dataset.tool;
+    });
+  });
+  
+  // Set up color selection
+  colorOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      colorOptions.forEach(o => o.classList.remove('active'));
+      option.classList.add('active');
+      currentColor = option.dataset.color;
+    });
+  });
+  
+  // Set up size selection
+  sizeOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      sizeOptions.forEach(o => o.classList.remove('active'));
+      option.classList.add('active');
+      currentSize = parseInt(option.dataset.size, 10);
+    });
+  });
+
+  // drag/drop UI
+  ['dragenter','dragover'].forEach(ev => uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.classList.add('active'); }));
+  ['dragleave','drop'].forEach(ev => uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.classList.remove('active'); }));
+  uploadArea.addEventListener('drop', e=> { if(e.dataTransfer?.files?.length) handlePdf(e.dataTransfer.files[0]); });
+
+  pdfInput.addEventListener('change', (e)=> { 
+    if(e.target.files?.length) {
+      handlePdf(e.target.files[0]);
+      originalFilename = e.target.files[0].name.replace(/\.pdf$/i, '');
+    }
+  });
+
+  async function handlePdf(file){
+    if(!file) return;
+    if(file.type !== 'application/pdf'){ alert('Please upload a PDF'); return; }
+    selectedPdfFile = file;
+    previewList.innerHTML = '';
+    pageData = [];
+    generateBtn.disabled = true;
+
+    try{
+      const ab = await file.arrayBuffer();
+      pdfLibDoc = await PDFLib.PDFDocument.load(ab);
+      pdfJsDoc = await pdfjsLib.getDocument({data:ab}).promise;
+      const total = pdfLibDoc.getPageCount();
+
+      // measure container inner width
+      const cs = getComputedStyle(container);
+      const padLeft = parseFloat(cs.paddingLeft || 20);
+      const padRight = parseFloat(cs.paddingRight || 20);
+      const availableWidth = Math.max(300, container.clientWidth - padLeft - padRight - 4);
+
+      for(let p=1;p<=total;p++){
+        const page = await pdfJsDoc.getPage(p);
+        const base = page.getViewport({scale:1});
+        const scale = (availableWidth / base.width);
+        const viewport = page.getViewport({scale});
+        const cssW = Math.round(viewport.width);
+        const cssH = Math.round(viewport.height);
+
+        const canvas = document.createElement('canvas');
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+        canvas.width = Math.floor(cssW * DPR);
+        canvas.height = Math.floor(cssH * DPR);
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(DPR,0,0,DPR,0,0);
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        const libPage = pdfLibDoc.getPage(p-1);
+        const psize = libPage.getSize();
+
+        const item = document.createElement('div');
+        item.className = 'preview-item';
+        const title = document.createElement('h3');
+        title.textContent = `Page ${p}`;
+        item.appendChild(title);
+
+        const wrap = document.createElement('div');
+        wrap.className = 'canvas-wrap';
+        wrap.style.width = cssW + 'px';
+        wrap.style.height = cssH + 'px';
+        wrap.appendChild(canvas);
+
+        const layer = document.createElement('div');
+        layer.className = 'annotation-layer';
+        layer.style.width = cssW + 'px';
+        layer.style.height = cssH + 'px';
+        layer.style.left = '0';
+        layer.style.top = '0';
+        layer.style.position = 'absolute';
+        wrap.style.position = 'relative';
+        wrap.appendChild(layer);
+
+        item.appendChild(wrap);
+        previewList.appendChild(item);
+
+        pageData[p-1] = {
+          pdfSize: { width: psize.width, height: psize.height },
+          viewport: { width: viewport.width, height: viewport.height },
+          canvasElem: canvas,
+          layerElem: layer,
+          wrapElem: wrap,
+          annotations: []
+        };
+
+        layer.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          
+          const rect = layer.getBoundingClientRect();
+          const clickX = ev.clientX - rect.left;
+          const clickY = ev.clientY - rect.top;
+
+          // Check if clicked on existing annotation
+          const existing = Array.from(layer.querySelectorAll('.annotation'));
+          for(const el of existing){
+            const br = el.getBoundingClientRect();
+            const relLeft = br.left - rect.left;
+            const relTop  = br.top - rect.top;
+            const relRight = relLeft + br.width;
+            const relBottom = relTop + br.height;
+            if(clickX >= relLeft && clickX <= relRight && clickY >= relTop && clickY <= relBottom){
+              el.classList.add('pulse');
+              setTimeout(()=> el.classList.remove('pulse'), 360);
+              return;
+            }
+          }
+
+          addAnnotationToPage(p-1, clickX, clickY);
+        });
+      }
+
+      generateBtn.disabled = pageData.every(pd => !pd.annotations || pd.annotations.length === 0);
+      previewList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    }catch(err){
+      console.error('PDF load/render error', err);
+      alert('Error loading PDF: ' + (err.message || err));
+    }
+  }
+
+  function addAnnotationToPage(pageIndex, x_css, y_css){
+    const pd = pageData[pageIndex];
+    if(!pd) return;
+    const layer = pd.layerElem;
+    const id = `ann-${pageIndex}-${Date.now()}`;
+    const ann = document.createElement('div');
+    ann.className = 'annotation';
+    ann.id = id;
+
+    const left = x_css;
+    const top = y_css;
+    ann.style.left = left + 'px';
+    ann.style.top = top + 'px';
+
+    // Create annotation based on tool type
+    let annotationElement;
+    if(currentTool === 'text') {
+      annotationElement = document.createElement('div');
+      annotationElement.className = 'text-annotation';
+      annotationElement.style.backgroundColor = currentColor;
+      annotationElement.style.color = getContrastColor(currentColor);
+      annotationElement.textContent = 'Text';
+      annotationElement.contentEditable = true;
+      annotationElement.style.fontSize = (14 + currentSize * 2) + 'px';
+      annotationElement.style.padding = (4 + currentSize) + 'px ' + (8 + currentSize) + 'px';
+      
+      // Auto-resize text box
+      annotationElement.addEventListener('input', function() {
+        this.style.width = 'auto';
+        this.style.width = (this.scrollWidth + 5) + 'px';
+      });
+    } else {
+      annotationElement = document.createElement('div');
+      annotationElement.style.width = (30 + currentSize * 10) + 'px';
+      annotationElement.style.height = (30 + currentSize * 10) + 'px';
+      annotationElement.style.color = currentColor;
+      annotationElement.style.fontSize = (20 + currentSize * 5) + 'px';
+      annotationElement.style.display = 'flex';
+      annotationElement.style.alignItems = 'center';
+      annotationElement.style.justifyContent = 'center';
+      
+      // Set icon based on tool type
+      switch(currentTool) {
+        case 'arrow':
+          annotationElement.innerHTML = '<i class="fas fa-arrow-right"></i>';
+          break;
+        case 'check':
+          annotationElement.innerHTML = '<i class="fas fa-check"></i>';
+          break;
+        case 'cross':
+          annotationElement.innerHTML = '<i class="fas fa-times"></i>';
+          break;
+        case 'circle':
+          annotationElement.innerHTML = '<i class="far fa-circle"></i>';
+          break;
+        case 'rectangle':
+          annotationElement.innerHTML = '<i class="far fa-square"></i>';
+          break;
+      }
+    }
+    
+    ann.appendChild(annotationElement);
+
+    const del = document.createElement('button');
+    del.className = 'delete-btn';
+    del.innerHTML = '<i class="fas fa-trash"></i>';
+    del.addEventListener('click', (e)=> {
+      e.stopPropagation();
+      ann.remove();
+      pd.annotations = pd.annotations.filter(a => a.id !== id);
+      generateBtn.disabled = pageData.every(p=> p.annotations.length===0);
+    });
+    ann.appendChild(del);
+
+    layer.appendChild(ann);
+
+    const scaleX = pd.pdfSize.width / pd.viewport.width;
+    const scaleY = pd.pdfSize.height / pd.viewport.height;
+    const pdfX = left * scaleX;
+    const pdfTop = top * scaleY;
+
+    const stored = { 
+      id, 
+      type: currentTool,
+      x_pdf: pdfX, 
+      top_pdf: pdfTop, 
+      color: currentColor,
+      size: currentSize,
+      text: currentTool === 'text' ? 'Text' : null
+    };
+    pd.annotations.push(stored);
+
+    makeDraggable(ann, pageIndex, stored);
+    generateBtn.disabled = false;
+    
+    // Focus text annotation for immediate editing
+    if(currentTool === 'text') {
+      annotationElement.focus();
+    }
+  }
+
+  function makeDraggable(domEl, pageIndex, stored){
+    let dragging=false, startX=0, startY=0, startLeft=0, startTop=0;
+    const layer = pageData[pageIndex].layerElem;
+
+    const down = (e) => {
+      e.preventDefault();
+      dragging = true;
+      const cx = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+      const cy = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+      startX = cx; startY = cy;
+      startLeft = parseFloat(domEl.style.left || 0);
+      startTop = parseFloat(domEl.style.top || 0);
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', up);
+      document.addEventListener('touchmove', move, {passive:false});
+      document.addEventListener('touchend', up);
+    };
+
+    const move = (e) => {
+      if(!dragging) return;
+      e.preventDefault();
+      const cx = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+      const cy = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+      const dx = cx - startX, dy = cy - startY;
+      let newLeft = startLeft + dx, newTop = startTop + dy;
+      newLeft = Math.max(0, Math.min(newLeft, layer.clientWidth - domEl.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, layer.clientHeight - domEl.offsetHeight));
+      domEl.style.left = newLeft + 'px';
+      domEl.style.top = newTop + 'px';
+
+      const pd = pageData[pageIndex];
+      const sX = pd.pdfSize.width / pd.viewport.width;
+      const sY = pd.pdfSize.height / pd.viewport.height;
+      stored.x_pdf = newLeft * sX;
+      stored.top_pdf = newTop * sY;
+    };
+
+    const up = (e) => {
+      dragging = false;
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+      document.removeEventListener('touchmove', move);
+      document.removeEventListener('touchend', up);
+    };
+
+    domEl.addEventListener('mousedown', down);
+    domEl.addEventListener('touchstart', down, {passive:false});
+  }
+
+  // Helper function to determine text color based on background
+  function getContrastColor(hexColor) {
+    // Convert hex to RGB
+    const r = parseInt(hexColor.substr(1, 2), 16);
+    const g = parseInt(hexColor.substr(3, 2), 16);
+    const b = parseInt(hexColor.substr(5, 2), 16);
+    
+    // Calculate relative luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    // Return black or white based on luminance
+    return luminance > 0.5 ? '#000000' : '#ffffff';
+  }
+
+  // Generate annotated PDF
+  generateBtn.addEventListener('click', async ()=>{
+    if(!selectedPdfFile) { alert('Upload a PDF first'); return; }
+    if(pageData.every(pd => !pd.annotations || pd.annotations.length===0)) { alert('Place at least one annotation'); return; }
+    
+    try{
+      generateBtn.disabled = true;
+      progress.style.display = 'block';
+      progressBar.style.width = '6%';
+
+      const ab = await selectedPdfFile.arrayBuffer();
+      progressBar.style.width = '18%';
+      const pdfDoc = await PDFLib.PDFDocument.load(ab);
+      progressBar.style.width = '36%';
+
+      const pages = pdfDoc.getPages();
+      for(let i=0;i<pages.length;i++){
+        const page = pages[i];
+        const pd = pageData[i];
+        if(!pd) continue;
+        
+        for(const ann of pd.annotations){
+          const { x_pdf, top_pdf, type, color, size, text } = ann;
+          
+          // Convert color to RGB
+          const r = parseInt(color.substr(1, 2), 16) / 255;
+          const g = parseInt(color.substr(3, 2), 16) / 255;
+          const b = parseInt(color.substr(5, 2), 16) / 255;
+          
+          // Set color and line width
+          page.setLineWidth(size);
+          
+          // Draw different annotation types
+          switch(type) {
+            case 'arrow':
+              drawArrow(page, x_pdf, pd.pdfSize.height - top_pdf, color, size);
+              break;
+            case 'check':
+              drawCheck(page, x_pdf, pd.pdfSize.height - top_pdf, color, size);
+              break;
+            case 'cross':
+              drawCross(page, x_pdf, pd.pdfSize.height - top_pdf, color, size);
+              break;
+            case 'circle':
+              drawCircle(page, x_pdf, pd.pdfSize.height - top_pdf, color, size);
+              break;
+            case 'rectangle':
+              drawRectangle(page, x_pdf, pd.pdfSize.height - top_pdf, color, size);
+              break;
+            case 'text':
+              if(text) {
+                page.drawText(text, {
+                  x: x_pdf,
+                  y: pd.pdfSize.height - top_pdf - 12,
+                  size: 12 + size * 2,
+                  color: PDFLib.rgb(r, g, b),
+                });
+              }
+              break;
+          }
+        }
+      }
+      
+      progressBar.style.width = '86%';
+      const out = await pdfDoc.save();
+      progressBar.style.width = '96%';
+
+      const blob = new Blob([out], { type:'application/pdf' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      
+      const downloadFilename = originalFilename ? `${originalFilename}_annotated.pdf` : `annotated_document.pdf`;
+      a.download = downloadFilename;
+      
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      progressBar.style.width = '100%';
+      setTimeout(()=> { progress.style.display='none'; progressBar.style.width='0%'; }, 600);
+
+      // Clear previews
+      previewList.innerHTML = '';
+      pageData = [];
+      selectedPdfFile = null;
+      originalFilename = '';
+      generateBtn.disabled = true;
+    }catch(err){
+      console.error(err);
+      alert('Error generating annotated PDF: ' + (err.message || err));
+      generateBtn.disabled = false;
+      progress.style.display = 'none';
+      progressBar.style.width = '0%';
+    }
+  });
+
+  // Drawing functions for PDF annotations
+  function drawArrow(page, x, y, color, size) {
+    const r = parseInt(color.substr(1, 2), 16) / 255;
+    const g = parseInt(color.substr(3, 2), 16) / 255;
+    const b = parseInt(color.substr(5, 2), 16) / 255;
+    
+    page.drawLine({
+      start: { x: x, y: y },
+      end: { x: x + 30, y: y },
+      thickness: size,
+      color: PDFLib.rgb(r, g, b),
+    });
+    
+    page.drawLine({
+      start: { x: x + 20, y: y + 10 },
+      end: { x: x + 30, y: y },
+      thickness: size,
+      color: PDFLib.rgb(r, g, b),
+    });
+    
+    page.drawLine({
+      start: { x: x + 20, y: y - 10 },
+      end: { x: x + 30, y: y },
+      thickness: size,
+      color: PDFLib.rgb(r, g, b),
+    });
+  }
+  
+  function drawCheck(page, x, y, color, size) {
+    const r = parseInt(color.substr(1, 2), 16) / 255;
+    const g = parseInt(color.substr(3, 2), 16) / 255;
+    const b = parseInt(color.substr(5, 2), 16) / 255;
+    
+    page.drawLine({
+      start: { x: x, y: y + 10 },
+      end: { x: x + 10, y: y },
+      thickness: size,
+      color: PDFLib.rgb(r, g, b),
+    });
+    
+    page.drawLine({
+      start: { x: x + 10, y: y },
+      end: { x: x + 20, y: y - 15 },
+      thickness: size,
+      color: PDFLib.rgb(r, g, b),
+    });
+  }
+  
+  function drawCross(page, x, y, color, size) {
+    const r = parseInt(color.substr(1, 2), 16) / 255;
+    const g = parseInt(color.substr(3, 2), 16) / 255;
+    const b = parseInt(color.substr(5, 2), 16) / 255;
+    
+    page.drawLine({
+      start: { x: x, y: y + 10 },
+      end: { x: x + 20, y: y - 10 },
+      thickness: size,
+      color: PDFLib.rgb(r, g, b),
+    });
+    
+    page.drawLine({
+      start: { x: x, y: y - 10 },
+      end: { x: x + 20, y: y + 10 },
+      thickness: size,
+      color: PDFLib.rgb(r, g, b),
+    });
+  }
+  
+  function drawCircle(page, x, y, color, size) {
+    const r = parseInt(color.substr(1, 2), 16) / 255;
+    const g = parseInt(color.substr(3, 2), 16) / 255;
+    const b = parseInt(color.substr(5, 2), 16) / 255;
+    
+    page.drawEllipse({
+      x: x + 10,
+      y: y,
+      xScale: 10,
+      yScale: 10,
+      borderWidth: size,
+      borderColor: PDFLib.rgb(r, g, b),
+    });
+  }
+  
+  function drawRectangle(page, x, y, color, size) {
+    const r = parseInt(color.substr(1, 2), 16) / 255;
+    const g = parseInt(color.substr(3, 2), 16) / 255;
+    const b = parseInt(color.substr(5, 2), 16) / 255;
+    
+    page.drawRectangle({
+      x: x,
+      y: y - 10,
+      width: 20,
+      height: 20,
+      borderWidth: size,
+      borderColor: PDFLib.rgb(r, g, b),
+    });
+  }
+
+  // Toggle generate button based on annotations
+  const mo = new MutationObserver(()=> {
+    generateBtn.disabled = pageData.every(pd => !pd.annotations || pd.annotations.length===0);
+  });
+  mo.observe(previewList, { childList:true, subtree:true });
+
+});
+</script>
+</body>
+</html>
