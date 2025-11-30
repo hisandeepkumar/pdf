@@ -522,11 +522,13 @@
       <h3><i class="fas fa-cog"></i> Auto Layout Options</h3>
       <div class="option-group">
         <div class="option-item">
-          <label for="layoutType">Layout Type</label>
-          <select id="layoutType">
-            <option value="auto">Auto Grid (Recommended)</option>
-            <option value="horizontal">Horizontal Strip</option>
-            <option value="vertical">Vertical Strip</option>
+          <label for="pageSize">Page Size</label>
+          <select id="pageSize">
+            <option value="auto">Auto (Recommended)</option>
+            <option value="a3">A3 (297×420mm)</option>
+            <option value="a2">A2 (420×594mm)</option>
+            <option value="a1">A1 (594×841mm)</option>
+            <option value="a0">A0 (841×1189mm)</option>
           </select>
         </div>
         <div class="option-item">
@@ -535,7 +537,7 @@
         </div>
       </div>
       <div class="auto-info">
-        <p><i class="fas fa-info-circle"></i> Page size will be automatically calculated based on your PDFs and layout</p>
+        <p><i class="fas fa-info-circle"></i> Pages will be automatically arranged in optimal grid layout</p>
       </div>
     </div>
     
@@ -624,7 +626,7 @@
       const previewTotalPages = document.getElementById('previewTotalPages');
       
       // Layout options
-      const layoutTypeSelect = document.getElementById('layoutType');
+      const pageSizeSelect = document.getElementById('pageSize');
       const spacingInput = document.getElementById('spacing');
 
       let files = []; // Store selected PDF files
@@ -700,23 +702,29 @@
         return { rows, cols };
       }
 
-      // Render file list
-      async function renderFileList() {
-        fileList.innerHTML = '';
-        totalPages = 0;
+      // Get page dimensions based on selected size
+      function getPageDimensions(size) {
+        // PDF units are in points (1 point = 1/72 inch)
+        const mmToPoints = (mm) => mm * 2.83465;
         
-        // Calculate total pages
-        for (let i = 0; i < files.length; i++) {
-          try {
-            const arrayBuffer = await files[i].arrayBuffer();
-            const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
-            totalPages += pdf.getPageCount();
-          } catch (error) {
-            console.error(`Error reading PDF ${files[i].name}:`, error);
-          }
+        switch(size) {
+          case 'a3':
+            return { width: mmToPoints(297), height: mmToPoints(420) };
+          case 'a2':
+            return { width: mmToPoints(420), height: mmToPoints(594) };
+          case 'a1':
+            return { width: mmToPoints(594), height: mmToPoints(841) };
+          case 'a0':
+            return { width: mmToPoints(841), height: mmToPoints(1189) };
+          default:
+            // Auto size - will be calculated based on content
+            return { width: 0, height: 0 };
         }
-        
-        // Render file items
+      }
+
+      // Render file list
+      function renderFileList() {
+        fileList.innerHTML = '';
         files.forEach((file, index) => {
           const fileItem = document.createElement('div');
           fileItem.className = 'file-item';
@@ -740,14 +748,14 @@
 
       // Update layout preview
       function updatePreview() {
-        const layoutType = layoutTypeSelect.value;
-        const { rows, cols } = calculateGridDimensions(totalPages);
+        const pageSize = pageSizeSelect.value;
+        const { rows, cols } = calculateGridDimensions(files.length);
         const totalCells = rows * cols;
         
         // Update preview info
-        previewPageSize.textContent = 'Auto';
+        previewPageSize.textContent = pageSize === 'auto' ? 'Auto' : pageSize.toUpperCase();
         previewGridSize.textContent = `${rows} × ${cols}`;
-        previewTotalPages.textContent = totalPages;
+        previewTotalPages.textContent = files.length;
         
         // Update grid preview
         previewGrid.innerHTML = '';
@@ -757,8 +765,8 @@
           const cell = document.createElement('div');
           cell.className = 'preview-cell';
           
-          if (i < totalPages) {
-            cell.textContent = `Page ${i+1}`;
+          if (i < files.length) {
+            cell.textContent = `PDF ${i+1}`;
             cell.style.background = 'rgba(255, 107, 107, 0.3)';
           } else {
             cell.textContent = 'Empty';
@@ -844,7 +852,7 @@
       });
 
       // Layout options change handlers
-      [layoutTypeSelect, spacingInput].forEach(element => {
+      [pageSizeSelect, spacingInput].forEach(element => {
         element.addEventListener('change', updatePreview);
       });
 
@@ -872,80 +880,97 @@
           updateProgress(0);
           
           // Get layout parameters
-          const layoutType = layoutTypeSelect.value;
+          const pageSize = pageSizeSelect.value;
           const spacing = parseInt(spacingInput.value) || 10;
           const spacingPoints = spacing * 2.83465; // Convert mm to points
+          
+          // Calculate optimal grid
+          const { rows, cols } = calculateGridDimensions(files.length);
           
           // Create new PDF document
           const pdfDoc = await PDFLib.PDFDocument.create();
           updateProgress(10);
           
-          // First, get all pages from all PDFs
-          let allPages = [];
-          let maxPageWidth = 0;
-          let maxPageHeight = 0;
+          // Process each PDF file
+          const embeddedDocs = [];
           
           for (let i = 0; i < files.length; i++) {
             const arrayBuffer = await files[i].arrayBuffer();
             const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
-            const pdfPages = pdf.getPages();
-            
-            for (let j = 0; j < pdfPages.length; j++) {
-              const { width, height } = pdfPages[j].getSize();
-              maxPageWidth = Math.max(maxPageWidth, width);
-              maxPageHeight = Math.max(maxPageHeight, height);
-              
-              // Embed the page
-              const [embeddedPage] = await pdfDoc.embedPage(pdfPages[j]);
-              allPages.push({
-                embeddedPage,
-                width,
-                height
-              });
-            }
-            
+            embeddedDocs.push(pdf);
             updateProgress(10 + (i / files.length) * 30);
           }
           
-          // Calculate optimal grid
-          const { rows, cols } = calculateGridDimensions(allPages.length);
+          // Determine page size
+          let pageWidth, pageHeight;
           
-          // Calculate poster page dimensions
-          const posterWidth = (maxPageWidth * cols) + (spacingPoints * (cols + 1));
-          const posterHeight = (maxPageHeight * rows) + (spacingPoints * (rows + 1));
+          if (pageSize === 'auto') {
+            // Auto size - calculate based on content
+            // Use A2 as default for multiple pages, A3 for single page
+            const mmToPoints = (mm) => mm * 2.83465;
+            if (files.length <= 2) {
+              pageWidth = mmToPoints(420); // A3 width
+              pageHeight = mmToPoints(594); // A3 height
+            } else if (files.length <= 6) {
+              pageWidth = mmToPoints(594); // A2 width
+              pageHeight = mmToPoints(841); // A2 height
+            } else {
+              pageWidth = mmToPoints(841); // A1 width
+              pageHeight = mmToPoints(1189); // A1 height
+            }
+          } else {
+            // Use specified page size
+            const dimensions = getPageDimensions(pageSize);
+            pageWidth = dimensions.width;
+            pageHeight = dimensions.height;
+          }
           
           // Create the poster page
-          const posterPage = pdfDoc.addPage([posterWidth, posterHeight]);
+          const posterPage = pdfDoc.addPage([pageWidth, pageHeight]);
           
           updateProgress(50);
           
-          // Arrange pages on the poster
+          // Calculate cell dimensions
+          const cellWidth = (pageWidth - (cols + 1) * spacingPoints) / cols;
+          const cellHeight = (pageHeight - (rows + 1) * spacingPoints) / rows;
+          
+          // Arrange PDFs on the poster
           let currentRow = 0;
           let currentCol = 0;
           
-          for (let i = 0; i < allPages.length; i++) {
-            const page = allPages[i];
+          for (let i = 0; i < embeddedDocs.length; i++) {
+            const pdf = embeddedDocs[i];
+            const pages = pdf.getPages();
             
-            // Calculate position for this cell
-            const x = currentCol * maxPageWidth + (currentCol + 1) * spacingPoints;
-            const y = posterHeight - (currentRow + 1) * maxPageHeight - (currentRow + 1) * spacingPoints;
-            
-            // Calculate scaling to fit the cell (maintain aspect ratio)
-            const scale = Math.min(maxPageWidth / page.width, maxPageHeight / page.height);
-            const scaledWidth = page.width * scale;
-            const scaledHeight = page.height * scale;
-            
-            // Center the page in the cell
-            const xOffset = x + (maxPageWidth - scaledWidth) / 2;
-            const yOffset = y + (maxPageHeight - scaledHeight) / 2;
-            
-            // Draw the page
-            posterPage.drawPage(page.embeddedPage, {
-              x: xOffset,
-              y: yOffset,
-              width: scaledWidth,
-              height: scaledHeight,
-            });
+            // Use first page of each PDF
+            if (pages.length > 0) {
+              const firstPage = pages[0];
+              const { width, height } = firstPage.getSize();
+              
+              // Calculate position for this cell
+              const x = currentCol * cellWidth + (currentCol + 1) * spacingPoints;
+              const y = pageHeight - (currentRow + 1) * cellHeight - (currentRow + 1) * spacingPoints;
+              
+              // Embed the page
+              const [embeddedPage] = await pdfDoc.embedPage(firstPage);
+              
+              // Calculate scaling to fit the cell (maintain aspect ratio)
+              const scale = Math.min(cellWidth / width, cellHeight / height);
+              const scaledWidth = width * scale;
+              const scaledHeight = height * scale;
+              
+              // Center the page in the cell
+              const xOffset = x + (cellWidth - scaledWidth) / 2;
+              const yOffset = y + (cellHeight - scaledHeight) / 2;
+              
+              // Draw the page
+              posterPage.drawPage(embeddedPage, {
+                x: xOffset,
+                y: yOffset,
+                width: scaledWidth,
+                height: scaledHeight,
+              });
+            }
             
             // Move to next cell
             currentCol++;
@@ -954,7 +979,7 @@
               currentRow++;
             }
             
-            updateProgress(50 + ((i + 1) / allPages.length) * 45);
+            updateProgress(50 + ((i + 1) / embeddedDocs.length) * 45);
           }
           
           updateProgress(95);
@@ -982,20 +1007,17 @@
           updateProgress(100);
 
           // Reset UI
-          files = [];
-          fileList.innerHTML = '';
-          createBtn.disabled = true;
-          stopAllVibrations();
           setTimeout(() => {
             progressContainer.style.display = 'none';
             progressBar.style.width = '0%';
-            previewContainer.style.display = 'none';
-          }, 500);
+            createBtn.disabled = false;
+          }, 1000);
         } catch (error) {
           alert(`Error creating poster PDF: ${error.message}`);
           createBtn.disabled = false;
           progressContainer.style.display = 'none';
           progressBar.style.width = '0%';
+        } finally {
           stopAllVibrations();
         }
       }
