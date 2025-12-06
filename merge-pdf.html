@@ -204,6 +204,43 @@
       transform: scale(1.1);
     }
 
+    .input-container {
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .input-container label {
+      color: #f0f0f0;
+      font-size: 1.2rem;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .input-container input[type="text"] {
+      width: 100%;
+      max-width: 300px;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #f0f0f0;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .input-container input[type="text"]:focus {
+      border-color: #5b86e5;
+      box-shadow: 0 0 8px rgba(91, 134, 229, 0.3);
+    }
+
+    .input-container p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
     .progress-container {
       width: 100%;
       height: 8px;
@@ -364,6 +401,11 @@
     <div class="add-file-btn" id="addFileBtn" title="Add another PDF">
       <i class="fas fa-plus"></i>
     </div>
+    <div class="input-container">
+      <label for="customName">Custom Filename (Optional)</label>
+      <input type="text" id="customName" placeholder="Enter custom name for merged file">
+      <p>Leave empty to use auto-generated filename</p>
+    </div>
     <div class="progress-container" id="progressContainer">
       <div class="progress-bar" id="progressBar"></div>
     </div>
@@ -420,6 +462,7 @@
       const mergeBtn = document.getElementById('mergeBtn');
       const fileList = document.getElementById('fileList');
       const addFileBtn = document.getElementById('addFileBtn');
+      const customNameInput = document.getElementById('customName');
       const progressContainer = document.getElementById('progressContainer');
       const progressBar = document.getElementById('progressBar');
 
@@ -609,8 +652,18 @@
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           
-          // Generate filename based on the first file's name
-          const fileName = generateFileName(files[0].name);
+          // Generate filename - use custom name if provided
+          const customName = customNameInput.value.trim();
+          let fileName;
+          
+          if (customName) {
+            // Use custom name
+            fileName = customName.endsWith('.pdf') ? customName : customName + '.pdf';
+          } else {
+            // Use auto-generated name based on the first file's name
+            fileName = generateFileName(files[0].name);
+          }
+          
           a.href = url;
           a.download = fileName;
 
@@ -628,6 +681,7 @@
           // Reset UI
           files = [];
           fileList.innerHTML = '';
+          customNameInput.value = '';
           mergeBtn.disabled = true;
           stopAllVibrations();
           setTimeout(() => {
