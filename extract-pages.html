@@ -352,6 +352,11 @@
       <input type="text" id="pageInput" placeholder="e.g., 6,7,8,11-14,16-18">
       <p>Example: 6,7,8,11-14,16-18 (for pages 6, 7, 8, 11 to 14, and 16 to 18)</p>
     </div>
+    <div class="input-container">
+      <label for="customName">Custom Filename (Optional)</label>
+      <input type="text" id="customName" placeholder="Enter custom name for extracted file">
+      <p>Leave empty to use auto-generated filename</p>
+    </div>
     <div class="progress-container" id="progressContainer">
       <div class="progress-bar" id="progressBar"></div>
     </div>
@@ -411,6 +416,7 @@
       const extractBtn = document.getElementById('extractBtn');
       const fileInfoDisplay = document.getElementById('fileInfo');
       const pageInput = document.getElementById('pageInput');
+      const customNameInput = document.getElementById('customName');
       const progressContainer = document.getElementById('progressContainer');
       const progressBar = document.getElementById('progressBar');
 
@@ -463,21 +469,6 @@
           }
         }
         return [...pages].sort((a, b) => a - b);
-      }
-
-      // Generate filename based on the requirements
-      function generateFilename(originalName) {
-        // Remove file extension
-        const baseName = originalName.replace(/\.pdf$/i, '');
-        
-        // Check if the filename ends with pattern like "0PM" or "5AM" before ".pdf"
-        const pattern = /\d[AP]M$/i;
-        if (pattern.test(baseName) && baseName.length >= 22) {
-          // Remove last 22 characters
-          return baseName.substring(0, baseName.length - 22);
-        }
-        
-        return baseName;
       }
 
       // Format date for filename
@@ -541,6 +532,7 @@
           stopVibration();
           selectedFile = null;
           pageInput.value = '';
+          customNameInput.value = '';
           return;
         }
         selectedFile = file;
@@ -602,10 +594,30 @@
           const pdfBytes = await newPdf.save();
           updateProgress(95);
 
-          // Generate filename based on requirements
-          const baseName = generateFilename(selectedFile.name);
-          const dateStr = getFormattedDate();
-          const fileName = `${baseName}_${dateStr}.pdf`;
+          // Generate filename - use custom name if provided
+          const customName = customNameInput.value.trim();
+          let fileName;
+          
+          if (customName) {
+            // Use custom name
+            fileName = customName.endsWith('.pdf') ? customName : customName + '.pdf';
+          } else {
+            // Use auto-generated name
+            // Remove file extension
+            const baseName = selectedFile.name.replace(/\.pdf$/i, '');
+            
+            // Check if the filename ends with pattern like "0PM" or "5AM" before ".pdf"
+            const pattern = /\d[AP]M$/i;
+            if (pattern.test(baseName) && baseName.length >= 22) {
+              // Remove last 22 characters
+              const trimmedName = baseName.substring(0, baseName.length - 22);
+              const dateStr = getFormattedDate();
+              fileName = `${trimmedName}_${dateStr}.pdf`;
+            } else {
+              const dateStr = getFormattedDate();
+              fileName = `${baseName}_${dateStr}.pdf`;
+            }
+          }
 
           const blob = new Blob([pdfBytes], { type: 'application/pdf' });
           const url = URL.createObjectURL(blob);
@@ -629,6 +641,7 @@
           fileInfoDisplay.textContent = '';
           fileInfoDisplay.style.display = 'none';
           pageInput.value = '';
+          customNameInput.value = '';
           extractBtn.disabled = true;
           setTimeout(() => {
             progressContainer.style.display = 'none';
