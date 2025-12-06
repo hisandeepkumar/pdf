@@ -190,6 +190,43 @@
       box-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
     }
 
+    .input-container {
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .input-container label {
+      color: #f0f0f0;
+      font-size: 1.2rem;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .input-container input[type="text"] {
+      width: 100%;
+      max-width: 300px;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #f0f0f0;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .input-container input[type="text"]:focus {
+      border-color: #ff6b6b;
+      box-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
+    }
+
+    .input-container p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
     .progress-container {
       width: 100%;
       height: 8px;
@@ -425,6 +462,12 @@
         </select>
       </div>
     </div>
+
+    <div class="input-container">
+      <label for="customName">Custom Filename (Optional)</label>
+      <input type="text" id="customName" placeholder="Enter custom base name for images">
+      <p>Leave empty to use auto-generated filename. Images will be named as: [filename]-page1.png, [filename]-page2.png, etc.</p>
+    </div>
     
     <div class="progress-container" id="progressContainer">
       <div class="progress-bar" id="progressBar"></div>
@@ -496,6 +539,7 @@
       const fileInput = document.getElementById('pdfUpload');
       const convertBtn = document.getElementById('convertBtn');
       const fileInfoDisplay = document.getElementById('fileInfo');
+      const customNameInput = document.getElementById('customName');
       const progressContainer = document.getElementById('progressContainer');
       const progressBar = document.getElementById('progressBar');
       const statusContainer = document.getElementById('statusContainer');
@@ -589,6 +633,7 @@
           fileInfoDisplay.style.display = 'none';
           convertBtn.disabled = true;
           selectedFile = null;
+          customNameInput.value = '';
           return;
         }
         selectedFile = file;
@@ -649,8 +694,17 @@
           const numPages = pdfDoc.numPages;
           conversionCount.textContent = `0/${numPages} pages`;
           
-          // Generate base filename
-          const baseFileName = generateFileName(selectedFile.name);
+          // Generate base filename - use custom name if provided
+          const customName = customNameInput.value.trim();
+          let baseFileName;
+          
+          if (customName) {
+            // Use custom name as base filename (remove any extension if present)
+            baseFileName = customName.replace(/\.[^/.]+$/, "");
+          } else {
+            // Use auto-generated name
+            baseFileName = generateFileName(selectedFile.name);
+          }
           
           // Process each page
           for (let pageNum = 1; pageNum <= numPages; pageNum++) {
