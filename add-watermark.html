@@ -356,6 +356,11 @@
       <p>Upload an image to add as a full-page watermark</p>
     </div>
     <p class="file-info" id="imageInfo"></p>
+    <div class="input-container">
+      <label for="customName">Custom Filename (Optional)</label>
+      <input type="text" id="customName" placeholder="Enter custom name for watermarked file">
+      <p>Leave empty to use auto-generated filename</p>
+    </div>
     <div class="progress-container" id="progressContainer">
       <div class="progress-bar" id="progressBar"></div>
     </div>
@@ -416,6 +421,7 @@
       const imageInfoDisplay = document.getElementById('imageInfo');
       const watermarkText = document.getElementById('watermarkText');
       const watermarkImage = document.getElementById('watermarkImage');
+      const customNameInput = document.getElementById('customName');
       const progressContainer = document.getElementById('progressContainer');
       const progressBar = document.getElementById('progressBar');
 
@@ -516,6 +522,7 @@
           selectedPdf = null;
           watermarkText.value = '';
           watermarkImage.value = '';
+          customNameInput.value = '';
           imageInfoDisplay.textContent = '';
           imageInfoDisplay.style.display = 'none';
           return;
@@ -670,9 +677,20 @@
           const a = document.createElement('a');
           a.href = url;
           
-          // Generate filename with original name + date and time
-          const dateTimeString = getFormattedDateTime();
-          a.download = `${originalFileName}_${dateTimeString}.pdf`;
+          // Generate filename - use custom name if provided
+          const customName = customNameInput.value.trim();
+          let fileName;
+          
+          if (customName) {
+            // Use custom name
+            fileName = customName.endsWith('.pdf') ? customName : customName + '.pdf';
+          } else {
+            // Use auto-generated name with original name + date and time
+            const dateTimeString = getFormattedDateTime();
+            fileName = `${originalFileName}_${dateTimeString}.pdf`;
+          }
+          
+          a.download = fileName;
           
           document.body.appendChild(a);
           a.click();
@@ -689,6 +707,7 @@
           imageInfoDisplay.style.display = 'none';
           watermarkText.value = '';
           watermarkImage.value = '';
+          customNameInput.value = '';
           watermarkBtn.disabled = true;
           setTimeout(() => {
             progressContainer.style.display = 'none';
