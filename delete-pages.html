@@ -351,6 +351,11 @@
       <input type="text" id="pageInput" placeholder="e.g., 6,7,8,11-14,16-18">
       <p>Example: 6,7,8,11-14,16-18 (for pages 6, 7, 8, 11 to 14, and 16 to 18)</p>
     </div>
+    <div class="input-container">
+      <label for="customName">Custom Filename (Optional)</label>
+      <input type="text" id="customName" placeholder="Enter custom name for modified file">
+      <p>Leave empty to use auto-generated filename</p>
+    </div>
     <div class="progress-container" id="progressContainer">
       <div class="progress-bar" id="progressBar"></div>
     </div>
@@ -406,6 +411,7 @@
       const deleteBtn = document.getElementById('deleteBtn');
       const fileInfoDisplay = document.getElementById('fileInfo');
       const pageInput = document.getElementById('pageInput');
+      const customNameInput = document.getElementById('customName');
       const progressContainer = document.getElementById('progressContainer');
       const progressBar = document.getElementById('progressBar');
 
@@ -533,6 +539,7 @@
           stopVibration();
           selectedFile = null;
           pageInput.value = '';
+          customNameInput.value = '';
           return;
         }
         selectedFile = file;
@@ -599,11 +606,23 @@
           const pdfBytes = await newPdf.save();
           updateProgress(95);
 
+          // Generate filename - use custom name if provided
+          const customName = customNameInput.value.trim();
+          let fileName;
+          
+          if (customName) {
+            // Use custom name
+            fileName = customName.endsWith('.pdf') ? customName : customName + '.pdf';
+          } else {
+            // Use auto-generated name
+            fileName = generateFilename(selectedFile.name);
+          }
+
           const blob = new Blob([pdfBytes], { type: 'application/pdf' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = generateFilename(selectedFile.name);
+          a.download = fileName;
 
           // Trigger vibration on mobile devices for download
           if ('vibrate' in navigator) {
@@ -621,6 +640,7 @@
           fileInfoDisplay.textContent = '';
           fileInfoDisplay.style.display = 'none';
           pageInput.value = '';
+          customNameInput.value = '';
           deleteBtn.disabled = true;
           setTimeout(() => {
             progressContainer.style.display = 'none';
