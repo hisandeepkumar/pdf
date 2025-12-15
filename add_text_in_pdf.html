@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PDF Text Adder — All Pages Visible</title>
+
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Color picker library -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.1/spectrum.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.1/spectrum.min.js"></script>
+
+  <style>
+    *{ box-sizing:border-box; font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial; }
+    html,body{ height:100%; margin:0; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg'); color:#e6eef8; }
+    body{ display:flex; align-items:flex-start; justify-content:center; padding:28px; }
+
+    .container{
+      width:100%; max-width:1080px; background:rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px); border-radius:16px; padding:20px 22px 160px;
+      border:1px solid rgba(255,255,255,0.06); box-shadow:0 12px 40px rgba(0,0,0,0.6);
+      min-height: 60px;
+    }
+
+    .header{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .header h1{ margin:0; font-size:20px; font-weight:700; color:#fff; display:flex; gap:10px; align-items:center;}
+    .header i{ color:#60a5fa; font-size:26px; }
+
+    .upload-area{
+      border:2px dashed rgba(255,255,255,0.18); padding:20px; border-radius:12px; text-align:center; cursor:pointer; background:rgba(255,255,255,0.02);
+      margin-bottom:14px; position:relative;
+    }
+    .upload-area:hover{ border-color:#60a5fa; background:rgba(96,165,250,0.04); }
+    .upload-area i{ font-size:34px; color:#60a5fa; display:block; margin-bottom:8px; }
+    .upload-area input[type=file]{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+
+    /* Text Controls */
+    .text-controls{ 
+      display:flex; gap:12px; align-items:center; margin-bottom:12px; flex-wrap:wrap; 
+      background: rgba(255,255,255,0.04); padding: 14px; border-radius: 10px;
+    }
+    .control-group{ 
+      display:flex; align-items:center; gap:8px; 
+      padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    .control-group:last-child{ border-right: none; }
+    .text-controls label{ font-weight:700; color:#dbeafe; white-space: nowrap; }
+    .text-controls input[type="text"]{ 
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); 
+      color: white; padding: 6px 10px; border-radius: 6px; width: 180px;
+    }
+    .text-controls input[type="number"]{ 
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); 
+      color: white; padding: 6px 10px; border-radius: 6px; width: 70px;
+    }
+    .text-controls input[type="color"]{ 
+      width: 40px; height: 36px; border: none; background: transparent; cursor: pointer;
+    }
+    .checkbox-group{ display:flex; align-items:center; gap: 6px; }
+    .checkbox-group input[type="checkbox"]{ width: 18px; height: 18px; }
+    
+    /* Style buttons */
+    .style-buttons{ display: flex; gap: 8px; margin-bottom: 12px; }
+    .style-btn{ 
+      background: rgba(96,165,250,0.2); border: 1px solid rgba(96,165,250,0.3); 
+      color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .style-btn:hover{ background: rgba(96,165,250,0.3); }
+    .style-btn.active{ background: rgba(96,165,250,0.5); border-color: #60a5fa; }
+
+    .preview-list{ display:flex; flex-direction:column; gap:18px; padding-right:6px; }
+
+    .preview-item{ background:rgba(255,255,255,0.02); border-radius:10px; padding:12px; display:flex; flex-direction:column; align-items:center; }
+    .preview-item h3{ margin:0 0 8px; color:#cfe8ff; font-weight:700; width:100%; text-align:left; }
+
+    .canvas-wrap{ position:relative; width:100%; display:flex; justify-content:center; }
+    canvas{ width:100% !important; height:auto !important; border-radius:6px; box-shadow:0 8px 30px rgba(0,0,0,0.6); background:white; display:block; }
+
+    .text-layer{ position:absolute; left:0; top:0; pointer-events:auto; }
+
+    .text-element{ 
+      position:absolute; cursor:move; touch-action:none; user-select:none; 
+      display:flex; align-items:center; transition:transform 120ms ease;
+      padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.05);
+      border: 2px solid transparent;
+    }
+    .text-element.selected{ border-color: #60a5fa; background: rgba(96,165,250,0.1); }
+    .text-element.pulse{ animation: textPulse 360ms ease; }
+    @keyframes textPulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
+
+    .text-content{ 
+      pointer-events:none; white-space: nowrap; font-family: Arial, sans-serif;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .delete-btn{ 
+      position:absolute; right:-10px; top:-10px; width:26px; height:26px; 
+      background:#ef4444; color:white; border-radius:50%; border:none;
+      display:flex; align-items:center; justify-content:center; cursor:pointer;
+      z-index: 10;
+    }
+
+    .floating-btn{
+      position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:9999;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px) saturate(1.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+      color: white; padding:12px 28px; border-radius:999px; font-weight:800; cursor:pointer; display:flex; gap:10px; align-items:center;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    .floating-btn:hover{ transform:translateX(-50%) translateY(-4px); box-shadow:0 18px 44px rgba(0,0,0,0.6); background: rgba(255,255,255,0.08); }
+    .floating-btn:disabled{ opacity:0.6; cursor:not-allowed; }
+
+    .progress{ position:fixed; left:50%; transform:translateX(-50%); bottom:78px; width:420px; height:8px; background:rgba(255,255,255,0.04); border-radius:8px; overflow:hidden; display:none; z-index:9998; }
+    .progress > div{ width:0%; height:100%; background:linear-gradient(90deg,#5b86e5,#36d1dc); transition:width 200ms linear; }
+
+    .footer-note{ margin-top:12px; color:rgba(255,255,255,0.6); font-size:13px; text-align:center; }
+
+    /* Color picker styling */
+    .sp-color{ border: none !important; }
+    .sp-palette-container{ border-right: none !important; }
+
+    @media (max-width:860px){
+      .container{ padding-bottom:220px; }
+      .progress{ width:86%; }
+      .floating-btn{ width:86%; left:50%; transform:translateX(-50%); }
+      .text-controls{ flex-direction: column; align-items: flex-start; }
+      .control-group{ border-right: none; padding-right: 0; width: 100%; }
+      .control-group label{ min-width: 80px; }
+      .style-buttons{ flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <div class="header">
+      <i class="fas fa-font"></i>
+      <h1>PDF Text Adder</h1>
+    </div>
+
+    <div class="upload-area" id="uploadArea">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <h3>Upload a PDF (single)</h3>
+      <p>Select a PDF and previews for every page will appear below. Click anywhere on a page to add text.</p>
+      <input id="pdfInput" type="file" accept="application/pdf">
+    </div>
+
+    <!-- Text Controls -->
+    <div class="text-controls">
+      <div class="control-group">
+        <label for="textInput">Text:</label>
+        <input type="text" id="textInput" value="Sample Text" />
+      </div>
+      
+      <div class="control-group">
+        <label for="fontSize">Size:</label>
+        <input type="number" id="fontSize" min="8" max="72" value="16" />
+        <span style="color:#cfe8ff;">pt</span>
+      </div>
+      
+      <div class="control-group">
+        <label for="colorPicker">Color:</label>
+        <input type="text" id="colorPicker" value="#000000" />
+      </div>
+      
+      <div class="control-group checkbox-group">
+        <label for="boldCheckbox">Bold:</label>
+        <input type="checkbox" id="boldCheckbox" />
+      </div>
+      
+      <div class="control-group checkbox-group">
+        <label for="italicCheckbox">Italic:</label>
+        <input type="checkbox" id="italicCheckbox" />
+      </div>
+    </div>
+
+    <!-- Style buttons -->
+    <div class="style-buttons">
+      <div class="style-btn" id="style1">
+        <i class="fas fa-heading"></i>
+        <span>Heading</span>
+      </div>
+      <div class="style-btn" id="style2">
+        <i class="fas fa-paragraph"></i>
+        <span>Body Text</span>
+      </div>
+      <div class="style-btn" id="style3">
+        <i class="fas fa-highlighter"></i>
+        <span>Highlight</span>
+      </div>
+      <div class="style-btn" id="style4">
+        <i class="fas fa-stamp"></i>
+        <span>Stamp</span>
+      </div>
+      <div class="style-btn active" id="style5">
+        <i class="fas fa-times-circle"></i>
+        <span>Clear Style</span>
+      </div>
+    </div>
+
+    <div class="preview-list" id="previewList" aria-live="polite"></div>
+
+    <div class="footer-note">Click anywhere on a page to add text. Drag to reposition. Select a text to edit its properties. Clicking on existing text selects it.</div>
+  </div>
+
+  <div class="progress" id="progress"><div id="progressBar"></div></div>
+  <button class="floating-btn" id="generateBtn" disabled><i class="fas fa-download"></i> Generate PDF with Text</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', ()=> {
+  const pdfInput = document.getElementById('pdfInput');
+  const uploadArea = document.getElementById('uploadArea');
+  const previewList = document.getElementById('previewList');
+  const generateBtn = document.getElementById('generateBtn');
+  const progress = document.getElementById('progress');
+  const progressBar = document.getElementById('progressBar');
+  const container = document.getElementById('container');
+  
+  // Text controls
+  const textInput = document.getElementById('textInput');
+  const fontSize = document.getElementById('fontSize');
+  const colorPicker = document.getElementById('colorPicker');
+  const boldCheckbox = document.getElementById('boldCheckbox');
+  const italicCheckbox = document.getElementById('italicCheckbox');
+  const styleButtons = document.querySelectorAll('.style-btn');
+
+  const DPR = window.devicePixelRatio || 1;
+  let selectedPdfFile = null;
+  let pdfLibDoc = null;
+  let pdfJsDoc = null;
+  let pageData = [];
+  let originalFilename = '';
+  let selectedTextElement = null;
+
+  // Initialize color picker
+  $(colorPicker).spectrum({
+    type: "color",
+    showInput: true,
+    showInitial: true,
+    allowEmpty: false,
+    showAlpha: false,
+    preferredFormat: "hex",
+    move: function(color) {
+      updateSelectedTextStyle();
+    },
+    change: function(color) {
+      updateSelectedTextStyle();
+    }
+  });
+
+  // Default text style
+  const defaultTextStyle = {
+    text: "Sample Text",
+    fontSize: 16,
+    color: "#000000",
+    bold: false,
+    italic: false
+  };
+  
+  // Current text style (for new elements)
+  let currentTextStyle = {...defaultTextStyle};
+  
+  // Preset styles
+  const textStyles = {
+    heading: {text: "HEADING", fontSize: 24, color: "#000000", bold: true, italic: false},
+    body: {text: "Body Text", fontSize: 14, color: "#333333", bold: false, italic: false},
+    highlight: {text: "IMPORTANT", fontSize: 18, color: "#FF0000", bold: true, italic: false},
+    stamp: {text: "APPROVED", fontSize: 22, color: "#008000", bold: true, italic: true}
+  };
+
+  // Style buttons click handlers
+  styleButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      styleButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const styleId = btn.id;
+      let newStyle = {};
+      
+      switch(styleId) {
+        case 'style1': newStyle = {...textStyles.heading}; break;
+        case 'style2': newStyle = {...textStyles.body}; break;
+        case 'style3': newStyle = {...textStyles.highlight}; break;
+        case 'style4': newStyle = {...textStyles.stamp}; break;
+        case 'style5': 
+          newStyle = {...defaultTextStyle}; 
+          textInput.value = defaultTextStyle.text;
+          fontSize.value = defaultTextStyle.fontSize;
+          $(colorPicker).spectrum("set", defaultTextStyle.color);
+          boldCheckbox.checked = defaultTextStyle.bold;
+          italicCheckbox.checked = defaultTextStyle.italic;
+          break;
+      }
+      
+      if (styleId !== 'style5') {
+        currentTextStyle = {...newStyle};
+        textInput.value = newStyle.text;
+        fontSize.value = newStyle.fontSize;
+        $(colorPicker).spectrum("set", newStyle.color);
+        boldCheckbox.checked = newStyle.bold;
+        italicCheckbox.checked = newStyle.italic;
+        
+        // Update selected text if any
+        updateSelectedTextStyle();
+      } else {
+        currentTextStyle = {...defaultTextStyle};
+      }
+    });
+  });
+
+  // Update text style from controls
+  function updateCurrentStyle() {
+    currentTextStyle = {
+      text: textInput.value || "Sample Text",
+      fontSize: parseInt(fontSize.value) || 16,
+      color: $(colorPicker).spectrum('get').toHexString(),
+      bold: boldCheckbox.checked,
+      italic: italicCheckbox.checked
+    };
+    
+    // Update selected text if any
+    updateSelectedTextStyle();
+  }
+
+  // Update selected text with current style
+  function updateSelectedTextStyle() {
+    if (!selectedTextElement) return;
+    
+    const pageIndex = selectedTextElement.dataset.pageIndex;
+    const textId = selectedTextElement.dataset.textId;
+    const pd = pageData[pageIndex];
+    
+    if (!pd || !pd.texts) return;
+    
+    // Find the text data
+    const textData = pd.texts.find(t => t.id === textId);
+    if (!textData) return;
+    
+    // Update text data with current style
+    textData.text = textInput.value || "Sample Text";
+    textData.fontSize = parseInt(fontSize.value) || 16;
+    textData.color = $(colorPicker).spectrum('get').toHexString();
+    textData.bold = boldCheckbox.checked;
+    textData.italic = italicCheckbox.checked;
+    
+    // Update the visual element
+    updateTextElementVisual(selectedTextElement, textData);
+  }
+
+  // Update text element visual appearance
+  function updateTextElementVisual(element, textData) {
+    element.querySelector('.text-content').textContent = textData.text;
+    element.querySelector('.text-content').style.fontSize = textData.fontSize + 'px';
+    element.querySelector('.text-content').style.color = textData.color;
+    element.querySelector('.text-content').style.fontWeight = textData.bold ? 'bold' : 'normal';
+    element.querySelector('.text-content').style.fontStyle = textData.italic ? 'italic' : 'normal';
+  }
+
+  // Event listeners for text controls
+  textInput.addEventListener('input', updateCurrentStyle);
+  fontSize.addEventListener('input', updateCurrentStyle);
+  boldCheckbox.addEventListener('change', updateCurrentStyle);
+  italicCheckbox.addEventListener('change', updateCurrentStyle);
+
+  // Drag/drop UI
+  ['dragenter','dragover'].forEach(ev => uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.classList.add('active'); }));
+  ['dragleave','drop'].forEach(ev => uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.classList.remove('active'); }));
+  uploadArea.addEventListener('drop', e=> { if(e.dataTransfer?.files?.length) handlePdf(e.dataTransfer.files[0]); });
+
+  pdfInput.addEventListener('change', (e)=> { 
+    if(e.target.files?.length) {
+      handlePdf(e.target.files[0]);
+      originalFilename = e.target.files[0].name.replace(/\.pdf$/i, '');
+    }
+  });
+
+  async function handlePdf(file){
+    if(!file) return;
+    if(file.type !== 'application/pdf'){ alert('Please upload a PDF'); return; }
+    selectedPdfFile = file;
+    previewList.innerHTML = '';
+    pageData = [];
+    selectedTextElement = null;
+    generateBtn.disabled = true;
+
+    try{
+      const ab = await file.arrayBuffer();
+      pdfLibDoc = await PDFLib.PDFDocument.load(ab);
+      pdfJsDoc = await pdfjsLib.getDocument({data:ab}).promise;
+      const total = pdfLibDoc.getPageCount();
+
+      // Measure container inner width
+      const cs = getComputedStyle(container);
+      const padLeft = parseFloat(cs.paddingLeft || 20);
+      const padRight = parseFloat(cs.paddingRight || 20);
+      const availableWidth = Math.max(300, container.clientWidth - padLeft - padRight - 4);
+
+      for(let p=1;p<=total;p++){
+        const page = await pdfJsDoc.getPage(p);
+        const base = page.getViewport({scale:1});
+        const scale = (availableWidth / base.width);
+        const viewport = page.getViewport({scale});
+        const cssW = Math.round(viewport.width);
+        const cssH = Math.round(viewport.height);
+
+        const canvas = document.createElement('canvas');
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+        canvas.width = Math.floor(cssW * DPR);
+        canvas.height = Math.floor(cssH * DPR);
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(DPR,0,0,DPR,0,0);
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        const libPage = pdfLibDoc.getPage(p-1);
+        const psize = libPage.getSize();
+
+        const item = document.createElement('div');
+        item.className = 'preview-item';
+        const title = document.createElement('h3');
+        title.textContent = `Page ${p}`;
+        item.appendChild(title);
+
+        const wrap = document.createElement('div');
+        wrap.className = 'canvas-wrap';
+        wrap.style.width = cssW + 'px';
+        wrap.style.height = cssH + 'px';
+        wrap.appendChild(canvas);
+
+        // Text layer
+        const layer = document.createElement('div');
+        layer.className = 'text-layer';
+        layer.style.width = cssW + 'px';
+        layer.style.height = cssH + 'px';
+        layer.style.left = '0';
+        layer.style.top = '0';
+        layer.style.position = 'absolute';
+        wrap.style.position = 'relative';
+        wrap.appendChild(layer);
+
+        item.appendChild(wrap);
+        previewList.appendChild(item);
+
+        pageData[p-1] = {
+          pdfSize: { width: psize.width, height: psize.height },
+          viewport: { width: viewport.width, height: viewport.height },
+          canvasElem: canvas,
+          layerElem: layer,
+          wrapElem: wrap,
+          texts: []
+        };
+
+        // Click on layer to add text
+        layer.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          
+          const rect = layer.getBoundingClientRect();
+          const clickX = ev.clientX - rect.left;
+          const clickY = ev.clientY - rect.top;
+          
+          // Check if click is on existing text
+          const existing = Array.from(layer.querySelectorAll('.text-element'));
+          for(const el of existing){
+            const br = el.getBoundingClientRect();
+            const relLeft = br.left - rect.left;
+            const relTop  = br.top - rect.top;
+            const relRight = relLeft + br.width;
+            const relBottom = relTop + br.height;
+            
+            if(clickX >= relLeft && clickX <= relRight && clickY >= relTop && clickY <= relBottom){
+              // Select existing text
+              selectTextElement(el);
+              el.classList.add('pulse');
+              setTimeout(()=> el.classList.remove('pulse'), 360);
+              return;
+            }
+          }
+          
+          // Add new text
+          addTextToPage(p-1, clickX, clickY);
+        });
+      }
+
+      generateBtn.disabled = pageData.every(pd => !pd.texts || pd.texts.length === 0);
+      previewList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    }catch(err){
+      console.error('PDF load/render error', err);
+      alert('Error loading PDF: ' + (err.message || err));
+    }
+  }
+
+  function addTextToPage(pageIndex, x_css, y_css){
+    const pd = pageData[pageIndex];
+    if(!pd) return;
+    const layer = pd.layerElem;
+    const id = `text-${pageIndex}-${Date.now()}`;
+    
+    // Use current text style
+    const textStyle = {...currentTextStyle};
+    
+    // Create text element
+    const textEl = document.createElement('div');
+    textEl.className = 'text-element';
+    textEl.id = id;
+    textEl.dataset.pageIndex = pageIndex;
+    textEl.dataset.textId = id;
+    
+    // Position the text
+    const left = x_css;
+    const top = y_css;
+    textEl.style.left = Math.max(0, left) + 'px';
+    textEl.style.top = Math.max(0, top) + 'px';
+    
+    // Create text content
+    const textContent = document.createElement('div');
+    textContent.className = 'text-content';
+    textContent.textContent = textStyle.text;
+    textContent.style.fontSize = textStyle.fontSize + 'px';
+    textContent.style.color = textStyle.color;
+    textContent.style.fontWeight = textStyle.bold ? 'bold' : 'normal';
+    textContent.style.fontStyle = textStyle.italic ? 'italic' : 'normal';
+    textEl.appendChild(textContent);
+    
+    // Delete button
+    const del = document.createElement('button');
+    del.className = 'delete-btn';
+    del.innerHTML = '<i class="fas fa-trash"></i>';
+    del.addEventListener('click', (e)=> {
+      e.stopPropagation();
+      if (selectedTextElement === textEl) {
+        selectedTextElement = null;
+      }
+      textEl.remove();
+      pd.texts = pd.texts.filter(t => t.id !== id);
+      generateBtn.disabled = pageData.every(p=> p.texts.length===0);
+    });
+    textEl.appendChild(del);
+    
+    layer.appendChild(textEl);
+    
+    // Store text data
+    const scaleX = pd.pdfSize.width / pd.viewport.width;
+    const scaleY = pd.pdfSize.height / pd.viewport.height;
+    const pdfX = left * scaleX;
+    const pdfTop = top * scaleY;
+    
+    const stored = { 
+      id, 
+      x_pdf: pdfX, 
+      top_pdf: pdfTop,
+      text: textStyle.text,
+      fontSize: textStyle.fontSize,
+      color: textStyle.color,
+      bold: textStyle.bold,
+      italic: textStyle.italic
+    };
+    pd.texts.push(stored);
+    
+    // Make draggable
+    makeDraggable(textEl, pageIndex, stored);
+    
+    // Select this new text
+    selectTextElement(textEl);
+    
+    generateBtn.disabled = false;
+  }
+
+  function selectTextElement(element) {
+    // Deselect previous
+    if (selectedTextElement) {
+      selectedTextElement.classList.remove('selected');
+    }
+    
+    // Select new
+    selectedTextElement = element;
+    element.classList.add('selected');
+    
+    // Update controls with this text's properties
+    const pageIndex = element.dataset.pageIndex;
+    const textId = element.dataset.textId;
+    const pd = pageData[pageIndex];
+    
+    if (!pd || !pd.texts) return;
+    
+    const textData = pd.texts.find(t => t.id === textId);
+    if (!textData) return;
+    
+    textInput.value = textData.text;
+    fontSize.value = textData.fontSize;
+    $(colorPicker).spectrum("set", textData.color);
+    boldCheckbox.checked = textData.bold;
+    italicCheckbox.checked = textData.italic;
+    
+    // Update current style
+    currentTextStyle = {
+      text: textData.text,
+      fontSize: textData.fontSize,
+      color: textData.color,
+      bold: textData.bold,
+      italic: textData.italic
+    };
+  }
+
+  function makeDraggable(domEl, pageIndex, stored){
+    let dragging=false, startX=0, startY=0, startLeft=0, startTop=0;
+    const layer = pageData[pageIndex].layerElem;
+
+    const down = (e) => {
+      e.preventDefault();
+      dragging = true;
+      const cx = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+      const cy = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+      startX = cx; startY = cy;
+      startLeft = parseFloat(domEl.style.left || 0);
+      startTop = parseFloat(domEl.style.top || 0);
+      
+      // Select this element when starting to drag
+      selectTextElement(domEl);
+      
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', up);
+      document.addEventListener('touchmove', move, {passive:false});
+      document.addEventListener('touchend', up);
+    };
+
+    const move = (e) => {
+      if(!dragging) return;
+      e.preventDefault();
+      const cx = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+      const cy = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+      const dx = cx - startX, dy = cy - startY;
+      let newLeft = startLeft + dx, newTop = startTop + dy;
+      
+      // Constrain within layer
+      newLeft = Math.max(0, Math.min(newLeft, layer.clientWidth - domEl.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, layer.clientHeight - domEl.offsetHeight));
+      
+      domEl.style.left = newLeft + 'px';
+      domEl.style.top = newTop + 'px';
+
+      const pd = pageData[pageIndex];
+      const sX = pd.pdfSize.width / pd.viewport.width;
+      const sY = pd.pdfSize.height / pd.viewport.height;
+      stored.x_pdf = newLeft * sX;
+      stored.top_pdf = newTop * sY;
+    };
+
+    const up = (e) => {
+      dragging = false;
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+      document.removeEventListener('touchmove', move);
+      document.removeEventListener('touchend', up);
+    };
+
+    domEl.addEventListener('mousedown', down);
+    domEl.addEventListener('touchstart', down, {passive:false});
+  }
+
+  // Generate PDF with text
+  generateBtn.addEventListener('click', async ()=>{
+    if(!selectedPdfFile) { alert('Upload a PDF first'); return; }
+    if(pageData.every(pd => !pd.texts || pd.texts.length===0)) { alert('Add at least one text element'); return; }
+    
+    try{
+      generateBtn.disabled = true;
+      progress.style.display = 'block';
+      progressBar.style.width = '6%';
+
+      const ab = await selectedPdfFile.arrayBuffer();
+      progressBar.style.width = '18%';
+      const pdfDoc = await PDFLib.PDFDocument.load(ab);
+      progressBar.style.width = '36%';
+
+      // Embed fonts (Helvetica with variants)
+      const helveticaFont = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+      const helveticaBoldFont = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+      const helveticaObliqueFont = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaOblique);
+      const helveticaBoldObliqueFont = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBoldOblique);
+
+      progressBar.style.width = '50%';
+
+      const pages = pdfDoc.getPages();
+      for(let i=0;i<pages.length;i++){
+        const page = pages[i];
+        const pd = pageData[i];
+        if(!pd) continue;
+        
+        for(const t of pd.texts){
+          // Convert hex color to RGB
+          const hex = t.color.replace('#', '');
+          const r = parseInt(hex.substr(0,2), 16) / 255;
+          const g = parseInt(hex.substr(2,2), 16) / 255;
+          const b = parseInt(hex.substr(4,2), 16) / 255;
+          
+          // Choose font based on style
+          let font;
+          if(t.bold && t.italic) {
+            font = helveticaBoldObliqueFont;
+          } else if(t.bold) {
+            font = helveticaBoldFont;
+          } else if(t.italic) {
+            font = helveticaObliqueFont;
+          } else {
+            font = helveticaFont;
+          }
+          
+          // Calculate Y position (PDF origin is bottom-left)
+          const pdfY = pd.pdfSize.height - t.top_pdf - t.fontSize;
+          
+          page.drawText(t.text, {
+            x: t.x_pdf,
+            y: pdfY,
+            size: t.fontSize,
+            font: font,
+            color: PDFLib.rgb(r, g, b)
+          });
+        }
+      }
+      
+      progressBar.style.width = '86%';
+      const out = await pdfDoc.save();
+      progressBar.style.width = '96%';
+
+      const blob = new Blob([out], { type:'application/pdf' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      
+      const downloadFilename = originalFilename ? `${originalFilename}_with_text.pdf` : `document_with_text.pdf`;
+      a.download = downloadFilename;
+      
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      progressBar.style.width = '100%';
+      setTimeout(()=> { progress.style.display='none'; progressBar.style.width='0%'; }, 600);
+
+      // Clear previews
+      previewList.innerHTML = '';
+      pageData = [];
+      selectedPdfFile = null;
+      originalFilename = '';
+      selectedTextElement = null;
+      generateBtn.disabled = true;
+      
+      // Reset to default style
+      styleButtons.forEach(b => b.classList.remove('active'));
+      document.getElementById('style5').classList.add('active');
+      currentTextStyle = {...defaultTextStyle};
+      textInput.value = defaultTextStyle.text;
+      fontSize.value = defaultTextStyle.fontSize;
+      $(colorPicker).spectrum("set", defaultTextStyle.color);
+      boldCheckbox.checked = defaultTextStyle.bold;
+      italicCheckbox.checked = defaultTextStyle.italic;
+      
+    }catch(err){
+      console.error(err);
+      alert('Error generating PDF with text: ' + (err.message || err));
+      generateBtn.disabled = false;
+      progress.style.display = 'none';
+      progressBar.style.width = '0%';
+    }
+  });
+
+  // Toggle generate button depending on text elements present
+  const mo = new MutationObserver(()=> {
+    generateBtn.disabled = pageData.every(pd => !pd.texts || pd.texts.length===0);
+  });
+  mo.observe(previewList, { childList:true, subtree:true });
+
+  // Initialize with default style
+  updateCurrentStyle();
+});
+</script>
+</body>
+</html>
