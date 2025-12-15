@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PDF Text Adder — Popup Styling</title>
+  <title>PDF Text Adder — All Pages Visible</title>
 
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -77,134 +77,192 @@
 
     /* Text Editor Popup */
     .text-editor-popup {
-      position: absolute;
-      background: rgba(30, 30, 35, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.7);
-      border: 1px solid rgba(255,255,255,0.15);
+      position: fixed;
+      background: rgba(30, 30, 35, 0.98);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+      border: 1px solid rgba(255,255,255,0.2);
       z-index: 10000;
       display: none;
-      min-width: 320px;
+      min-width: 350px;
       animation: popupFade 0.2s ease;
     }
     @keyframes popupFade {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(10px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .popup-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
     }
 
     .popup-header h3 {
       margin: 0;
       color: white;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 600;
-    }
-
-    .close-popup {
-      background: none;
-      border: none;
-      color: rgba(255,255,255,0.7);
-      font-size: 20px;
-      cursor: pointer;
-      padding: 0;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-    }
-    .close-popup:hover {
-      background: rgba(255,255,255,0.1);
-      color: white;
-    }
-
-    .text-input-container {
-      margin-bottom: 16px;
-    }
-
-    .text-input-container textarea {
-      width: 100%;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 8px;
-      padding: 12px;
-      color: white;
-      font-size: 14px;
-      resize: vertical;
-      min-height: 80px;
-      font-family: inherit;
-    }
-
-    .style-controls {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .control-row {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .control-row label {
-      color: rgba(255,255,255,0.9);
-      font-size: 13px;
-      font-weight: 500;
-      min-width: 60px;
-    }
-
-    .control-row input[type="number"] {
-      width: 70px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 6px;
-      padding: 8px;
-      color: white;
-      text-align: center;
-    }
-
-    .control-row input[type="color"] {
-      width: 40px;
-      height: 40px;
+    .close-popup {
+      background: rgba(255,255,255,0.1);
       border: none;
-      background: transparent;
+      color: rgba(255,255,255,0.9);
+      font-size: 18px;
       cursor: pointer;
-      border-radius: 6px;
-      overflow: hidden;
-    }
-
-    .font-style-buttons {
-      display: flex;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .style-btn {
+      padding: 8px;
       width: 36px;
       height: 36px;
-      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+    .close-popup:hover {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .text-input-container {
+      margin-bottom: 20px;
+    }
+
+    .text-input-container textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 10px;
+      padding: 15px;
+      color: white;
+      font-size: 15px;
+      resize: vertical;
+      min-height: 100px;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+    .text-input-container textarea:focus {
+      outline: none;
+      border-color: #60a5fa;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .style-controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-label {
+      color: rgba(255,255,255,0.95);
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .control-label i {
+      color: #60a5fa;
+      font-size: 16px;
+    }
+
+    .font-size-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 8px 12px;
       border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 6px;
+    }
+
+    .size-btn {
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 18px;
       transition: all 0.2s ease;
+    }
+    .size-btn:hover {
+      background: rgba(255,255,255,0.25);
+      border-color: #60a5fa;
+    }
+
+    .size-value {
+      flex: 1;
+      text-align: center;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      min-width: 40px;
+    }
+
+    .color-control {
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .color-preview {
+      width: 100%;
+      height: 36px;
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .color-preview:hover {
+      border-color: #60a5fa;
+      transform: scale(1.02);
+    }
+
+    .font-style-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .style-btn {
+      flex: 1;
+      height: 42px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      transition: all 0.2s ease;
+      gap: 4px;
     }
     .style-btn:hover {
       background: rgba(255,255,255,0.15);
@@ -214,40 +272,52 @@
       border-color: #60a5fa;
       color: white;
     }
+    .style-btn i {
+      font-size: 16px;
+    }
 
     .popup-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      gap: 12px;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.15);
     }
 
     .action-btn {
-      padding: 10px 20px;
-      border-radius: 8px;
+      padding: 12px 24px;
+      border-radius: 12px;
       border: none;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 15px;
       transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 100px;
+      justify-content: center;
     }
 
     .cancel-btn {
-      background: rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.1);
       color: white;
     }
     .cancel-btn:hover {
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
     }
 
     .apply-btn {
-      background: #60a5fa;
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
       color: white;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
     }
     .apply-btn:hover {
-      background: #3b82f6;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
     }
 
     .floating-btn{
@@ -267,25 +337,58 @@
 
     .footer-note{ margin-top:12px; color:rgba(255,255,255,0.6); font-size:13px; text-align:center; }
 
-    @media (max-width:760px){
+    @media (max-width:860px){
       .container{ padding-bottom:220px; }
       .progress{ width:86%; }
       .floating-btn{ width:86%; left:50%; transform:translateX(-50%); }
       .text-editor-popup {
-        min-width: 280px;
-        left: 10px !important;
-        right: 10px !important;
-        transform: none !important;
+        min-width: 300px;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        top: 50% !important;
+        margin-top: -200px;
+      }
+      .style-controls {
+        grid-template-columns: 1fr;
       }
     }
 
-    /* Fix for spectrum color picker positioning */
+    /* Spectrum color picker fix */
     .sp-container { 
       position: fixed !important;
       top: 50% !important;
       left: 50% !important;
       transform: translate(-50%, -50%) !important;
       z-index: 10001 !important;
+      background: rgba(30, 30, 35, 0.98) !important;
+      backdrop-filter: blur(20px) !important;
+      border: 1px solid rgba(255,255,255,0.2) !important;
+      border-radius: 16px !important;
+    }
+    
+    .sp-palette-container { border-right: 1px solid rgba(255,255,255,0.1) !important; }
+    
+    /* Loading indicator */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      color: rgba(255,255,255,0.7);
+      font-size: 16px;
+      gap: 15px;
+    }
+    .loading-spinner {
+      width: 30px;
+      height: 30px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #60a5fa;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -311,7 +414,7 @@
   <!-- Text Editor Popup -->
   <div class="text-editor-popup" id="textEditorPopup">
     <div class="popup-header">
-      <h3>Edit Text</h3>
+      <h3><i class="fas fa-edit"></i> Edit Text</h3>
       <button class="close-popup" id="closePopupBtn">
         <i class="fas fa-times"></i>
       </button>
@@ -322,35 +425,60 @@
     </div>
     
     <div class="style-controls">
-      <div class="control-row">
-        <label>Font+</label>
-        <input type="number" id="popupFontSize" min="8" max="72" value="16">
+      <div class="control-group">
+        <div class="control-label">
+          <i class="fas fa-text-height"></i>
+          <span>Font Size</span>
+        </div>
+        <div class="font-size-control">
+          <button class="size-btn" id="decreaseSizeBtn">-</button>
+          <div class="size-value" id="sizeValue">16</div>
+          <button class="size-btn" id="increaseSizeBtn">+</button>
+        </div>
       </div>
       
-      <div class="control-row">
-        <label>Color</label>
-        <input type="text" id="popupColorPicker" value="#000000">
+      <div class="control-group">
+        <div class="control-label">
+          <i class="fas fa-palette"></i>
+          <span>Color</span>
+        </div>
+        <div class="color-control">
+          <div class="color-preview" id="colorPreview" style="background-color: #000000;"></div>
+          <input type="hidden" id="popupColorPicker" value="#000000">
+        </div>
       </div>
       
-      <div class="control-row">
-        <label>Style</label>
-        <div class="font-style-buttons">
+      <div class="control-group">
+        <div class="control-label">
+          <i class="fas fa-bold"></i>
+          <span>Style</span>
+        </div>
+        <div class="font-style-controls">
           <button class="style-btn" id="boldBtn" title="Bold">
             <i class="fas fa-bold"></i>
+            <span>Bold</span>
           </button>
           <button class="style-btn" id="italicBtn" title="Italic">
             <i class="fas fa-italic"></i>
+            <span>Italic</span>
           </button>
           <button class="style-btn" id="underlineBtn" title="Underline">
             <i class="fas fa-underline"></i>
+            <span>Underline</span>
           </button>
         </div>
       </div>
     </div>
     
     <div class="popup-actions">
-      <button class="action-btn cancel-btn" id="cancelBtn">Cancel</button>
-      <button class="action-btn apply-btn" id="applyBtn">Apply</button>
+      <button class="action-btn cancel-btn" id="cancelBtn">
+        <i class="fas fa-times"></i>
+        Cancel
+      </button>
+      <button class="action-btn apply-btn" id="applyBtn">
+        <i class="fas fa-check"></i>
+        Apply
+      </button>
     </div>
   </div>
 
@@ -370,7 +498,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
   // Text Editor Popup Elements
   const textEditorPopup = document.getElementById('textEditorPopup');
   const popupTextInput = document.getElementById('popupTextInput');
-  const popupFontSize = document.getElementById('popupFontSize');
+  const decreaseSizeBtn = document.getElementById('decreaseSizeBtn');
+  const increaseSizeBtn = document.getElementById('increaseSizeBtn');
+  const sizeValue = document.getElementById('sizeValue');
+  const colorPreview = document.getElementById('colorPreview');
   const popupColorPicker = document.getElementById('popupColorPicker');
   const boldBtn = document.getElementById('boldBtn');
   const italicBtn = document.getElementById('italicBtn');
@@ -388,6 +519,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let selectedTextElement = null;
   let popupPosition = { x: 0, y: 0 };
   let isCreatingNewText = false;
+  let currentPageIndex = 0;
+  let clickPosition = { x: 0, y: 0 };
 
   // Initialize color picker
   $(popupColorPicker).spectrum({
@@ -399,11 +532,20 @@ document.addEventListener('DOMContentLoaded', ()=> {
     preferredFormat: "hex",
     containerClassName: 'spectrum-container',
     move: function(color) {
+      const hexColor = color.toHexString();
+      colorPreview.style.backgroundColor = hexColor;
       updateTextPreview();
     },
     change: function(color) {
+      const hexColor = color.toHexString();
+      colorPreview.style.backgroundColor = hexColor;
       updateTextPreview();
     }
+  });
+
+  // Click color preview to open color picker
+  colorPreview.addEventListener('click', () => {
+    $(popupColorPicker).spectrum('show');
   });
 
   // Default text style
@@ -418,6 +560,27 @@ document.addEventListener('DOMContentLoaded', ()=> {
   
   // Current text style for editing
   let currentTextStyle = {...defaultTextStyle};
+
+  // Font size controls
+  decreaseSizeBtn.addEventListener('click', () => {
+    let size = parseInt(sizeValue.textContent);
+    if (size > 8) {
+      size--;
+      sizeValue.textContent = size;
+      currentTextStyle.fontSize = size;
+      updateTextPreview();
+    }
+  });
+
+  increaseSizeBtn.addEventListener('click', () => {
+    let size = parseInt(sizeValue.textContent);
+    if (size < 72) {
+      size++;
+      sizeValue.textContent = size;
+      currentTextStyle.fontSize = size;
+      updateTextPreview();
+    }
+  });
 
   // Style buttons toggle
   boldBtn.addEventListener('click', () => {
@@ -472,9 +635,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
   function showTextEditor(x, y, textData = null, isNew = false) {
     isCreatingNewText = isNew;
     
-    // Position popup near click/target position
-    const popupWidth = textEditorPopup.offsetWidth || 320;
-    const popupHeight = textEditorPopup.offsetHeight || 400;
+    // Set popup position
+    const popupWidth = 350;
+    const popupHeight = 450;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     
@@ -485,8 +648,15 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (x + popupWidth > viewportWidth - 20) {
       posX = viewportWidth - popupWidth - 20;
     }
+    if (posX < 20) {
+      posX = 20;
+    }
+    
     if (y + popupHeight > viewportHeight - 20) {
       posY = viewportHeight - popupHeight - 20;
+    }
+    if (posY < 20) {
+      posY = 20;
     }
     
     textEditorPopup.style.left = posX + 'px';
@@ -498,8 +668,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Set values based on textData or defaults
     if (textData) {
       popupTextInput.value = textData.text;
-      popupFontSize.value = textData.fontSize;
+      sizeValue.textContent = textData.fontSize;
       $(popupColorPicker).spectrum("set", textData.color);
+      colorPreview.style.backgroundColor = textData.color;
       boldBtn.classList.toggle('active', textData.bold);
       italicBtn.classList.toggle('active', textData.italic);
       underlineBtn.classList.toggle('active', textData.underline);
@@ -515,8 +686,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     } else {
       // Use current style for new text
       popupTextInput.value = currentTextStyle.text;
-      popupFontSize.value = currentTextStyle.fontSize;
+      sizeValue.textContent = currentTextStyle.fontSize;
       $(popupColorPicker).spectrum("set", currentTextStyle.color);
+      colorPreview.style.backgroundColor = currentTextStyle.color;
       boldBtn.classList.toggle('active', currentTextStyle.bold);
       italicBtn.classList.toggle('active', currentTextStyle.italic);
       underlineBtn.classList.toggle('active', currentTextStyle.underline);
@@ -558,11 +730,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
     updateTextPreview();
   });
 
-  popupFontSize.addEventListener('input', () => {
-    currentTextStyle.fontSize = parseInt(popupFontSize.value) || 16;
-    updateTextPreview();
-  });
-
   closePopupBtn.addEventListener('click', hideTextEditor);
   cancelBtn.addEventListener('click', hideTextEditor);
 
@@ -582,7 +749,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (textEditorPopup.style.display === 'block' && 
         !textEditorPopup.contains(e.target) && 
         !e.target.classList.contains('text-element') &&
-        !e.target.closest('.text-element')) {
+        !e.target.closest('.text-element') &&
+        !e.target.classList.contains('sp-container') &&
+        !e.target.closest('.sp-container')) {
       hideTextEditor();
     }
   });
@@ -609,7 +778,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
   pdfInput.addEventListener('change', (e)=> { 
     if(e.target.files?.length) {
       handlePdf(e.target.files[0]);
-      originalFilename = e.target.files[0].name.replace(/\.pdf$/i, '');
     }
   });
 
@@ -625,124 +793,167 @@ document.addEventListener('DOMContentLoaded', ()=> {
     pageData = [];
     selectedTextElement = null;
     generateBtn.disabled = true;
-    hideTextEditor(); // Hide any open popup
+    hideTextEditor();
+    
+    // Show loading indicator
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'loading';
+    loadingDiv.innerHTML = `
+      <div class="loading-spinner"></div>
+      <div>Loading PDF pages...</div>
+    `;
+    previewList.appendChild(loadingDiv);
 
-    try{
-      const ab = await file.arrayBuffer();
-      pdfLibDoc = await PDFLib.PDFDocument.load(ab);
-      pdfJsDoc = await pdfjsLib.getDocument({data: ab}).promise;
-      const total = pdfLibDoc.getPageCount();
-
+    try {
+      const fileArrayBuffer = await file.arrayBuffer();
+      originalFilename = file.name.replace(/\.pdf$/i, '');
+      
+      // Load PDF with pdf-lib for editing
+      pdfLibDoc = await PDFLib.PDFDocument.load(fileArrayBuffer);
+      
+      // Load PDF with pdf.js for rendering
+      pdfJsDoc = await pdfjsLib.getDocument({data: fileArrayBuffer}).promise;
+      
+      const totalPages = pdfLibDoc.getPageCount();
+      
+      // Clear loading indicator
+      previewList.innerHTML = '';
+      
       // Measure container inner width
       const cs = getComputedStyle(container);
       const padLeft = parseFloat(cs.paddingLeft || 20);
       const padRight = parseFloat(cs.paddingRight || 20);
       const availableWidth = Math.max(300, container.clientWidth - padLeft - padRight - 4);
 
-      for(let p = 1; p <= total; p++){
-        const page = await pdfJsDoc.getPage(p);
-        const base = page.getViewport({scale:1});
-        const scale = (availableWidth / base.width);
-        const viewport = page.getViewport({scale});
-        const cssW = Math.round(viewport.width);
-        const cssH = Math.round(viewport.height);
-
-        const canvas = document.createElement('canvas');
-        canvas.style.width = cssW + 'px';
-        canvas.style.height = cssH + 'px';
-        canvas.width = Math.floor(cssW * DPR);
-        canvas.height = Math.floor(cssH * DPR);
-        const ctx = canvas.getContext('2d');
-        ctx.setTransform(DPR,0,0,DPR,0,0);
-        await page.render({ canvasContext: ctx, viewport }).promise;
-
-        const libPage = pdfLibDoc.getPage(p-1);
-        const psize = libPage.getSize();
-
-        const item = document.createElement('div');
-        item.className = 'preview-item';
-        const title = document.createElement('h3');
-        title.textContent = `Page ${p}`;
-        item.appendChild(title);
-
-        const wrap = document.createElement('div');
-        wrap.className = 'canvas-wrap';
-        wrap.style.width = cssW + 'px';
-        wrap.style.height = cssH + 'px';
-        wrap.appendChild(canvas);
-
-        // Text layer
-        const layer = document.createElement('div');
-        layer.className = 'text-layer';
-        layer.style.width = cssW + 'px';
-        layer.style.height = cssH + 'px';
-        layer.style.left = '0';
-        layer.style.top = '0';
-        layer.style.position = 'absolute';
-        wrap.style.position = 'relative';
-        wrap.appendChild(layer);
-
-        item.appendChild(wrap);
-        previewList.appendChild(item);
-
-        pageData[p-1] = {
-          pdfSize: { width: psize.width, height: psize.height },
-          viewport: { width: viewport.width, height: viewport.height },
-          canvasElem: canvas,
-          layerElem: layer,
-          wrapElem: wrap,
-          texts: []
-        };
-
-        // Click on layer to add text
-        layer.addEventListener('click', (ev) => {
-          ev.preventDefault();
-          ev.stopPropagation();
+      // Render all pages
+      for(let pageNum = 1; pageNum <= totalPages; pageNum++) {
+        try {
+          const page = await pdfJsDoc.getPage(pageNum);
+          const baseViewport = page.getViewport({scale: 1});
+          const scale = availableWidth / baseViewport.width;
+          const viewport = page.getViewport({scale});
           
-          const rect = layer.getBoundingClientRect();
-          const clickX = ev.clientX;
-          const clickY = ev.clientY;
+          const cssWidth = Math.round(viewport.width);
+          const cssHeight = Math.round(viewport.height);
+
+          // Create canvas for this page
+          const canvas = document.createElement('canvas');
+          canvas.style.width = cssWidth + 'px';
+          canvas.style.height = cssHeight + 'px';
+          canvas.width = Math.floor(cssWidth * DPR);
+          canvas.height = Math.floor(cssHeight * DPR);
           
-          // Check if click is on existing text
-          const existing = Array.from(layer.querySelectorAll('.text-element'));
-          for(const el of existing){
-            const br = el.getBoundingClientRect();
+          const ctx = canvas.getContext('2d');
+          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+          
+          // Render the page
+          await page.render({
+            canvasContext: ctx,
+            viewport: viewport
+          }).promise;
+
+          // Get page size from pdf-lib
+          const libPage = pdfLibDoc.getPage(pageNum - 1);
+          const pageSize = libPage.getSize();
+
+          // Create page item
+          const pageItem = document.createElement('div');
+          pageItem.className = 'preview-item';
+          
+          const pageTitle = document.createElement('h3');
+          pageTitle.textContent = `Page ${pageNum}`;
+          pageItem.appendChild(pageTitle);
+
+          const wrap = document.createElement('div');
+          wrap.className = 'canvas-wrap';
+          wrap.style.width = cssWidth + 'px';
+          wrap.style.height = cssHeight + 'px';
+          wrap.appendChild(canvas);
+
+          // Create text layer
+          const textLayer = document.createElement('div');
+          textLayer.className = 'text-layer';
+          textLayer.style.width = cssWidth + 'px';
+          textLayer.style.height = cssHeight + 'px';
+          textLayer.style.left = '0';
+          textLayer.style.top = '0';
+          textLayer.style.position = 'absolute';
+          wrap.style.position = 'relative';
+          wrap.appendChild(textLayer);
+
+          pageItem.appendChild(wrap);
+          previewList.appendChild(pageItem);
+
+          // Store page data
+          pageData[pageNum - 1] = {
+            pdfSize: { width: pageSize.width, height: pageSize.height },
+            viewport: { width: viewport.width, height: viewport.height },
+            canvasElem: canvas,
+            layerElem: textLayer,
+            wrapElem: wrap,
+            texts: []
+          };
+
+          // Add click event to layer for adding text
+          textLayer.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
             
-            if(clickX >= br.left && clickX <= br.right && clickY >= br.top && clickY <= br.bottom){
-              // Select existing text
-              selectTextElement(el);
-              showTextEditor(clickX + 10, clickY + 10, getTextDataFromElement(el), false);
-              return;
+            const rect = textLayer.getBoundingClientRect();
+            const layerX = ev.clientX - rect.left;
+            const layerY = ev.clientY - rect.top;
+            
+            // Check if click is on existing text
+            const existingTexts = Array.from(textLayer.querySelectorAll('.text-element'));
+            for(const textEl of existingTexts) {
+              const textRect = textEl.getBoundingClientRect();
+              
+              if(ev.clientX >= textRect.left && ev.clientX <= textRect.right && 
+                 ev.clientY >= textRect.top && ev.clientY <= textRect.bottom) {
+                // Select existing text
+                selectTextElement(textEl);
+                showTextEditor(ev.clientX + 10, ev.clientY + 10, getTextDataFromElement(textEl), false);
+                return;
+              }
             }
-          }
+            
+            // Add new text
+            currentPageIndex = pageNum - 1;
+            clickPosition = { x: ev.clientX, y: ev.clientY };
+            addTextToPage(currentPageIndex, layerX, layerY);
+          });
           
-          // Add new text
-          const layerX = ev.clientX - rect.left;
-          const layerY = ev.clientY - rect.top;
-          addTextToPage(p-1, layerX, layerY, clickX, clickY);
-        });
-        
-        // Double-click text to edit
-        layer.addEventListener('dblclick', (ev) => {
-          const target = ev.target;
-          const textEl = target.closest('.text-element');
-          if (textEl) {
-            selectTextElement(textEl);
-            showTextEditor(ev.clientX + 10, ev.clientY + 10, getTextDataFromElement(textEl), false);
-          }
-        });
+          // Double-click to edit existing text
+          textLayer.addEventListener('dblclick', (ev) => {
+            const target = ev.target;
+            const textEl = target.closest('.text-element');
+            if (textEl) {
+              selectTextElement(textEl);
+              showTextEditor(ev.clientX + 10, ev.clientY + 10, getTextDataFromElement(textEl), false);
+            }
+          });
+          
+        } catch (pageError) {
+          console.error(`Error rendering page ${pageNum}:`, pageError);
+        }
       }
 
+      // Enable generate button if there are texts
       generateBtn.disabled = pageData.every(pd => !pd.texts || pd.texts.length === 0);
-      previewList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // Scroll to show the first page
+      if (previewList.firstChild) {
+        previewList.firstChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
 
-    } catch(err) {
-      console.error('PDF load/render error', err);
-      alert('Error loading PDF: ' + (err.message || 'Please check if the PDF file is valid'));
+    } catch(error) {
+      console.error('Error loading PDF:', error);
+      alert('Error loading PDF: ' + (error.message || 'Please check if the PDF file is valid and not corrupted.'));
+      previewList.innerHTML = '<div style="color: #ef4444; padding: 20px; text-align: center;">Error loading PDF. Please try another file.</div>';
     }
   }
 
-  function addTextToPage(pageIndex, x_css, y_css, clickX, clickY){
+  function addTextToPage(pageIndex, x_css, y_css){
     const pd = pageData[pageIndex];
     if(!pd) return;
     const layer = pd.layerElem;
@@ -816,7 +1027,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     selectTextElement(textEl);
     
     // Show popup for editing
-    showTextEditor(clickX + 10, clickY + 10, stored, true);
+    showTextEditor(clickPosition.x + 10, clickPosition.y + 10, stored, true);
     
     generateBtn.disabled = false;
   }
@@ -923,7 +1134,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       progressBar.style.width = '50%';
 
       const pages = pdfDoc.getPages();
-      for(let i=0;i<pages.length;i++){
+      for(let i=0; i<pages.length; i++){
         const page = pages[i];
         const pd = pageData[i];
         if(!pd) continue;
@@ -1000,6 +1211,57 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
   // Initialize with default style
   currentTextStyle = {...defaultTextStyle};
+  sizeValue.textContent = currentTextStyle.fontSize;
+  colorPreview.style.backgroundColor = currentTextStyle.color;
+  
+  // Make popup draggable
+  let isDraggingPopup = false;
+  let popupStartX = 0, popupStartY = 0, popupStartLeft = 0, popupStartTop = 0;
+  
+  const popupHeader = document.querySelector('.popup-header');
+  popupHeader.style.cursor = 'move';
+  
+  popupHeader.addEventListener('mousedown', (e) => {
+    if (e.target === popupHeader || e.target.closest('.popup-header') === popupHeader) {
+      isDraggingPopup = true;
+      popupStartX = e.clientX;
+      popupStartY = e.clientY;
+      popupStartLeft = parseInt(textEditorPopup.style.left) || 0;
+      popupStartTop = parseInt(textEditorPopup.style.top) || 0;
+      
+      document.addEventListener('mousemove', dragPopup);
+      document.addEventListener('mouseup', stopDragPopup);
+    }
+  });
+  
+  function dragPopup(e) {
+    if (!isDraggingPopup) return;
+    e.preventDefault();
+    
+    const dx = e.clientX - popupStartX;
+    const dy = e.clientY - popupStartY;
+    
+    let newLeft = popupStartLeft + dx;
+    let newTop = popupStartTop + dy;
+    
+    // Constrain within viewport
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const popupWidth = textEditorPopup.offsetWidth;
+    const popupHeight = textEditorPopup.offsetHeight;
+    
+    newLeft = Math.max(10, Math.min(newLeft, viewportWidth - popupWidth - 10));
+    newTop = Math.max(10, Math.min(newTop, viewportHeight - popupHeight - 10));
+    
+    textEditorPopup.style.left = newLeft + 'px';
+    textEditorPopup.style.top = newTop + 'px';
+  }
+  
+  function stopDragPopup() {
+    isDraggingPopup = false;
+    document.removeEventListener('mousemove', dragPopup);
+    document.removeEventListener('mouseup', stopDragPopup);
+  }
 });
 </script>
 </body>
