@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PDF Text Adder — All Pages Visible</title>
+  <title>PDF Text Adder — Popup Styling</title>
 
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -21,7 +21,7 @@
     body{ display:flex; align-items:flex-start; justify-content:center; padding:28px; }
 
     .container{
-      width:100%; max-width:1080px; background:rgba(255,255,255,0.06);
+      width:100%; max-width:980px; background:rgba(255,255,255,0.06);
       backdrop-filter: blur(10px); border-radius:16px; padding:20px 22px 160px;
       border:1px solid rgba(255,255,255,0.06); box-shadow:0 12px 40px rgba(0,0,0,0.6);
       min-height: 60px;
@@ -39,42 +39,6 @@
     .upload-area i{ font-size:34px; color:#60a5fa; display:block; margin-bottom:8px; }
     .upload-area input[type=file]{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
 
-    /* Text Controls */
-    .text-controls{ 
-      display:flex; gap:12px; align-items:center; margin-bottom:12px; flex-wrap:wrap; 
-      background: rgba(255,255,255,0.04); padding: 14px; border-radius: 10px;
-    }
-    .control-group{ 
-      display:flex; align-items:center; gap:8px; 
-      padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.1);
-    }
-    .control-group:last-child{ border-right: none; }
-    .text-controls label{ font-weight:700; color:#dbeafe; white-space: nowrap; }
-    .text-controls input[type="text"]{ 
-      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); 
-      color: white; padding: 6px 10px; border-radius: 6px; width: 180px;
-    }
-    .text-controls input[type="number"]{ 
-      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); 
-      color: white; padding: 6px 10px; border-radius: 6px; width: 70px;
-    }
-    .text-controls input[type="color"]{ 
-      width: 40px; height: 36px; border: none; background: transparent; cursor: pointer;
-    }
-    .checkbox-group{ display:flex; align-items:center; gap: 6px; }
-    .checkbox-group input[type="checkbox"]{ width: 18px; height: 18px; }
-    
-    /* Style buttons */
-    .style-buttons{ display: flex; gap: 8px; margin-bottom: 12px; }
-    .style-btn{ 
-      background: rgba(96,165,250,0.2); border: 1px solid rgba(96,165,250,0.3); 
-      color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer;
-      display: flex; align-items: center; gap: 6px; font-weight: 600;
-      transition: all 0.2s ease;
-    }
-    .style-btn:hover{ background: rgba(96,165,250,0.3); }
-    .style-btn.active{ background: rgba(96,165,250,0.5); border-color: #60a5fa; }
-
     .preview-list{ display:flex; flex-direction:column; gap:18px; padding-right:6px; }
 
     .preview-item{ background:rgba(255,255,255,0.02); border-radius:10px; padding:12px; display:flex; flex-direction:column; align-items:center; }
@@ -90,14 +54,18 @@
       display:flex; align-items:center; transition:transform 120ms ease;
       padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.05);
       border: 2px solid transparent;
+      max-width: 300px;
+      word-wrap: break-word;
     }
     .text-element.selected{ border-color: #60a5fa; background: rgba(96,165,250,0.1); }
     .text-element.pulse{ animation: textPulse 360ms ease; }
     @keyframes textPulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
 
     .text-content{ 
-      pointer-events:none; white-space: nowrap; font-family: Arial, sans-serif;
+      pointer-events:none; font-family: Arial, sans-serif;
       text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .delete-btn{ 
@@ -105,6 +73,181 @@
       background:#ef4444; color:white; border-radius:50%; border:none;
       display:flex; align-items:center; justify-content:center; cursor:pointer;
       z-index: 10;
+    }
+
+    /* Text Editor Popup */
+    .text-editor-popup {
+      position: absolute;
+      background: rgba(30, 30, 35, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+      border: 1px solid rgba(255,255,255,0.15);
+      z-index: 10000;
+      display: none;
+      min-width: 320px;
+      animation: popupFade 0.2s ease;
+    }
+    @keyframes popupFade {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .popup-header h3 {
+      margin: 0;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .close-popup {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .close-popup:hover {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    .text-input-container {
+      margin-bottom: 16px;
+    }
+
+    .text-input-container textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 12px;
+      color: white;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 80px;
+      font-family: inherit;
+    }
+
+    .style-controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-row label {
+      color: rgba(255,255,255,0.9);
+      font-size: 13px;
+      font-weight: 500;
+      min-width: 60px;
+    }
+
+    .control-row input[type="number"] {
+      width: 70px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      padding: 8px;
+      color: white;
+      text-align: center;
+    }
+
+    .control-row input[type="color"] {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .font-style-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .style-btn {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .style-btn:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    .style-btn.active {
+      background: #60a5fa;
+      border-color: #60a5fa;
+      color: white;
+    }
+
+    .popup-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .action-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .cancel-btn {
+      background: rgba(255,255,255,0.08);
+      color: white;
+    }
+    .cancel-btn:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .apply-btn {
+      background: #60a5fa;
+      color: white;
+    }
+    .apply-btn:hover {
+      background: #3b82f6;
     }
 
     .floating-btn{
@@ -124,18 +267,25 @@
 
     .footer-note{ margin-top:12px; color:rgba(255,255,255,0.6); font-size:13px; text-align:center; }
 
-    /* Color picker styling */
-    .sp-color{ border: none !important; }
-    .sp-palette-container{ border-right: none !important; }
-
-    @media (max-width:860px){
+    @media (max-width:760px){
       .container{ padding-bottom:220px; }
       .progress{ width:86%; }
       .floating-btn{ width:86%; left:50%; transform:translateX(-50%); }
-      .text-controls{ flex-direction: column; align-items: flex-start; }
-      .control-group{ border-right: none; padding-right: 0; width: 100%; }
-      .control-group label{ min-width: 80px; }
-      .style-buttons{ flex-wrap: wrap; }
+      .text-editor-popup {
+        min-width: 280px;
+        left: 10px !important;
+        right: 10px !important;
+        transform: none !important;
+      }
+    }
+
+    /* Fix for spectrum color picker positioning */
+    .sp-container { 
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      z-index: 10001 !important;
     }
   </style>
 </head>
@@ -148,67 +298,60 @@
 
     <div class="upload-area" id="uploadArea">
       <i class="fas fa-cloud-upload-alt"></i>
-      <h3>Upload a PDF (single)</h3>
-      <p>Select a PDF and previews for every page will appear below. Click anywhere on a page to add text.</p>
+      <h3>Upload a PDF</h3>
+      <p>Select a PDF and click anywhere on the pages to add text. A popup will appear for styling.</p>
       <input id="pdfInput" type="file" accept="application/pdf">
-    </div>
-
-    <!-- Text Controls -->
-    <div class="text-controls">
-      <div class="control-group">
-        <label for="textInput">Text:</label>
-        <input type="text" id="textInput" value="Sample Text" />
-      </div>
-      
-      <div class="control-group">
-        <label for="fontSize">Size:</label>
-        <input type="number" id="fontSize" min="8" max="72" value="16" />
-        <span style="color:#cfe8ff;">pt</span>
-      </div>
-      
-      <div class="control-group">
-        <label for="colorPicker">Color:</label>
-        <input type="text" id="colorPicker" value="#000000" />
-      </div>
-      
-      <div class="control-group checkbox-group">
-        <label for="boldCheckbox">Bold:</label>
-        <input type="checkbox" id="boldCheckbox" />
-      </div>
-      
-      <div class="control-group checkbox-group">
-        <label for="italicCheckbox">Italic:</label>
-        <input type="checkbox" id="italicCheckbox" />
-      </div>
-    </div>
-
-    <!-- Style buttons -->
-    <div class="style-buttons">
-      <div class="style-btn" id="style1">
-        <i class="fas fa-heading"></i>
-        <span>Heading</span>
-      </div>
-      <div class="style-btn" id="style2">
-        <i class="fas fa-paragraph"></i>
-        <span>Body Text</span>
-      </div>
-      <div class="style-btn" id="style3">
-        <i class="fas fa-highlighter"></i>
-        <span>Highlight</span>
-      </div>
-      <div class="style-btn" id="style4">
-        <i class="fas fa-stamp"></i>
-        <span>Stamp</span>
-      </div>
-      <div class="style-btn active" id="style5">
-        <i class="fas fa-times-circle"></i>
-        <span>Clear Style</span>
-      </div>
     </div>
 
     <div class="preview-list" id="previewList" aria-live="polite"></div>
 
-    <div class="footer-note">Click anywhere on a page to add text. Drag to reposition. Select a text to edit its properties. Clicking on existing text selects it.</div>
+    <div class="footer-note">Click anywhere on a page to add text. Drag to reposition. Double-click text to edit.</div>
+  </div>
+
+  <!-- Text Editor Popup -->
+  <div class="text-editor-popup" id="textEditorPopup">
+    <div class="popup-header">
+      <h3>Edit Text</h3>
+      <button class="close-popup" id="closePopupBtn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="text-input-container">
+      <textarea id="popupTextInput" placeholder="Enter your text here...">Sample Text</textarea>
+    </div>
+    
+    <div class="style-controls">
+      <div class="control-row">
+        <label>Font+</label>
+        <input type="number" id="popupFontSize" min="8" max="72" value="16">
+      </div>
+      
+      <div class="control-row">
+        <label>Color</label>
+        <input type="text" id="popupColorPicker" value="#000000">
+      </div>
+      
+      <div class="control-row">
+        <label>Style</label>
+        <div class="font-style-buttons">
+          <button class="style-btn" id="boldBtn" title="Bold">
+            <i class="fas fa-bold"></i>
+          </button>
+          <button class="style-btn" id="italicBtn" title="Italic">
+            <i class="fas fa-italic"></i>
+          </button>
+          <button class="style-btn" id="underlineBtn" title="Underline">
+            <i class="fas fa-underline"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="popup-actions">
+      <button class="action-btn cancel-btn" id="cancelBtn">Cancel</button>
+      <button class="action-btn apply-btn" id="applyBtn">Apply</button>
+    </div>
   </div>
 
   <div class="progress" id="progress"><div id="progressBar"></div></div>
@@ -224,13 +367,17 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const progressBar = document.getElementById('progressBar');
   const container = document.getElementById('container');
   
-  // Text controls
-  const textInput = document.getElementById('textInput');
-  const fontSize = document.getElementById('fontSize');
-  const colorPicker = document.getElementById('colorPicker');
-  const boldCheckbox = document.getElementById('boldCheckbox');
-  const italicCheckbox = document.getElementById('italicCheckbox');
-  const styleButtons = document.querySelectorAll('.style-btn');
+  // Text Editor Popup Elements
+  const textEditorPopup = document.getElementById('textEditorPopup');
+  const popupTextInput = document.getElementById('popupTextInput');
+  const popupFontSize = document.getElementById('popupFontSize');
+  const popupColorPicker = document.getElementById('popupColorPicker');
+  const boldBtn = document.getElementById('boldBtn');
+  const italicBtn = document.getElementById('italicBtn');
+  const underlineBtn = document.getElementById('underlineBtn');
+  const closePopupBtn = document.getElementById('closePopupBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const applyBtn = document.getElementById('applyBtn');
 
   const DPR = window.devicePixelRatio || 1;
   let selectedPdfFile = null;
@@ -239,20 +386,23 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let pageData = [];
   let originalFilename = '';
   let selectedTextElement = null;
+  let popupPosition = { x: 0, y: 0 };
+  let isCreatingNewText = false;
 
   // Initialize color picker
-  $(colorPicker).spectrum({
+  $(popupColorPicker).spectrum({
     type: "color",
     showInput: true,
     showInitial: true,
     allowEmpty: false,
     showAlpha: false,
     preferredFormat: "hex",
+    containerClassName: 'spectrum-container',
     move: function(color) {
-      updateSelectedTextStyle();
+      updateTextPreview();
     },
     change: function(color) {
-      updateSelectedTextStyle();
+      updateTextPreview();
     }
   });
 
@@ -262,118 +412,199 @@ document.addEventListener('DOMContentLoaded', ()=> {
     fontSize: 16,
     color: "#000000",
     bold: false,
-    italic: false
+    italic: false,
+    underline: false
   };
   
-  // Current text style (for new elements)
+  // Current text style for editing
   let currentTextStyle = {...defaultTextStyle};
-  
-  // Preset styles
-  const textStyles = {
-    heading: {text: "HEADING", fontSize: 24, color: "#000000", bold: true, italic: false},
-    body: {text: "Body Text", fontSize: 14, color: "#333333", bold: false, italic: false},
-    highlight: {text: "IMPORTANT", fontSize: 18, color: "#FF0000", bold: true, italic: false},
-    stamp: {text: "APPROVED", fontSize: 22, color: "#008000", bold: true, italic: true}
-  };
 
-  // Style buttons click handlers
-  styleButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      styleButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      
-      const styleId = btn.id;
-      let newStyle = {};
-      
-      switch(styleId) {
-        case 'style1': newStyle = {...textStyles.heading}; break;
-        case 'style2': newStyle = {...textStyles.body}; break;
-        case 'style3': newStyle = {...textStyles.highlight}; break;
-        case 'style4': newStyle = {...textStyles.stamp}; break;
-        case 'style5': 
-          newStyle = {...defaultTextStyle}; 
-          textInput.value = defaultTextStyle.text;
-          fontSize.value = defaultTextStyle.fontSize;
-          $(colorPicker).spectrum("set", defaultTextStyle.color);
-          boldCheckbox.checked = defaultTextStyle.bold;
-          italicCheckbox.checked = defaultTextStyle.italic;
-          break;
-      }
-      
-      if (styleId !== 'style5') {
-        currentTextStyle = {...newStyle};
-        textInput.value = newStyle.text;
-        fontSize.value = newStyle.fontSize;
-        $(colorPicker).spectrum("set", newStyle.color);
-        boldCheckbox.checked = newStyle.bold;
-        italicCheckbox.checked = newStyle.italic;
-        
-        // Update selected text if any
-        updateSelectedTextStyle();
-      } else {
-        currentTextStyle = {...defaultTextStyle};
-      }
-    });
+  // Style buttons toggle
+  boldBtn.addEventListener('click', () => {
+    boldBtn.classList.toggle('active');
+    currentTextStyle.bold = boldBtn.classList.contains('active');
+    updateTextPreview();
   });
 
-  // Update text style from controls
-  function updateCurrentStyle() {
-    currentTextStyle = {
-      text: textInput.value || "Sample Text",
-      fontSize: parseInt(fontSize.value) || 16,
-      color: $(colorPicker).spectrum('get').toHexString(),
-      bold: boldCheckbox.checked,
-      italic: italicCheckbox.checked
-    };
-    
-    // Update selected text if any
-    updateSelectedTextStyle();
-  }
+  italicBtn.addEventListener('click', () => {
+    italicBtn.classList.toggle('active');
+    currentTextStyle.italic = italicBtn.classList.contains('active');
+    updateTextPreview();
+  });
 
-  // Update selected text with current style
-  function updateSelectedTextStyle() {
+  underlineBtn.addEventListener('click', () => {
+    underlineBtn.classList.toggle('active');
+    currentTextStyle.underline = underlineBtn.classList.contains('active');
+    updateTextPreview();
+  });
+
+  // Update text preview in real-time
+  function updateTextPreview() {
     if (!selectedTextElement) return;
     
+    const textContent = selectedTextElement.querySelector('.text-content');
+    textContent.textContent = popupTextInput.value;
+    textContent.style.fontSize = currentTextStyle.fontSize + 'px';
+    textContent.style.color = currentTextStyle.color;
+    textContent.style.fontWeight = currentTextStyle.bold ? 'bold' : 'normal';
+    textContent.style.fontStyle = currentTextStyle.italic ? 'italic' : 'normal';
+    textContent.style.textDecoration = currentTextStyle.underline ? 'underline' : 'none';
+    
+    // Update text data
     const pageIndex = selectedTextElement.dataset.pageIndex;
     const textId = selectedTextElement.dataset.textId;
     const pd = pageData[pageIndex];
     
     if (!pd || !pd.texts) return;
     
-    // Find the text data
     const textData = pd.texts.find(t => t.id === textId);
     if (!textData) return;
     
-    // Update text data with current style
-    textData.text = textInput.value || "Sample Text";
-    textData.fontSize = parseInt(fontSize.value) || 16;
-    textData.color = $(colorPicker).spectrum('get').toHexString();
-    textData.bold = boldCheckbox.checked;
-    textData.italic = italicCheckbox.checked;
+    textData.text = popupTextInput.value;
+    textData.fontSize = currentTextStyle.fontSize;
+    textData.color = currentTextStyle.color;
+    textData.bold = currentTextStyle.bold;
+    textData.italic = currentTextStyle.italic;
+    textData.underline = currentTextStyle.underline;
+  }
+
+  // Show text editor popup
+  function showTextEditor(x, y, textData = null, isNew = false) {
+    isCreatingNewText = isNew;
     
-    // Update the visual element
-    updateTextElementVisual(selectedTextElement, textData);
+    // Position popup near click/target position
+    const popupWidth = textEditorPopup.offsetWidth || 320;
+    const popupHeight = textEditorPopup.offsetHeight || 400;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Adjust position to stay within viewport
+    let posX = x;
+    let posY = y;
+    
+    if (x + popupWidth > viewportWidth - 20) {
+      posX = viewportWidth - popupWidth - 20;
+    }
+    if (y + popupHeight > viewportHeight - 20) {
+      posY = viewportHeight - popupHeight - 20;
+    }
+    
+    textEditorPopup.style.left = posX + 'px';
+    textEditorPopup.style.top = posY + 'px';
+    textEditorPopup.style.display = 'block';
+    
+    popupPosition = { x: posX, y: posY };
+    
+    // Set values based on textData or defaults
+    if (textData) {
+      popupTextInput.value = textData.text;
+      popupFontSize.value = textData.fontSize;
+      $(popupColorPicker).spectrum("set", textData.color);
+      boldBtn.classList.toggle('active', textData.bold);
+      italicBtn.classList.toggle('active', textData.italic);
+      underlineBtn.classList.toggle('active', textData.underline);
+      
+      currentTextStyle = {
+        text: textData.text,
+        fontSize: textData.fontSize,
+        color: textData.color,
+        bold: textData.bold,
+        italic: textData.italic,
+        underline: textData.underline
+      };
+    } else {
+      // Use current style for new text
+      popupTextInput.value = currentTextStyle.text;
+      popupFontSize.value = currentTextStyle.fontSize;
+      $(popupColorPicker).spectrum("set", currentTextStyle.color);
+      boldBtn.classList.toggle('active', currentTextStyle.bold);
+      italicBtn.classList.toggle('active', currentTextStyle.italic);
+      underlineBtn.classList.toggle('active', currentTextStyle.underline);
+    }
+    
+    // Focus on text input
+    setTimeout(() => {
+      popupTextInput.focus();
+      popupTextInput.select();
+    }, 10);
   }
 
-  // Update text element visual appearance
-  function updateTextElementVisual(element, textData) {
-    element.querySelector('.text-content').textContent = textData.text;
-    element.querySelector('.text-content').style.fontSize = textData.fontSize + 'px';
-    element.querySelector('.text-content').style.color = textData.color;
-    element.querySelector('.text-content').style.fontWeight = textData.bold ? 'bold' : 'normal';
-    element.querySelector('.text-content').style.fontStyle = textData.italic ? 'italic' : 'normal';
+  // Hide text editor popup
+  function hideTextEditor() {
+    textEditorPopup.style.display = 'none';
+    
+    // If we were creating a new text and cancelled, remove the temporary text element
+    if (isCreatingNewText && selectedTextElement) {
+      const pageIndex = selectedTextElement.dataset.pageIndex;
+      const textId = selectedTextElement.dataset.textId;
+      const pd = pageData[pageIndex];
+      
+      if (pd && pd.texts) {
+        pd.texts = pd.texts.filter(t => t.id !== textId);
+        selectedTextElement.remove();
+        selectedTextElement = null;
+        
+        // Update generate button state
+        generateBtn.disabled = pageData.every(pd => !pd.texts || pd.texts.length === 0);
+      }
+    }
+    
+    isCreatingNewText = false;
   }
 
-  // Event listeners for text controls
-  textInput.addEventListener('input', updateCurrentStyle);
-  fontSize.addEventListener('input', updateCurrentStyle);
-  boldCheckbox.addEventListener('change', updateCurrentStyle);
-  italicCheckbox.addEventListener('change', updateCurrentStyle);
+  // Event listeners for popup
+  popupTextInput.addEventListener('input', () => {
+    currentTextStyle.text = popupTextInput.value;
+    updateTextPreview();
+  });
 
-  // Drag/drop UI
-  ['dragenter','dragover'].forEach(ev => uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.classList.add('active'); }));
-  ['dragleave','drop'].forEach(ev => uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.classList.remove('active'); }));
-  uploadArea.addEventListener('drop', e=> { if(e.dataTransfer?.files?.length) handlePdf(e.dataTransfer.files[0]); });
+  popupFontSize.addEventListener('input', () => {
+    currentTextStyle.fontSize = parseInt(popupFontSize.value) || 16;
+    updateTextPreview();
+  });
+
+  closePopupBtn.addEventListener('click', hideTextEditor);
+  cancelBtn.addEventListener('click', hideTextEditor);
+
+  applyBtn.addEventListener('click', () => {
+    hideTextEditor();
+    // If creating new text, finalize it
+    if (isCreatingNewText && selectedTextElement) {
+      // Remove selection border
+      selectedTextElement.classList.remove('selected');
+      selectedTextElement = null;
+    }
+    isCreatingNewText = false;
+  });
+
+  // Close popup when clicking outside
+  document.addEventListener('click', (e) => {
+    if (textEditorPopup.style.display === 'block' && 
+        !textEditorPopup.contains(e.target) && 
+        !e.target.classList.contains('text-element') &&
+        !e.target.closest('.text-element')) {
+      hideTextEditor();
+    }
+  });
+
+  // Drag/drop UI for PDF upload
+  ['dragenter','dragover'].forEach(ev => uploadArea.addEventListener(ev, e=>{ 
+    e.preventDefault(); 
+    uploadArea.style.borderColor = '#60a5fa';
+    uploadArea.style.background = 'rgba(96,165,250,0.08)';
+  }));
+  
+  ['dragleave','drop'].forEach(ev => uploadArea.addEventListener(ev, e=>{ 
+    e.preventDefault(); 
+    uploadArea.style.borderColor = 'rgba(255,255,255,0.18)';
+    uploadArea.style.background = 'rgba(255,255,255,0.02)';
+  }));
+  
+  uploadArea.addEventListener('drop', e=> { 
+    if(e.dataTransfer?.files?.length) {
+      handlePdf(e.dataTransfer.files[0]);
+    }
+  });
 
   pdfInput.addEventListener('change', (e)=> { 
     if(e.target.files?.length) {
@@ -384,17 +615,22 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
   async function handlePdf(file){
     if(!file) return;
-    if(file.type !== 'application/pdf'){ alert('Please upload a PDF'); return; }
+    if(file.type !== 'application/pdf'){ 
+      alert('Please upload a PDF file'); 
+      return; 
+    }
+    
     selectedPdfFile = file;
     previewList.innerHTML = '';
     pageData = [];
     selectedTextElement = null;
     generateBtn.disabled = true;
+    hideTextEditor(); // Hide any open popup
 
     try{
       const ab = await file.arrayBuffer();
       pdfLibDoc = await PDFLib.PDFDocument.load(ab);
-      pdfJsDoc = await pdfjsLib.getDocument({data:ab}).promise;
+      pdfJsDoc = await pdfjsLib.getDocument({data: ab}).promise;
       const total = pdfLibDoc.getPageCount();
 
       // Measure container inner width
@@ -403,7 +639,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       const padRight = parseFloat(cs.paddingRight || 20);
       const availableWidth = Math.max(300, container.clientWidth - padLeft - padRight - 4);
 
-      for(let p=1;p<=total;p++){
+      for(let p = 1; p <= total; p++){
         const page = await pdfJsDoc.getPage(p);
         const base = page.getViewport({scale:1});
         const scale = (availableWidth / base.width);
@@ -461,55 +697,60 @@ document.addEventListener('DOMContentLoaded', ()=> {
         // Click on layer to add text
         layer.addEventListener('click', (ev) => {
           ev.preventDefault();
+          ev.stopPropagation();
           
           const rect = layer.getBoundingClientRect();
-          const clickX = ev.clientX - rect.left;
-          const clickY = ev.clientY - rect.top;
+          const clickX = ev.clientX;
+          const clickY = ev.clientY;
           
           // Check if click is on existing text
           const existing = Array.from(layer.querySelectorAll('.text-element'));
           for(const el of existing){
             const br = el.getBoundingClientRect();
-            const relLeft = br.left - rect.left;
-            const relTop  = br.top - rect.top;
-            const relRight = relLeft + br.width;
-            const relBottom = relTop + br.height;
             
-            if(clickX >= relLeft && clickX <= relRight && clickY >= relTop && clickY <= relBottom){
+            if(clickX >= br.left && clickX <= br.right && clickY >= br.top && clickY <= br.bottom){
               // Select existing text
               selectTextElement(el);
-              el.classList.add('pulse');
-              setTimeout(()=> el.classList.remove('pulse'), 360);
+              showTextEditor(clickX + 10, clickY + 10, getTextDataFromElement(el), false);
               return;
             }
           }
           
           // Add new text
-          addTextToPage(p-1, clickX, clickY);
+          const layerX = ev.clientX - rect.left;
+          const layerY = ev.clientY - rect.top;
+          addTextToPage(p-1, layerX, layerY, clickX, clickY);
+        });
+        
+        // Double-click text to edit
+        layer.addEventListener('dblclick', (ev) => {
+          const target = ev.target;
+          const textEl = target.closest('.text-element');
+          if (textEl) {
+            selectTextElement(textEl);
+            showTextEditor(ev.clientX + 10, ev.clientY + 10, getTextDataFromElement(textEl), false);
+          }
         });
       }
 
       generateBtn.disabled = pageData.every(pd => !pd.texts || pd.texts.length === 0);
       previewList.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-    }catch(err){
+    } catch(err) {
       console.error('PDF load/render error', err);
-      alert('Error loading PDF: ' + (err.message || err));
+      alert('Error loading PDF: ' + (err.message || 'Please check if the PDF file is valid'));
     }
   }
 
-  function addTextToPage(pageIndex, x_css, y_css){
+  function addTextToPage(pageIndex, x_css, y_css, clickX, clickY){
     const pd = pageData[pageIndex];
     if(!pd) return;
     const layer = pd.layerElem;
     const id = `text-${pageIndex}-${Date.now()}`;
     
-    // Use current text style
-    const textStyle = {...currentTextStyle};
-    
     // Create text element
     const textEl = document.createElement('div');
-    textEl.className = 'text-element';
+    textEl.className = 'text-element selected';
     textEl.id = id;
     textEl.dataset.pageIndex = pageIndex;
     textEl.dataset.textId = id;
@@ -523,11 +764,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Create text content
     const textContent = document.createElement('div');
     textContent.className = 'text-content';
-    textContent.textContent = textStyle.text;
-    textContent.style.fontSize = textStyle.fontSize + 'px';
-    textContent.style.color = textStyle.color;
-    textContent.style.fontWeight = textStyle.bold ? 'bold' : 'normal';
-    textContent.style.fontStyle = textStyle.italic ? 'italic' : 'normal';
+    textContent.textContent = currentTextStyle.text;
+    textContent.style.fontSize = currentTextStyle.fontSize + 'px';
+    textContent.style.color = currentTextStyle.color;
+    textContent.style.fontWeight = currentTextStyle.bold ? 'bold' : 'normal';
+    textContent.style.fontStyle = currentTextStyle.italic ? 'italic' : 'normal';
+    textContent.style.textDecoration = currentTextStyle.underline ? 'underline' : 'none';
     textEl.appendChild(textContent);
     
     // Delete button
@@ -538,6 +780,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       e.stopPropagation();
       if (selectedTextElement === textEl) {
         selectedTextElement = null;
+        hideTextEditor();
       }
       textEl.remove();
       pd.texts = pd.texts.filter(t => t.id !== id);
@@ -557,11 +800,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
       id, 
       x_pdf: pdfX, 
       top_pdf: pdfTop,
-      text: textStyle.text,
-      fontSize: textStyle.fontSize,
-      color: textStyle.color,
-      bold: textStyle.bold,
-      italic: textStyle.italic
+      text: currentTextStyle.text,
+      fontSize: currentTextStyle.fontSize,
+      color: currentTextStyle.color,
+      bold: currentTextStyle.bold,
+      italic: currentTextStyle.italic,
+      underline: currentTextStyle.underline
     };
     pd.texts.push(stored);
     
@@ -571,47 +815,35 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Select this new text
     selectTextElement(textEl);
     
+    // Show popup for editing
+    showTextEditor(clickX + 10, clickY + 10, stored, true);
+    
     generateBtn.disabled = false;
   }
 
   function selectTextElement(element) {
     // Deselect previous
-    if (selectedTextElement) {
+    if (selectedTextElement && selectedTextElement !== element) {
       selectedTextElement.classList.remove('selected');
     }
     
     // Select new
     selectedTextElement = element;
     element.classList.add('selected');
-    
-    // Update controls with this text's properties
+  }
+
+  function getTextDataFromElement(element) {
     const pageIndex = element.dataset.pageIndex;
     const textId = element.dataset.textId;
     const pd = pageData[pageIndex];
     
-    if (!pd || !pd.texts) return;
+    if (!pd || !pd.texts) return null;
     
-    const textData = pd.texts.find(t => t.id === textId);
-    if (!textData) return;
-    
-    textInput.value = textData.text;
-    fontSize.value = textData.fontSize;
-    $(colorPicker).spectrum("set", textData.color);
-    boldCheckbox.checked = textData.bold;
-    italicCheckbox.checked = textData.italic;
-    
-    // Update current style
-    currentTextStyle = {
-      text: textData.text,
-      fontSize: textData.fontSize,
-      color: textData.color,
-      bold: textData.bold,
-      italic: textData.italic
-    };
+    return pd.texts.find(t => t.id === textId);
   }
 
   function makeDraggable(domEl, pageIndex, stored){
-    let dragging=false, startX=0, startY=0, startLeft=0, startTop=0;
+    let dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
     const layer = pageData[pageIndex].layerElem;
 
     const down = (e) => {
@@ -619,7 +851,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
       dragging = true;
       const cx = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
       const cy = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
-      startX = cx; startY = cy;
+      startX = cx; 
+      startY = cy;
       startLeft = parseFloat(domEl.style.left || 0);
       startTop = parseFloat(domEl.style.top || 0);
       
@@ -750,17 +983,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
       selectedPdfFile = null;
       originalFilename = '';
       selectedTextElement = null;
+      hideTextEditor();
       generateBtn.disabled = true;
       
       // Reset to default style
-      styleButtons.forEach(b => b.classList.remove('active'));
-      document.getElementById('style5').classList.add('active');
       currentTextStyle = {...defaultTextStyle};
-      textInput.value = defaultTextStyle.text;
-      fontSize.value = defaultTextStyle.fontSize;
-      $(colorPicker).spectrum("set", defaultTextStyle.color);
-      boldCheckbox.checked = defaultTextStyle.bold;
-      italicCheckbox.checked = defaultTextStyle.italic;
       
     }catch(err){
       console.error(err);
@@ -771,14 +998,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
     }
   });
 
-  // Toggle generate button depending on text elements present
-  const mo = new MutationObserver(()=> {
-    generateBtn.disabled = pageData.every(pd => !pd.texts || pd.texts.length===0);
-  });
-  mo.observe(previewList, { childList:true, subtree:true });
-
   // Initialize with default style
-  updateCurrentStyle();
+  currentTextStyle = {...defaultTextStyle};
 });
 </script>
 </body>
