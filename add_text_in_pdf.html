@@ -72,7 +72,13 @@
       z-index: 10;
     }
     .text-element.selected{ border-color: #60a5fa; background: rgba(96,165,250,0.1); }
-    .text-element.editing{ border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); cursor: text; }
+    .text-element.editing{ 
+      border-color: #3b82f6; 
+      background: rgba(255, 255, 255, 0.9); 
+      cursor: text; 
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+      padding: 6px 10px;
+    }
     .text-element.pulse{ animation: textPulse 360ms ease; }
     @keyframes textPulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
 
@@ -94,6 +100,7 @@
       white-space: pre-wrap;
       word-break: keep-all;
       word-wrap: break-word;
+      background: transparent;
     }
 
     /* टेक्स्ट कंट्रोल बार - पारदर्शी */
@@ -105,10 +112,10 @@
       display: none;
       flex-direction: row;
       gap: 4px;
-      background: rgba(30, 30, 35, 0.7); /* पारदर्शी */
+      background: rgba(30, 30, 35, 0.95);
       backdrop-filter: blur(10px);
       border-radius: 15px;
-      padding: 4px 6px;
+      padding: 6px 8px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.5);
       border: 1px solid rgba(255,255,255,0.15);
       z-index: 100;
@@ -246,7 +253,7 @@
     /* कलर पिकर पॉपअप - छोटा */
     .color-picker-popup {
       position: fixed;
-      background: rgba(30, 30, 35, 0.9); /* पारदर्शी */
+      background: rgba(30, 30, 35, 0.95);
       backdrop-filter: blur(20px);
       border-radius: 10px;
       padding: 10px;
@@ -471,22 +478,11 @@
       line-height: 1.2;
     }
     
-    /* Text input helper */
-    .text-input-helper {
-      position: absolute;
-      bottom: -20px;
-      left: 0;
-      font-size: 10px;
-      color: rgba(255,255,255,0.7);
-      background: rgba(0,0,0,0.6);
-      padding: 2px 6px;
-      border-radius: 3px;
-      display: none;
-      z-index: 1000;
-    }
-    
-    .text-element.editing .text-input-helper {
-      display: block;
+    /* Placeholder text styling */
+    .text-element .text-content[data-placeholder]:empty:before {
+      content: attr(data-placeholder);
+      color: #888;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -578,9 +574,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let selectedTextElement = null;
   let currentPageIndex = 0;
   
-  // Global text style - हमेशा नए टेक्स्ट के लिए "Type here" रहेगा
+  // Global text style
   let globalTextStyle = {
-    text: "Type here",
+    text: "",
     fontSize: 16,
     color: "#000000",
     bold: false,
@@ -809,6 +805,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
       if (prevTextContent) {
         prevTextContent.contentEditable = false;
         prevTextContent.style.pointerEvents = 'none';
+        prevTextContent.removeAttribute('data-placeholder');
+        prevTextContent.setAttribute('data-placeholder', 'Type here');
       }
     }
     
@@ -848,33 +846,18 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textElement.classList.add('editing');
     textContent.contentEditable = true;
     textContent.style.pointerEvents = 'auto';
-    
-    // Add helper text
-    const helper = document.createElement('div');
-    helper.className = 'text-input-helper';
-    helper.textContent = 'Press Enter for new line, Esc or click outside to finish';
-    textElement.appendChild(helper);
+    textContent.removeAttribute('data-placeholder');
     
     // Focus and select all text
     setTimeout(() => {
       textContent.focus();
       
-      // Select all text if it's "Type here"
-      if (textContent.textContent === "Type here") {
-        const range = document.createRange();
-        range.selectNodeContents(textContent);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-      } else {
-        // Place cursor at the end
-        const range = document.createRange();
-        range.selectNodeContents(textContent);
-        range.collapse(false);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
+      // Select all text
+      const range = document.createRange();
+      range.selectNodeContents(textContent);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
     }, 10);
     
     // Handle input to resize element and update stored data
@@ -901,14 +884,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     // Handle keydown for finishing
     const handleKeydown = (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
+      if (e.key === 'Escape') {
         e.preventDefault();
         finishTyping(textElement, textContent);
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        finishTyping(textElement, textContent);
+      } else if (e.key === 'Enter' && !e.shiftKey) {
+        // Allow Enter for new line (default behavior)
+        setTimeout(handleInput, 10);
       }
-      // Shift+Enter will create new line (default behavior)
     };
     
     textContent.addEventListener('keydown', handleKeydown);
@@ -1007,34 +989,19 @@ document.addEventListener('DOMContentLoaded', ()=> {
   function finishTyping(textElement, textContent) {
     if (!isTypingInText) return;
     
-    // Remove helper text
-    const helper = textElement.querySelector('.text-input-helper');
-    if (helper) {
-      helper.remove();
-    }
-    
     textContent.contentEditable = false;
     textContent.style.pointerEvents = 'none';
     textElement.classList.remove('editing');
+    textContent.setAttribute('data-placeholder', 'Type here');
     
     // Final size update
     updateTextElementSize(textElement, textContent);
     
     isTypingInText = false;
     
-    // If text is empty, remove the element
+    // If text is empty, add placeholder
     if (!textContent.textContent.trim()) {
-      const pageIndex = textElement.dataset.pageIndex;
-      const textId = textElement.dataset.textId;
-      const pd = pageData[pageIndex];
-      
-      if (pd && pd.texts) {
-        pd.texts = pd.texts.filter(t => t.id !== textId);
-      }
-      
-      textElement.remove();
-      selectedTextElement = null;
-      generateBtn.disabled = pageData.every(p=> !p.texts || p.texts.length===0);
+      textContent.setAttribute('data-placeholder', 'Type here');
     }
   }
 
@@ -1282,8 +1249,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
             // If clicked on existing element, don't add new one
             if (clickedOnExisting) return;
             
-            // RESET global text to "Type here" for new text
-            globalTextStyle.text = "Type here";
+            // Reset global text for new text
+            globalTextStyle.text = "";
             globalTextStyle.fontSize = 16;
             globalTextStyle.color = "#000000";
             globalTextStyle.bold = false;
@@ -1469,7 +1436,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Create text content
     const textContent = document.createElement('div');
     textContent.className = 'text-content';
-    textContent.textContent = globalTextStyle.text;
+    textContent.textContent = '';
+    textContent.setAttribute('data-placeholder', 'Type here');
     textContent.style.fontSize = globalTextStyle.fontSize + 'px';
     textContent.style.color = globalTextStyle.color;
     textContent.style.fontWeight = globalTextStyle.bold ? 'bold' : 'normal';
@@ -1485,11 +1453,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
     multiLineIndicator.className = 'multi-line-indicator';
     multiLineIndicator.innerHTML = '<i class="fas fa-align-left"></i>';
     textEl.appendChild(multiLineIndicator);
-    
-    // Check if text has multiple lines
-    if (globalTextStyle.text.includes('\n')) {
-      textEl.classList.add('multi-line');
-    }
     
     // Create controls bar (with move and delete button included)
     const controlsBar = document.createElement('div');
@@ -1575,7 +1538,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       id, 
       x_pdf: pdfX, 
       top_pdf: pdfTop,
-      text: globalTextStyle.text,
+      text: '',
       fontSize: globalTextStyle.fontSize,
       color: globalTextStyle.color,
       bold: globalTextStyle.bold,
@@ -1717,6 +1680,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
         if(!pd || !pd.texts) continue;
         
         for(const t of pd.texts){
+          // Skip empty text
+          if (!t.text.trim()) continue;
+          
           // Convert hex color to RGB
           let hex = t.color;
           if (hex.startsWith('#')) {
