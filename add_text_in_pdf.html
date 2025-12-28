@@ -73,26 +73,27 @@
       word-break: break-word;
       line-height: 1.2;
       min-height: 1.2em;
+      width: 100%;
     }
 
-    /* टेक्स्ट कंट्रोल बार - टेक्स्ट के ठीक ऊपर एक लाइन में */
+    /* टेक्स्ट कंट्रोल बार - छोटा और कॉम्पैक्ट */
     .text-controls-bar {
       position: absolute;
-      bottom: calc(100% + 5px);
+      bottom: calc(100% + 3px);
       left: 50%;
       transform: translateX(-50%);
       display: none;
       flex-direction: row;
-      gap: 8px;
+      gap: 4px;
       background: rgba(30, 30, 35, 0.95);
       backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 6px 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      border-radius: 15px;
+      padding: 4px 6px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.5);
       border: 1px solid rgba(255,255,255,0.15);
       z-index: 100;
       align-items: center;
-      min-width: 200px;
+      min-width: 180px;
       justify-content: center;
     }
     
@@ -106,17 +107,17 @@
       to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
 
-    /* गोलाकार बटन्स */
+    /* छोटे गोलाकार बटन्स */
     .control-btn {
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       border: none;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 11px;
       font-weight: 600;
       transition: all 0.2s ease;
       background: rgba(255,255,255,0.1);
@@ -136,7 +137,7 @@
     
     /* स्पेशल बटन्स */
     .size-btn {
-      font-size: 18px;
+      font-size: 14px;
       font-weight: 700;
     }
     
@@ -157,34 +158,35 @@
     .color-btn {
       position: relative;
       overflow: hidden;
+      padding: 0;
     }
     
     .color-preview-inline {
-      width: 20px;
-      height: 20px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
       border: 2px solid rgba(255,255,255,0.5);
     }
     
-    /* फॉन्ट साइज डिस्प्ले */
+    /* फॉन्ट साइज डिस्प्ले - छोटा */
     .font-size-display {
       color: white;
       font-weight: 700;
-      font-size: 12px;
-      min-width: 25px;
+      font-size: 10px;
+      min-width: 20px;
       text-align: center;
       background: rgba(255,255,255,0.1);
-      padding: 4px 8px;
-      border-radius: 10px;
-      margin: 0 2px;
+      padding: 3px 5px;
+      border-radius: 8px;
+      margin: 0 1px;
     }
     
-    /* डिलीट बटन */
+    /* डिलीट बटन - छोटा */
     .delete-btn{ 
-      position:absolute; right:-12px; top:-12px; width:28px; height:28px; 
+      position:absolute; right:-10px; top:-10px; width:22px; height:22px; 
       background:#ef4444; color:white; border-radius:50%; border:none;
       display:flex; align-items:center; justify-content:center; cursor:pointer;
-      font-size: 12px;
+      font-size: 10px;
       transition: all 0.2s ease;
       z-index: 10;
     }
@@ -201,9 +203,9 @@
       right: 2px;
       background: rgba(0,0,0,0.5);
       color: white;
-      font-size: 10px;
-      padding: 1px 4px;
-      border-radius: 3px;
+      font-size: 8px;
+      padding: 1px 3px;
+      border-radius: 2px;
       display: none;
     }
     
@@ -211,18 +213,18 @@
       display: block;
     }
     
-    /* कलर पिकर पॉपअप */
+    /* कलर पिकर पॉपअप - छोटा */
     .color-picker-popup {
       position: fixed;
       background: rgba(30, 30, 35, 0.98);
       backdrop-filter: blur(20px);
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
       border: 1px solid rgba(255,255,255,0.2);
       z-index: 10000;
       display: none;
-      min-width: 200px;
+      min-width: 180px;
       animation: popupFade 0.2s ease;
     }
     
@@ -235,15 +237,15 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
       border-bottom: 1px solid rgba(255,255,255,0.15);
     }
     
     .color-picker-header h4 {
       margin: 0;
       color: white;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 600;
     }
     
@@ -251,11 +253,11 @@
       background: rgba(255,255,255,0.1);
       border: none;
       color: rgba(255,255,255,0.9);
-      font-size: 14px;
+      font-size: 12px;
       cursor: pointer;
-      padding: 6px;
-      width: 28px;
-      height: 28px;
+      padding: 4px;
+      width: 22px;
+      height: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -269,19 +271,19 @@
     }
     
     .color-picker-container {
-      padding: 10px 0;
+      padding: 8px 0;
     }
     
     .color-options {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      margin-bottom: 15px;
+      gap: 6px;
+      margin-bottom: 10px;
     }
     
     .color-option {
-      width: 30px;
-      height: 30px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       cursor: pointer;
       border: 2px solid rgba(255,255,255,0.3);
@@ -300,13 +302,13 @@
     
     .custom-color-input {
       width: 100%;
-      padding: 8px 10px;
+      padding: 6px 8px;
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 8px;
+      border-radius: 6px;
       color: white;
-      font-size: 13px;
-      margin-top: 10px;
+      font-size: 11px;
+      margin-top: 8px;
     }
     
     .custom-color-input:focus {
@@ -337,14 +339,18 @@
       .progress{ width:86%; }
       .floating-btn{ width:86%; left:50%; transform:translateX(-50%); }
       .text-controls-bar {
-        gap: 6px;
-        padding: 6px 8px;
-        min-width: 180px;
+        gap: 4px;
+        padding: 4px 6px;
+        min-width: 160px;
       }
       .control-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 12px;
+        width: 22px;
+        height: 22px;
+        font-size: 10px;
+      }
+      .font-size-display {
+        font-size: 9px;
+        min-width: 18px;
       }
     }
 
@@ -513,7 +519,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   
   // Global text style (जो सभी नए टेक्स्ट के लिए apply होगी)
   let globalTextStyle = {
-    text: "Sample Text",
+    text: "Type here",
     fontSize: 16,
     color: "#000000",
     bold: false,
@@ -523,6 +529,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
   
   // Track which color button was clicked
   let activeColorButton = null;
+  
+  // Track if user is currently typing in a text element
+  let isTypingInText = false;
   
   // Color picker initialization
   try {
@@ -574,8 +583,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     // Position popup near the button
     const rect = button.getBoundingClientRect();
-    const popupWidth = 200;
-    const popupHeight = 180;
+    const popupWidth = 180;
+    const popupHeight = 160;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     
@@ -665,7 +674,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (!selectedTextElement) return;
     
     const textContent = selectedTextElement.querySelector('.text-content');
-    textContent.textContent = globalTextStyle.text;
     textContent.style.fontSize = globalTextStyle.fontSize + 'px';
     textContent.style.color = globalTextStyle.color;
     textContent.style.fontWeight = globalTextStyle.bold ? 'bold' : 'normal';
@@ -673,7 +681,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.style.textDecoration = globalTextStyle.underline ? 'underline' : 'none';
     
     // Check if text has multiple lines
-    if (globalTextStyle.text.includes('\n')) {
+    if (textContent.textContent.includes('\n')) {
       selectedTextElement.classList.add('multi-line');
     } else {
       selectedTextElement.classList.remove('multi-line');
@@ -690,7 +698,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (!textData) return;
     
     // Update the stored data with current global style
-    textData.text = globalTextStyle.text;
     textData.fontSize = globalTextStyle.fontSize;
     textData.color = globalTextStyle.color;
     textData.bold = globalTextStyle.bold;
@@ -749,19 +756,140 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (pd && pd.texts) {
       const textData = pd.texts.find(t => t.id === textId);
       if (textData) {
-        globalTextStyle = {
-          text: textData.text,
-          fontSize: textData.fontSize,
-          color: textData.color,
-          bold: textData.bold,
-          italic: textData.italic,
-          underline: textData.underline
-        };
+        globalTextStyle.text = textData.text;
+        globalTextStyle.fontSize = textData.fontSize;
+        globalTextStyle.color = textData.color;
+        globalTextStyle.bold = textData.bold;
+        globalTextStyle.italic = textData.italic;
+        globalTextStyle.underline = textData.underline;
       }
     }
     
     // Update controls bar
     updateControlsBar(element);
+    
+    // Enable typing in text
+    enableTypingInText(element);
+  }
+
+  // Enable typing in text element
+  function enableTypingInText(textElement) {
+    const textContent = textElement.querySelector('.text-content');
+    
+    // Make text content editable for typing
+    textElement.addEventListener('dblclick', handleDoubleClick);
+    
+    function handleDoubleClick(e) {
+      e.stopPropagation();
+      startTypingInText(textElement, textContent);
+    }
+  }
+  
+  // Start typing in text element
+  function startTypingInText(textElement, textContent) {
+    isTypingInText = true;
+    
+    // Create an input overlay for typing
+    const inputOverlay = document.createElement('div');
+    inputOverlay.className = 'text-input-overlay';
+    inputOverlay.style.position = 'absolute';
+    inputOverlay.style.left = '0';
+    inputOverlay.style.top = '0';
+    inputOverlay.style.width = '100%';
+    inputOverlay.style.height = '100%';
+    inputOverlay.style.background = 'transparent';
+    inputOverlay.style.border = '2px solid #3b82f6';
+    inputOverlay.style.borderRadius = '4px';
+    inputOverlay.style.zIndex = '50';
+    
+    // Create textarea for typing
+    const textarea = document.createElement('textarea');
+    textarea.style.width = '100%';
+    textarea.style.height = '100%';
+    textarea.style.background = 'rgba(255,255,255,0.9)';
+    textarea.style.border = 'none';
+    textarea.style.outline = 'none';
+    textarea.style.padding = '4px 8px';
+    textarea.style.fontFamily = 'Arial, sans-serif';
+    textarea.style.fontSize = globalTextStyle.fontSize + 'px';
+    textarea.style.color = globalTextStyle.color;
+    textarea.style.fontWeight = globalTextStyle.bold ? 'bold' : 'normal';
+    textarea.style.fontStyle = globalTextStyle.italic ? 'italic' : 'normal';
+    textarea.style.textDecoration = globalTextStyle.underline ? 'underline' : 'none';
+    textarea.style.resize = 'none';
+    textarea.value = textContent.textContent;
+    
+    // Auto-resize textarea
+    function autoResize() {
+      textarea.style.height = 'auto';
+      textarea.style.height = (textarea.scrollHeight) + 'px';
+      inputOverlay.style.height = (textarea.scrollHeight) + 'px';
+    }
+    
+    textarea.addEventListener('input', autoResize);
+    
+    inputOverlay.appendChild(textarea);
+    textElement.appendChild(inputOverlay);
+    
+    // Focus and select all text
+    setTimeout(() => {
+      textarea.focus();
+      textarea.select();
+    }, 10);
+    
+    // Handle Enter key for new line (Shift+Enter for new line, just Enter to finish)
+    textarea.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        finishTyping(textElement, textContent, textarea, inputOverlay);
+      }
+    });
+    
+    // Handle blur (click outside)
+    textarea.addEventListener('blur', function() {
+      finishTyping(textElement, textContent, textarea, inputOverlay);
+    });
+    
+    // Initial resize
+    autoResize();
+  }
+  
+  // Finish typing and update text
+  function finishTyping(textElement, textContent, textarea, inputOverlay) {
+    if (!isTypingInText) return;
+    
+    const newText = textarea.value.trim();
+    if (newText !== '') {
+      textContent.textContent = newText;
+      
+      // Update global style and stored data
+      globalTextStyle.text = newText;
+      
+      const pageIndex = textElement.dataset.pageIndex;
+      const textId = textElement.dataset.textId;
+      const pd = pageData[pageIndex];
+      
+      if (pd && pd.texts) {
+        const textData = pd.texts.find(t => t.id === textId);
+        if (textData) {
+          textData.text = newText;
+        }
+      }
+      
+      // Check if text has multiple lines
+      if (newText.includes('\n')) {
+        textElement.classList.add('multi-line');
+      } else {
+        textElement.classList.remove('multi-line');
+      }
+    }
+    
+    // Remove input overlay
+    if (inputOverlay.parentNode) {
+      inputOverlay.parentNode.removeChild(inputOverlay);
+    }
+    
+    isTypingInText = false;
   }
 
   // Hide color picker
@@ -1000,9 +1128,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
               }
             }
             
-            // Add new text (using current global style)
+            // Add new text - FRESH TEXT with default "Type here"
             currentPageIndex = pageNum - 1;
             clickPosition = { x: ev.clientX, y: ev.clientY };
+            
+            // Reset global text to default for new text
+            globalTextStyle.text = "Type here";
             addTextToPage(currentPageIndex, layerX, layerY);
           });
           
@@ -1294,6 +1425,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
           e.target.closest('.delete-btn')) {
         return;
       }
+      
+      // Don't start drag if currently typing
+      if (isTypingInText) return;
       
       e.preventDefault();
       dragging = true;
