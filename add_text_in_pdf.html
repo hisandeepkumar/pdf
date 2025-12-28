@@ -63,8 +63,8 @@
 
     .text-element{ 
       position:absolute; cursor:move; touch-action:none; user-select:none; 
-      display:flex; align-items:center; transition:transform 120ms ease;
-      padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.05);
+      display:block; /* Changed from flex to block */
+      padding: 6px 10px; border-radius: 4px; background: rgba(0,0,0,0.05);
       border: 2px solid transparent;
       max-width: 500px;
       word-wrap: break-word;
@@ -77,7 +77,6 @@
       background: rgba(255, 255, 255, 0.9); 
       cursor: text; 
       box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-      padding: 6px 10px;
     }
     .text-element.pulse{ animation: textPulse 360ms ease; }
     @keyframes textPulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
@@ -86,21 +85,20 @@
       pointer-events:none; font-family: Arial, sans-serif;
       text-shadow: 0 1px 2px rgba(0,0,0,0.2);
       white-space: pre-wrap;
-      word-break: keep-all;
-      word-wrap: break-word;
+      word-break: break-word;
       line-height: 1.2;
-      min-height: 1.2em;
       width: 100%;
-      overflow: hidden;
+      min-height: 1.2em;
+      display: block;
     }
     .text-element.editing .text-content{
       pointer-events:auto;
       outline:none;
       cursor: text;
       white-space: pre-wrap;
-      word-break: keep-all;
-      word-wrap: break-word;
+      word-break: break-word;
       background: transparent;
+      display: block;
     }
 
     /* टेक्स्ट कंट्रोल बार - पारदर्शी */
@@ -432,7 +430,7 @@
     /* एरर मैसेज */
     .error-message {
       background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
+      border: 1px solid rgba(239, 68, 68,0.3);
       border-radius: 10px;
       padding: 20px;
       text-align: center;
@@ -473,8 +471,7 @@
       visibility: hidden;
       white-space: pre-wrap;
       font-family: Arial, sans-serif;
-      word-break: keep-all;
-      word-wrap: break-word;
+      word-break: break-word;
       line-height: 1.2;
       padding: 6px 10px;
     }
@@ -484,11 +481,6 @@
       content: attr(data-placeholder);
       color: #888;
       pointer-events: none;
-    }
-    
-    /* Typewriter effect for cursor */
-    .text-element.editing .text-content:focus {
-      caret-color: #3b82f6;
     }
   </style>
 </head>
@@ -598,6 +590,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
   
   // Track if move mode is active
   let isMoveModeActive = false;
+  
+  // Track empty text boxes to auto-remove
+  let emptyTextTimeout = null;
   
   // Color picker events
   closeColorPickerBtn.addEventListener('click', hideColorPicker);
@@ -763,8 +758,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Update controls bar display
     updateControlsBar(selectedTextElement);
     
-    // Update element size IMMEDIATELY (not in requestAnimationFrame)
-    updateTextElementSizeImmediately(selectedTextElement, textContent);
+    // Update element size
+    updateTextElementSize(selectedTextElement, textContent);
   }
   
   // Update controls bar UI
@@ -811,7 +806,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
       if (prevTextContent) {
         prevTextContent.contentEditable = false;
         prevTextContent.style.pointerEvents = 'none';
-        prevTextContent.removeAttribute('data-placeholder');
         prevTextContent.setAttribute('data-placeholder', 'Type here');
       }
     }
@@ -841,7 +835,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     updateControlsBar(element);
   }
 
-  // Start direct typing (no extra box)
+  // Start direct typing
   function startTyping(textElement) {
     if (isTypingInText) return;
     
@@ -869,11 +863,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     // Handle input to resize element and update stored data
     const handleInput = () => {
-      // Update text data immediately
       updateTextData(textElement, textContent.textContent);
-      
-      // Update size immediately without delay
-      updateTextElementSizeImmediately(textElement, textContent);
+      updateTextElementSize(textElement, textContent);
     };
     
     textContent.addEventListener('input', handleInput);
@@ -898,12 +889,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
         e.preventDefault();
         finishTyping(textElement, textContent);
       } else if (e.key === 'Enter' && !e.shiftKey) {
-        // Allow Enter for new line but update size immediately
-        setTimeout(() => {
-          handleInput();
-        }, 0);
-      } else {
-        // For other keys, update immediately (but don't block default behavior)
+        // Allow Enter for new line
         setTimeout(() => {
           handleInput();
         }, 0);
@@ -920,11 +906,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.addEventListener('blur', handleBlur);
   }
   
-  // Update text element size IMMEDIATELY (no delays)
-  function updateTextElementSizeImmediately(textElement, textContent) {
-    // First, get the current width and height
-    const currentWidth = textElement.offsetWidth;
-    
+  // Update text element size
+  function updateTextElementSize(textElement, textContent) {
     // Set measureSpan with exact same style
     measureSpan.style.fontSize = textContent.style.fontSize;
     measureSpan.style.fontWeight = textContent.style.fontWeight;
@@ -932,8 +915,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     measureSpan.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
     measureSpan.style.lineHeight = textContent.style.lineHeight || '1.2';
     measureSpan.style.whiteSpace = 'pre-wrap';
-    measureSpan.style.wordBreak = 'keep-all';
-    measureSpan.style.wordWrap = 'break-word';
+    measureSpan.style.wordBreak = 'break-word';
     measureSpan.style.padding = '6px 10px';
     measureSpan.style.width = 'auto';
     measureSpan.style.display = 'inline-block';
@@ -947,28 +929,22 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const requiredWidth = Math.min(500, Math.max(50, measureSpan.offsetWidth + 20));
     document.body.removeChild(measureSpan);
     
-    // Set new width - add some extra padding to prevent wrapping during typing
-    const extraPadding = text ? 20 : 0; // Extra space for typing
-    const newWidth = Math.min(500, Math.max(50, requiredWidth + extraPadding));
+    // Set new width
+    textElement.style.width = requiredWidth + 'px';
     
-    // Only update if width changed significantly
-    if (Math.abs(newWidth - currentWidth) > 2) {
-      textElement.style.width = newWidth + 'px';
-    }
-    
-    // Calculate height
+    // Calculate height - IMPORTANT: Use exact same width as the text element for measurement
     const tempDiv = document.createElement('div');
     tempDiv.style.position = 'absolute';
     tempDiv.style.visibility = 'hidden';
     tempDiv.style.whiteSpace = 'pre-wrap';
-    tempDiv.style.wordBreak = 'keep-all';
-    tempDiv.style.wordWrap = 'break-word';
+    tempDiv.style.wordBreak = 'break-word';
     tempDiv.style.fontSize = textContent.style.fontSize;
     tempDiv.style.fontWeight = textContent.style.fontWeight;
     tempDiv.style.fontStyle = textContent.style.fontStyle;
     tempDiv.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
     tempDiv.style.lineHeight = textContent.style.lineHeight || '1.2';
-    tempDiv.style.width = (newWidth - 20) + 'px'; // Account for padding
+    tempDiv.style.width = requiredWidth + 'px'; // Same as text element width
+    tempDiv.style.boxSizing = 'border-box';
     tempDiv.style.padding = '6px 10px';
     tempDiv.textContent = text;
     
@@ -1012,59 +988,39 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textElement.classList.remove('editing');
     textContent.setAttribute('data-placeholder', 'Type here');
     
-    // Final size update (without extra padding)
-    const currentWidth = textElement.offsetWidth;
-    const text = textContent.textContent || '';
-    
-    // Set measureSpan with exact same style
-    measureSpan.style.fontSize = textContent.style.fontSize;
-    measureSpan.style.fontWeight = textContent.style.fontWeight;
-    measureSpan.style.fontStyle = textContent.style.fontStyle;
-    measureSpan.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
-    measureSpan.style.lineHeight = textContent.style.lineHeight || '1.2';
-    measureSpan.style.whiteSpace = 'pre-wrap';
-    measureSpan.style.wordBreak = 'keep-all';
-    measureSpan.style.wordWrap = 'break-word';
-    measureSpan.style.padding = '6px 10px';
-    measureSpan.style.width = 'auto';
-    measureSpan.style.display = 'inline-block';
-    
-    measureSpan.textContent = text;
-    
-    document.body.appendChild(measureSpan);
-    const requiredWidth = Math.min(500, Math.max(50, measureSpan.offsetWidth + 20));
-    document.body.removeChild(measureSpan);
-    
-    // Set final width (no extra padding)
-    textElement.style.width = requiredWidth + 'px';
-    
-    // Calculate final height
-    const tempDiv = document.createElement('div');
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.visibility = 'hidden';
-    tempDiv.style.whiteSpace = 'pre-wrap';
-    tempDiv.style.wordBreak = 'keep-all';
-    tempDiv.style.wordWrap = 'break-word';
-    tempDiv.style.fontSize = textContent.style.fontSize;
-    tempDiv.style.fontWeight = textContent.style.fontWeight;
-    tempDiv.style.fontStyle = textContent.style.fontStyle;
-    tempDiv.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
-    tempDiv.style.lineHeight = textContent.style.lineHeight || '1.2';
-    tempDiv.style.width = (requiredWidth - 20) + 'px';
-    tempDiv.style.padding = '6px 10px';
-    tempDiv.textContent = text;
-    
-    document.body.appendChild(tempDiv);
-    const newHeight = tempDiv.scrollHeight;
-    document.body.removeChild(tempDiv);
-    
-    textElement.style.height = newHeight + 'px';
+    // Final size update
+    updateTextElementSize(textElement, textContent);
     
     isTypingInText = false;
     
-    // If text is empty, add placeholder
+    // If text is empty, remove the element after a delay
     if (!textContent.textContent.trim()) {
-      textContent.setAttribute('data-placeholder', 'Type here');
+      // Auto-remove empty text box after 2 seconds
+      clearTimeout(emptyTextTimeout);
+      emptyTextTimeout = setTimeout(() => {
+        removeEmptyTextElement(textElement);
+      }, 2000);
+    } else {
+      clearTimeout(emptyTextTimeout);
+    }
+  }
+  
+  // Remove empty text element
+  function removeEmptyTextElement(textElement) {
+    const textContent = textElement.querySelector('.text-content');
+    if (!textContent || !textContent.textContent.trim()) {
+      const pageIndex = textElement.dataset.pageIndex;
+      const textId = textElement.dataset.textId;
+      const pd = pageData[pageIndex];
+      
+      if (pd && pd.texts) {
+        pd.texts = pd.texts.filter(t => t.id !== textId);
+      }
+      
+      textElement.remove();
+      selectedTextElement = null;
+      hideColorPicker();
+      generateBtn.disabled = pageData.every(p=> !p.texts || p.texts.length===0);
     }
   }
 
@@ -1114,6 +1070,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     generateBtn.disabled = true;
     hideColorPicker();
     isMoveModeActive = false;
+    clearTimeout(emptyTextTimeout);
     
     // Show loading indicator
     const loadingDiv = document.createElement('div');
@@ -1507,8 +1464,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.style.fontStyle = globalTextStyle.italic ? 'italic' : 'normal';
     textContent.style.textDecoration = globalTextStyle.underline ? 'underline' : 'none';
     textContent.style.whiteSpace = 'pre-wrap';
-    textContent.style.wordBreak = 'keep-all';
-    textContent.style.wordWrap = 'break-word';
+    textContent.style.wordBreak = 'break-word';
     textEl.appendChild(textContent);
     
     // Add multi-line indicator
@@ -1586,8 +1542,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
     controlsBar.appendChild(italicBtn);
     controlsBar.appendChild(underlineBtn);
     controlsBar.appendChild(colorBtn);
-    controlsBar.appendChild(moveBtn); // Move button added here
-    controlsBar.appendChild(deleteBtn); // Delete button added here
+    controlsBar.appendChild(moveBtn);
+    controlsBar.appendChild(deleteBtn);
     
     textEl.appendChild(controlsBar);
     
@@ -1622,7 +1578,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     selectTextElement(textEl);
     
     // Update element size
-    updateTextElementSizeImmediately(textEl, textContent);
+    updateTextElementSize(textEl, textContent);
     
     generateBtn.disabled = false;
     console.log('Text element added successfully');
