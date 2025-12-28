@@ -75,36 +75,144 @@
       min-height: 1.2em;
     }
 
-    /* Delete और Edit बटन */
-    .text-controls {
+    /* टेक्स्ट कंट्रोल बार - टेक्स्ट के ठीक ऊपर एक लाइन में */
+    .text-controls-bar {
       position: absolute;
-      top: -15px;
-      right: -15px;
+      bottom: calc(100% + 5px);
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      flex-direction: row;
+      gap: 8px;
+      background: rgba(30, 30, 35, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 6px 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.15);
+      z-index: 100;
+      align-items: center;
+      min-width: 200px;
+      justify-content: center;
+    }
+    
+    .text-element.selected .text-controls-bar {
       display: flex;
-      gap: 5px;
-      z-index: 10;
+      animation: controlsFade 0.2s ease;
+    }
+    
+    @keyframes controlsFade {
+      from { opacity: 0; transform: translateX(-50%) translateY(5px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
 
-    .delete-btn, .edit-btn{ 
-      width:26px; height:26px; 
+    /* गोलाकार बटन्स */
+    .control-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      position: relative;
+    }
+    
+    .control-btn:hover {
+      transform: scale(1.1);
+      background: rgba(255,255,255,0.2);
+    }
+    
+    .control-btn.active {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    /* स्पेशल बटन्स */
+    .size-btn {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .bold-btn {
+      font-weight: 900;
+    }
+    
+    .italic-btn {
+      font-style: italic;
+      font-weight: 600;
+    }
+    
+    .underline-btn {
+      text-decoration: underline;
+      font-weight: 600;
+    }
+    
+    .color-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .color-preview-inline {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.5);
+    }
+    
+    /* फॉन्ट साइज डिस्प्ले */
+    .font-size-display {
+      color: white;
+      font-weight: 700;
+      font-size: 12px;
+      min-width: 25px;
+      text-align: center;
+      background: rgba(255,255,255,0.1);
+      padding: 4px 8px;
+      border-radius: 10px;
+      margin: 0 2px;
+    }
+    
+    /* डिलीट बटन */
+    .delete-btn{ 
+      position:absolute; right:-12px; top:-12px; width:28px; height:28px; 
       background:#ef4444; color:white; border-radius:50%; border:none;
       display:flex; align-items:center; justify-content:center; cursor:pointer;
       font-size: 12px;
       transition: all 0.2s ease;
+      z-index: 10;
     }
     
-    .edit-btn {
-      background: #3b82f6;
-      position: relative;
-      left: -30px;
-    }
-    
-    .delete-btn:hover, .edit-btn:hover {
+    .delete-btn:hover {
+      background: #dc2626;
       transform: scale(1.1);
     }
-
-    /* Floating Text Editor Popup - Side में */
-    .text-editor-popup {
+    
+    /* मल्टी-लाइन टेक्स्ट इंडिकेटर */
+    .multi-line-indicator {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      font-size: 10px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      display: none;
+    }
+    
+    .text-element.multi-line .multi-line-indicator {
+      display: block;
+    }
+    
+    /* कलर पिकर पॉपअप */
+    .color-picker-popup {
       position: fixed;
       background: rgba(30, 30, 35, 0.98);
       backdrop-filter: blur(20px);
@@ -114,239 +222,97 @@
       border: 1px solid rgba(255,255,255,0.2);
       z-index: 10000;
       display: none;
-      min-width: 380px;
+      min-width: 200px;
       animation: popupFade 0.2s ease;
     }
+    
     @keyframes popupFade {
-      from { opacity: 0; transform: translateX(10px) scale(0.95); }
-      to { opacity: 1; transform: translateX(0) scale(1); }
+      from { opacity: 0; transform: translateY(5px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
-
-    .popup-header {
+    
+    .color-picker-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
-      padding-bottom: 10px;
+      padding-bottom: 8px;
       border-bottom: 1px solid rgba(255,255,255,0.15);
     }
-
-    .popup-header h3 {
+    
+    .color-picker-header h4 {
       margin: 0;
       color: white;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
-
-    .close-popup {
+    
+    .close-color-picker {
       background: rgba(255,255,255,0.1);
       border: none;
       color: rgba(255,255,255,0.9);
-      font-size: 16px;
+      font-size: 14px;
       cursor: pointer;
       padding: 6px;
-      width: 30px;
-      height: 30px;
+      width: 28px;
+      height: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 50%;
       transition: all 0.2s ease;
     }
-    .close-popup:hover {
+    
+    .close-color-picker:hover {
       background: rgba(255,255,255,0.2);
       color: white;
     }
-
-    /* एकल रेखा में सभी कंट्रोल्स */
-    .compact-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
+    
+    .color-picker-container {
+      padding: 10px 0;
     }
-
-    .text-input-compact {
-      flex: 1;
-      min-width: 150px;
+    
+    .color-options {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 15px;
     }
-
-    .text-input-compact textarea {
+    
+    .color-option {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.3);
+      transition: all 0.2s ease;
+    }
+    
+    .color-option:hover {
+      transform: scale(1.1);
+      border-color: white;
+    }
+    
+    .color-option.selected {
+      border-color: white;
+      box-shadow: 0 0 0 2px #3b82f6;
+    }
+    
+    .custom-color-input {
       width: 100%;
+      padding: 8px 10px;
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.25);
       border-radius: 8px;
-      padding: 10px 12px;
       color: white;
-      font-size: 14px;
-      font-family: inherit;
-      resize: vertical;
-      min-height: 60px;
-      line-height: 1.4;
+      font-size: 13px;
+      margin-top: 10px;
     }
-    .text-input-compact textarea:focus {
+    
+    .custom-color-input:focus {
       outline: none;
       border-color: #60a5fa;
       background: rgba(255,255,255,0.15);
-    }
-
-    .compact-control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 70px;
-    }
-
-    .compact-label {
-      color: rgba(255,255,255,0.8);
-      font-size: 11px;
-      font-weight: 600;
-      text-align: center;
-    }
-
-    .font-size-compact {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 8px;
-      padding: 6px 8px;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-
-    .size-btn-compact {
-      width: 24px;
-      height: 24px;
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 6px;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 14px;
-      transition: all 0.2s ease;
-    }
-    .size-btn-compact:hover {
-      background: rgba(255,255,255,0.25);
-      border-color: #60a5fa;
-    }
-
-    .size-value-compact {
-      color: white;
-      font-weight: 700;
-      font-size: 14px;
-      min-width: 30px;
-      text-align: center;
-    }
-
-    .color-control-compact {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 60px;
-    }
-
-    .color-preview-compact {
-      width: 100%;
-      height: 30px;
-      border-radius: 6px;
-      border: 2px solid rgba(255,255,255,0.3);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .color-preview-compact:hover {
-      border-color: #60a5fa;
-      transform: scale(1.02);
-    }
-
-    .style-controls-compact {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 120px;
-    }
-
-    .font-style-buttons {
-      display: flex;
-      gap: 8px;
-    }
-
-    .style-btn-compact {
-      flex: 1;
-      height: 30px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 6px;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 12px;
-      transition: all 0.2s ease;
-      padding: 0 8px;
-    }
-    .style-btn-compact:hover {
-      background: rgba(255,255,255,0.15);
-    }
-    .style-btn-compact.active {
-      background: #60a5fa;
-      border-color: #60a5fa;
-      color: white;
-    }
-    .style-btn-compact i {
-      font-size: 14px;
-    }
-
-    .popup-actions-compact {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid rgba(255,255,255,0.15);
-    }
-
-    .action-btn-compact {
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      min-width: 80px;
-      justify-content: center;
-    }
-
-    .cancel-btn-compact {
-      background: rgba(255,255,255,0.1);
-      color: white;
-    }
-    .cancel-btn-compact:hover {
-      background: rgba(255,255,255,0.2);
-      transform: translateY(-2px);
-    }
-
-    .apply-btn-compact {
-      background: linear-gradient(135deg, #60a5fa, #3b82f6);
-      color: white;
-      box-shadow: 0 3px 10px rgba(59, 130, 246, 0.4);
-    }
-    .apply-btn-compact:hover {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.6);
     }
 
     .floating-btn{
@@ -370,23 +336,15 @@
       .container{ padding-bottom:220px; }
       .progress{ width:86%; }
       .floating-btn{ width:86%; left:50%; transform:translateX(-50%); }
-      .text-editor-popup {
-        min-width: 90%;
-        left: 50% !important;
-        right: auto !important;
-        transform: translateX(-50%) !important;
-        top: 50% !important;
-        margin-top: -100px;
+      .text-controls-bar {
+        gap: 6px;
+        padding: 6px 8px;
+        min-width: 180px;
       }
-      .compact-controls {
-        flex-wrap: wrap;
-      }
-      .text-input-compact {
-        min-width: 100%;
-        order: 1;
-      }
-      .compact-control-group {
-        min-width: 80px;
+      .control-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
       }
     }
 
@@ -465,23 +423,6 @@
       backdrop-filter: blur(10px);
       display: none;
     }
-    
-    /* मल्टी-लाइन टेक्स्ट इंडिकेटर */
-    .multi-line-indicator {
-      position: absolute;
-      bottom: 2px;
-      right: 2px;
-      background: rgba(0,0,0,0.5);
-      color: white;
-      font-size: 10px;
-      padding: 1px 4px;
-      border-radius: 3px;
-      display: none;
-    }
-    
-    .text-element.multi-line .multi-line-indicator {
-      display: block;
-    }
   </style>
 </head>
 <body>
@@ -494,75 +435,39 @@
     <div class="upload-area" id="uploadArea">
       <i class="fas fa-cloud-upload-alt"></i>
       <h3>Upload a PDF</h3>
-      <p>Select a PDF and click anywhere on the pages to add text. A popup will appear for styling.</p>
+      <p>Select a PDF and click anywhere on the pages to add text. Click text to show editing controls.</p>
       <input id="pdfInput" type="file" accept="application/pdf">
     </div>
 
     <div class="preview-list" id="previewList" aria-live="polite"></div>
 
-    <div class="footer-note">Click anywhere on a page to add text. Drag to reposition. Click pencil icon to edit.</div>
+    <div class="footer-note">Click anywhere on a page to add text. Drag to reposition. Click text to show editing controls.</div>
   </div>
 
-  <!-- Floating Text Editor Popup -->
-  <div class="text-editor-popup" id="textEditorPopup">
-    <div class="popup-header">
-      <h3><i class="fas fa-edit"></i> Edit Text</h3>
-      <button class="close-popup" id="closePopupBtn">
+  <!-- Color Picker Popup -->
+  <div class="color-picker-popup" id="colorPickerPopup">
+    <div class="color-picker-header">
+      <h4><i class="fas fa-palette"></i> Select Color</h4>
+      <button class="close-color-picker" id="closeColorPickerBtn">
         <i class="fas fa-times"></i>
       </button>
     </div>
     
-    <div class="compact-controls">
-      <!-- टेक्स्ट इनपुट (textarea for multi-line) -->
-      <div class="text-input-compact">
-        <textarea id="popupTextInputCompact" placeholder="Enter text... (Press Enter for new line)"></textarea>
+    <div class="color-picker-container">
+      <div class="color-options" id="colorOptions">
+        <div class="color-option" style="background-color: #000000;" data-color="#000000"></div>
+        <div class="color-option" style="background-color: #ffffff;" data-color="#ffffff"></div>
+        <div class="color-option" style="background-color: #ff0000;" data-color="#ff0000"></div>
+        <div class="color-option" style="background-color: #00ff00;" data-color="#00ff00"></div>
+        <div class="color-option" style="background-color: #0000ff;" data-color="#0000ff"></div>
+        <div class="color-option" style="background-color: #ffff00;" data-color="#ffff00"></div>
+        <div class="color-option" style="background-color: #ff00ff;" data-color="#ff00ff"></div>
+        <div class="color-option" style="background-color: #00ffff;" data-color="#00ffff"></div>
+        <div class="color-option" style="background-color: #ff8000;" data-color="#ff8000"></div>
+        <div class="color-option" style="background-color: #8000ff;" data-color="#8000ff"></div>
       </div>
       
-      <!-- फॉन्ट साइज़ -->
-      <div class="compact-control-group">
-        <div class="compact-label">
-          <i class="fas fa-text-height"></i> Size
-        </div>
-        <div class="font-size-compact">
-          <button class="size-btn-compact" id="decreaseSizeBtnCompact">-</button>
-          <div class="size-value-compact" id="sizeValueCompact">16</div>
-          <button class="size-btn-compact" id="increaseSizeBtnCompact">+</button>
-        </div>
-      </div>
-      
-      <!-- कलर -->
-      <div class="color-control-compact">
-        <div class="compact-label">
-          <i class="fas fa-palette"></i> Color
-        </div>
-        <div class="color-preview-compact" id="colorPreviewCompact"></div>
-        <input type="hidden" id="popupColorPickerCompact" value="#000000">
-      </div>
-      
-      <!-- स्टाइल बटन्स -->
-      <div class="style-controls-compact">
-        <div class="compact-label">
-          <i class="fas fa-bold"></i> Style
-        </div>
-        <div class="font-style-buttons">
-          <button class="style-btn-compact" id="boldBtnCompact" title="Bold">
-            <i class="fas fa-bold"></i>
-          </button>
-          <button class="style-btn-compact" id="italicBtnCompact" title="Italic">
-            <i class="fas fa-italic"></i>
-          </button>
-          <button class="style-btn-compact" id="underlineBtnCompact" title="Underline">
-            <i class="fas fa-underline"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <div class="popup-actions-compact">
-      <button class="action-btn-compact cancel-btn-compact" id="cancelBtnCompact">
-        <i class="fas fa-times"></i>
-        Close
-      </button>
+      <input type="text" class="custom-color-input" id="customColorInput" placeholder="Enter hex color (e.g. #3b82f6)" value="#000000">
     </div>
   </div>
 
@@ -586,19 +491,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const container = document.getElementById('container');
   const pageCounter = document.getElementById('pageCounter');
   
-  // Text Editor Popup Elements
-  const textEditorPopup = document.getElementById('textEditorPopup');
-  const popupTextInputCompact = document.getElementById('popupTextInputCompact');
-  const decreaseSizeBtnCompact = document.getElementById('decreaseSizeBtnCompact');
-  const increaseSizeBtnCompact = document.getElementById('increaseSizeBtnCompact');
-  const sizeValueCompact = document.getElementById('sizeValueCompact');
-  const colorPreviewCompact = document.getElementById('colorPreviewCompact');
-  const popupColorPickerCompact = document.getElementById('popupColorPickerCompact');
-  const boldBtnCompact = document.getElementById('boldBtnCompact');
-  const italicBtnCompact = document.getElementById('italicBtnCompact');
-  const underlineBtnCompact = document.getElementById('underlineBtnCompact');
-  const closePopupBtn = document.getElementById('closePopupBtn');
-  const cancelBtnCompact = document.getElementById('cancelBtnCompact');
+  // Color picker elements
+  const colorPickerPopup = document.getElementById('colorPickerPopup');
+  const closeColorPickerBtn = document.getElementById('closeColorPickerBtn');
+  const colorOptions = document.getElementById('colorOptions');
+  const customColorInput = document.getElementById('customColorInput');
 
   // Device pixel ratio
   const DPR = window.devicePixelRatio || 1;
@@ -610,7 +507,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let pageData = [];
   let originalFilename = '';
   let selectedTextElement = null;
-  let popupPosition = { x: 0, y: 0 };
   let isCreatingNewText = false;
   let currentPageIndex = 0;
   let clickPosition = { x: 0, y: 0 };
@@ -625,114 +521,144 @@ document.addEventListener('DOMContentLoaded', ()=> {
     underline: false
   };
   
-  // Track if user is currently editing a text
-  let isEditingText = false;
+  // Track which color button was clicked
+  let activeColorButton = null;
   
   // Color picker initialization
   try {
     if (typeof jQuery !== 'undefined' && jQuery.fn.spectrum) {
-      $(popupColorPickerCompact).spectrum({
-        type: "color",
-        showInput: true,
-        showInitial: true,
-        allowEmpty: false,
-        showAlpha: false,
-        preferredFormat: "hex",
-        containerClassName: 'spectrum-container',
-        move: function(color) {
-          const hexColor = color.toHexString();
-          colorPreviewCompact.style.backgroundColor = hexColor;
-          updateGlobalStyle();
-          applyStyleToSelectedText();
-        },
-        change: function(color) {
-          const hexColor = color.toHexString();
-          colorPreviewCompact.style.backgroundColor = hexColor;
-          updateGlobalStyle();
-          applyStyleToSelectedText();
-        }
-      });
-      console.log('Color picker initialized successfully');
+      console.log('Spectrum color picker available');
     } else {
-      console.warn('Spectrum color picker not available, using fallback');
-      // फॉलबैक कलर पिकर
-      colorPreviewCompact.addEventListener('click', function() {
-        const color = prompt('Enter color hex code (e.g., #000000):', globalTextStyle.color);
-        if (color) {
-          colorPreviewCompact.style.backgroundColor = color;
-          globalTextStyle.color = color;
-          applyStyleToSelectedText();
-        }
-      });
+      console.warn('Spectrum color picker not available');
     }
   } catch (error) {
     console.error('Error initializing color picker:', error);
   }
 
-  // Font size controls (compact)
-  decreaseSizeBtnCompact.addEventListener('click', () => {
-    let size = parseInt(sizeValueCompact.textContent);
-    if (size > 8) {
-      size--;
-      sizeValueCompact.textContent = size;
-      globalTextStyle.fontSize = size;
-      applyStyleToSelectedText();
+  // Color picker events
+  closeColorPickerBtn.addEventListener('click', hideColorPicker);
+  
+  colorOptions.addEventListener('click', (e) => {
+    const colorOption = e.target.closest('.color-option');
+    if (colorOption) {
+      const color = colorOption.dataset.color;
+      customColorInput.value = color;
+      applyColorToSelectedText(color);
+      updateColorPreview(activeColorButton, color);
     }
   });
-
-  increaseSizeBtnCompact.addEventListener('click', () => {
-    let size = parseInt(sizeValueCompact.textContent);
-    if (size < 72) {
-      size++;
-      sizeValueCompact.textContent = size;
-      globalTextStyle.fontSize = size;
-      applyStyleToSelectedText();
+  
+  customColorInput.addEventListener('change', () => {
+    const color = customColorInput.value;
+    if (isValidHexColor(color)) {
+      applyColorToSelectedText(color);
+      updateColorPreview(activeColorButton, color);
+      hideColorPicker();
+    } else {
+      alert('Please enter a valid hex color (e.g. #000000 or #3b82f6)');
     }
   });
-
-  // Style buttons toggle (compact)
-  boldBtnCompact.addEventListener('click', () => {
-    boldBtnCompact.classList.toggle('active');
-    globalTextStyle.bold = boldBtnCompact.classList.contains('active');
-    applyStyleToSelectedText();
-  });
-
-  italicBtnCompact.addEventListener('click', () => {
-    italicBtnCompact.classList.toggle('active');
-    globalTextStyle.italic = italicBtnCompact.classList.contains('active');
-    applyStyleToSelectedText();
-  });
-
-  underlineBtnCompact.addEventListener('click', () => {
-    underlineBtnCompact.classList.toggle('active');
-    globalTextStyle.underline = underlineBtnCompact.classList.contains('active');
-    applyStyleToSelectedText();
-  });
-
-  // Text input event - auto apply
-  popupTextInputCompact.addEventListener('input', () => {
-    globalTextStyle.text = popupTextInputCompact.value;
-    applyStyleToSelectedText();
-  });
-
-  // Handle Enter key for new line
-  popupTextInputCompact.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      // Add new line to text
-      const cursorPos = popupTextInputCompact.selectionStart;
-      const text = popupTextInputCompact.value;
-      const newText = text.substring(0, cursorPos) + '\n' + text.substring(cursorPos);
-      popupTextInputCompact.value = newText;
-      globalTextStyle.text = newText;
-      applyStyleToSelectedText();
-      // Move cursor to after the new line
-      setTimeout(() => {
-        popupTextInputCompact.selectionStart = cursorPos + 1;
-        popupTextInputCompact.selectionEnd = cursorPos + 1;
-      }, 0);
+  
+  // Show color picker
+  function showColorPicker(button, currentColor) {
+    activeColorButton = button;
+    customColorInput.value = currentColor;
+    
+    // Update selected color in options
+    document.querySelectorAll('.color-option').forEach(option => {
+      option.classList.remove('selected');
+      if (option.dataset.color === currentColor.toLowerCase()) {
+        option.classList.add('selected');
+      }
+    });
+    
+    // Position popup near the button
+    const rect = button.getBoundingClientRect();
+    const popupWidth = 200;
+    const popupHeight = 180;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    let posX = rect.left;
+    let posY = rect.bottom + 5;
+    
+    // Adjust if goes beyond viewport
+    if (posX + popupWidth > viewportWidth) {
+      posX = viewportWidth - popupWidth - 10;
+    }
+    if (posY + popupHeight > viewportHeight) {
+      posY = rect.top - popupHeight - 5;
+    }
+    
+    colorPickerPopup.style.left = posX + 'px';
+    colorPickerPopup.style.top = posY + 'px';
+    colorPickerPopup.style.display = 'block';
+    
+    // Focus on input
+    setTimeout(() => {
+      customColorInput.focus();
+      customColorInput.select();
+    }, 10);
+  }
+  
+  // Hide color picker
+  function hideColorPicker() {
+    colorPickerPopup.style.display = 'none';
+    activeColorButton = null;
+  }
+  
+  // Close color picker when clicking outside
+  document.addEventListener('click', (e) => {
+    if (colorPickerPopup.style.display === 'block' && 
+        !colorPickerPopup.contains(e.target) && 
+        !e.target.classList.contains('color-btn') &&
+        !e.target.closest('.color-btn')) {
+      hideColorPicker();
     }
   });
+  
+  // Validate hex color
+  function isValidHexColor(color) {
+    return /^#([0-9A-F]{3}){1,2}$/i.test(color);
+  }
+  
+  // Update color preview in button
+  function updateColorPreview(button, color) {
+    if (button) {
+      const preview = button.querySelector('.color-preview-inline');
+      if (preview) {
+        preview.style.backgroundColor = color;
+      }
+    }
+  }
+  
+  // Apply color to selected text
+  function applyColorToSelectedText(color) {
+    if (!selectedTextElement) return;
+    
+    globalTextStyle.color = color;
+    
+    const textContent = selectedTextElement.querySelector('.text-content');
+    textContent.style.color = color;
+    
+    // Update text data in storage
+    const pageIndex = selectedTextElement.dataset.pageIndex;
+    const textId = selectedTextElement.dataset.textId;
+    const pd = pageData[pageIndex];
+    
+    if (!pd || !pd.texts) return;
+    
+    const textData = pd.texts.find(t => t.id === textId);
+    if (!textData) return;
+    
+    textData.color = color;
+    
+    // Update color preview in controls bar
+    const colorBtn = selectedTextElement.querySelector('.color-btn');
+    if (colorBtn) {
+      updateColorPreview(colorBtn, color);
+    }
+  }
 
   // Apply current style to selected text
   function applyStyleToSelectedText() {
@@ -771,139 +697,80 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textData.italic = globalTextStyle.italic;
     textData.underline = globalTextStyle.underline;
     
-    // Auto-save (no need for apply button)
-    console.log('Auto-applied style to text:', textId);
+    // Update controls bar display
+    updateControlsBar(selectedTextElement);
+  }
+  
+  // Update controls bar UI
+  function updateControlsBar(textElement) {
+    const sizeDisplay = textElement.querySelector('.font-size-display');
+    const boldBtn = textElement.querySelector('.bold-btn');
+    const italicBtn = textElement.querySelector('.italic-btn');
+    const underlineBtn = textElement.querySelector('.underline-btn');
+    const colorBtn = textElement.querySelector('.color-btn');
+    
+    if (sizeDisplay) {
+      sizeDisplay.textContent = globalTextStyle.fontSize;
+    }
+    
+    if (boldBtn) {
+      boldBtn.classList.toggle('active', globalTextStyle.bold);
+    }
+    
+    if (italicBtn) {
+      italicBtn.classList.toggle('active', globalTextStyle.italic);
+    }
+    
+    if (underlineBtn) {
+      underlineBtn.classList.toggle('active', globalTextStyle.underline);
+    }
+    
+    if (colorBtn) {
+      updateColorPreview(colorBtn, globalTextStyle.color);
+    }
   }
 
-  // Update global style from UI
-  function updateGlobalStyle() {
-    globalTextStyle.fontSize = parseInt(sizeValueCompact.textContent);
-    globalTextStyle.color = colorPreviewCompact.style.backgroundColor;
-    globalTextStyle.bold = boldBtnCompact.classList.contains('active');
-    globalTextStyle.italic = italicBtnCompact.classList.contains('active');
-    globalTextStyle.underline = underlineBtnCompact.classList.contains('active');
-  }
-
-  // Show text editor popup (side positioning)
-  function showTextEditorPopup(textElement, textData) {
-    selectedTextElement = textElement;
-    isEditingText = true;
-    
-    // Set current text as global style
-    globalTextStyle = {
-      text: textData.text,
-      fontSize: textData.fontSize,
-      color: textData.color,
-      bold: textData.bold,
-      italic: textData.italic,
-      underline: textData.underline
-    };
-    
-    // Update UI with current text style
-    popupTextInputCompact.value = globalTextStyle.text;
-    sizeValueCompact.textContent = globalTextStyle.fontSize;
-    
-    try {
-      if (typeof jQuery !== 'undefined' && jQuery.fn.spectrum) {
-        $(popupColorPickerCompact).spectrum("set", globalTextStyle.color);
-      }
-    } catch (e) {
-      console.warn('Could not set color picker value:', e);
+  // Select text element and show controls
+  function selectTextElement(element) {
+    // Deselect previous
+    if (selectedTextElement && selectedTextElement !== element) {
+      selectedTextElement.classList.remove('selected');
     }
     
-    colorPreviewCompact.style.backgroundColor = globalTextStyle.color;
-    boldBtnCompact.classList.toggle('active', globalTextStyle.bold);
-    italicBtnCompact.classList.toggle('active', globalTextStyle.italic);
-    underlineBtnCompact.classList.toggle('active', globalTextStyle.underline);
+    // Select new
+    selectedTextElement = element;
+    element.classList.add('selected');
     
-    // Get position of text element
-    const textRect = textElement.getBoundingClientRect();
-    const popupWidth = 380;
-    const popupHeight = 180;
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
+    // Update global style from this text
+    const pageIndex = element.dataset.pageIndex;
+    const textId = element.dataset.textId;
+    const pd = pageData[pageIndex];
     
-    // Calculate available space on each side
-    const spaceRight = viewportWidth - textRect.right;
-    const spaceLeft = textRect.left;
-    const spaceTop = textRect.top;
-    const spaceBottom = viewportHeight - textRect.bottom;
-    
-    let posX, posY;
-    
-    // Prefer right side if space available
-    if (spaceRight >= popupWidth + 20) {
-      posX = textRect.right + 10;
-    } 
-    // Otherwise try left side
-    else if (spaceLeft >= popupWidth + 20) {
-      posX = textRect.left - popupWidth - 10;
-    }
-    // If neither side has space, center horizontally
-    else {
-      posX = Math.max(20, (viewportWidth - popupWidth) / 2);
-    }
-    
-    // Vertical positioning - align with text
-    if (spaceTop >= popupHeight + 20) {
-      posY = textRect.top - popupHeight - 10;
-    } else if (spaceBottom >= popupHeight + 20) {
-      posY = textRect.bottom + 10;
-    } else {
-      // Center vertically if no space
-      posY = Math.max(20, (viewportHeight - popupHeight) / 2);
-    }
-    
-    // Ensure popup stays within viewport
-    posX = Math.max(20, Math.min(posX, viewportWidth - popupWidth - 20));
-    posY = Math.max(20, Math.min(posY, viewportHeight - popupHeight - 20));
-    
-    textEditorPopup.style.left = posX + 'px';
-    textEditorPopup.style.top = posY + 'px';
-    textEditorPopup.style.display = 'block';
-    
-    // Focus on text input
-    setTimeout(() => {
-      popupTextInputCompact.focus();
-      popupTextInputCompact.select();
-    }, 10);
-  }
-
-  // Hide text editor popup
-  function hideTextEditor() {
-    textEditorPopup.style.display = 'none';
-    isEditingText = false;
-    
-    // If we were creating a new text and cancelled, remove the temporary text element
-    if (isCreatingNewText && selectedTextElement) {
-      const pageIndex = selectedTextElement.dataset.pageIndex;
-      const textId = selectedTextElement.dataset.textId;
-      const pd = pageData[pageIndex];
-      
-      if (pd && pd.texts) {
-        pd.texts = pd.texts.filter(t => t.id !== textId);
-        selectedTextElement.remove();
-        selectedTextElement = null;
-        
-        // Update generate button state
-        generateBtn.disabled = pageData.every(pd => !pd.texts || pd.texts.length === 0);
+    if (pd && pd.texts) {
+      const textData = pd.texts.find(t => t.id === textId);
+      if (textData) {
+        globalTextStyle = {
+          text: textData.text,
+          fontSize: textData.fontSize,
+          color: textData.color,
+          bold: textData.bold,
+          italic: textData.italic,
+          underline: textData.underline
+        };
       }
     }
     
-    isCreatingNewText = false;
+    // Update controls bar
+    updateControlsBar(element);
   }
 
-  // Event listeners for popup
-  closePopupBtn.addEventListener('click', hideTextEditor);
-  cancelBtnCompact.addEventListener('click', hideTextEditor);
-
-  // Close popup when clicking outside
+  // Hide color picker
   document.addEventListener('click', (e) => {
-    if (textEditorPopup.style.display === 'block' && 
-        !textEditorPopup.contains(e.target) && 
-        !e.target.classList.contains('edit-btn') &&
-        !e.target.closest('.edit-btn')) {
-      hideTextEditor();
+    if (colorPickerPopup.style.display === 'block' && 
+        !colorPickerPopup.contains(e.target) && 
+        !e.target.classList.contains('color-btn') &&
+        !e.target.closest('.color-btn')) {
+      hideColorPicker();
     }
   });
 
@@ -951,7 +818,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     pageData = [];
     selectedTextElement = null;
     generateBtn.disabled = true;
-    hideTextEditor();
+    hideColorPicker();
     
     // Show loading indicator
     const loadingDiv = document.createElement('div');
@@ -1106,15 +973,22 @@ document.addEventListener('DOMContentLoaded', ()=> {
             const existingTexts = Array.from(textLayer.querySelectorAll('.text-element'));
             for(const textEl of existingTexts) {
               const textRect = textEl.getBoundingClientRect();
-              const editBtn = textEl.querySelector('.edit-btn');
               const deleteBtn = textEl.querySelector('.delete-btn');
               
-              // Check if click is on edit or delete button
-              if (editBtn && isClickOnElement(ev, editBtn)) {
-                return; // Edit button handler will handle this
-              }
+              // Check if click is on delete button
               if (deleteBtn && isClickOnElement(ev, deleteBtn)) {
                 return; // Delete button handler will handle this
+              }
+              
+              // Check if click is on controls bar
+              const controlsBar = textEl.querySelector('.text-controls-bar');
+              if (controlsBar && isClickOnElement(ev, controlsBar)) {
+                // Check which button was clicked
+                const targetBtn = ev.target.closest('.control-btn');
+                if (targetBtn) {
+                  handleControlButtonClick(targetBtn, textEl);
+                }
+                return;
               }
               
               // Check if click is on text element itself
@@ -1122,10 +996,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
                  ev.clientY >= textRect.top && ev.clientY <= textRect.bottom) {
                 // Select existing text
                 selectTextElement(textEl);
-                const textData = getTextDataFromElement(textEl);
-                if (textData) {
-                  showTextEditorPopup(textEl, textData);
-                }
                 return;
               }
             }
@@ -1184,6 +1054,40 @@ document.addEventListener('DOMContentLoaded', ()=> {
     } catch(error) {
       console.error('Error loading PDF:', error);
       showError(`Error loading PDF: ${error.message || 'Please check if the PDF file is valid and not corrupted.'}`);
+    }
+  }
+
+  // Handle control button clicks
+  function handleControlButtonClick(button, textElement) {
+    const buttonClass = button.className;
+    
+    if (buttonClass.includes('size-minus')) {
+      // Decrease font size
+      if (globalTextStyle.fontSize > 8) {
+        globalTextStyle.fontSize--;
+        applyStyleToSelectedText();
+      }
+    } else if (buttonClass.includes('size-plus')) {
+      // Increase font size
+      if (globalTextStyle.fontSize < 72) {
+        globalTextStyle.fontSize++;
+        applyStyleToSelectedText();
+      }
+    } else if (buttonClass.includes('bold-btn')) {
+      // Toggle bold
+      globalTextStyle.bold = !globalTextStyle.bold;
+      applyStyleToSelectedText();
+    } else if (buttonClass.includes('italic-btn')) {
+      // Toggle italic
+      globalTextStyle.italic = !globalTextStyle.italic;
+      applyStyleToSelectedText();
+    } else if (buttonClass.includes('underline-btn')) {
+      // Toggle underline
+      globalTextStyle.underline = !globalTextStyle.underline;
+      applyStyleToSelectedText();
+    } else if (buttonClass.includes('color-btn')) {
+      // Show color picker
+      showColorPicker(button, globalTextStyle.color);
     }
   }
 
@@ -1257,23 +1161,64 @@ document.addEventListener('DOMContentLoaded', ()=> {
       textEl.classList.add('multi-line');
     }
     
-    // Create controls container
-    const controlsContainer = document.createElement('div');
-    controlsContainer.className = 'text-controls';
+    // Create controls bar
+    const controlsBar = document.createElement('div');
+    controlsBar.className = 'text-controls-bar';
     
-    // Edit button (pencil icon)
-    const editBtn = document.createElement('button');
-    editBtn.className = 'edit-btn';
-    editBtn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
-    editBtn.title = 'Edit text';
-    editBtn.addEventListener('click', (e)=> {
-      e.stopPropagation();
-      selectTextElement(textEl);
-      const textData = getTextDataFromElement(textEl);
-      if (textData) {
-        showTextEditorPopup(textEl, textData);
-      }
-    });
+    // Minus button
+    const minusBtn = document.createElement('button');
+    minusBtn.className = 'control-btn size-btn size-minus';
+    minusBtn.innerHTML = '-';
+    minusBtn.title = 'Decrease font size';
+    
+    // Font size display
+    const sizeDisplay = document.createElement('span');
+    sizeDisplay.className = 'font-size-display';
+    sizeDisplay.textContent = globalTextStyle.fontSize;
+    
+    // Plus button
+    const plusBtn = document.createElement('button');
+    plusBtn.className = 'control-btn size-btn size-plus';
+    plusBtn.innerHTML = '+';
+    plusBtn.title = 'Increase font size';
+    
+    // Bold button
+    const boldBtn = document.createElement('button');
+    boldBtn.className = 'control-btn bold-btn';
+    if (globalTextStyle.bold) boldBtn.classList.add('active');
+    boldBtn.innerHTML = 'B';
+    boldBtn.title = 'Bold';
+    
+    // Italic button
+    const italicBtn = document.createElement('button');
+    italicBtn.className = 'control-btn italic-btn';
+    if (globalTextStyle.italic) italicBtn.classList.add('active');
+    italicBtn.innerHTML = 'I';
+    italicBtn.title = 'Italic';
+    
+    // Underline button
+    const underlineBtn = document.createElement('button');
+    underlineBtn.className = 'control-btn underline-btn';
+    if (globalTextStyle.underline) underlineBtn.classList.add('active');
+    underlineBtn.innerHTML = 'U';
+    underlineBtn.title = 'Underline';
+    
+    // Color button
+    const colorBtn = document.createElement('button');
+    colorBtn.className = 'control-btn color-btn';
+    colorBtn.title = 'Change color';
+    colorBtn.innerHTML = '<div class="color-preview-inline" style="background-color: ' + globalTextStyle.color + ';"></div>';
+    
+    // Add buttons to controls bar
+    controlsBar.appendChild(minusBtn);
+    controlsBar.appendChild(sizeDisplay);
+    controlsBar.appendChild(plusBtn);
+    controlsBar.appendChild(boldBtn);
+    controlsBar.appendChild(italicBtn);
+    controlsBar.appendChild(underlineBtn);
+    controlsBar.appendChild(colorBtn);
+    
+    textEl.appendChild(controlsBar);
     
     // Delete button
     const del = document.createElement('button');
@@ -1284,17 +1229,14 @@ document.addEventListener('DOMContentLoaded', ()=> {
       e.stopPropagation();
       if (selectedTextElement === textEl) {
         selectedTextElement = null;
-        hideTextEditor();
+        hideColorPicker();
       }
       textEl.remove();
       pd.texts = pd.texts.filter(t => t.id !== id);
       generateBtn.disabled = pageData.every(p=> !p.texts || p.texts.length===0);
     });
     
-    controlsContainer.appendChild(editBtn);
-    controlsContainer.appendChild(del);
-    textEl.appendChild(controlsContainer);
-    
+    textEl.appendChild(del);
     layer.appendChild(textEl);
     
     // Store text data
@@ -1321,22 +1263,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Make draggable
     makeDraggable(textEl, pageIndex, stored);
     
-    // Select this new text and show editor
+    // Select this new text
     selectTextElement(textEl);
-    showTextEditorPopup(textEl, stored);
     
     generateBtn.disabled = false;
-  }
-
-  function selectTextElement(element) {
-    // Deselect previous
-    if (selectedTextElement && selectedTextElement !== element) {
-      selectedTextElement.classList.remove('selected');
-    }
-    
-    // Select new
-    selectedTextElement = element;
-    element.classList.add('selected');
   }
 
   function getTextDataFromElement(element) {
@@ -1357,10 +1287,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const layer = pd.layerElem;
 
     const down = (e) => {
-      // Don't start drag if clicking on edit or delete button
-      if (e.target.classList.contains('edit-btn') || 
+      // Don't start drag if clicking on control buttons or delete button
+      if (e.target.classList.contains('control-btn') || 
           e.target.classList.contains('delete-btn') ||
-          e.target.closest('.edit-btn') || 
+          e.target.closest('.control-btn') || 
           e.target.closest('.delete-btn')) {
         return;
       }
@@ -1566,10 +1496,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
   }
 
   // Initialize with default style
-  colorPreviewCompact.style.backgroundColor = globalTextStyle.color;
-  sizeValueCompact.textContent = globalTextStyle.fontSize;
-  
-  // Add a sample PDF loading message
   console.log('PDF Text Adder Application Loaded Successfully');
   console.log('Ready to accept PDF files');
 });
