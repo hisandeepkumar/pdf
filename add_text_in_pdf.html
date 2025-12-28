@@ -5,25 +5,29 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PDF Text Adder — All Pages Visible</title>
 
+  <!-- PDF लाइब्रेरीज -->
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.viewer.min.css">
 
+  <!-- स्टाइलिंग और आइकन्स -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Color picker library -->
+  <!-- कलर पिकर लाइब्रेरी -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.1/spectrum.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.1/spectrum.min.js"></script>
 
   <style>
     *{ box-sizing:border-box; font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial; }
-    html,body{ height:100%; margin:0; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg'); color:#e6eef8; }
+    html,body{ height:100%; margin:0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#e6eef8; }
     body{ display:flex; align-items:flex-start; justify-content:center; padding:28px; }
 
     .container{
-      width:100%; max-width:980px; background:rgba(255,255,255,0.06);
+      width:100%; max-width:980px; background:rgba(255,255,255,0.08);
       backdrop-filter: blur(10px); border-radius:16px; padding:20px 22px 160px;
-      border:1px solid rgba(255,255,255,0.06); box-shadow:0 12px 40px rgba(0,0,0,0.6);
+      border:1px solid rgba(255,255,255,0.1); box-shadow:0 12px 40px rgba(0,0,0,0.6);
       min-height: 60px;
     }
 
@@ -32,20 +36,22 @@
     .header i{ color:#60a5fa; font-size:26px; }
 
     .upload-area{
-      border:2px dashed rgba(255,255,255,0.18); padding:20px; border-radius:12px; text-align:center; cursor:pointer; background:rgba(255,255,255,0.02);
-      margin-bottom:14px; position:relative;
+      border:2px dashed rgba(255,255,255,0.25); padding:20px; border-radius:12px; text-align:center; cursor:pointer; background:rgba(255,255,255,0.05);
+      margin-bottom:14px; position:relative; transition: all 0.3s ease;
     }
-    .upload-area:hover{ border-color:#60a5fa; background:rgba(96,165,250,0.04); }
+    .upload-area:hover{ border-color:#60a5fa; background:rgba(96,165,250,0.08); }
     .upload-area i{ font-size:34px; color:#60a5fa; display:block; margin-bottom:8px; }
     .upload-area input[type=file]{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+    .upload-area h3{ margin:0 0 8px; color:#cfe8ff; }
+    .upload-area p{ margin:0; color:rgba(255,255,255,0.7); font-size:14px; }
 
     .preview-list{ display:flex; flex-direction:column; gap:18px; padding-right:6px; }
 
-    .preview-item{ background:rgba(255,255,255,0.02); border-radius:10px; padding:12px; display:flex; flex-direction:column; align-items:center; }
+    .preview-item{ background:rgba(255,255,255,0.05); border-radius:10px; padding:12px; display:flex; flex-direction:column; align-items:center; }
     .preview-item h3{ margin:0 0 8px; color:#cfe8ff; font-weight:700; width:100%; text-align:left; }
 
     .canvas-wrap{ position:relative; width:100%; display:flex; justify-content:center; }
-    canvas{ width:100% !important; height:auto !important; border-radius:6px; box-shadow:0 8px 30px rgba(0,0,0,0.6); background:white; display:block; }
+    canvas{ width:100% !important; height:auto !important; border-radius:6px; box-shadow:0 8px 30px rgba(0,0,0,0.6); background:white; display:block; max-width: 100%; }
 
     .text-layer{ position:absolute; left:0; top:0; pointer-events:auto; }
 
@@ -66,6 +72,7 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.2);
       white-space: pre-wrap;
       word-break: break-word;
+      line-height: 1.2;
     }
 
     .delete-btn{ 
@@ -73,6 +80,7 @@
       background:#ef4444; color:white; border-radius:50%; border:none;
       display:flex; align-items:center; justify-content:center; cursor:pointer;
       z-index: 10;
+      font-size: 12px;
     }
 
     /* Text Editor Popup */
@@ -322,14 +330,14 @@
 
     .floating-btn{
       position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:9999;
-      background: rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.08);
       backdrop-filter: blur(10px) saturate(1.05);
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08);
       color: white; padding:12px 28px; border-radius:999px; font-weight:800; cursor:pointer; display:flex; gap:10px; align-items:center;
       transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
     }
-    .floating-btn:hover{ transform:translateX(-50%) translateY(-4px); box-shadow:0 18px 44px rgba(0,0,0,0.6); background: rgba(255,255,255,0.08); }
+    .floating-btn:hover{ transform:translateX(-50%) translateY(-4px); box-shadow:0 18px 44px rgba(0,0,0,0.6); background: rgba(255,255,255,0.12); }
     .floating-btn:disabled{ opacity:0.6; cursor:not-allowed; }
 
     .progress{ position:fixed; left:50%; transform:translateX(-50%); bottom:78px; width:420px; height:8px; background:rgba(255,255,255,0.04); border-radius:8px; overflow:hidden; display:none; z-index:9998; }
@@ -369,7 +377,7 @@
     
     .sp-palette-container { border-right: 1px solid rgba(255,255,255,0.1) !important; }
     
-    /* Loading indicator */
+    /* लोडिंग इंडिकेटर */
     .loading {
       display: flex;
       justify-content: center;
@@ -378,10 +386,11 @@
       color: rgba(255,255,255,0.7);
       font-size: 16px;
       gap: 15px;
+      flex-direction: column;
     }
     .loading-spinner {
-      width: 30px;
-      height: 30px;
+      width: 40px;
+      height: 40px;
       border: 3px solid rgba(255,255,255,0.1);
       border-top-color: #60a5fa;
       border-radius: 50%;
@@ -389,6 +398,44 @@
     }
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+    
+    /* एरर मैसेज */
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      color: #ef4444;
+      margin: 20px 0;
+    }
+    
+    /* सफलता मैसेज */
+    .success-message {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      color: #22c55e;
+      margin: 20px 0;
+    }
+    
+    /* पेज काउंटर */
+    .page-counter {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      display: none;
     }
   </style>
 </head>
@@ -484,9 +531,15 @@
 
   <div class="progress" id="progress"><div id="progressBar"></div></div>
   <button class="floating-btn" id="generateBtn" disabled><i class="fas fa-download"></i> Generate PDF with Text</button>
+  
+  <!-- पेज काउंटर -->
+  <div class="page-counter" id="pageCounter"></div>
 
 <script>
 document.addEventListener('DOMContentLoaded', ()=> {
+  console.log('PDF Text Adder Application Loading...');
+  
+  // DOM elements
   const pdfInput = document.getElementById('pdfInput');
   const uploadArea = document.getElementById('uploadArea');
   const previewList = document.getElementById('previewList');
@@ -494,6 +547,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const progress = document.getElementById('progress');
   const progressBar = document.getElementById('progressBar');
   const container = document.getElementById('container');
+  const pageCounter = document.getElementById('pageCounter');
   
   // Text Editor Popup Elements
   const textEditorPopup = document.getElementById('textEditorPopup');
@@ -510,7 +564,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const cancelBtn = document.getElementById('cancelBtn');
   const applyBtn = document.getElementById('applyBtn');
 
+  // Device pixel ratio
   const DPR = window.devicePixelRatio || 1;
+  
+  // Global variables
   let selectedPdfFile = null;
   let pdfLibDoc = null;
   let pdfJsDoc = null;
@@ -521,32 +578,49 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let isCreatingNewText = false;
   let currentPageIndex = 0;
   let clickPosition = { x: 0, y: 0 };
+  
+  // लाइब्रेरीज चेक करें
+  console.log('PDF-lib available:', typeof PDFLib !== 'undefined');
+  console.log('PDF.js available:', typeof pdfjsLib !== 'undefined');
+  console.log('jQuery available:', typeof jQuery !== 'undefined');
 
-  // Initialize color picker
-  $(popupColorPicker).spectrum({
-    type: "color",
-    showInput: true,
-    showInitial: true,
-    allowEmpty: false,
-    showAlpha: false,
-    preferredFormat: "hex",
-    containerClassName: 'spectrum-container',
-    move: function(color) {
-      const hexColor = color.toHexString();
-      colorPreview.style.backgroundColor = hexColor;
-      updateTextPreview();
-    },
-    change: function(color) {
-      const hexColor = color.toHexString();
-      colorPreview.style.backgroundColor = hexColor;
-      updateTextPreview();
+  // Color picker initialization
+  try {
+    if (typeof jQuery !== 'undefined' && jQuery.fn.spectrum) {
+      $(popupColorPicker).spectrum({
+        type: "color",
+        showInput: true,
+        showInitial: true,
+        allowEmpty: false,
+        showAlpha: false,
+        preferredFormat: "hex",
+        containerClassName: 'spectrum-container',
+        move: function(color) {
+          const hexColor = color.toHexString();
+          colorPreview.style.backgroundColor = hexColor;
+          updateTextPreview();
+        },
+        change: function(color) {
+          const hexColor = color.toHexString();
+          colorPreview.style.backgroundColor = hexColor;
+          updateTextPreview();
+        }
+      });
+      console.log('Color picker initialized successfully');
+    } else {
+      console.warn('Spectrum color picker not available, using fallback');
+      // फॉलबैक कलर पिकर
+      colorPreview.addEventListener('click', function() {
+        const color = prompt('Enter color hex code (e.g., #000000):', '#000000');
+        if (color) {
+          colorPreview.style.backgroundColor = color;
+          updateTextPreview();
+        }
+      });
     }
-  });
-
-  // Click color preview to open color picker
-  colorPreview.addEventListener('click', () => {
-    $(popupColorPicker).spectrum('show');
-  });
+  } catch (error) {
+    console.error('Error initializing color picker:', error);
+  }
 
   // Default text style
   const defaultTextStyle = {
@@ -669,7 +743,16 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (textData) {
       popupTextInput.value = textData.text;
       sizeValue.textContent = textData.fontSize;
-      $(popupColorPicker).spectrum("set", textData.color);
+      
+      // Set color picker value
+      try {
+        if (typeof jQuery !== 'undefined' && jQuery.fn.spectrum) {
+          $(popupColorPicker).spectrum("set", textData.color);
+        }
+      } catch (e) {
+        console.warn('Could not set color picker value:', e);
+      }
+      
       colorPreview.style.backgroundColor = textData.color;
       boldBtn.classList.toggle('active', textData.bold);
       italicBtn.classList.toggle('active', textData.italic);
@@ -687,7 +770,15 @@ document.addEventListener('DOMContentLoaded', ()=> {
       // Use current style for new text
       popupTextInput.value = currentTextStyle.text;
       sizeValue.textContent = currentTextStyle.fontSize;
-      $(popupColorPicker).spectrum("set", currentTextStyle.color);
+      
+      try {
+        if (typeof jQuery !== 'undefined' && jQuery.fn.spectrum) {
+          $(popupColorPicker).spectrum("set", currentTextStyle.color);
+        }
+      } catch (e) {
+        console.warn('Could not set color picker value:', e);
+      }
+      
       colorPreview.style.backgroundColor = currentTextStyle.color;
       boldBtn.classList.toggle('active', currentTextStyle.bold);
       italicBtn.classList.toggle('active', currentTextStyle.italic);
@@ -749,9 +840,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (textEditorPopup.style.display === 'block' && 
         !textEditorPopup.contains(e.target) && 
         !e.target.classList.contains('text-element') &&
-        !e.target.closest('.text-element') &&
-        !e.target.classList.contains('sp-container') &&
-        !e.target.closest('.sp-container')) {
+        !e.target.closest('.text-element')) {
       hideTextEditor();
     }
   });
@@ -765,11 +854,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
   
   ['dragleave','drop'].forEach(ev => uploadArea.addEventListener(ev, e=>{ 
     e.preventDefault(); 
-    uploadArea.style.borderColor = 'rgba(255,255,255,0.18)';
-    uploadArea.style.background = 'rgba(255,255,255,0.02)';
+    uploadArea.style.borderColor = 'rgba(255,255,255,0.25)';
+    uploadArea.style.background = 'rgba(255,255,255,0.05)';
   }));
   
   uploadArea.addEventListener('drop', e=> { 
+    e.preventDefault();
     if(e.dataTransfer?.files?.length) {
       handlePdf(e.dataTransfer.files[0]);
     }
@@ -781,13 +871,19 @@ document.addEventListener('DOMContentLoaded', ()=> {
     }
   });
 
+  // Main PDF handling function
   async function handlePdf(file){
     if(!file) return;
+    
+    // Validate file type
     if(file.type !== 'application/pdf'){ 
-      alert('Please upload a PDF file'); 
+      showError('Please upload a PDF file');
       return; 
     }
     
+    console.log('Processing PDF file:', file.name, 'Size:', file.size);
+    
+    // Reset state
     selectedPdfFile = file;
     previewList.innerHTML = '';
     pageData = [];
@@ -800,34 +896,74 @@ document.addEventListener('DOMContentLoaded', ()=> {
     loadingDiv.className = 'loading';
     loadingDiv.innerHTML = `
       <div class="loading-spinner"></div>
-      <div>Loading PDF pages...</div>
+      <div>Loading PDF...</div>
+      <div style="font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 10px;">Please wait</div>
     `;
     previewList.appendChild(loadingDiv);
 
     try {
+      console.log('Reading file as ArrayBuffer...');
       const fileArrayBuffer = await file.arrayBuffer();
       originalFilename = file.name.replace(/\.pdf$/i, '');
       
       // Load PDF with pdf-lib for editing
+      console.log('Loading PDF with PDF-lib...');
+      if (typeof PDFLib === 'undefined') {
+        throw new Error('PDF-lib library not loaded');
+      }
       pdfLibDoc = await PDFLib.PDFDocument.load(fileArrayBuffer);
+      const pdfLibPages = pdfLibDoc.getPageCount();
+      console.log('PDF-lib loaded successfully. Pages:', pdfLibPages);
       
       // Load PDF with pdf.js for rendering
-      pdfJsDoc = await pdfjsLib.getDocument({data: fileArrayBuffer}).promise;
+      console.log('Loading PDF with PDF.js...');
+      if (typeof pdfjsLib === 'undefined') {
+        throw new Error('PDF.js library not loaded');
+      }
       
-      const totalPages = pdfLibDoc.getPageCount();
+      // Configure PDF.js worker
+      if (pdfjsLib.GlobalWorkerOptions) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+      }
+      
+      pdfJsDoc = await pdfjsLib.getDocument({data: fileArrayBuffer}).promise;
+      const totalPages = pdfJsDoc.numPages;
+      console.log('PDF.js loaded successfully. Total pages:', totalPages);
+      
+      if (totalPages === 0) {
+        throw new Error('PDF file has no pages');
+      }
+      
+      // Update page counter
+      pageCounter.textContent = `Pages: ${totalPages}`;
+      pageCounter.style.display = 'block';
       
       // Clear loading indicator
       previewList.innerHTML = '';
       
-      // Measure container inner width
+      // Calculate available width for rendering
       const cs = getComputedStyle(container);
-      const padLeft = parseFloat(cs.paddingLeft || 20);
-      const padRight = parseFloat(cs.paddingRight || 20);
-      const availableWidth = Math.max(300, container.clientWidth - padLeft - padRight - 4);
+      const padLeft = parseFloat(cs.paddingLeft) || 20;
+      const padRight = parseFloat(cs.paddingRight) || 20;
+      const availableWidth = Math.min(800, container.clientWidth - padLeft - padRight - 4);
+      console.log('Available width for rendering:', availableWidth);
 
       // Render all pages
       for(let pageNum = 1; pageNum <= totalPages; pageNum++) {
         try {
+          console.log(`Rendering page ${pageNum}...`);
+          
+          // Update progress
+          const progressPercent = Math.round((pageNum / totalPages) * 100);
+          if (pageNum === 1) {
+            previewList.innerHTML = `
+              <div class="loading">
+                <div class="loading-spinner"></div>
+                <div>Rendering page ${pageNum} of ${totalPages} (${progressPercent}%)</div>
+              </div>
+            `;
+          }
+          
           const page = await pdfJsDoc.getPage(pageNum);
           const baseViewport = page.getViewport({scale: 1});
           const scale = availableWidth / baseViewport.width;
@@ -835,6 +971,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
           
           const cssWidth = Math.round(viewport.width);
           const cssHeight = Math.round(viewport.height);
+          console.log(`Page ${pageNum} dimensions: ${cssWidth}x${cssHeight}`);
 
           // Create canvas for this page
           const canvas = document.createElement('canvas');
@@ -933,26 +1070,79 @@ document.addEventListener('DOMContentLoaded', ()=> {
             }
           });
           
+          console.log(`Page ${pageNum} rendered successfully`);
+          
         } catch (pageError) {
           console.error(`Error rendering page ${pageNum}:`, pageError);
+          // Add error message for this page
+          const errorItem = document.createElement('div');
+          errorItem.className = 'preview-item';
+          errorItem.innerHTML = `
+            <h3>Page ${pageNum} - Error</h3>
+            <div class="error-message">
+              <p>Could not render this page</p>
+              <p style="font-size: 12px;">${pageError.message || 'Unknown error'}</p>
+            </div>
+          `;
+          previewList.appendChild(errorItem);
+          
+          // Still add empty page data to maintain array structure
+          pageData[pageNum - 1] = {
+            pdfSize: { width: 595, height: 842 }, // Default A4 size
+            viewport: { width: 595, height: 842 },
+            texts: []
+          };
         }
       }
 
       // Enable generate button if there are texts
       generateBtn.disabled = pageData.every(pd => !pd.texts || pd.texts.length === 0);
       
+      // Show success message
+      if (totalPages > 0) {
+        const successMsg = document.createElement('div');
+        successMsg.className = 'success-message';
+        successMsg.innerHTML = `
+          <i class="fas fa-check-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+          <p><strong>PDF loaded successfully!</strong></p>
+          <p>${totalPages} pages rendered. Click on any page to add text.</p>
+        `;
+        previewList.insertBefore(successMsg, previewList.firstChild);
+      }
+      
       // Scroll to show the first page
-      if (previewList.firstChild) {
-        previewList.firstChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (previewList.children.length > 0) {
+        previewList.children[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 
     } catch(error) {
       console.error('Error loading PDF:', error);
-      alert('Error loading PDF: ' + (error.message || 'Please check if the PDF file is valid and not corrupted.'));
-      previewList.innerHTML = '<div style="color: #ef4444; padding: 20px; text-align: center;">Error loading PDF. Please try another file.</div>';
+      showError(`Error loading PDF: ${error.message || 'Please check if the PDF file is valid and not corrupted.'}`);
     }
   }
 
+  // Show error message
+  function showError(message) {
+    previewList.innerHTML = `
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle" style="font-size: 32px; margin-bottom: 15px;"></i>
+        <h3 style="margin: 0 0 10px 0;">Error</h3>
+        <p>${message}</p>
+        <button id="retryButton" style="margin-top: 15px; padding: 8px 16px; background: #60a5fa; color: white; border: none; border-radius: 6px; cursor: pointer;">
+          Try Again
+        </button>
+      </div>
+    `;
+    
+    // Add retry button event listener
+    document.getElementById('retryButton')?.addEventListener('click', () => {
+      pdfInput.value = '';
+      previewList.innerHTML = '';
+      pageCounter.style.display = 'none';
+    });
+  }
+
+  // Add text to page function
   function addTextToPage(pageIndex, x_css, y_css){
     const pd = pageData[pageIndex];
     if(!pd) return;
@@ -967,10 +1157,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textEl.dataset.textId = id;
     
     // Position the text
-    const left = x_css;
-    const top = y_css;
-    textEl.style.left = Math.max(0, left) + 'px';
-    textEl.style.top = Math.max(0, top) + 'px';
+    const left = Math.max(10, x_css);
+    const top = Math.max(10, y_css);
+    textEl.style.left = left + 'px';
+    textEl.style.top = top + 'px';
     
     // Create text content
     const textContent = document.createElement('div');
@@ -995,7 +1185,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       }
       textEl.remove();
       pd.texts = pd.texts.filter(t => t.id !== id);
-      generateBtn.disabled = pageData.every(p=> p.texts.length===0);
+      generateBtn.disabled = pageData.every(p=> !p.texts || p.texts.length===0);
     });
     textEl.appendChild(del);
     
@@ -1018,6 +1208,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
       italic: currentTextStyle.italic,
       underline: currentTextStyle.underline
     };
+    
+    if (!pd.texts) pd.texts = [];
     pd.texts.push(stored);
     
     // Make draggable
@@ -1055,7 +1247,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
   function makeDraggable(domEl, pageIndex, stored){
     let dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
-    const layer = pageData[pageIndex].layerElem;
+    const pd = pageData[pageIndex];
+    if (!pd) return;
+    
+    const layer = pd.layerElem;
 
     const down = (e) => {
       e.preventDefault();
@@ -1072,8 +1267,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
       
       document.addEventListener('mousemove', move);
       document.addEventListener('mouseup', up);
-      document.addEventListener('touchmove', move, {passive:false});
-      document.addEventListener('touchend', up);
+      if (e.type === 'touchstart') {
+        document.addEventListener('touchmove', move, {passive:false});
+        document.addEventListener('touchend', up);
+      }
     };
 
     const move = (e) => {
@@ -1085,17 +1282,20 @@ document.addEventListener('DOMContentLoaded', ()=> {
       let newLeft = startLeft + dx, newTop = startTop + dy;
       
       // Constrain within layer
-      newLeft = Math.max(0, Math.min(newLeft, layer.clientWidth - domEl.offsetWidth));
-      newTop = Math.max(0, Math.min(newTop, layer.clientHeight - domEl.offsetHeight));
+      if (layer) {
+        newLeft = Math.max(0, Math.min(newLeft, layer.clientWidth - domEl.offsetWidth));
+        newTop = Math.max(0, Math.min(newTop, layer.clientHeight - domEl.offsetHeight));
+      }
       
       domEl.style.left = newLeft + 'px';
       domEl.style.top = newTop + 'px';
 
-      const pd = pageData[pageIndex];
-      const sX = pd.pdfSize.width / pd.viewport.width;
-      const sY = pd.pdfSize.height / pd.viewport.height;
-      stored.x_pdf = newLeft * sX;
-      stored.top_pdf = newTop * sY;
+      if (pd) {
+        const sX = pd.pdfSize.width / pd.viewport.width;
+        const sY = pd.pdfSize.height / pd.viewport.height;
+        stored.x_pdf = newLeft * sX;
+        stored.top_pdf = newTop * sY;
+      }
     };
 
     const up = (e) => {
@@ -1112,8 +1312,16 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
   // Generate PDF with text
   generateBtn.addEventListener('click', async ()=>{
-    if(!selectedPdfFile) { alert('Upload a PDF first'); return; }
-    if(pageData.every(pd => !pd.texts || pd.texts.length===0)) { alert('Add at least one text element'); return; }
+    if(!selectedPdfFile) { 
+      showError('Please upload a PDF first');
+      return; 
+    }
+    
+    const hasTexts = pageData.some(pd => pd && pd.texts && pd.texts.length > 0);
+    if(!hasTexts) { 
+      showError('Add at least one text element');
+      return; 
+    }
     
     try{
       generateBtn.disabled = true;
@@ -1137,11 +1345,20 @@ document.addEventListener('DOMContentLoaded', ()=> {
       for(let i=0; i<pages.length; i++){
         const page = pages[i];
         const pd = pageData[i];
-        if(!pd) continue;
+        if(!pd || !pd.texts) continue;
         
         for(const t of pd.texts){
           // Convert hex color to RGB
-          const hex = t.color.replace('#', '');
+          let hex = t.color;
+          if (hex.startsWith('#')) {
+            hex = hex.substring(1);
+          }
+          
+          // Handle short hex codes
+          if (hex.length === 3) {
+            hex = hex.split('').map(c => c + c).join('');
+          }
+          
           const r = parseInt(hex.substr(0,2), 16) / 255;
           const g = parseInt(hex.substr(2,2), 16) / 255;
           const b = parseInt(hex.substr(4,2), 16) / 255;
@@ -1184,30 +1401,52 @@ document.addEventListener('DOMContentLoaded', ()=> {
       
       document.body.appendChild(a);
       a.click();
-      a.remove();
-      progressBar.style.width = '100%';
-      setTimeout(()=> { progress.style.display='none'; progressBar.style.width='0%'; }, 600);
-
-      // Clear previews
-      previewList.innerHTML = '';
-      pageData = [];
-      selectedPdfFile = null;
-      originalFilename = '';
-      selectedTextElement = null;
-      hideTextEditor();
-      generateBtn.disabled = true;
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+      }, 100);
       
-      // Reset to default style
-      currentTextStyle = {...defaultTextStyle};
+      progressBar.style.width = '100%';
+      setTimeout(()=> { 
+        progress.style.display='none'; 
+        progressBar.style.width='0%'; 
+      }, 600);
+
+      // Show success message
+      showSuccessMessage('PDF generated and downloaded successfully!');
       
     }catch(err){
       console.error(err);
-      alert('Error generating PDF with text: ' + (err.message || err));
+      showError('Error generating PDF with text: ' + (err.message || err));
       generateBtn.disabled = false;
       progress.style.display = 'none';
       progressBar.style.width = '0%';
     }
   });
+  
+  function showSuccessMessage(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.innerHTML = `
+      <i class="fas fa-check-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+      <p><strong>Success!</strong></p>
+      <p>${message}</p>
+    `;
+    
+    // Insert at the top of preview list
+    if (previewList.firstChild) {
+      previewList.insertBefore(successDiv, previewList.firstChild);
+    } else {
+      previewList.appendChild(successDiv);
+    }
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (successDiv.parentNode) {
+        successDiv.parentNode.removeChild(successDiv);
+      }
+    }, 5000);
+  }
 
   // Initialize with default style
   currentTextStyle = {...defaultTextStyle};
@@ -1262,6 +1501,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
     document.removeEventListener('mousemove', dragPopup);
     document.removeEventListener('mouseup', stopDragPopup);
   }
+  
+  // Add a sample PDF loading message
+  console.log('PDF Text Adder Application Loaded Successfully');
+  console.log('Ready to accept PDF files');
 });
 </script>
 </body>
