@@ -72,7 +72,7 @@
       z-index: 10;
     }
     .text-element.selected{ border-color: #60a5fa; background: rgba(96,165,250,0.1); }
-    .text-element.editing{ border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+    .text-element.editing{ border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); cursor: text; }
     .text-element.pulse{ animation: textPulse 360ms ease; }
     @keyframes textPulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
 
@@ -88,6 +88,7 @@
     .text-element.editing .text-content{
       pointer-events:auto;
       outline:none;
+      cursor: text;
     }
 
     /* टेक्स्ट कंट्रोल बार - छोटा और कॉम्पैक्ट */
@@ -107,7 +108,7 @@
       border: 1px solid rgba(255,255,255,0.15);
       z-index: 100;
       align-items: center;
-      min-width: 200px;
+      min-width: 220px;
       justify-content: center;
     }
     
@@ -175,6 +176,21 @@
       padding: 0;
     }
     
+    /* Move बटन */
+    .move-btn {
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+    }
+    
+    .move-btn:hover {
+      background: rgba(59, 130, 246, 0.3);
+    }
+    
+    .move-btn.active {
+      background: #3b82f6;
+      color: white;
+    }
+    
     /* डिलीट बटन कंट्रोल्स में */
     .delete-control-btn {
       background: rgba(239, 68, 68, 0.2);
@@ -203,21 +219,6 @@
       padding: 3px 5px;
       border-radius: 8px;
       margin: 0 1px;
-    }
-    
-    /* डिलीट बटन - छोटा */
-    .delete-btn{ 
-      position:absolute; right:-10px; top:-10px; width:22px; height:22px; 
-      background:#ef4444; color:white; border-radius:50%; border:none;
-      display:flex; align-items:center; justify-content:center; cursor:pointer;
-      font-size: 10px;
-      transition: all 0.2s ease;
-      z-index: 10;
-    }
-    
-    .delete-btn:hover {
-      background: #dc2626;
-      transform: scale(1.1);
     }
     
     /* मल्टी-लाइन टेक्स्ट इंडिकेटर */
@@ -365,7 +366,7 @@
       .text-controls-bar {
         gap: 4px;
         padding: 4px 6px;
-        min-width: 180px;
+        min-width: 200px;
       }
       .control-btn {
         width: 22px;
@@ -569,6 +570,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
   // Track if user is currently typing in a text element
   let isTypingInText = false;
   
+  // Track if move mode is active
+  let isMoveModeActive = false;
+  
   // Color picker events
   closeColorPickerBtn.addEventListener('click', hideColorPicker);
   
@@ -743,6 +747,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const italicBtn = textElement.querySelector('.italic-btn');
     const underlineBtn = textElement.querySelector('.underline-btn');
     const colorBtn = textElement.querySelector('.color-btn');
+    const moveBtn = textElement.querySelector('.move-btn');
     
     if (sizeDisplay) {
       sizeDisplay.textContent = globalTextStyle.fontSize;
@@ -762,6 +767,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     if (colorBtn) {
       updateColorPreview(colorBtn, globalTextStyle.color);
+    }
+    
+    if (moveBtn) {
+      moveBtn.classList.toggle('active', isMoveModeActive);
     }
   }
 
@@ -997,6 +1006,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     selectedTextElement = null;
     generateBtn.disabled = true;
     hideColorPicker();
+    isMoveModeActive = false;
     
     // Show loading indicator
     const loadingDiv = document.createElement('div');
@@ -1179,6 +1189,14 @@ document.addEventListener('DOMContentLoaded', ()=> {
                  ev.clientY >= textRect.top && ev.clientY <= textRect.bottom) {
                 // Select existing text
                 selectTextElement(textEl);
+                
+                // If not in move mode, start editing immediately
+                if (!isMoveModeActive) {
+                  setTimeout(() => {
+                    startTyping(textEl);
+                  }, 50);
+                }
+                
                 clickedOnExisting = true;
                 break;
               }
@@ -1187,11 +1205,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
             // If clicked on existing element, don't add new one
             if (clickedOnExisting) return;
             
-            // Add new text
+            // Add new text at clicked location
             currentPageIndex = pageNum - 1;
             addTextToPage(currentPageIndex, layerX, layerY);
             
-            // Start typing immediately
+            // Start typing immediately for new text
             setTimeout(() => {
               if (selectedTextElement) {
                 startTyping(selectedTextElement);
@@ -1281,6 +1299,25 @@ document.addEventListener('DOMContentLoaded', ()=> {
     } else if (buttonClass.includes('color-btn')) {
       // Show color picker
       showColorPicker(button, globalTextStyle.color);
+    } else if (buttonClass.includes('move-btn')) {
+      // Toggle move mode
+      isMoveModeActive = !isMoveModeActive;
+      button.classList.toggle('active', isMoveModeActive);
+      
+      // Update cursor style for all text elements
+      document.querySelectorAll('.text-element').forEach(el => {
+        if (isMoveModeActive) {
+          el.style.cursor = 'move';
+        } else {
+          el.style.cursor = 'text';
+        }
+      });
+      
+      // If we're currently editing, finish editing
+      if (isTypingInText && selectedTextElement) {
+        const textContent = selectedTextElement.querySelector('.text-content');
+        finishTyping(selectedTextElement, textContent);
+      }
     } else if (buttonClass.includes('delete-control-btn')) {
       // Delete text element
       const pageIndex = textElement.dataset.pageIndex;
@@ -1333,6 +1370,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textEl.dataset.pageIndex = pageIndex;
     textEl.dataset.textId = id;
     
+    // Set cursor based on move mode
+    textEl.style.cursor = isMoveModeActive ? 'move' : 'text';
+    
     // Position the text
     const left = Math.max(10, x_css);
     const top = Math.max(10, y_css);
@@ -1362,7 +1402,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       textEl.classList.add('multi-line');
     }
     
-    // Create controls bar (with delete button included)
+    // Create controls bar (with move and delete button included)
     const controlsBar = document.createElement('div');
     controlsBar.className = 'text-controls-bar';
     
@@ -1410,6 +1450,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
     colorBtn.title = 'Change color';
     colorBtn.innerHTML = '<div class="color-preview-inline" style="background-color: ' + globalTextStyle.color + ';"></div>';
     
+    // MOVE button in controls bar
+    const moveBtn = document.createElement('button');
+    moveBtn.className = 'control-btn move-btn';
+    moveBtn.innerHTML = '<i class="fas fa-arrows-alt"></i>';
+    moveBtn.title = 'Move text';
+    if (isMoveModeActive) moveBtn.classList.add('active');
+    
     // DELETE button in controls bar
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'control-btn delete-control-btn';
@@ -1424,6 +1471,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     controlsBar.appendChild(italicBtn);
     controlsBar.appendChild(underlineBtn);
     controlsBar.appendChild(colorBtn);
+    controlsBar.appendChild(moveBtn); // Move button added here
     controlsBar.appendChild(deleteBtn); // Delete button added here
     
     textEl.appendChild(controlsBar);
@@ -1481,6 +1529,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
       
       // Don't start drag if currently typing
       if (isTypingInText) return;
+      
+      // Only start drag if in move mode
+      if (!isMoveModeActive) return;
       
       e.preventDefault();
       dragging = true;
