@@ -94,7 +94,7 @@
       border: 1px solid rgba(255,255,255,0.15);
       z-index: 100;
       align-items: center;
-      min-width: 180px;
+      min-width: 200px;
       justify-content: center;
     }
     
@@ -162,6 +162,16 @@
       padding: 0;
     }
     
+    /* डिलीट बटन कंट्रोल्स में */
+    .delete-control-btn {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+    
+    .delete-control-btn:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+    
     .color-preview-inline {
       width: 16px;
       height: 16px;
@@ -180,21 +190,6 @@
       padding: 3px 5px;
       border-radius: 8px;
       margin: 0 1px;
-    }
-    
-    /* डिलीट बटन - छोटा */
-    .delete-btn{ 
-      position:absolute; right:-10px; top:-10px; width:22px; height:22px; 
-      background:#ef4444; color:white; border-radius:50%; border:none;
-      display:flex; align-items:center; justify-content:center; cursor:pointer;
-      font-size: 10px;
-      transition: all 0.2s ease;
-      z-index: 10;
-    }
-    
-    .delete-btn:hover {
-      background: #dc2626;
-      transform: scale(1.1);
     }
     
     /* मल्टी-लाइन टेक्स्ट इंडिकेटर */
@@ -342,7 +337,7 @@
       .text-controls-bar {
         gap: 4px;
         padding: 4px 6px;
-        min-width: 160px;
+        min-width: 180px;
       }
       .control-btn {
         width: 22px;
@@ -431,29 +426,27 @@
       display: none;
     }
     
-    /* टेक्स्ट इनपुट ओवरले */
-    .text-input-overlay {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: transparent;
-      border: 2px solid #3b82f6;
-      border-radius: 4px;
-      z-index: 50;
+    /* टेक्स्ट एडिटिंग मोड */
+    .text-element.editing {
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
     }
     
-    .text-input-overlay textarea {
-      width: 100%;
-      height: 100%;
-      background: rgba(255,255,255,0.95);
-      border: none;
+    .text-element.editing .text-content {
+      pointer-events: auto;
       outline: none;
-      padding: 4px 8px;
+      min-width: 50px;
+      min-height: 1.2em;
+    }
+    
+    /* टेक्स्ट मापने के लिए hidden span */
+    .measure-span {
+      position: absolute;
+      visibility: hidden;
+      white-space: pre-wrap;
       font-family: Arial, sans-serif;
-      resize: none;
-      overflow: hidden;
+      word-break: break-word;
+      line-height: 1.2;
     }
   </style>
 </head>
@@ -509,6 +502,9 @@
   <!-- पेज काउंटर -->
   <div class="page-counter" id="pageCounter"></div>
 
+  <!-- टेक्स्ट मापने के लिए hidden span -->
+  <div id="measureSpan" class="measure-span" aria-hidden="true"></div>
+
 <script>
 document.addEventListener('DOMContentLoaded', ()=> {
   console.log('PDF Text Adder Application Loading...');
@@ -522,6 +518,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const progressBar = document.getElementById('progressBar');
   const container = document.getElementById('container');
   const pageCounter = document.getElementById('pageCounter');
+  const measureSpan = document.getElementById('measureSpan');
   
   // Color picker elements
   const colorPickerPopup = document.getElementById('colorPickerPopup');
@@ -768,6 +765,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Deselect previous
     if (selectedTextElement && selectedTextElement !== element) {
       selectedTextElement.classList.remove('selected');
+      selectedTextElement.classList.remove('editing');
+      const prevTextContent = selectedTextElement.querySelector('.text-content');
+      if (prevTextContent) {
+        prevTextContent.contentEditable = false;
+        prevTextContent.style.pointerEvents = 'none';
+      }
     }
     
     // Select new
@@ -794,178 +797,175 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Update controls bar
     updateControlsBar(element);
     
-    // Enable typing in text
-    enableTypingInText(element);
+    // Start typing immediately if it's a new text element with "Type here"
+    const textContent = element.querySelector('.text-content');
+    if (textContent && textContent.textContent === "Type here") {
+      setTimeout(() => {
+        startDirectTyping(element, textContent);
+      }, 10);
+    }
   }
 
-  // Enable typing in text element
-  function enableTypingInText(textElement) {
-    const textContent = textElement.querySelector('.text-content');
+  // Start direct typing (no extra box)
+  function startDirectTyping(textElement, textContent) {
+    if (isTypingInText) return;
     
-    // Make text content editable for typing
-    textElement.addEventListener('dblclick', handleDoubleClick);
-    
-    function handleDoubleClick(e) {
-      e.stopPropagation();
-      startTypingInText(textElement, textContent);
-    }
-  }
-  
-  // Start typing in text element
-  function startTypingInText(textElement, textContent) {
     isTypingInText = true;
-    
-    // Create an input overlay for typing
-    const inputOverlay = document.createElement('div');
-    inputOverlay.className = 'text-input-overlay';
-    inputOverlay.style.position = 'absolute';
-    inputOverlay.style.left = '0';
-    inputOverlay.style.top = '0';
-    inputOverlay.style.width = '100%';
-    inputOverlay.style.height = '100%';
-    inputOverlay.style.background = 'transparent';
-    inputOverlay.style.border = '2px solid #3b82f6';
-    inputOverlay.style.borderRadius = '4px';
-    inputOverlay.style.zIndex = '50';
-    
-    // Create textarea for typing
-    const textarea = document.createElement('textarea');
-    textarea.style.width = '100%';
-    textarea.style.height = '100%';
-    textarea.style.background = 'rgba(255,255,255,0.95)';
-    textarea.style.border = 'none';
-    textarea.style.outline = 'none';
-    textarea.style.padding = '4px 8px';
-    textarea.style.fontFamily = 'Arial, sans-serif';
-    textarea.style.fontSize = globalTextStyle.fontSize + 'px';
-    textarea.style.color = globalTextStyle.color;
-    textarea.style.fontWeight = globalTextStyle.bold ? 'bold' : 'normal';
-    textarea.style.fontStyle = globalTextStyle.italic ? 'italic' : 'normal';
-    textarea.style.textDecoration = globalTextStyle.underline ? 'underline' : 'none';
-    textarea.style.resize = 'none';
-    textarea.value = textContent.textContent;
-    
-    // Auto-resize textarea and adjust element width
-    function autoResize() {
-      // Reset height to auto to calculate scrollHeight
-      textarea.style.height = 'auto';
-      const scrollHeight = textarea.scrollHeight;
-      const scrollWidth = textarea.scrollWidth;
-      
-      // Set new height
-      textarea.style.height = scrollHeight + 'px';
-      inputOverlay.style.height = scrollHeight + 'px';
-      
-      // Adjust text element width based on textarea scrollWidth
-      // Add some padding (left and right padding total 16px)
-      const newWidth = Math.max(50, Math.min(scrollWidth + 16, 500));
-      textElement.style.width = newWidth + 'px';
-      textarea.style.width = '100%';
-      
-      // Update stored width in data if needed? We don't store width currently.
-      // But we can store in the text data for later if needed.
-    }
-    
-    // Update text content in real-time
-    function updateTextContent() {
-      textContent.textContent = textarea.value;
-      
-      // Update global style and stored data
-      globalTextStyle.text = textarea.value;
-      
-      const pageIndex = textElement.dataset.pageIndex;
-      const textId = textElement.dataset.textId;
-      const pd = pageData[pageIndex];
-      
-      if (pd && pd.texts) {
-        const textData = pd.texts.find(t => t.id === textId);
-        if (textData) {
-          textData.text = textarea.value;
-        }
-      }
-      
-      // Check if text has multiple lines
-      if (textarea.value.includes('\n')) {
-        textElement.classList.add('multi-line');
-      } else {
-        textElement.classList.remove('multi-line');
-      }
-    }
-    
-    textarea.addEventListener('input', () => {
-      autoResize();
-      updateTextContent();
-    });
-    
-    inputOverlay.appendChild(textarea);
-    textElement.appendChild(inputOverlay);
+    textElement.classList.add('editing');
+    textContent.contentEditable = true;
+    textContent.style.pointerEvents = 'auto';
     
     // Focus and select all text
     setTimeout(() => {
-      textarea.focus();
-      textarea.select();
-      autoResize(); // Initial resize
+      textContent.focus();
+      
+      // Select all text if it's "Type here"
+      if (textContent.textContent === "Type here") {
+        const range = document.createRange();
+        range.selectNodeContents(textContent);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+      } else {
+        // Place cursor at the end
+        const range = document.createRange();
+        range.selectNodeContents(textContent);
+        range.collapse(false);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
     }, 10);
     
-    // Handle Enter key for new line (Shift+Enter for new line, just Enter to finish)
-    textarea.addEventListener('keydown', function(e) {
+    // Handle input to resize element and update stored data
+    const handleInput = () => {
+      updateTextElementSize(textElement, textContent);
+      updateTextData(textElement, textContent.textContent);
+    };
+    
+    textContent.addEventListener('input', handleInput);
+    
+    // Handle paste to preserve line breaks
+    textContent.addEventListener('paste', (e) => {
+      e.preventDefault();
+      
+      // Get pasted text with line breaks
+      const pastedText = e.clipboardData.getData('text/plain');
+      
+      // Insert text at cursor position
+      document.execCommand('insertText', false, pastedText);
+      
+      // Update size and data
+      handleInput();
+    });
+    
+    // Handle keydown for finishing
+    const handleKeydown = (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        finishTyping(textElement, textContent, textarea, inputOverlay);
+        finishDirectTyping(textElement, textContent);
+      } else if (e.key === 'Escape') {
+        finishDirectTyping(textElement, textContent);
       }
-    });
+    };
     
-    // Handle blur (click outside)
-    textarea.addEventListener('blur', function() {
-      finishTyping(textElement, textContent, textarea, inputOverlay);
-    });
+    textContent.addEventListener('keydown', handleKeydown);
     
-    // Initial resize
-    autoResize();
+    // Handle blur to finish
+    const handleBlur = () => {
+      finishDirectTyping(textElement, textContent);
+    };
+    
+    textContent.addEventListener('blur', handleBlur);
+    
+    // Store handlers for cleanup
+    textContent._typingHandlers = {
+      input: handleInput,
+      keydown: handleKeydown,
+      blur: handleBlur
+    };
   }
   
-  // Finish typing and update text
-  function finishTyping(textElement, textContent, textarea, inputOverlay) {
+  // Update text element size based on content
+  function updateTextElementSize(textElement, textContent) {
+    // Set measure span with same style to calculate width
+    measureSpan.style.fontSize = textContent.style.fontSize;
+    measureSpan.style.fontWeight = textContent.style.fontWeight;
+    measureSpan.style.fontStyle = textContent.style.fontStyle;
+    measureSpan.style.fontFamily = textContent.style.fontFamily;
+    measureSpan.style.lineHeight = textContent.style.lineHeight;
+    measureSpan.style.whiteSpace = 'pre-wrap';
+    measureSpan.style.wordBreak = 'break-word';
+    
+    // Set text and measure
+    measureSpan.textContent = textContent.textContent || '';
+    const textWidth = measureSpan.offsetWidth;
+    const textHeight = measureSpan.offsetHeight;
+    
+    // Add padding (8px left + 8px right = 16px)
+    const newWidth = Math.max(50, Math.min(textWidth + 16, 500));
+    
+    // Set element dimensions
+    textElement.style.width = newWidth + 'px';
+    
+    // Check for multi-line text
+    if (textContent.textContent.includes('\n')) {
+      textElement.classList.add('multi-line');
+    } else {
+      textElement.classList.remove('multi-line');
+    }
+  }
+  
+  // Update text data in storage
+  function updateTextData(textElement, newText) {
+    const pageIndex = textElement.dataset.pageIndex;
+    const textId = textElement.dataset.textId;
+    const pd = pageData[pageIndex];
+    
+    if (!pd || !pd.texts) return;
+    
+    const textData = pd.texts.find(t => t.id === textId);
+    if (!textData) return;
+    
+    textData.text = newText;
+    globalTextStyle.text = newText;
+  }
+  
+  // Finish direct typing
+  function finishDirectTyping(textElement, textContent) {
     if (!isTypingInText) return;
     
-    // Final update of text content (already done in real-time, but just in case)
-    const newText = textarea.value.trim();
-    if (newText !== '') {
-      textContent.textContent = newText;
-      
-      // Update global style and stored data
-      globalTextStyle.text = newText;
-      
+    // Clean up handlers
+    if (textContent._typingHandlers) {
+      textContent.removeEventListener('input', textContent._typingHandlers.input);
+      textContent.removeEventListener('keydown', textContent._typingHandlers.keydown);
+      textContent.removeEventListener('blur', textContent._typingHandlers.blur);
+      delete textContent._typingHandlers;
+    }
+    
+    textContent.contentEditable = false;
+    textContent.style.pointerEvents = 'none';
+    textElement.classList.remove('editing');
+    
+    // Final size update
+    updateTextElementSize(textElement, textContent);
+    
+    isTypingInText = false;
+    
+    // If text is empty, remove the element
+    if (!textContent.textContent.trim()) {
       const pageIndex = textElement.dataset.pageIndex;
       const textId = textElement.dataset.textId;
       const pd = pageData[pageIndex];
       
       if (pd && pd.texts) {
-        const textData = pd.texts.find(t => t.id === textId);
-        if (textData) {
-          textData.text = newText;
-        }
+        pd.texts = pd.texts.filter(t => t.id !== textId);
       }
       
-      // Check if text has multiple lines
-      if (newText.includes('\n')) {
-        textElement.classList.add('multi-line');
-      } else {
-        textElement.classList.remove('multi-line');
-      }
+      textElement.remove();
+      selectedTextElement = null;
+      generateBtn.disabled = pageData.every(p=> !p.texts || p.texts.length===0);
     }
-    
-    // Remove input overlay
-    if (inputOverlay.parentNode) {
-      inputOverlay.parentNode.removeChild(inputOverlay);
-    }
-    
-    // Reset element width to fit content (optional, since already set during typing)
-    // But we can set it to the current scrollWidth of textContent
-    // However, textContent is a div and its width might not be accurate. We can use canvas context to measure.
-    // For simplicity, we keep the width as set during typing.
-    
-    isTypingInText = false;
   }
 
   // Hide color picker
@@ -1177,12 +1177,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
             const existingTexts = Array.from(textLayer.querySelectorAll('.text-element'));
             for(const textEl of existingTexts) {
               const textRect = textEl.getBoundingClientRect();
-              const deleteBtn = textEl.querySelector('.delete-btn');
-              
-              // Check if click is on delete button
-              if (deleteBtn && isClickOnElement(ev, deleteBtn)) {
-                return; // Delete button handler will handle this
-              }
               
               // Check if click is on controls bar
               const controlsBar = textEl.querySelector('.text-controls-bar');
@@ -1273,28 +1267,47 @@ document.addEventListener('DOMContentLoaded', ()=> {
       if (globalTextStyle.fontSize > 8) {
         globalTextStyle.fontSize--;
         applyStyleToSelectedText();
+        updateTextElementSize(textElement, textElement.querySelector('.text-content'));
       }
     } else if (buttonClass.includes('size-plus')) {
       // Increase font size
       if (globalTextStyle.fontSize < 72) {
         globalTextStyle.fontSize++;
         applyStyleToSelectedText();
+        updateTextElementSize(textElement, textElement.querySelector('.text-content'));
       }
     } else if (buttonClass.includes('bold-btn')) {
       // Toggle bold
       globalTextStyle.bold = !globalTextStyle.bold;
       applyStyleToSelectedText();
+      updateTextElementSize(textElement, textElement.querySelector('.text-content'));
     } else if (buttonClass.includes('italic-btn')) {
       // Toggle italic
       globalTextStyle.italic = !globalTextStyle.italic;
       applyStyleToSelectedText();
+      updateTextElementSize(textElement, textElement.querySelector('.text-content'));
     } else if (buttonClass.includes('underline-btn')) {
       // Toggle underline
       globalTextStyle.underline = !globalTextStyle.underline;
       applyStyleToSelectedText();
+      updateTextElementSize(textElement, textElement.querySelector('.text-content'));
     } else if (buttonClass.includes('color-btn')) {
       // Show color picker
       showColorPicker(button, globalTextStyle.color);
+    } else if (buttonClass.includes('delete-control-btn')) {
+      // Delete text element
+      const pageIndex = textElement.dataset.pageIndex;
+      const textId = textElement.dataset.textId;
+      const pd = pageData[pageIndex];
+      
+      if (pd && pd.texts) {
+        pd.texts = pd.texts.filter(t => t.id !== textId);
+      }
+      
+      textElement.remove();
+      selectedTextElement = null;
+      hideColorPicker();
+      generateBtn.disabled = pageData.every(p=> !p.texts || p.texts.length===0);
     }
   }
 
@@ -1368,7 +1381,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       textEl.classList.add('multi-line');
     }
     
-    // Create controls bar
+    // Create controls bar (with delete button included)
     const controlsBar = document.createElement('div');
     controlsBar.className = 'text-controls-bar';
     
@@ -1416,6 +1429,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
     colorBtn.title = 'Change color';
     colorBtn.innerHTML = '<div class="color-preview-inline" style="background-color: ' + globalTextStyle.color + ';"></div>';
     
+    // DELETE button in controls bar
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'control-btn delete-control-btn';
+    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+    deleteBtn.title = 'Delete text';
+    
     // Add buttons to controls bar
     controlsBar.appendChild(minusBtn);
     controlsBar.appendChild(sizeDisplay);
@@ -1424,27 +1443,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     controlsBar.appendChild(italicBtn);
     controlsBar.appendChild(underlineBtn);
     controlsBar.appendChild(colorBtn);
+    controlsBar.appendChild(deleteBtn); // Delete button added here
     
     textEl.appendChild(controlsBar);
-    
-    // Delete button
-    const del = document.createElement('button');
-    del.className = 'delete-btn';
-    del.innerHTML = '<i class="fas fa-trash"></i>';
-    del.title = 'Delete text';
-    del.addEventListener('click', (e)=> {
-      e.stopPropagation();
-      if (selectedTextElement === textEl) {
-        selectedTextElement = null;
-        hideColorPicker();
-      }
-      textEl.remove();
-      pd.texts = pd.texts.filter(t => t.id !== id);
-      generateBtn.disabled = pageData.every(p=> !p.texts || p.texts.length===0);
-    });
-    
-    textEl.appendChild(del);
-    layer.appendChild(textEl);
     
     // Store text data
     const scaleX = pd.pdfSize.width / pd.viewport.width;
@@ -1470,25 +1471,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Make draggable
     makeDraggable(textEl, pageIndex, stored);
     
-    // Select this new text
+    // Select this new text (this will automatically start typing)
     selectTextElement(textEl);
     
-    // Start typing immediately for new text
-    setTimeout(() => {
-      startTypingInText(textEl, textContent);
-    }, 10);
+    // Update element size
+    updateTextElementSize(textEl, textContent);
     
     generateBtn.disabled = false;
-  }
-
-  function getTextDataFromElement(element) {
-    const pageIndex = element.dataset.pageIndex;
-    const textId = element.dataset.textId;
-    const pd = pageData[pageIndex];
-    
-    if (!pd || !pd.texts) return null;
-    
-    return pd.texts.find(t => t.id === textId);
   }
 
   function makeDraggable(domEl, pageIndex, stored){
@@ -1499,11 +1488,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const layer = pd.layerElem;
 
     const down = (e) => {
-      // Don't start drag if clicking on control buttons or delete button
+      // Don't start drag if clicking on control buttons
       if (e.target.classList.contains('control-btn') || 
-          e.target.classList.contains('delete-btn') ||
-          e.target.closest('.control-btn') || 
-          e.target.closest('.delete-btn')) {
+          e.target.closest('.control-btn')) {
         return;
       }
       
