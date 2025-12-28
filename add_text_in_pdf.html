@@ -63,20 +63,28 @@
 
     .text-element{ 
       position:absolute; cursor:move; touch-action:none; user-select:none; 
-      display:block; /* Changed from flex to block */
-      padding: 6px 10px; border-radius: 4px; background: rgba(0,0,0,0.05);
-      border: 2px solid transparent;
+      display:block;
       max-width: 500px;
       word-wrap: break-word;
       min-width: 50px;
       z-index: 10;
+      padding: 0;
+      border: none;
+      background: transparent;
     }
-    .text-element.selected{ border-color: #60a5fa; background: rgba(96,165,250,0.1); }
+    .text-element.selected{ 
+      outline: 2px solid #60a5fa;
+      outline-offset: 2px;
+      border-radius: 2px;
+      background: rgba(96,165,250,0.1);
+    }
     .text-element.editing{ 
-      border-color: #3b82f6; 
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
       background: rgba(255, 255, 255, 0.9); 
       cursor: text; 
-      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+      border-radius: 4px;
+      padding: 4px 8px;
     }
     .text-element.pulse{ animation: textPulse 360ms ease; }
     @keyframes textPulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
@@ -90,6 +98,7 @@
       width: 100%;
       min-height: 1.2em;
       display: block;
+      padding: 2px 4px;
     }
     .text-element.editing .text-content{
       pointer-events:auto;
@@ -99,6 +108,8 @@
       word-break: break-word;
       background: transparent;
       display: block;
+      min-height: 1.2em;
+      min-width: 50px;
     }
 
     /* टेक्स्ट कंट्रोल बार - पारदर्शी */
@@ -473,7 +484,7 @@
       font-family: Arial, sans-serif;
       word-break: break-word;
       line-height: 1.2;
-      padding: 6px 10px;
+      padding: 2px 4px;
     }
     
     /* Placeholder text styling */
@@ -572,9 +583,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let selectedTextElement = null;
   let currentPageIndex = 0;
   
-  // Global text style
+  // Global text style - यहाँ सेटिंग्स सेव रहेंगी
   let globalTextStyle = {
-    text: "",
+    text: "", // नया टेक्स्ट हमेशा खाली होगा
     fontSize: 16,
     color: "#000000",
     bold: false,
@@ -822,12 +833,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (pd && pd.texts) {
       const textData = pd.texts.find(t => t.id === textId);
       if (textData) {
-        globalTextStyle.text = textData.text;
+        // Only update global style from existing text
         globalTextStyle.fontSize = textData.fontSize;
         globalTextStyle.color = textData.color;
         globalTextStyle.bold = textData.bold;
         globalTextStyle.italic = textData.italic;
         globalTextStyle.underline = textData.underline;
+        // Don't update text content
       }
     }
     
@@ -848,7 +860,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.style.pointerEvents = 'auto';
     textContent.removeAttribute('data-placeholder');
     
-    // Focus and select all text
+    // Focus and place cursor at the end
     setTimeout(() => {
       textContent.focus();
       
@@ -916,7 +928,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     measureSpan.style.lineHeight = textContent.style.lineHeight || '1.2';
     measureSpan.style.whiteSpace = 'pre-wrap';
     measureSpan.style.wordBreak = 'break-word';
-    measureSpan.style.padding = '6px 10px';
+    measureSpan.style.padding = '2px 4px';
     measureSpan.style.width = 'auto';
     measureSpan.style.display = 'inline-block';
     
@@ -926,13 +938,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     // Force reflow to get accurate measurements
     document.body.appendChild(measureSpan);
-    const requiredWidth = Math.min(500, Math.max(50, measureSpan.offsetWidth + 20));
+    const requiredWidth = Math.min(500, Math.max(50, measureSpan.offsetWidth + 8));
     document.body.removeChild(measureSpan);
     
     // Set new width
     textElement.style.width = requiredWidth + 'px';
     
-    // Calculate height - IMPORTANT: Use exact same width as the text element for measurement
+    // Calculate height
     const tempDiv = document.createElement('div');
     tempDiv.style.position = 'absolute';
     tempDiv.style.visibility = 'hidden';
@@ -943,9 +955,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     tempDiv.style.fontStyle = textContent.style.fontStyle;
     tempDiv.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
     tempDiv.style.lineHeight = textContent.style.lineHeight || '1.2';
-    tempDiv.style.width = requiredWidth + 'px'; // Same as text element width
+    tempDiv.style.width = requiredWidth + 'px';
     tempDiv.style.boxSizing = 'border-box';
-    tempDiv.style.padding = '6px 10px';
+    tempDiv.style.padding = '2px 4px';
     tempDiv.textContent = text;
     
     document.body.appendChild(tempDiv);
@@ -976,7 +988,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (!textData) return;
     
     textData.text = newText;
-    globalTextStyle.text = newText;
+    // Don't update globalTextStyle.text - user's style settings should persist
   }
   
   // Finish direct typing
@@ -1269,13 +1281,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
             // If clicked on existing element, don't add new one
             if (clickedOnExisting) return;
             
-            // Reset global text for new text
+            // नया टेक्स्ट बनाएं - लेकिन globalTextStyle रीसेट न करें
+            // सिर्फ text को खाली करें, बाकी सेटिंग्स वही रहेंगी
             globalTextStyle.text = "";
-            globalTextStyle.fontSize = 16;
-            globalTextStyle.color = "#000000";
-            globalTextStyle.bold = false;
-            globalTextStyle.italic = false;
-            globalTextStyle.underline = false;
             
             // Add new text at clicked location
             currentPageIndex = pageNum - 1;
