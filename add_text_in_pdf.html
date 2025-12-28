@@ -92,7 +92,7 @@
     .text-content{ 
       pointer-events:none; font-family: Arial, sans-serif;
       text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-      white-space: pre-wrap;
+      white-space: nowrap; /* SINGLE LINE BY DEFAULT */
       word-break: break-word;
       line-height: 1.2;
       width: 100%;
@@ -103,12 +103,13 @@
       border: none;
       outline: none;
     }
+    .text-element.multi-line .text-content {
+      white-space: pre-wrap; /* MULTI-LINE WHEN ENTER IS PRESSED */
+    }
     .text-element.editing .text-content{
       pointer-events:auto;
       outline:none;
       cursor: text;
-      white-space: pre-wrap;
-      word-break: break-word;
       background: transparent;
       display: inline-block;
       min-height: 1.2em;
@@ -604,6 +605,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
   // Track empty text boxes to auto-remove
   let emptyTextTimeout = null;
   
+  // Track new empty text elements that haven't been typed in
+  let pendingEmptyTextElements = new Set();
+  
   // Color picker events
   closeColorPickerBtn.addEventListener('click', hideColorPicker);
   
@@ -740,14 +744,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.style.fontStyle = globalTextStyle.italic ? 'italic' : 'normal';
     textContent.style.textDecoration = globalTextStyle.underline ? 'underline' : 'none';
     
-    // Check if text has multiple lines
-    const lines = textContent.textContent.split('\n');
-    if (lines.length > 1) {
-      selectedTextElement.classList.add('multi-line');
-    } else {
-      selectedTextElement.classList.remove('multi-line');
-    }
-    
     // Update text data in storage
     const pageIndex = selectedTextElement.dataset.pageIndex;
     const textId = selectedTextElement.dataset.textId;
@@ -817,6 +813,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
         prevTextContent.contentEditable = false;
         prevTextContent.style.pointerEvents = 'none';
       }
+      
+      // If previous element is empty and pending, remove it
+      if (pendingEmptyTextElements.has(selectedTextElement)) {
+        removeEmptyTextElement(selectedTextElement);
+      }
     }
     
     // Select new
@@ -856,6 +857,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.contentEditable = true;
     textContent.style.pointerEvents = 'auto';
     
+    // Remove from pending empty elements
+    pendingEmptyTextElements.delete(textElement);
+    
     // Focus and select all text
     setTimeout(() => {
       textContent.focus();
@@ -870,8 +874,16 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     // Handle input to resize element and update stored data
     const handleInput = () => {
-      updateTextData(textElement, textContent.textContent);
+      const text = textContent.textContent || '';
+      updateTextData(textElement, text);
       updateTextElementSize(textElement, textContent);
+      
+      // Check for multi-line (if Enter was pressed)
+      if (text.includes('\n')) {
+        textElement.classList.add('multi-line');
+      } else {
+        textElement.classList.remove('multi-line');
+      }
     };
     
     textContent.addEventListener('input', handleInput);
@@ -892,9 +904,14 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     // Handle keydown for finishing
     const handleKeydown = (e) => {
-      if (e.key === 'Escape' || (e.key === 'Enter' && !e.shiftKey)) {
+      if (e.key === 'Escape') {
         e.preventDefault();
         finishTyping(textElement, textContent);
+      } else if (e.key === 'Enter' && e.shiftKey) {
+        // Allow Shift+Enter for new line
+        document.execCommand('insertText', false, '\n');
+        e.preventDefault();
+        handleInput();
       }
     };
     
@@ -917,8 +934,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const tempDiv = document.createElement('div');
     tempDiv.style.position = 'absolute';
     tempDiv.style.visibility = 'hidden';
-    tempDiv.style.whiteSpace = 'pre-wrap';
-    tempDiv.style.wordBreak = 'break-word';
     tempDiv.style.fontSize = textContent.style.fontSize;
     tempDiv.style.fontWeight = textContent.style.fontWeight;
     tempDiv.style.fontStyle = textContent.style.fontStyle;
@@ -928,14 +943,35 @@ document.addEventListener('DOMContentLoaded', ()=> {
     tempDiv.style.maxWidth = '500px';
     tempDiv.style.minWidth = '50px';
     tempDiv.style.display = 'inline-block';
+    
+    // Check if text has newlines (multi-line)
+    const hasNewlines = text.includes('\n');
+    
+    if (hasNewlines) {
+      tempDiv.style.whiteSpace = 'pre-wrap';
+      tempDiv.style.wordBreak = 'break-word';
+      tempDiv.style.width = '500px';
+    } else {
+      tempDiv.style.whiteSpace = 'nowrap';
+      tempDiv.style.wordBreak = 'normal';
+      tempDiv.style.width = 'auto';
+    }
+    
     tempDiv.textContent = text;
     
     // Add to document to calculate dimensions
     document.body.appendChild(tempDiv);
     
     // Get width and height
-    const requiredWidth = Math.min(500, Math.max(50, tempDiv.scrollWidth + 8));
-    const newHeight = tempDiv.scrollHeight;
+    let requiredWidth, newHeight;
+    
+    if (hasNewlines) {
+      requiredWidth = 500;
+      newHeight = tempDiv.scrollHeight;
+    } else {
+      requiredWidth = Math.min(500, Math.max(50, tempDiv.scrollWidth + 8));
+      newHeight = tempDiv.scrollHeight;
+    }
     
     // Remove temp div
     document.body.removeChild(tempDiv);
@@ -943,14 +979,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Set element width and height
     textElement.style.width = requiredWidth + 'px';
     textElement.style.height = newHeight + 'px';
-    
-    // Check for multi-line text
-    const lines = text.split('\n');
-    if (lines.length > 1) {
-      textElement.classList.add('multi-line');
-    } else {
-      textElement.classList.remove('multi-line');
-    }
   }
   
   // Update text data in storage
@@ -980,35 +1008,37 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     isTypingInText = false;
     
-    // If text is empty, remove the element after a delay
+    // If text is empty, remove the element
     if (!textContent.textContent.trim()) {
-      // Auto-remove empty text box after 2 seconds
-      clearTimeout(emptyTextTimeout);
-      emptyTextTimeout = setTimeout(() => {
-        removeEmptyTextElement(textElement);
-      }, 2000);
-    } else {
-      clearTimeout(emptyTextTimeout);
+      removeEmptyTextElement(textElement);
     }
   }
   
-  // Remove empty text element
+  // Remove empty text element IMMEDIATELY
   function removeEmptyTextElement(textElement) {
-    const textContent = textElement.querySelector('.text-content');
-    if (!textContent || !textContent.textContent.trim()) {
-      const pageIndex = textElement.dataset.pageIndex;
-      const textId = textElement.dataset.textId;
-      const pd = pageData[pageIndex];
-      
-      if (pd && pd.texts) {
-        pd.texts = pd.texts.filter(t => t.id !== textId);
-      }
-      
-      textElement.remove();
-      selectedTextElement = null;
-      hideColorPicker();
-      generateBtn.disabled = pageData.every(p=> !p.texts || p.texts.length===0);
+    const pageIndex = textElement.dataset.pageIndex;
+    const textId = textElement.dataset.textId;
+    const pd = pageData[pageIndex];
+    
+    if (pd && pd.texts) {
+      pd.texts = pd.texts.filter(t => t.id !== textId);
     }
+    
+    // Remove from pending set
+    pendingEmptyTextElements.delete(textElement);
+    
+    textElement.remove();
+    selectedTextElement = null;
+    hideColorPicker();
+    generateBtn.disabled = pageData.every(p=> !p.texts || p.texts.length===0);
+  }
+
+  // Clean up all pending empty text elements
+  function cleanupPendingEmptyTextElements() {
+    pendingEmptyTextElements.forEach(textElement => {
+      removeEmptyTextElement(textElement);
+    });
+    pendingEmptyTextElements.clear();
   }
 
   // Drag/drop UI for PDF upload
@@ -1058,6 +1088,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     hideColorPicker();
     isMoveModeActive = false;
     clearTimeout(emptyTextTimeout);
+    cleanupPendingEmptyTextElements();
     
     // Show loading indicator
     const loadingDiv = document.createElement('div');
@@ -1207,6 +1238,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
             
             // Don't do anything if we're currently typing
             if (isTypingInText) return;
+            
+            // Clean up any pending empty text elements first
+            cleanupPendingEmptyTextElements();
             
             const rect = textLayer.getBoundingClientRect();
             const layerX = ev.clientX - rect.left;
@@ -1365,7 +1399,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       // If we're currently editing, finish editing
       if (isTypingInText && selectedTextElement) {
         const textContent = selectedTextElement.querySelector('.text-content');
-        finishTyping(textElement, textContent);
+        finishTyping(selectedTextElement, textContent);
       }
     } else if (buttonClass.includes('delete-control-btn')) {
       // Delete text element
@@ -1430,16 +1464,16 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textEl.style.width = 'auto';
     textEl.style.height = 'auto';
     
-    // Create text content - सिर्फ साधारण div
+    // Create text content - EMPTY BY DEFAULT
     const textContent = document.createElement('div');
     textContent.className = 'text-content';
-    textContent.textContent = 'New Text'; // डिफ़ॉल्ट टेक्स्ट
+    textContent.textContent = ''; // EMPTY TEXT
     textContent.style.fontSize = globalTextStyle.fontSize + 'px';
     textContent.style.color = globalTextStyle.color;
     textContent.style.fontWeight = globalTextStyle.bold ? 'bold' : 'normal';
     textContent.style.fontStyle = globalTextStyle.italic ? 'italic' : 'normal';
     textContent.style.textDecoration = globalTextStyle.underline ? 'underline' : 'none';
-    textContent.style.whiteSpace = 'pre-wrap';
+    textContent.style.whiteSpace = 'nowrap';
     textContent.style.wordBreak = 'break-word';
     textEl.appendChild(textContent);
     
@@ -1533,7 +1567,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       id, 
       x_pdf: pdfX, 
       top_pdf: pdfTop,
-      text: 'New Text', // डिफ़ॉल्ट टेक्स्ट
+      text: '', // EMPTY TEXT
       fontSize: globalTextStyle.fontSize,
       color: globalTextStyle.color,
       bold: globalTextStyle.bold,
@@ -1555,6 +1589,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     // Update element size
     updateTextElementSize(textEl, textContent);
+    
+    // Add to pending empty elements
+    pendingEmptyTextElements.add(textEl);
     
     generateBtn.disabled = false;
     console.log('Text element added successfully');
