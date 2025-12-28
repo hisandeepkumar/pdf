@@ -72,17 +72,38 @@
       white-space: pre-wrap;
       word-break: break-word;
       line-height: 1.2;
+      min-height: 1.2em;
     }
 
-    .delete-btn{ 
-      position:absolute; right:-10px; top:-10px; width:26px; height:26px; 
+    /* Delete और Edit बटन */
+    .text-controls {
+      position: absolute;
+      top: -15px;
+      right: -15px;
+      display: flex;
+      gap: 5px;
+      z-index: 10;
+    }
+
+    .delete-btn, .edit-btn{ 
+      width:26px; height:26px; 
       background:#ef4444; color:white; border-radius:50%; border:none;
       display:flex; align-items:center; justify-content:center; cursor:pointer;
-      z-index: 10;
       font-size: 12px;
+      transition: all 0.2s ease;
+    }
+    
+    .edit-btn {
+      background: #3b82f6;
+      position: relative;
+      left: -30px;
+    }
+    
+    .delete-btn:hover, .edit-btn:hover {
+      transform: scale(1.1);
     }
 
-    /* नया Compact Text Editor Popup - एकल रेखा में */
+    /* Floating Text Editor Popup - Side में */
     .text-editor-popup {
       position: fixed;
       background: rgba(30, 30, 35, 0.98);
@@ -93,12 +114,12 @@
       border: 1px solid rgba(255,255,255,0.2);
       z-index: 10000;
       display: none;
-      min-width: 500px;
+      min-width: 380px;
       animation: popupFade 0.2s ease;
     }
     @keyframes popupFade {
-      from { opacity: 0; transform: translateY(5px) scale(0.95); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from { opacity: 0; transform: translateX(10px) scale(0.95); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
     }
 
     .popup-header {
@@ -153,7 +174,7 @@
       min-width: 150px;
     }
 
-    .text-input-compact input {
+    .text-input-compact textarea {
       width: 100%;
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.25);
@@ -162,8 +183,11 @@
       color: white;
       font-size: 14px;
       font-family: inherit;
+      resize: vertical;
+      min-height: 60px;
+      line-height: 1.4;
     }
-    .text-input-compact input:focus {
+    .text-input-compact textarea:focus {
       outline: none;
       border-color: #60a5fa;
       background: rgba(255,255,255,0.15);
@@ -441,6 +465,23 @@
       backdrop-filter: blur(10px);
       display: none;
     }
+    
+    /* मल्टी-लाइन टेक्स्ट इंडिकेटर */
+    .multi-line-indicator {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      font-size: 10px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      display: none;
+    }
+    
+    .text-element.multi-line .multi-line-indicator {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -459,10 +500,10 @@
 
     <div class="preview-list" id="previewList" aria-live="polite"></div>
 
-    <div class="footer-note">Click anywhere on a page to add text. Drag to reposition. Double-click text to edit.</div>
+    <div class="footer-note">Click anywhere on a page to add text. Drag to reposition. Click pencil icon to edit.</div>
   </div>
 
-  <!-- नया Compact Text Editor Popup (एकल रेखा में) -->
+  <!-- Floating Text Editor Popup -->
   <div class="text-editor-popup" id="textEditorPopup">
     <div class="popup-header">
       <h3><i class="fas fa-edit"></i> Edit Text</h3>
@@ -472,9 +513,9 @@
     </div>
     
     <div class="compact-controls">
-      <!-- टेक्स्ट इनपुट -->
+      <!-- टेक्स्ट इनपुट (textarea for multi-line) -->
       <div class="text-input-compact">
-        <input type="text" id="popupTextInputCompact" placeholder="Enter text..." value="Sample Text">
+        <textarea id="popupTextInputCompact" placeholder="Enter text... (Press Enter for new line)"></textarea>
       </div>
       
       <!-- फॉन्ट साइज़ -->
@@ -520,11 +561,7 @@
     <div class="popup-actions-compact">
       <button class="action-btn-compact cancel-btn-compact" id="cancelBtnCompact">
         <i class="fas fa-times"></i>
-        Cancel
-      </button>
-      <button class="action-btn-compact apply-btn-compact" id="applyBtnCompact">
-        <i class="fas fa-check"></i>
-        Apply
+        Close
       </button>
     </div>
   </div>
@@ -549,7 +586,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const container = document.getElementById('container');
   const pageCounter = document.getElementById('pageCounter');
   
-  // नए Compact Text Editor Popup Elements
+  // Text Editor Popup Elements
   const textEditorPopup = document.getElementById('textEditorPopup');
   const popupTextInputCompact = document.getElementById('popupTextInputCompact');
   const decreaseSizeBtnCompact = document.getElementById('decreaseSizeBtnCompact');
@@ -562,7 +599,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const underlineBtnCompact = document.getElementById('underlineBtnCompact');
   const closePopupBtn = document.getElementById('closePopupBtn');
   const cancelBtnCompact = document.getElementById('cancelBtnCompact');
-  const applyBtnCompact = document.getElementById('applyBtnCompact');
 
   // Device pixel ratio
   const DPR = window.devicePixelRatio || 1;
@@ -579,8 +615,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let currentPageIndex = 0;
   let clickPosition = { x: 0, y: 0 };
   
-  // Default text style
-  const defaultTextStyle = {
+  // Global text style (जो सभी नए टेक्स्ट के लिए apply होगी)
+  let globalTextStyle = {
     text: "Sample Text",
     fontSize: 16,
     color: "#000000",
@@ -589,9 +625,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     underline: false
   };
   
-  // Current text style for editing
-  let currentTextStyle = {...defaultTextStyle};
-
+  // Track if user is currently editing a text
+  let isEditingText = false;
+  
   // Color picker initialization
   try {
     if (typeof jQuery !== 'undefined' && jQuery.fn.spectrum) {
@@ -606,12 +642,14 @@ document.addEventListener('DOMContentLoaded', ()=> {
         move: function(color) {
           const hexColor = color.toHexString();
           colorPreviewCompact.style.backgroundColor = hexColor;
-          updateTextPreviewCompact();
+          updateGlobalStyle();
+          applyStyleToSelectedText();
         },
         change: function(color) {
           const hexColor = color.toHexString();
           colorPreviewCompact.style.backgroundColor = hexColor;
-          updateTextPreviewCompact();
+          updateGlobalStyle();
+          applyStyleToSelectedText();
         }
       });
       console.log('Color picker initialized successfully');
@@ -619,11 +657,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
       console.warn('Spectrum color picker not available, using fallback');
       // फॉलबैक कलर पिकर
       colorPreviewCompact.addEventListener('click', function() {
-        const color = prompt('Enter color hex code (e.g., #000000):', currentTextStyle.color);
+        const color = prompt('Enter color hex code (e.g., #000000):', globalTextStyle.color);
         if (color) {
           colorPreviewCompact.style.backgroundColor = color;
-          currentTextStyle.color = color;
-          updateTextPreviewCompact();
+          globalTextStyle.color = color;
+          applyStyleToSelectedText();
         }
       });
     }
@@ -637,8 +675,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (size > 8) {
       size--;
       sizeValueCompact.textContent = size;
-      currentTextStyle.fontSize = size;
-      updateTextPreviewCompact();
+      globalTextStyle.fontSize = size;
+      applyStyleToSelectedText();
     }
   });
 
@@ -647,43 +685,75 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (size < 72) {
       size++;
       sizeValueCompact.textContent = size;
-      currentTextStyle.fontSize = size;
-      updateTextPreviewCompact();
+      globalTextStyle.fontSize = size;
+      applyStyleToSelectedText();
     }
   });
 
   // Style buttons toggle (compact)
   boldBtnCompact.addEventListener('click', () => {
     boldBtnCompact.classList.toggle('active');
-    currentTextStyle.bold = boldBtnCompact.classList.contains('active');
-    updateTextPreviewCompact();
+    globalTextStyle.bold = boldBtnCompact.classList.contains('active');
+    applyStyleToSelectedText();
   });
 
   italicBtnCompact.addEventListener('click', () => {
     italicBtnCompact.classList.toggle('active');
-    currentTextStyle.italic = italicBtnCompact.classList.contains('active');
-    updateTextPreviewCompact();
+    globalTextStyle.italic = italicBtnCompact.classList.contains('active');
+    applyStyleToSelectedText();
   });
 
   underlineBtnCompact.addEventListener('click', () => {
     underlineBtnCompact.classList.toggle('active');
-    currentTextStyle.underline = underlineBtnCompact.classList.contains('active');
-    updateTextPreviewCompact();
+    globalTextStyle.underline = underlineBtnCompact.classList.contains('active');
+    applyStyleToSelectedText();
   });
 
-  // Update text preview in real-time (compact)
-  function updateTextPreviewCompact() {
+  // Text input event - auto apply
+  popupTextInputCompact.addEventListener('input', () => {
+    globalTextStyle.text = popupTextInputCompact.value;
+    applyStyleToSelectedText();
+  });
+
+  // Handle Enter key for new line
+  popupTextInputCompact.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      // Add new line to text
+      const cursorPos = popupTextInputCompact.selectionStart;
+      const text = popupTextInputCompact.value;
+      const newText = text.substring(0, cursorPos) + '\n' + text.substring(cursorPos);
+      popupTextInputCompact.value = newText;
+      globalTextStyle.text = newText;
+      applyStyleToSelectedText();
+      // Move cursor to after the new line
+      setTimeout(() => {
+        popupTextInputCompact.selectionStart = cursorPos + 1;
+        popupTextInputCompact.selectionEnd = cursorPos + 1;
+      }, 0);
+    }
+  });
+
+  // Apply current style to selected text
+  function applyStyleToSelectedText() {
     if (!selectedTextElement) return;
     
     const textContent = selectedTextElement.querySelector('.text-content');
-    textContent.textContent = popupTextInputCompact.value;
-    textContent.style.fontSize = currentTextStyle.fontSize + 'px';
-    textContent.style.color = currentTextStyle.color;
-    textContent.style.fontWeight = currentTextStyle.bold ? 'bold' : 'normal';
-    textContent.style.fontStyle = currentTextStyle.italic ? 'italic' : 'normal';
-    textContent.style.textDecoration = currentTextStyle.underline ? 'underline' : 'none';
+    textContent.textContent = globalTextStyle.text;
+    textContent.style.fontSize = globalTextStyle.fontSize + 'px';
+    textContent.style.color = globalTextStyle.color;
+    textContent.style.fontWeight = globalTextStyle.bold ? 'bold' : 'normal';
+    textContent.style.fontStyle = globalTextStyle.italic ? 'italic' : 'normal';
+    textContent.style.textDecoration = globalTextStyle.underline ? 'underline' : 'none';
     
-    // Update text data
+    // Check if text has multiple lines
+    if (globalTextStyle.text.includes('\n')) {
+      selectedTextElement.classList.add('multi-line');
+    } else {
+      selectedTextElement.classList.remove('multi-line');
+    }
+    
+    // Update text data in storage
     const pageIndex = selectedTextElement.dataset.pageIndex;
     const textId = selectedTextElement.dataset.textId;
     const pd = pageData[pageIndex];
@@ -693,93 +763,104 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const textData = pd.texts.find(t => t.id === textId);
     if (!textData) return;
     
-    textData.text = popupTextInputCompact.value;
-    textData.fontSize = currentTextStyle.fontSize;
-    textData.color = currentTextStyle.color;
-    textData.bold = currentTextStyle.bold;
-    textData.italic = currentTextStyle.italic;
-    textData.underline = currentTextStyle.underline;
+    // Update the stored data with current global style
+    textData.text = globalTextStyle.text;
+    textData.fontSize = globalTextStyle.fontSize;
+    textData.color = globalTextStyle.color;
+    textData.bold = globalTextStyle.bold;
+    textData.italic = globalTextStyle.italic;
+    textData.underline = globalTextStyle.underline;
+    
+    // Auto-save (no need for apply button)
+    console.log('Auto-applied style to text:', textId);
   }
 
-  // Show text editor popup (compact)
-  function showTextEditorCompact(x, y, textData = null, isNew = false) {
-    isCreatingNewText = isNew;
+  // Update global style from UI
+  function updateGlobalStyle() {
+    globalTextStyle.fontSize = parseInt(sizeValueCompact.textContent);
+    globalTextStyle.color = colorPreviewCompact.style.backgroundColor;
+    globalTextStyle.bold = boldBtnCompact.classList.contains('active');
+    globalTextStyle.italic = italicBtnCompact.classList.contains('active');
+    globalTextStyle.underline = underlineBtnCompact.classList.contains('active');
+  }
+
+  // Show text editor popup (side positioning)
+  function showTextEditorPopup(textElement, textData) {
+    selectedTextElement = textElement;
+    isEditingText = true;
     
-    // Set popup position
-    const popupWidth = textEditorPopup.offsetWidth || 500;
-    const popupHeight = textEditorPopup.offsetHeight || 120;
+    // Set current text as global style
+    globalTextStyle = {
+      text: textData.text,
+      fontSize: textData.fontSize,
+      color: textData.color,
+      bold: textData.bold,
+      italic: textData.italic,
+      underline: textData.underline
+    };
+    
+    // Update UI with current text style
+    popupTextInputCompact.value = globalTextStyle.text;
+    sizeValueCompact.textContent = globalTextStyle.fontSize;
+    
+    try {
+      if (typeof jQuery !== 'undefined' && jQuery.fn.spectrum) {
+        $(popupColorPickerCompact).spectrum("set", globalTextStyle.color);
+      }
+    } catch (e) {
+      console.warn('Could not set color picker value:', e);
+    }
+    
+    colorPreviewCompact.style.backgroundColor = globalTextStyle.color;
+    boldBtnCompact.classList.toggle('active', globalTextStyle.bold);
+    italicBtnCompact.classList.toggle('active', globalTextStyle.italic);
+    underlineBtnCompact.classList.toggle('active', globalTextStyle.underline);
+    
+    // Get position of text element
+    const textRect = textElement.getBoundingClientRect();
+    const popupWidth = 380;
+    const popupHeight = 180;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     
-    // Adjust position to stay within viewport
-    let posX = x;
-    let posY = y - popupHeight - 10; // Text के ऊपर दिखाएं
+    // Calculate available space on each side
+    const spaceRight = viewportWidth - textRect.right;
+    const spaceLeft = textRect.left;
+    const spaceTop = textRect.top;
+    const spaceBottom = viewportHeight - textRect.bottom;
     
-    if (posX + popupWidth > viewportWidth - 20) {
-      posX = viewportWidth - popupWidth - 20;
+    let posX, posY;
+    
+    // Prefer right side if space available
+    if (spaceRight >= popupWidth + 20) {
+      posX = textRect.right + 10;
+    } 
+    // Otherwise try left side
+    else if (spaceLeft >= popupWidth + 20) {
+      posX = textRect.left - popupWidth - 10;
     }
-    if (posX < 20) {
-      posX = 20;
+    // If neither side has space, center horizontally
+    else {
+      posX = Math.max(20, (viewportWidth - popupWidth) / 2);
     }
     
-    if (posY < 20) {
-      posY = y + 20; // अगर ऊपर जगह नहीं है तो नीचे दिखाएं
+    // Vertical positioning - align with text
+    if (spaceTop >= popupHeight + 20) {
+      posY = textRect.top - popupHeight - 10;
+    } else if (spaceBottom >= popupHeight + 20) {
+      posY = textRect.bottom + 10;
+    } else {
+      // Center vertically if no space
+      posY = Math.max(20, (viewportHeight - popupHeight) / 2);
     }
-    if (posY + popupHeight > viewportHeight - 20) {
-      posY = viewportHeight - popupHeight - 20;
-    }
+    
+    // Ensure popup stays within viewport
+    posX = Math.max(20, Math.min(posX, viewportWidth - popupWidth - 20));
+    posY = Math.max(20, Math.min(posY, viewportHeight - popupHeight - 20));
     
     textEditorPopup.style.left = posX + 'px';
     textEditorPopup.style.top = posY + 'px';
     textEditorPopup.style.display = 'block';
-    
-    popupPosition = { x: posX, y: posY };
-    
-    // Set values based on textData or defaults
-    if (textData) {
-      popupTextInputCompact.value = textData.text;
-      sizeValueCompact.textContent = textData.fontSize;
-      
-      // Set color picker value
-      try {
-        if (typeof jQuery !== 'undefined' && jQuery.fn.spectrum) {
-          $(popupColorPickerCompact).spectrum("set", textData.color);
-        }
-      } catch (e) {
-        console.warn('Could not set color picker value:', e);
-      }
-      
-      colorPreviewCompact.style.backgroundColor = textData.color;
-      boldBtnCompact.classList.toggle('active', textData.bold);
-      italicBtnCompact.classList.toggle('active', textData.italic);
-      underlineBtnCompact.classList.toggle('active', textData.underline);
-      
-      currentTextStyle = {
-        text: textData.text,
-        fontSize: textData.fontSize,
-        color: textData.color,
-        bold: textData.bold,
-        italic: textData.italic,
-        underline: textData.underline
-      };
-    } else {
-      // Use current style for new text
-      popupTextInputCompact.value = currentTextStyle.text;
-      sizeValueCompact.textContent = currentTextStyle.fontSize;
-      
-      try {
-        if (typeof jQuery !== 'undefined' && jQuery.fn.spectrum) {
-          $(popupColorPickerCompact).spectrum("set", currentTextStyle.color);
-        }
-      } catch (e) {
-        console.warn('Could not set color picker value:', e);
-      }
-      
-      colorPreviewCompact.style.backgroundColor = currentTextStyle.color;
-      boldBtnCompact.classList.toggle('active', currentTextStyle.bold);
-      italicBtnCompact.classList.toggle('active', currentTextStyle.italic);
-      underlineBtnCompact.classList.toggle('active', currentTextStyle.underline);
-    }
     
     // Focus on text input
     setTimeout(() => {
@@ -791,6 +872,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   // Hide text editor popup
   function hideTextEditor() {
     textEditorPopup.style.display = 'none';
+    isEditingText = false;
     
     // If we were creating a new text and cancelled, remove the temporary text element
     if (isCreatingNewText && selectedTextElement) {
@@ -812,31 +894,15 @@ document.addEventListener('DOMContentLoaded', ()=> {
   }
 
   // Event listeners for popup
-  popupTextInputCompact.addEventListener('input', () => {
-    currentTextStyle.text = popupTextInputCompact.value;
-    updateTextPreviewCompact();
-  });
-
   closePopupBtn.addEventListener('click', hideTextEditor);
   cancelBtnCompact.addEventListener('click', hideTextEditor);
-
-  applyBtnCompact.addEventListener('click', () => {
-    hideTextEditor();
-    // If creating new text, finalize it
-    if (isCreatingNewText && selectedTextElement) {
-      // Remove selection border
-      selectedTextElement.classList.remove('selected');
-      selectedTextElement = null;
-    }
-    isCreatingNewText = false;
-  });
 
   // Close popup when clicking outside
   document.addEventListener('click', (e) => {
     if (textEditorPopup.style.display === 'block' && 
         !textEditorPopup.contains(e.target) && 
-        !e.target.classList.contains('text-element') &&
-        !e.target.closest('.text-element')) {
+        !e.target.classList.contains('edit-btn') &&
+        !e.target.closest('.edit-btn')) {
       hideTextEditor();
     }
   });
@@ -1036,34 +1102,38 @@ document.addEventListener('DOMContentLoaded', ()=> {
             const layerX = ev.clientX - rect.left;
             const layerY = ev.clientY - rect.top;
             
-            // Check if click is on existing text
+            // Check if click is on existing text or controls
             const existingTexts = Array.from(textLayer.querySelectorAll('.text-element'));
             for(const textEl of existingTexts) {
               const textRect = textEl.getBoundingClientRect();
+              const editBtn = textEl.querySelector('.edit-btn');
+              const deleteBtn = textEl.querySelector('.delete-btn');
               
+              // Check if click is on edit or delete button
+              if (editBtn && isClickOnElement(ev, editBtn)) {
+                return; // Edit button handler will handle this
+              }
+              if (deleteBtn && isClickOnElement(ev, deleteBtn)) {
+                return; // Delete button handler will handle this
+              }
+              
+              // Check if click is on text element itself
               if(ev.clientX >= textRect.left && ev.clientX <= textRect.right && 
                  ev.clientY >= textRect.top && ev.clientY <= textRect.bottom) {
                 // Select existing text
                 selectTextElement(textEl);
-                showTextEditorCompact(ev.clientX, ev.clientY, getTextDataFromElement(textEl), false);
+                const textData = getTextDataFromElement(textEl);
+                if (textData) {
+                  showTextEditorPopup(textEl, textData);
+                }
                 return;
               }
             }
             
-            // Add new text
+            // Add new text (using current global style)
             currentPageIndex = pageNum - 1;
             clickPosition = { x: ev.clientX, y: ev.clientY };
             addTextToPage(currentPageIndex, layerX, layerY);
-          });
-          
-          // Double-click to edit existing text
-          textLayer.addEventListener('dblclick', (ev) => {
-            const target = ev.target;
-            const textEl = target.closest('.text-element');
-            if (textEl) {
-              selectTextElement(textEl);
-              showTextEditorCompact(ev.clientX, ev.clientY, getTextDataFromElement(textEl), false);
-            }
           });
           
           console.log(`Page ${pageNum} rendered successfully`);
@@ -1117,6 +1187,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
     }
   }
 
+  // Check if click is on specific element
+  function isClickOnElement(ev, element) {
+    const rect = element.getBoundingClientRect();
+    return ev.clientX >= rect.left && ev.clientX <= rect.right && 
+           ev.clientY >= rect.top && ev.clientY <= rect.bottom;
+  }
+
   // Show error message
   function showError(message) {
     previewList.innerHTML = `
@@ -1147,7 +1224,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     // Create text element
     const textEl = document.createElement('div');
-    textEl.className = 'text-element selected';
+    textEl.className = 'text-element';
     textEl.id = id;
     textEl.dataset.pageIndex = pageIndex;
     textEl.dataset.textId = id;
@@ -1161,18 +1238,48 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Create text content
     const textContent = document.createElement('div');
     textContent.className = 'text-content';
-    textContent.textContent = currentTextStyle.text;
-    textContent.style.fontSize = currentTextStyle.fontSize + 'px';
-    textContent.style.color = currentTextStyle.color;
-    textContent.style.fontWeight = currentTextStyle.bold ? 'bold' : 'normal';
-    textContent.style.fontStyle = currentTextStyle.italic ? 'italic' : 'normal';
-    textContent.style.textDecoration = currentTextStyle.underline ? 'underline' : 'none';
+    textContent.textContent = globalTextStyle.text;
+    textContent.style.fontSize = globalTextStyle.fontSize + 'px';
+    textContent.style.color = globalTextStyle.color;
+    textContent.style.fontWeight = globalTextStyle.bold ? 'bold' : 'normal';
+    textContent.style.fontStyle = globalTextStyle.italic ? 'italic' : 'normal';
+    textContent.style.textDecoration = globalTextStyle.underline ? 'underline' : 'none';
     textEl.appendChild(textContent);
+    
+    // Add multi-line indicator
+    const multiLineIndicator = document.createElement('div');
+    multiLineIndicator.className = 'multi-line-indicator';
+    multiLineIndicator.innerHTML = '<i class="fas fa-align-left"></i>';
+    textEl.appendChild(multiLineIndicator);
+    
+    // Check if text has multiple lines
+    if (globalTextStyle.text.includes('\n')) {
+      textEl.classList.add('multi-line');
+    }
+    
+    // Create controls container
+    const controlsContainer = document.createElement('div');
+    controlsContainer.className = 'text-controls';
+    
+    // Edit button (pencil icon)
+    const editBtn = document.createElement('button');
+    editBtn.className = 'edit-btn';
+    editBtn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+    editBtn.title = 'Edit text';
+    editBtn.addEventListener('click', (e)=> {
+      e.stopPropagation();
+      selectTextElement(textEl);
+      const textData = getTextDataFromElement(textEl);
+      if (textData) {
+        showTextEditorPopup(textEl, textData);
+      }
+    });
     
     // Delete button
     const del = document.createElement('button');
     del.className = 'delete-btn';
     del.innerHTML = '<i class="fas fa-trash"></i>';
+    del.title = 'Delete text';
     del.addEventListener('click', (e)=> {
       e.stopPropagation();
       if (selectedTextElement === textEl) {
@@ -1183,7 +1290,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
       pd.texts = pd.texts.filter(t => t.id !== id);
       generateBtn.disabled = pageData.every(p=> !p.texts || p.texts.length===0);
     });
-    textEl.appendChild(del);
+    
+    controlsContainer.appendChild(editBtn);
+    controlsContainer.appendChild(del);
+    textEl.appendChild(controlsContainer);
     
     layer.appendChild(textEl);
     
@@ -1197,12 +1307,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
       id, 
       x_pdf: pdfX, 
       top_pdf: pdfTop,
-      text: currentTextStyle.text,
-      fontSize: currentTextStyle.fontSize,
-      color: currentTextStyle.color,
-      bold: currentTextStyle.bold,
-      italic: currentTextStyle.italic,
-      underline: currentTextStyle.underline
+      text: globalTextStyle.text,
+      fontSize: globalTextStyle.fontSize,
+      color: globalTextStyle.color,
+      bold: globalTextStyle.bold,
+      italic: globalTextStyle.italic,
+      underline: globalTextStyle.underline
     };
     
     if (!pd.texts) pd.texts = [];
@@ -1211,11 +1321,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Make draggable
     makeDraggable(textEl, pageIndex, stored);
     
-    // Select this new text
+    // Select this new text and show editor
     selectTextElement(textEl);
-    
-    // Show popup for editing
-    showTextEditorCompact(clickPosition.x, clickPosition.y, stored, true);
+    showTextEditorPopup(textEl, stored);
     
     generateBtn.disabled = false;
   }
@@ -1249,6 +1357,14 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const layer = pd.layerElem;
 
     const down = (e) => {
+      // Don't start drag if clicking on edit or delete button
+      if (e.target.classList.contains('edit-btn') || 
+          e.target.classList.contains('delete-btn') ||
+          e.target.closest('.edit-btn') || 
+          e.target.closest('.delete-btn')) {
+        return;
+      }
+      
       e.preventDefault();
       dragging = true;
       const cx = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
@@ -1374,13 +1490,18 @@ document.addEventListener('DOMContentLoaded', ()=> {
           // Calculate Y position (PDF origin is bottom-left)
           const pdfY = pd.pdfSize.height - t.top_pdf - t.fontSize;
           
-          page.drawText(t.text, {
-            x: t.x_pdf,
-            y: pdfY,
-            size: t.fontSize,
-            font: font,
-            color: PDFLib.rgb(r, g, b)
-          });
+          // Split text by newlines and draw each line
+          const lines = t.text.split('\n');
+          for(let j = 0; j < lines.length; j++) {
+            const lineY = pdfY - (j * t.fontSize * 1.2);
+            page.drawText(lines[j], {
+              x: t.x_pdf,
+              y: lineY,
+              size: t.fontSize,
+              font: font,
+              color: PDFLib.rgb(r, g, b)
+            });
+          }
         }
       }
       
@@ -1445,58 +1566,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
   }
 
   // Initialize with default style
-  currentTextStyle = {...defaultTextStyle};
-  sizeValueCompact.textContent = currentTextStyle.fontSize;
-  colorPreviewCompact.style.backgroundColor = currentTextStyle.color;
-  
-  // Make popup draggable
-  let isDraggingPopup = false;
-  let popupStartX = 0, popupStartY = 0, popupStartLeft = 0, popupStartTop = 0;
-  
-  const popupHeader = document.querySelector('.popup-header');
-  popupHeader.style.cursor = 'move';
-  
-  popupHeader.addEventListener('mousedown', (e) => {
-    if (e.target === popupHeader || e.target.closest('.popup-header') === popupHeader) {
-      isDraggingPopup = true;
-      popupStartX = e.clientX;
-      popupStartY = e.clientY;
-      popupStartLeft = parseInt(textEditorPopup.style.left) || 0;
-      popupStartTop = parseInt(textEditorPopup.style.top) || 0;
-      
-      document.addEventListener('mousemove', dragPopup);
-      document.addEventListener('mouseup', stopDragPopup);
-    }
-  });
-  
-  function dragPopup(e) {
-    if (!isDraggingPopup) return;
-    e.preventDefault();
-    
-    const dx = e.clientX - popupStartX;
-    const dy = e.clientY - popupStartY;
-    
-    let newLeft = popupStartLeft + dx;
-    let newTop = popupStartTop + dy;
-    
-    // Constrain within viewport
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const popupWidth = textEditorPopup.offsetWidth;
-    const popupHeight = textEditorPopup.offsetHeight;
-    
-    newLeft = Math.max(10, Math.min(newLeft, viewportWidth - popupWidth - 10));
-    newTop = Math.max(10, Math.min(newTop, viewportHeight - popupHeight - 10));
-    
-    textEditorPopup.style.left = newLeft + 'px';
-    textEditorPopup.style.top = newTop + 'px';
-  }
-  
-  function stopDragPopup() {
-    isDraggingPopup = false;
-    document.removeEventListener('mousemove', dragPopup);
-    document.removeEventListener('mouseup', stopDragPopup);
-  }
+  colorPreviewCompact.style.backgroundColor = globalTextStyle.color;
+  sizeValueCompact.textContent = globalTextStyle.fontSize;
   
   // Add a sample PDF loading message
   console.log('PDF Text Adder Application Loaded Successfully');
