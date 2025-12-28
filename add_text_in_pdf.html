@@ -486,13 +486,6 @@
       line-height: 1.2;
       padding: 2px 4px;
     }
-    
-    /* Placeholder text styling */
-    .text-element .text-content[data-placeholder]:empty:before {
-      content: attr(data-placeholder);
-      color: #888;
-      pointer-events: none;
-    }
   </style>
 </head>
 <body>
@@ -583,9 +576,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let selectedTextElement = null;
   let currentPageIndex = 0;
   
-  // Global text style - यहाँ सेटिंग्स सेव रहेंगी
+  // Global text style
   let globalTextStyle = {
-    text: "", // नया टेक्स्ट हमेशा खाली होगा
     fontSize: 16,
     color: "#000000",
     bold: false,
@@ -817,7 +809,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
       if (prevTextContent) {
         prevTextContent.contentEditable = false;
         prevTextContent.style.pointerEvents = 'none';
-        prevTextContent.setAttribute('data-placeholder', 'Type here');
       }
     }
     
@@ -833,13 +824,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (pd && pd.texts) {
       const textData = pd.texts.find(t => t.id === textId);
       if (textData) {
-        // Only update global style from existing text
+        // Update global style from existing text
         globalTextStyle.fontSize = textData.fontSize;
         globalTextStyle.color = textData.color;
         globalTextStyle.bold = textData.bold;
         globalTextStyle.italic = textData.italic;
         globalTextStyle.underline = textData.underline;
-        // Don't update text content
       }
     }
     
@@ -858,17 +848,15 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textElement.classList.add('editing');
     textContent.contentEditable = true;
     textContent.style.pointerEvents = 'auto';
-    textContent.removeAttribute('data-placeholder');
     
-    // Focus and place cursor at the end
+    // Focus and select all text
     setTimeout(() => {
       textContent.focus();
       
-      // Place cursor at the end
+      // Select all text for easy editing
       const range = document.createRange();
       const selection = window.getSelection();
       range.selectNodeContents(textContent);
-      range.collapse(false);
       selection.removeAllRanges();
       selection.addRange(range);
     }, 10);
@@ -895,16 +883,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
       handleInput();
     });
     
-    // Handle keydown for finishing and real-time updates
+    // Handle keydown for finishing
     const handleKeydown = (e) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' || (e.key === 'Enter' && !e.shiftKey)) {
         e.preventDefault();
         finishTyping(textElement, textContent);
-      } else if (e.key === 'Enter' && !e.shiftKey) {
-        // Allow Enter for new line
-        setTimeout(() => {
-          handleInput();
-        }, 0);
       }
     };
     
@@ -988,7 +971,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (!textData) return;
     
     textData.text = newText;
-    // Don't update globalTextStyle.text - user's style settings should persist
   }
   
   // Finish direct typing
@@ -998,7 +980,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.contentEditable = false;
     textContent.style.pointerEvents = 'none';
     textElement.classList.remove('editing');
-    textContent.setAttribute('data-placeholder', 'Type here');
     
     // Final size update
     updateTextElementSize(textElement, textContent);
@@ -1266,12 +1247,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
                 // Select existing text
                 selectTextElement(textEl);
                 
-                // If not in move mode, start editing immediately
-                if (!isMoveModeActive) {
-                  setTimeout(() => {
-                    startTyping(textEl);
-                  }, 50);
-                }
+                // Start editing the existing text immediately
+                setTimeout(() => {
+                  startTyping(textEl);
+                }, 50);
                 
                 clickedOnExisting = true;
                 break;
@@ -1280,10 +1259,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
             
             // If clicked on existing element, don't add new one
             if (clickedOnExisting) return;
-            
-            // नया टेक्स्ट बनाएं - लेकिन globalTextStyle रीसेट न करें
-            // सिर्फ text को खाली करें, बाकी सेटिंग्स वही रहेंगी
-            globalTextStyle.text = "";
             
             // Add new text at clicked location
             currentPageIndex = pageNum - 1;
@@ -1461,11 +1436,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textEl.style.width = 'auto';
     textEl.style.height = 'auto';
     
-    // Create text content
+    // Create text content - सिर्फ साधारण div
     const textContent = document.createElement('div');
     textContent.className = 'text-content';
-    textContent.textContent = '';
-    textContent.setAttribute('data-placeholder', 'Type here');
+    textContent.textContent = 'New Text'; // डिफ़ॉल्ट टेक्स्ट
     textContent.style.fontSize = globalTextStyle.fontSize + 'px';
     textContent.style.color = globalTextStyle.color;
     textContent.style.fontWeight = globalTextStyle.bold ? 'bold' : 'normal';
@@ -1565,7 +1539,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       id, 
       x_pdf: pdfX, 
       top_pdf: pdfTop,
-      text: '',
+      text: 'New Text', // डिफ़ॉल्ट टेक्स्ट
       fontSize: globalTextStyle.fontSize,
       color: globalTextStyle.color,
       bold: globalTextStyle.bold,
