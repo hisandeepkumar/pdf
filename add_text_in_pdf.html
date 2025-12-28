@@ -80,18 +80,23 @@
       pointer-events:none; font-family: Arial, sans-serif;
       text-shadow: 0 1px 2px rgba(0,0,0,0.2);
       white-space: pre-wrap;
-      word-break: break-word;
+      word-break: keep-all;
+      word-wrap: break-word;
       line-height: 1.2;
       min-height: 1.2em;
       width: 100%;
+      overflow: hidden;
     }
     .text-element.editing .text-content{
       pointer-events:auto;
       outline:none;
       cursor: text;
+      white-space: pre-wrap;
+      word-break: keep-all;
+      word-wrap: break-word;
     }
 
-    /* टेक्स्ट कंट्रोल बार - छोटा और कॉम्पैक्ट */
+    /* टेक्स्ट कंट्रोल बार - पारदर्शी */
     .text-controls-bar {
       position: absolute;
       bottom: calc(100% + 3px);
@@ -100,7 +105,7 @@
       display: none;
       flex-direction: row;
       gap: 4px;
-      background: rgba(30, 30, 35, 0.95);
+      background: rgba(30, 30, 35, 0.7); /* पारदर्शी */
       backdrop-filter: blur(10px);
       border-radius: 15px;
       padding: 4px 6px;
@@ -241,7 +246,7 @@
     /* कलर पिकर पॉपअप - छोटा */
     .color-picker-popup {
       position: fixed;
-      background: rgba(30, 30, 35, 0.98);
+      background: rgba(30, 30, 35, 0.9); /* पारदर्शी */
       backdrop-filter: blur(20px);
       border-radius: 10px;
       padding: 10px;
@@ -386,7 +391,7 @@
       left: 50% !important;
       transform: translate(-50%, -50%) !important;
       z-index: 10001 !important;
-      background: rgba(30, 30, 35, 0.98) !important;
+      background: rgba(30, 30, 35, 0.95) !important;
       backdrop-filter: blur(20px) !important;
       border: 1px solid rgba(255,255,255,0.2) !important;
       border-radius: 16px !important;
@@ -461,8 +466,27 @@
       visibility: hidden;
       white-space: pre-wrap;
       font-family: Arial, sans-serif;
-      word-break: break-word;
+      word-break: keep-all;
+      word-wrap: break-word;
       line-height: 1.2;
+    }
+    
+    /* Text input helper */
+    .text-input-helper {
+      position: absolute;
+      bottom: -20px;
+      left: 0;
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+      background: rgba(0,0,0,0.6);
+      padding: 2px 6px;
+      border-radius: 3px;
+      display: none;
+      z-index: 1000;
+    }
+    
+    .text-element.editing .text-input-helper {
+      display: block;
     }
   </style>
 </head>
@@ -554,7 +578,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let selectedTextElement = null;
   let currentPageIndex = 0;
   
-  // Global text style
+  // Global text style - हमेशा नए टेक्स्ट के लिए "Type here" रहेगा
   let globalTextStyle = {
     text: "Type here",
     fontSize: 16,
@@ -710,7 +734,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.style.textDecoration = globalTextStyle.underline ? 'underline' : 'none';
     
     // Check if text has multiple lines
-    if (textContent.textContent.includes('\n')) {
+    const lines = textContent.textContent.split('\n');
+    if (lines.length > 1) {
       selectedTextElement.classList.add('multi-line');
     } else {
       selectedTextElement.classList.remove('multi-line');
@@ -824,6 +849,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.contentEditable = true;
     textContent.style.pointerEvents = 'auto';
     
+    // Add helper text
+    const helper = document.createElement('div');
+    helper.className = 'text-input-helper';
+    helper.textContent = 'Press Enter for new line, Esc or click outside to finish';
+    textElement.appendChild(helper);
+    
     // Focus and select all text
     setTimeout(() => {
       textContent.focus();
@@ -874,8 +905,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
         e.preventDefault();
         finishTyping(textElement, textContent);
       } else if (e.key === 'Escape') {
+        e.preventDefault();
         finishTyping(textElement, textContent);
       }
+      // Shift+Enter will create new line (default behavior)
     };
     
     textContent.addEventListener('keydown', handleKeydown);
@@ -888,29 +921,67 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.addEventListener('blur', handleBlur);
   }
   
-  // Update text element size based on content
+  // Update text element size based on content - FIXED TEXT WRAPPING
   function updateTextElementSize(textElement, textContent) {
-    // Set measure span with same style to calculate width
+    // First, set the text to measure span with correct style
     measureSpan.style.fontSize = textContent.style.fontSize;
     measureSpan.style.fontWeight = textContent.style.fontWeight;
     measureSpan.style.fontStyle = textContent.style.fontStyle;
     measureSpan.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
     measureSpan.style.lineHeight = textContent.style.lineHeight || '1.2';
     measureSpan.style.whiteSpace = 'pre-wrap';
-    measureSpan.style.wordBreak = 'break-word';
+    measureSpan.style.wordBreak = 'keep-all';
+    measureSpan.style.wordWrap = 'break-word';
+    measureSpan.style.width = 'auto';
     
     // Set text and measure
-    measureSpan.textContent = textContent.textContent || '';
+    const text = textContent.textContent || '';
+    measureSpan.textContent = text;
+    
+    // Get natural width of text
     const textWidth = measureSpan.offsetWidth;
     
     // Add padding (8px left + 8px right = 16px)
-    const newWidth = Math.max(50, Math.min(textWidth + 16, 500));
+    const maxWidth = 500;
+    const minWidth = 50;
     
-    // Set element dimensions
+    // Calculate width based on text length and font size
+    const avgCharWidth = parseFloat(textContent.style.fontSize) * 0.6;
+    const estimatedWidth = text.length * avgCharWidth;
+    
+    // Use the larger of estimated width and actual measured width
+    const newWidth = Math.max(minWidth, Math.min(Math.max(textWidth, estimatedWidth) + 16, maxWidth));
+    
+    // Set element width
     textElement.style.width = newWidth + 'px';
     
+    // Now calculate height
+    // We need to simulate wrapping by setting width and getting scrollHeight
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.visibility = 'hidden';
+    tempDiv.style.whiteSpace = 'pre-wrap';
+    tempDiv.style.wordBreak = 'keep-all';
+    tempDiv.style.wordWrap = 'break-word';
+    tempDiv.style.fontSize = textContent.style.fontSize;
+    tempDiv.style.fontWeight = textContent.style.fontWeight;
+    tempDiv.style.fontStyle = textContent.style.fontStyle;
+    tempDiv.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
+    tempDiv.style.lineHeight = textContent.style.lineHeight || '1.2';
+    tempDiv.style.width = (newWidth - 16) + 'px'; // Subtract padding
+    tempDiv.style.padding = '4px 8px';
+    tempDiv.textContent = text;
+    
+    document.body.appendChild(tempDiv);
+    const newHeight = tempDiv.scrollHeight;
+    document.body.removeChild(tempDiv);
+    
+    // Set element height (add padding)
+    textElement.style.height = (newHeight) + 'px';
+    
     // Check for multi-line text
-    if (textContent.textContent.includes('\n')) {
+    const lines = text.split('\n');
+    if (lines.length > 1) {
       textElement.classList.add('multi-line');
     } else {
       textElement.classList.remove('multi-line');
@@ -935,6 +1006,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
   // Finish direct typing
   function finishTyping(textElement, textContent) {
     if (!isTypingInText) return;
+    
+    // Remove helper text
+    const helper = textElement.querySelector('.text-input-helper');
+    if (helper) {
+      helper.remove();
+    }
     
     textContent.contentEditable = false;
     textContent.style.pointerEvents = 'none';
@@ -1205,6 +1282,14 @@ document.addEventListener('DOMContentLoaded', ()=> {
             // If clicked on existing element, don't add new one
             if (clickedOnExisting) return;
             
+            // RESET global text to "Type here" for new text
+            globalTextStyle.text = "Type here";
+            globalTextStyle.fontSize = 16;
+            globalTextStyle.color = "#000000";
+            globalTextStyle.bold = false;
+            globalTextStyle.italic = false;
+            globalTextStyle.underline = false;
+            
             // Add new text at clicked location
             currentPageIndex = pageNum - 1;
             addTextToPage(currentPageIndex, layerX, layerY);
@@ -1379,6 +1464,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textEl.style.left = left + 'px';
     textEl.style.top = top + 'px';
     textEl.style.width = 'auto';
+    textEl.style.height = 'auto';
     
     // Create text content
     const textContent = document.createElement('div');
@@ -1389,6 +1475,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.style.fontWeight = globalTextStyle.bold ? 'bold' : 'normal';
     textContent.style.fontStyle = globalTextStyle.italic ? 'italic' : 'normal';
     textContent.style.textDecoration = globalTextStyle.underline ? 'underline' : 'none';
+    textContent.style.whiteSpace = 'pre-wrap';
+    textContent.style.wordBreak = 'keep-all';
+    textContent.style.wordWrap = 'break-word';
     textEl.appendChild(textContent);
     
     // Add multi-line indicator
