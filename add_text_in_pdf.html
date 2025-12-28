@@ -52,7 +52,14 @@
     .canvas-wrap{ position:relative; width:100%; display:flex; justify-content:center; }
     canvas{ width:100% !important; height:auto !important; border-radius:6px; box-shadow:0 8px 30px rgba(0,0,0,0.6); background:white; display:block; max-width: 100%; }
 
-    .text-layer{ position:absolute; left:0; top:0; pointer-events:auto; }
+    .text-layer{ 
+      position:absolute; left:0; top:0; 
+      width:100%; height:100%;
+      pointer-events:none;
+    }
+    .text-layer.active{
+      pointer-events:auto;
+    }
 
     .text-element{ 
       position:absolute; cursor:move; touch-action:none; user-select:none; 
@@ -62,8 +69,10 @@
       max-width: 500px;
       word-wrap: break-word;
       min-width: 50px;
+      z-index: 10;
     }
     .text-element.selected{ border-color: #60a5fa; background: rgba(96,165,250,0.1); }
+    .text-element.editing{ border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
     .text-element.pulse{ animation: textPulse 360ms ease; }
     @keyframes textPulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
 
@@ -75,6 +84,10 @@
       line-height: 1.2;
       min-height: 1.2em;
       width: 100%;
+    }
+    .text-element.editing .text-content{
+      pointer-events:auto;
+      outline:none;
     }
 
     /* टेक्स्ट कंट्रोल बार - छोटा और कॉम्पैक्ट */
@@ -190,6 +203,21 @@
       padding: 3px 5px;
       border-radius: 8px;
       margin: 0 1px;
+    }
+    
+    /* डिलीट बटन - छोटा */
+    .delete-btn{ 
+      position:absolute; right:-10px; top:-10px; width:22px; height:22px; 
+      background:#ef4444; color:white; border-radius:50%; border:none;
+      display:flex; align-items:center; justify-content:center; cursor:pointer;
+      font-size: 10px;
+      transition: all 0.2s ease;
+      z-index: 10;
+    }
+    
+    .delete-btn:hover {
+      background: #dc2626;
+      transform: scale(1.1);
     }
     
     /* मल्टी-लाइन टेक्स्ट इंडिकेटर */
@@ -426,19 +454,6 @@
       display: none;
     }
     
-    /* टेक्स्ट एडिटिंग मोड */
-    .text-element.editing {
-      border-color: #3b82f6;
-      background: rgba(59, 130, 246, 0.1);
-    }
-    
-    .text-element.editing .text-content {
-      pointer-events: auto;
-      outline: none;
-      min-width: 50px;
-      min-height: 1.2em;
-    }
-    
     /* टेक्स्ट मापने के लिए hidden span */
     .measure-span {
       position: absolute;
@@ -536,11 +551,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let pageData = [];
   let originalFilename = '';
   let selectedTextElement = null;
-  let isCreatingNewText = false;
   let currentPageIndex = 0;
-  let clickPosition = { x: 0, y: 0 };
   
-  // Global text style (जो सभी नए टेक्स्ट के लिए apply होगी)
+  // Global text style
   let globalTextStyle = {
     text: "Type here",
     fontSize: 16,
@@ -556,17 +569,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
   // Track if user is currently typing in a text element
   let isTypingInText = false;
   
-  // Color picker initialization
-  try {
-    if (typeof jQuery !== 'undefined' && jQuery.fn.spectrum) {
-      console.log('Spectrum color picker available');
-    } else {
-      console.warn('Spectrum color picker not available');
-    }
-  } catch (error) {
-    console.error('Error initializing color picker:', error);
-  }
-
   // Color picker events
   closeColorPickerBtn.addEventListener('click', hideColorPicker);
   
@@ -729,6 +731,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     // Update controls bar display
     updateControlsBar(selectedTextElement);
+    
+    // Update element size
+    updateTextElementSize(selectedTextElement, textContent);
   }
   
   // Update controls bar UI
@@ -796,19 +801,14 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     // Update controls bar
     updateControlsBar(element);
-    
-    // Start typing immediately if it's a new text element with "Type here"
-    const textContent = element.querySelector('.text-content');
-    if (textContent && textContent.textContent === "Type here") {
-      setTimeout(() => {
-        startDirectTyping(element, textContent);
-      }, 10);
-    }
   }
 
   // Start direct typing (no extra box)
-  function startDirectTyping(textElement, textContent) {
+  function startTyping(textElement) {
     if (isTypingInText) return;
+    
+    const textContent = textElement.querySelector('.text-content');
+    if (!textContent) return;
     
     isTypingInText = true;
     textElement.classList.add('editing');
@@ -863,9 +863,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const handleKeydown = (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        finishDirectTyping(textElement, textContent);
+        finishTyping(textElement, textContent);
       } else if (e.key === 'Escape') {
-        finishDirectTyping(textElement, textContent);
+        finishTyping(textElement, textContent);
       }
     };
     
@@ -873,17 +873,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     // Handle blur to finish
     const handleBlur = () => {
-      finishDirectTyping(textElement, textContent);
+      finishTyping(textElement, textContent);
     };
     
     textContent.addEventListener('blur', handleBlur);
-    
-    // Store handlers for cleanup
-    textContent._typingHandlers = {
-      input: handleInput,
-      keydown: handleKeydown,
-      blur: handleBlur
-    };
   }
   
   // Update text element size based on content
@@ -892,15 +885,14 @@ document.addEventListener('DOMContentLoaded', ()=> {
     measureSpan.style.fontSize = textContent.style.fontSize;
     measureSpan.style.fontWeight = textContent.style.fontWeight;
     measureSpan.style.fontStyle = textContent.style.fontStyle;
-    measureSpan.style.fontFamily = textContent.style.fontFamily;
-    measureSpan.style.lineHeight = textContent.style.lineHeight;
+    measureSpan.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
+    measureSpan.style.lineHeight = textContent.style.lineHeight || '1.2';
     measureSpan.style.whiteSpace = 'pre-wrap';
     measureSpan.style.wordBreak = 'break-word';
     
     // Set text and measure
     measureSpan.textContent = textContent.textContent || '';
     const textWidth = measureSpan.offsetWidth;
-    const textHeight = measureSpan.offsetHeight;
     
     // Add padding (8px left + 8px right = 16px)
     const newWidth = Math.max(50, Math.min(textWidth + 16, 500));
@@ -932,16 +924,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
   }
   
   // Finish direct typing
-  function finishDirectTyping(textElement, textContent) {
+  function finishTyping(textElement, textContent) {
     if (!isTypingInText) return;
-    
-    // Clean up handlers
-    if (textContent._typingHandlers) {
-      textContent.removeEventListener('input', textContent._typingHandlers.input);
-      textContent.removeEventListener('keydown', textContent._typingHandlers.keydown);
-      textContent.removeEventListener('blur', textContent._typingHandlers.blur);
-      delete textContent._typingHandlers;
-    }
     
     textContent.contentEditable = false;
     textContent.style.pointerEvents = 'none';
@@ -967,16 +951,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
       generateBtn.disabled = pageData.every(p=> !p.texts || p.texts.length===0);
     }
   }
-
-  // Hide color picker
-  document.addEventListener('click', (e) => {
-    if (colorPickerPopup.style.display === 'block' && 
-        !colorPickerPopup.contains(e.target) && 
-        !e.target.classList.contains('color-btn') &&
-        !e.target.closest('.color-btn')) {
-      hideColorPicker();
-    }
-  });
 
   // Drag/drop UI for PDF upload
   ['dragenter','dragover'].forEach(ev => uploadArea.addEventListener(ev, e=>{ 
@@ -1142,7 +1116,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
           // Create text layer
           const textLayer = document.createElement('div');
-          textLayer.className = 'text-layer';
+          textLayer.className = 'text-layer active';
           textLayer.style.width = cssWidth + 'px';
           textLayer.style.height = cssHeight + 'px';
           textLayer.style.left = '0';
@@ -1166,8 +1140,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
           // Add click event to layer for adding text
           textLayer.addEventListener('click', (ev) => {
+            console.log('Text layer clicked!');
             ev.preventDefault();
             ev.stopPropagation();
+            
+            // Don't do anything if we're currently typing
+            if (isTypingInText) return;
             
             const rect = textLayer.getBoundingClientRect();
             const layerX = ev.clientX - rect.left;
@@ -1175,18 +1153,25 @@ document.addEventListener('DOMContentLoaded', ()=> {
             
             // Check if click is on existing text or controls
             const existingTexts = Array.from(textLayer.querySelectorAll('.text-element'));
+            let clickedOnExisting = false;
+            
             for(const textEl of existingTexts) {
               const textRect = textEl.getBoundingClientRect();
               
               // Check if click is on controls bar
               const controlsBar = textEl.querySelector('.text-controls-bar');
-              if (controlsBar && isClickOnElement(ev, controlsBar)) {
-                // Check which button was clicked
-                const targetBtn = ev.target.closest('.control-btn');
-                if (targetBtn) {
-                  handleControlButtonClick(targetBtn, textEl);
+              if (controlsBar) {
+                const controlsRect = controlsBar.getBoundingClientRect();
+                if (ev.clientX >= controlsRect.left && ev.clientX <= controlsRect.right && 
+                    ev.clientY >= controlsRect.top && ev.clientY <= controlsRect.bottom) {
+                  // Check which button was clicked
+                  const targetBtn = ev.target.closest('.control-btn');
+                  if (targetBtn) {
+                    handleControlButtonClick(targetBtn, textEl);
+                  }
+                  clickedOnExisting = true;
+                  break;
                 }
-                return;
               }
               
               // Check if click is on text element itself
@@ -1194,17 +1179,24 @@ document.addEventListener('DOMContentLoaded', ()=> {
                  ev.clientY >= textRect.top && ev.clientY <= textRect.bottom) {
                 // Select existing text
                 selectTextElement(textEl);
-                return;
+                clickedOnExisting = true;
+                break;
               }
             }
             
-            // Add new text - FRESH TEXT with default "Type here"
-            currentPageIndex = pageNum - 1;
-            clickPosition = { x: ev.clientX, y: ev.clientY };
+            // If clicked on existing element, don't add new one
+            if (clickedOnExisting) return;
             
-            // Reset global text to default for new text
-            globalTextStyle.text = "Type here";
+            // Add new text
+            currentPageIndex = pageNum - 1;
             addTextToPage(currentPageIndex, layerX, layerY);
+            
+            // Start typing immediately
+            setTimeout(() => {
+              if (selectedTextElement) {
+                startTyping(selectedTextElement);
+              }
+            }, 50);
           });
           
           console.log(`Page ${pageNum} rendered successfully`);
@@ -1225,7 +1217,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
           
           // Still add empty page data to maintain array structure
           pageData[pageNum - 1] = {
-            pdfSize: { width: 595, height: 842 }, // Default A4 size
+            pdfSize: { width: 595, height: 842 },
             viewport: { width: 595, height: 842 },
             texts: []
           };
@@ -1267,30 +1259,25 @@ document.addEventListener('DOMContentLoaded', ()=> {
       if (globalTextStyle.fontSize > 8) {
         globalTextStyle.fontSize--;
         applyStyleToSelectedText();
-        updateTextElementSize(textElement, textElement.querySelector('.text-content'));
       }
     } else if (buttonClass.includes('size-plus')) {
       // Increase font size
       if (globalTextStyle.fontSize < 72) {
         globalTextStyle.fontSize++;
         applyStyleToSelectedText();
-        updateTextElementSize(textElement, textElement.querySelector('.text-content'));
       }
     } else if (buttonClass.includes('bold-btn')) {
       // Toggle bold
       globalTextStyle.bold = !globalTextStyle.bold;
       applyStyleToSelectedText();
-      updateTextElementSize(textElement, textElement.querySelector('.text-content'));
     } else if (buttonClass.includes('italic-btn')) {
       // Toggle italic
       globalTextStyle.italic = !globalTextStyle.italic;
       applyStyleToSelectedText();
-      updateTextElementSize(textElement, textElement.querySelector('.text-content'));
     } else if (buttonClass.includes('underline-btn')) {
       // Toggle underline
       globalTextStyle.underline = !globalTextStyle.underline;
       applyStyleToSelectedText();
-      updateTextElementSize(textElement, textElement.querySelector('.text-content'));
     } else if (buttonClass.includes('color-btn')) {
       // Show color picker
       showColorPicker(button, globalTextStyle.color);
@@ -1309,13 +1296,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
       hideColorPicker();
       generateBtn.disabled = pageData.every(p=> !p.texts || p.texts.length===0);
     }
-  }
-
-  // Check if click is on specific element
-  function isClickOnElement(ev, element) {
-    const rect = element.getBoundingClientRect();
-    return ev.clientX >= rect.left && ev.clientX <= rect.right && 
-           ev.clientY >= rect.top && ev.clientY <= rect.bottom;
   }
 
   // Show error message
@@ -1358,6 +1338,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const top = Math.max(10, y_css);
     textEl.style.left = left + 'px';
     textEl.style.top = top + 'px';
+    textEl.style.width = 'auto';
     
     // Create text content
     const textContent = document.createElement('div');
@@ -1471,13 +1452,17 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Make draggable
     makeDraggable(textEl, pageIndex, stored);
     
-    // Select this new text (this will automatically start typing)
+    // Add to layer
+    layer.appendChild(textEl);
+    
+    // Select this new text
     selectTextElement(textEl);
     
     // Update element size
     updateTextElementSize(textEl, textContent);
     
     generateBtn.disabled = false;
+    console.log('Text element added successfully');
   }
 
   function makeDraggable(domEl, pageIndex, stored){
