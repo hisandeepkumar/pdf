@@ -59,8 +59,9 @@
       display:flex; align-items:center; transition:transform 120ms ease;
       padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.05);
       border: 2px solid transparent;
-      max-width: 300px;
+      max-width: 500px;
       word-wrap: break-word;
+      min-width: 50px;
     }
     .text-element.selected{ border-color: #60a5fa; background: rgba(96,165,250,0.1); }
     .text-element.pulse{ animation: textPulse 360ms ease; }
@@ -428,6 +429,31 @@
       z-index: 1000;
       backdrop-filter: blur(10px);
       display: none;
+    }
+    
+    /* टेक्स्ट इनपुट ओवरले */
+    .text-input-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      border: 2px solid #3b82f6;
+      border-radius: 4px;
+      z-index: 50;
+    }
+    
+    .text-input-overlay textarea {
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.95);
+      border: none;
+      outline: none;
+      padding: 4px 8px;
+      font-family: Arial, sans-serif;
+      resize: none;
+      overflow: hidden;
     }
   </style>
 </head>
@@ -806,7 +832,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const textarea = document.createElement('textarea');
     textarea.style.width = '100%';
     textarea.style.height = '100%';
-    textarea.style.background = 'rgba(255,255,255,0.9)';
+    textarea.style.background = 'rgba(255,255,255,0.95)';
     textarea.style.border = 'none';
     textarea.style.outline = 'none';
     textarea.style.padding = '4px 8px';
@@ -819,14 +845,57 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textarea.style.resize = 'none';
     textarea.value = textContent.textContent;
     
-    // Auto-resize textarea
+    // Auto-resize textarea and adjust element width
     function autoResize() {
+      // Reset height to auto to calculate scrollHeight
       textarea.style.height = 'auto';
-      textarea.style.height = (textarea.scrollHeight) + 'px';
-      inputOverlay.style.height = (textarea.scrollHeight) + 'px';
+      const scrollHeight = textarea.scrollHeight;
+      const scrollWidth = textarea.scrollWidth;
+      
+      // Set new height
+      textarea.style.height = scrollHeight + 'px';
+      inputOverlay.style.height = scrollHeight + 'px';
+      
+      // Adjust text element width based on textarea scrollWidth
+      // Add some padding (left and right padding total 16px)
+      const newWidth = Math.max(50, Math.min(scrollWidth + 16, 500));
+      textElement.style.width = newWidth + 'px';
+      textarea.style.width = '100%';
+      
+      // Update stored width in data if needed? We don't store width currently.
+      // But we can store in the text data for later if needed.
     }
     
-    textarea.addEventListener('input', autoResize);
+    // Update text content in real-time
+    function updateTextContent() {
+      textContent.textContent = textarea.value;
+      
+      // Update global style and stored data
+      globalTextStyle.text = textarea.value;
+      
+      const pageIndex = textElement.dataset.pageIndex;
+      const textId = textElement.dataset.textId;
+      const pd = pageData[pageIndex];
+      
+      if (pd && pd.texts) {
+        const textData = pd.texts.find(t => t.id === textId);
+        if (textData) {
+          textData.text = textarea.value;
+        }
+      }
+      
+      // Check if text has multiple lines
+      if (textarea.value.includes('\n')) {
+        textElement.classList.add('multi-line');
+      } else {
+        textElement.classList.remove('multi-line');
+      }
+    }
+    
+    textarea.addEventListener('input', () => {
+      autoResize();
+      updateTextContent();
+    });
     
     inputOverlay.appendChild(textarea);
     textElement.appendChild(inputOverlay);
@@ -835,6 +904,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     setTimeout(() => {
       textarea.focus();
       textarea.select();
+      autoResize(); // Initial resize
     }, 10);
     
     // Handle Enter key for new line (Shift+Enter for new line, just Enter to finish)
@@ -858,6 +928,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   function finishTyping(textElement, textContent, textarea, inputOverlay) {
     if (!isTypingInText) return;
     
+    // Final update of text content (already done in real-time, but just in case)
     const newText = textarea.value.trim();
     if (newText !== '') {
       textContent.textContent = newText;
@@ -888,6 +959,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if (inputOverlay.parentNode) {
       inputOverlay.parentNode.removeChild(inputOverlay);
     }
+    
+    // Reset element width to fit content (optional, since already set during typing)
+    // But we can set it to the current scrollWidth of textContent
+    // However, textContent is a div and its width might not be accurate. We can use canvas context to measure.
+    // For simplicity, we keep the width as set during typing.
     
     isTypingInText = false;
   }
@@ -1396,6 +1472,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
     // Select this new text
     selectTextElement(textEl);
+    
+    // Start typing immediately for new text
+    setTimeout(() => {
+      startTypingInText(textEl, textContent);
+    }, 10);
     
     generateBtn.disabled = false;
   }
