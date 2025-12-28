@@ -476,6 +476,7 @@
       word-break: keep-all;
       word-wrap: break-word;
       line-height: 1.2;
+      padding: 6px 10px;
     }
     
     /* Placeholder text styling */
@@ -483,6 +484,11 @@
       content: attr(data-placeholder);
       color: #888;
       pointer-events: none;
+    }
+    
+    /* Typewriter effect for cursor */
+    .text-element.editing .text-content:focus {
+      caret-color: #3b82f6;
     }
   </style>
 </head>
@@ -757,8 +763,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
     // Update controls bar display
     updateControlsBar(selectedTextElement);
     
-    // Update element size
-    updateTextElementSize(selectedTextElement, textContent);
+    // Update element size IMMEDIATELY (not in requestAnimationFrame)
+    updateTextElementSizeImmediately(selectedTextElement, textContent);
   }
   
   // Update controls bar UI
@@ -852,18 +858,22 @@ document.addEventListener('DOMContentLoaded', ()=> {
     setTimeout(() => {
       textContent.focus();
       
-      // Select all text
+      // Place cursor at the end
       const range = document.createRange();
-      range.selectNodeContents(textContent);
       const selection = window.getSelection();
+      range.selectNodeContents(textContent);
+      range.collapse(false);
       selection.removeAllRanges();
       selection.addRange(range);
     }, 10);
     
     // Handle input to resize element and update stored data
     const handleInput = () => {
-      updateTextElementSize(textElement, textContent);
+      // Update text data immediately
       updateTextData(textElement, textContent.textContent);
+      
+      // Update size immediately without delay
+      updateTextElementSizeImmediately(textElement, textContent);
     };
     
     textContent.addEventListener('input', handleInput);
@@ -882,14 +892,21 @@ document.addEventListener('DOMContentLoaded', ()=> {
       handleInput();
     });
     
-    // Handle keydown for finishing
+    // Handle keydown for finishing and real-time updates
     const handleKeydown = (e) => {
       if (e.key === 'Escape') {
         e.preventDefault();
         finishTyping(textElement, textContent);
       } else if (e.key === 'Enter' && !e.shiftKey) {
-        // Allow Enter for new line (default behavior)
-        setTimeout(handleInput, 10);
+        // Allow Enter for new line but update size immediately
+        setTimeout(() => {
+          handleInput();
+        }, 0);
+      } else {
+        // For other keys, update immediately (but don't block default behavior)
+        setTimeout(() => {
+          handleInput();
+        }, 0);
       }
     };
     
@@ -903,9 +920,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.addEventListener('blur', handleBlur);
   }
   
-  // Update text element size based on content - FIXED TEXT WRAPPING
-  function updateTextElementSize(textElement, textContent) {
-    // First, set the text to measure span with correct style
+  // Update text element size IMMEDIATELY (no delays)
+  function updateTextElementSizeImmediately(textElement, textContent) {
+    // First, get the current width and height
+    const currentWidth = textElement.offsetWidth;
+    
+    // Set measureSpan with exact same style
     measureSpan.style.fontSize = textContent.style.fontSize;
     measureSpan.style.fontWeight = textContent.style.fontWeight;
     measureSpan.style.fontStyle = textContent.style.fontStyle;
@@ -914,31 +934,29 @@ document.addEventListener('DOMContentLoaded', ()=> {
     measureSpan.style.whiteSpace = 'pre-wrap';
     measureSpan.style.wordBreak = 'keep-all';
     measureSpan.style.wordWrap = 'break-word';
+    measureSpan.style.padding = '6px 10px';
     measureSpan.style.width = 'auto';
+    measureSpan.style.display = 'inline-block';
     
     // Set text and measure
     const text = textContent.textContent || '';
     measureSpan.textContent = text;
     
-    // Get natural width of text
-    const textWidth = measureSpan.offsetWidth;
+    // Force reflow to get accurate measurements
+    document.body.appendChild(measureSpan);
+    const requiredWidth = Math.min(500, Math.max(50, measureSpan.offsetWidth + 20));
+    document.body.removeChild(measureSpan);
     
-    // Add padding (8px left + 8px right = 16px)
-    const maxWidth = 500;
-    const minWidth = 50;
+    // Set new width - add some extra padding to prevent wrapping during typing
+    const extraPadding = text ? 20 : 0; // Extra space for typing
+    const newWidth = Math.min(500, Math.max(50, requiredWidth + extraPadding));
     
-    // Calculate width based on text length and font size
-    const avgCharWidth = parseFloat(textContent.style.fontSize) * 0.6;
-    const estimatedWidth = text.length * avgCharWidth;
+    // Only update if width changed significantly
+    if (Math.abs(newWidth - currentWidth) > 2) {
+      textElement.style.width = newWidth + 'px';
+    }
     
-    // Use the larger of estimated width and actual measured width
-    const newWidth = Math.max(minWidth, Math.min(Math.max(textWidth, estimatedWidth) + 16, maxWidth));
-    
-    // Set element width
-    textElement.style.width = newWidth + 'px';
-    
-    // Now calculate height
-    // We need to simulate wrapping by setting width and getting scrollHeight
+    // Calculate height
     const tempDiv = document.createElement('div');
     tempDiv.style.position = 'absolute';
     tempDiv.style.visibility = 'hidden';
@@ -950,16 +968,16 @@ document.addEventListener('DOMContentLoaded', ()=> {
     tempDiv.style.fontStyle = textContent.style.fontStyle;
     tempDiv.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
     tempDiv.style.lineHeight = textContent.style.lineHeight || '1.2';
-    tempDiv.style.width = (newWidth - 16) + 'px'; // Subtract padding
-    tempDiv.style.padding = '4px 8px';
+    tempDiv.style.width = (newWidth - 20) + 'px'; // Account for padding
+    tempDiv.style.padding = '6px 10px';
     tempDiv.textContent = text;
     
     document.body.appendChild(tempDiv);
     const newHeight = tempDiv.scrollHeight;
     document.body.removeChild(tempDiv);
     
-    // Set element height (add padding)
-    textElement.style.height = (newHeight) + 'px';
+    // Set element height
+    textElement.style.height = newHeight + 'px';
     
     // Check for multi-line text
     const lines = text.split('\n');
@@ -994,8 +1012,53 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textElement.classList.remove('editing');
     textContent.setAttribute('data-placeholder', 'Type here');
     
-    // Final size update
-    updateTextElementSize(textElement, textContent);
+    // Final size update (without extra padding)
+    const currentWidth = textElement.offsetWidth;
+    const text = textContent.textContent || '';
+    
+    // Set measureSpan with exact same style
+    measureSpan.style.fontSize = textContent.style.fontSize;
+    measureSpan.style.fontWeight = textContent.style.fontWeight;
+    measureSpan.style.fontStyle = textContent.style.fontStyle;
+    measureSpan.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
+    measureSpan.style.lineHeight = textContent.style.lineHeight || '1.2';
+    measureSpan.style.whiteSpace = 'pre-wrap';
+    measureSpan.style.wordBreak = 'keep-all';
+    measureSpan.style.wordWrap = 'break-word';
+    measureSpan.style.padding = '6px 10px';
+    measureSpan.style.width = 'auto';
+    measureSpan.style.display = 'inline-block';
+    
+    measureSpan.textContent = text;
+    
+    document.body.appendChild(measureSpan);
+    const requiredWidth = Math.min(500, Math.max(50, measureSpan.offsetWidth + 20));
+    document.body.removeChild(measureSpan);
+    
+    // Set final width (no extra padding)
+    textElement.style.width = requiredWidth + 'px';
+    
+    // Calculate final height
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.visibility = 'hidden';
+    tempDiv.style.whiteSpace = 'pre-wrap';
+    tempDiv.style.wordBreak = 'keep-all';
+    tempDiv.style.wordWrap = 'break-word';
+    tempDiv.style.fontSize = textContent.style.fontSize;
+    tempDiv.style.fontWeight = textContent.style.fontWeight;
+    tempDiv.style.fontStyle = textContent.style.fontStyle;
+    tempDiv.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
+    tempDiv.style.lineHeight = textContent.style.lineHeight || '1.2';
+    tempDiv.style.width = (requiredWidth - 20) + 'px';
+    tempDiv.style.padding = '6px 10px';
+    tempDiv.textContent = text;
+    
+    document.body.appendChild(tempDiv);
+    const newHeight = tempDiv.scrollHeight;
+    document.body.removeChild(tempDiv);
+    
+    textElement.style.height = newHeight + 'px';
     
     isTypingInText = false;
     
@@ -1559,7 +1622,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     selectTextElement(textEl);
     
     // Update element size
-    updateTextElementSize(textEl, textContent);
+    updateTextElementSizeImmediately(textEl, textContent);
     
     generateBtn.disabled = false;
     console.log('Text element added successfully');
