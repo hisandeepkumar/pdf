@@ -63,7 +63,7 @@
 
     .text-element{ 
       position:absolute; cursor:move; touch-action:none; user-select:none; 
-      display:block;
+      display:inline-block;
       max-width: 500px;
       word-wrap: break-word;
       min-width: 50px;
@@ -79,12 +79,12 @@
       background: rgba(96,165,250,0.1);
     }
     .text-element.editing{ 
-      outline: 2px solid #3b82f6;
-      outline-offset: 2px;
-      background: rgba(255, 255, 255, 0.9); 
+      outline: none;
+      background: rgba(173, 216, 230, 0.7); /* LIGHT BLUE BACKGROUND */
       cursor: text; 
       border-radius: 4px;
       padding: 4px 8px;
+      box-shadow: 0 0 0 1px rgba(96,165,250,0.5);
     }
     .text-element.pulse{ animation: textPulse 360ms ease; }
     @keyframes textPulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
@@ -97,8 +97,11 @@
       line-height: 1.2;
       width: 100%;
       min-height: 1.2em;
-      display: block;
-      padding: 2px 4px;
+      display: inline-block;
+      padding: 0;
+      background: transparent;
+      border: none;
+      outline: none;
     }
     .text-element.editing .text-content{
       pointer-events:auto;
@@ -107,9 +110,11 @@
       white-space: pre-wrap;
       word-break: break-word;
       background: transparent;
-      display: block;
+      display: inline-block;
       min-height: 1.2em;
       min-width: 50px;
+      border: none;
+      box-shadow: none;
     }
 
     /* टेक्स्ट कंट्रोल बार - पारदर्शी */
@@ -484,7 +489,9 @@
       font-family: Arial, sans-serif;
       word-break: break-word;
       line-height: 1.2;
-      padding: 2px 4px;
+      padding: 0;
+      display: inline-block;
+      max-width: 500px;
     }
   </style>
 </head>
@@ -901,33 +908,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
     textContent.addEventListener('blur', handleBlur);
   }
   
-  // Update text element size
+  // Update text element size - IMPROVED VERSION
   function updateTextElementSize(textElement, textContent) {
-    // Set measureSpan with exact same style
-    measureSpan.style.fontSize = textContent.style.fontSize;
-    measureSpan.style.fontWeight = textContent.style.fontWeight;
-    measureSpan.style.fontStyle = textContent.style.fontStyle;
-    measureSpan.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
-    measureSpan.style.lineHeight = textContent.style.lineHeight || '1.2';
-    measureSpan.style.whiteSpace = 'pre-wrap';
-    measureSpan.style.wordBreak = 'break-word';
-    measureSpan.style.padding = '2px 4px';
-    measureSpan.style.width = 'auto';
-    measureSpan.style.display = 'inline-block';
-    
-    // Set text and measure
+    // Get current text
     const text = textContent.textContent || '';
-    measureSpan.textContent = text;
     
-    // Force reflow to get accurate measurements
-    document.body.appendChild(measureSpan);
-    const requiredWidth = Math.min(500, Math.max(50, measureSpan.offsetWidth + 8));
-    document.body.removeChild(measureSpan);
-    
-    // Set new width
-    textElement.style.width = requiredWidth + 'px';
-    
-    // Calculate height
+    // Create a temporary div with exact same styles
     const tempDiv = document.createElement('div');
     tempDiv.style.position = 'absolute';
     tempDiv.style.visibility = 'hidden';
@@ -938,16 +924,24 @@ document.addEventListener('DOMContentLoaded', ()=> {
     tempDiv.style.fontStyle = textContent.style.fontStyle;
     tempDiv.style.fontFamily = textContent.style.fontFamily || 'Arial, sans-serif';
     tempDiv.style.lineHeight = textContent.style.lineHeight || '1.2';
-    tempDiv.style.width = requiredWidth + 'px';
-    tempDiv.style.boxSizing = 'border-box';
     tempDiv.style.padding = '2px 4px';
+    tempDiv.style.maxWidth = '500px';
+    tempDiv.style.minWidth = '50px';
+    tempDiv.style.display = 'inline-block';
     tempDiv.textContent = text;
     
+    // Add to document to calculate dimensions
     document.body.appendChild(tempDiv);
+    
+    // Get width and height
+    const requiredWidth = Math.min(500, Math.max(50, tempDiv.scrollWidth + 8));
     const newHeight = tempDiv.scrollHeight;
+    
+    // Remove temp div
     document.body.removeChild(tempDiv);
     
-    // Set element height
+    // Set element width and height
+    textElement.style.width = requiredWidth + 'px';
     textElement.style.height = newHeight + 'px';
     
     // Check for multi-line text
@@ -1371,7 +1365,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       // If we're currently editing, finish editing
       if (isTypingInText && selectedTextElement) {
         const textContent = selectedTextElement.querySelector('.text-content');
-        finishTyping(selectedTextElement, textContent);
+        finishTyping(textElement, textContent);
       }
     } else if (buttonClass.includes('delete-control-btn')) {
       // Delete text element
