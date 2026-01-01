@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Myrtille Industries - PDF Generator</title>
+  <title>Emergency Seal & Signature, And page no. Adder</title>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -276,6 +276,83 @@
       margin-right: 8px;
     }
 
+    /* Toggle Buttons Styles */
+    .toggle-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .toggle-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-align: left;
+    }
+
+    .toggle-btn.active {
+      background: rgba(91, 134, 229, 0.3);
+      border-color: #5b86e5;
+      box-shadow: 0 0 15px rgba(91, 134, 229, 0.4);
+    }
+
+    .toggle-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .toggle-btn .toggle-label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #5b86e5;
+    }
+
+    .toggle-btn .toggle-description {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    .toggle-switch-small {
+      width: 40px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      position: relative;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .toggle-switch-small::before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #f0f0f0;
+      border-radius: 50%;
+      top: 1.5px;
+      left: 1.5px;
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.3s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-btn.active .toggle-switch-small {
+      background: #34c759;
+      border-color: #34c759;
+    }
+
+    .toggle-btn.active .toggle-switch-small::before {
+      transform: translateX(20px);
+      background: #ffffff;
+    }
+
     @media (max-width: 768px) {
       .container {
         padding: 16px;
@@ -295,13 +372,16 @@
         font-size: 14px;
         padding: 12px 24px;
       }
+      .toggle-container {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1><i class="fas fa-file-pdf"></i> Myrtille Industries PDF Generator</h1>
+      <h1><i class="fas fa-file-pdf"></i> Emergency Seal & Signature, And page no. Adder</h1>
     </div>
     
     <div class="upload-area" id="uploadArea">
@@ -315,6 +395,41 @@
       <p>File: <span id="fileName">-</span></p>
       <p>Size: <span id="fileSize">-</span></p>
       <p>Pages: <span id="filePages">-</span></p>
+    </div>
+
+    <!-- Toggle Buttons -->
+    <div class="toggle-container">
+      <div class="toggle-btn active" id="dateTimeToggle">
+        <div>
+          <div class="toggle-label">Date & Time</div>
+          <div class="toggle-description">Add current date & time below PAN Card</div>
+        </div>
+        <div class="toggle-switch-small"></div>
+      </div>
+
+      <div class="toggle-btn active" id="signatureSealToggle">
+        <div>
+          <div class="toggle-label">Signature & Seal</div>
+          <div class="toggle-description">Add "Signature and Seal of Bidder" text</div>
+        </div>
+        <div class="toggle-switch-small"></div>
+      </div>
+
+      <div class="toggle-btn active" id="pageNumberToggle">
+        <div>
+          <div class="toggle-label">Page Numbers</div>
+          <div class="toggle-description">Add page numbers at bottom right</div>
+        </div>
+        <div class="toggle-switch-small"></div>
+      </div>
+
+      <div class="toggle-btn active" id="headerToggle">
+        <div>
+          <div class="toggle-label">Header</div>
+          <div class="toggle-description">Add Myrtille Industries header</div>
+        </div>
+        <div class="toggle-switch-small"></div>
+      </div>
     </div>
 
     <button class="btn" id="generateBtn" disabled>
@@ -358,7 +473,30 @@
       const errorMessage = document.getElementById('errorMessage');
       const errorText = document.getElementById('errorText');
 
-      let currentFile = null; // Store the current file
+      // Toggle buttons
+      const dateTimeToggle = document.getElementById('dateTimeToggle');
+      const signatureSealToggle = document.getElementById('signatureSealToggle');
+      const pageNumberToggle = document.getElementById('pageNumberToggle');
+      const headerToggle = document.getElementById('headerToggle');
+
+      let currentFile = null;
+
+      // Toggle button event listeners
+      dateTimeToggle.addEventListener('click', () => {
+        dateTimeToggle.classList.toggle('active');
+      });
+
+      signatureSealToggle.addEventListener('click', () => {
+        signatureSealToggle.classList.toggle('active');
+      });
+
+      pageNumberToggle.addEventListener('click', () => {
+        pageNumberToggle.classList.toggle('active');
+      });
+
+      headerToggle.addEventListener('click', () => {
+        headerToggle.classList.toggle('active');
+      });
 
       // Upload area click handler
       uploadArea.addEventListener('click', () => {
@@ -450,6 +588,24 @@
         return `${date}_${month}_${year}_${formattedHours}_${formattedMinutes}`;
       }
 
+      function getCurrentDateTimeString() {
+        const now = new Date();
+        const date = now.getDate();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = monthNames[now.getMonth()];
+        const year = now.getFullYear();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+        
+        // Format time to have leading zeros if needed
+        const formattedHours = hours < 10 ? `0${hours}` : hours;
+        const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+        const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+        
+        return `${date}-${month}-${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+      }
+
       async function generateWithLetterhead() {
         if (!currentFile) {
           showError("Please upload a PDF file first");
@@ -481,8 +637,9 @@
 
           // Try to load the signature image from the server
           let signatureImage;
+          let signatureAspectRatio = 1;
           try {
-            // First, try to load the image from the same directory
+            // Try to load the image from the same directory
             const signatureImageUrl = 'myrtille_signature.png';
             const signatureImageBytes = await fetch(signatureImageUrl)
               .then(res => {
@@ -490,11 +647,35 @@
                 return res.arrayBuffer();
               });
             signatureImage = await finalPdf.embedPng(signatureImageBytes);
+            const signatureDims = signatureImage.scale(1);
+            signatureAspectRatio = signatureDims.width / signatureDims.height;
           } catch (error) {
             console.log('Signature image not found, creating placeholder:', error);
             // Create a placeholder signature image
             signatureImage = await createPlaceholderSignature(finalPdf);
+            signatureAspectRatio = 200/60; // Placeholder aspect ratio
           }
+
+          // Try to load header image
+          let headerImage = null;
+          if (headerToggle.classList.contains('active')) {
+            try {
+              const headerImageUrl = 'myrtille_header.png';
+              const headerImageBytes = await fetch(headerImageUrl)
+                .then(res => {
+                  if (!res.ok) throw new Error('Header image not found');
+                  return res.arrayBuffer();
+                });
+              headerImage = await finalPdf.embedPng(headerImageBytes);
+            } catch (error) {
+              console.log('Header image not found:', error);
+              headerImage = null;
+            }
+          }
+
+          // Define header and footer heights
+          const headerHeight = headerImage ? 80 : 0;
+          const footerHeight = 110;
 
           for (let index = 0; index < pageCount; index++) {
             const progress = 20 + (index / pageCount * 70);
@@ -505,18 +686,54 @@
             const { width, height } = page.getSize();
             const newPage = finalPdf.addPage([a4Width, a4Height]);
 
+            // Draw header if enabled
+            if (headerImage && headerToggle.classList.contains('active')) {
+              // Draw header background
+              newPage.drawRectangle({
+                x: 0,
+                y: a4Height - headerHeight,
+                width: a4Width,
+                height: headerHeight,
+                color: PDFLib.rgb(1, 1, 1),
+              });
+
+              // Draw header image
+              const headerDims = headerImage.scale(1);
+              const headerAspectRatio = headerDims.width / headerDims.height;
+              const headerImgWidth = a4Width - 80;
+              const headerImgHeight = headerImgWidth / headerAspectRatio;
+              
+              // Scale down if too tall
+              const finalHeaderHeight = Math.min(headerImgHeight, headerHeight - 10);
+              const finalHeaderWidth = finalHeaderHeight * headerAspectRatio;
+              
+              newPage.drawImage(headerImage, {
+                x: (a4Width - finalHeaderWidth) / 2,
+                y: a4Height - headerHeight + (headerHeight - finalHeaderHeight) / 2,
+                width: finalHeaderWidth,
+                height: finalHeaderHeight,
+              });
+
+              newPage.drawLine({
+                start: { x: 40, y: a4Height - headerHeight },
+                end: { x: a4Width - 40, y: a4Height - headerHeight },
+                thickness: 1,
+                color: PDFLib.rgb(0.7, 0.7, 0.7),
+              });
+            }
+
             // Draw footer
             newPage.drawRectangle({
               x: 0,
               y: 0,
               width: a4Width,
-              height: 110,
+              height: footerHeight,
               color: PDFLib.rgb(0.95, 0.95, 0.95),
             });
 
             newPage.drawLine({
-              start: { x: 40, y: 110 },
-              end: { x: a4Width - 40, y: 110 },
+              start: { x: 40, y: footerHeight },
+              end: { x: a4Width - 40, y: footerHeight },
               thickness: 1,
               color: PDFLib.rgb(0.7, 0.7, 0.7),
             });
@@ -546,17 +763,48 @@
               font: helveticaBoldFont,
             });
 
-            // Draw middle signature image
+            // Add "Signature and Seal of Bidder" if enabled
+            if (signatureSealToggle.classList.contains('active')) {
+              const signatureSealText = "Signature and Seal of Bidder";
+              const textWidth = helveticaBoldFont.widthOfTextAtSize(signatureSealText, 10);
+              
+              // Underline text by drawing a line
+              newPage.drawLine({
+                start: { x: 40, y: 35 },
+                end: { x: 40 + textWidth, y: 35 },
+                thickness: 1,
+                color: PDFLib.rgb(0.1, 0.1, 0.1),
+              });
+              
+              newPage.drawText(signatureSealText, {
+                x: 40,
+                y: 40,
+                size: 10,
+                color: PDFLib.rgb(0.1, 0.1, 0.1),
+                font: helveticaBoldFont,
+              });
+            }
+
+            // Draw middle signature image with proper aspect ratio
+            const signatureWidth = 150; // Fixed width
+            const signatureHeight = signatureWidth / signatureAspectRatio;
+            
+            // Ensure height doesn't exceed available space
+            const finalSignatureHeight = Math.min(signatureHeight, 60);
+            const finalSignatureWidth = finalSignatureHeight * signatureAspectRatio;
+            
             newPage.drawImage(signatureImage, {
-              x: a4Width/2 - 100, // Center the image (200px width)
+              x: a4Width/2 - finalSignatureWidth/2,
               y: 25,
-              width: 200,
-              height: 60,
+              width: finalSignatureWidth,
+              height: finalSignatureHeight,
             });
 
             // Draw right side footer text - GST, URN, PAN
+            const rightSideX = a4Width - 200;
+            
             newPage.drawText("GST: 08AMHPY5013C1Z4", {
-              x: a4Width - 200,
+              x: rightSideX,
               y: 90,
               size: 10,
               color: PDFLib.rgb(0.1, 0.1, 0.1),
@@ -564,7 +812,7 @@
             });
 
             newPage.drawText("URN: UDYAM-RJ-17-0084962", {
-              x: a4Width - 200,
+              x: rightSideX,
               y: 70,
               size: 10,
               color: PDFLib.rgb(0.1, 0.1, 0.1),
@@ -572,22 +820,58 @@
             });
 
             newPage.drawText("PAN CARD NO.- AMHPY5013C", {
-              x: a4Width - 200,
+              x: rightSideX,
               y: 50,
               size: 10,
               color: PDFLib.rgb(0.1, 0.1, 0.1),
               font: helveticaFont,
             });
 
+            // Add date and time if enabled
+            if (dateTimeToggle.classList.contains('active')) {
+              const dateTimeStr = getCurrentDateTimeString();
+              newPage.drawText(dateTimeStr, {
+                x: rightSideX,
+                y: 30,
+                size: 10,
+                color: PDFLib.rgb(0.1, 0.1, 0.1),
+                font: helveticaBoldFont,
+              });
+            }
+
+            // Add page number if enabled
+            if (pageNumberToggle.classList.contains('active')) {
+              const pageNumText = `Page no. ${index + 1}`;
+              const pageNumWidth = helveticaBoldFont.widthOfTextAtSize(pageNumText, 10);
+              
+              // Draw black background
+              newPage.drawRectangle({
+                x: a4Width - pageNumWidth - 30,
+                y: 10,
+                width: pageNumWidth + 20,
+                height: 15,
+                color: PDFLib.rgb(0, 0, 0),
+              });
+              
+              // Draw page number text
+              newPage.drawText(pageNumText, {
+                x: a4Width - pageNumWidth - 20,
+                y: 13,
+                size: 10,
+                color: PDFLib.rgb(1, 1, 1),
+                font: helveticaBoldFont,
+              });
+            }
+
             // Embed original page content
             const embeddedPage = await finalPdf.embedPage(page);
             const contentAreaWidth = a4Width - 80;
-            const contentAreaHeight = a4Height - 110 - 40; // Reduced height to accommodate footer
+            const contentAreaHeight = a4Height - headerHeight - footerHeight - 40;
             const scale = Math.min(contentAreaWidth / width, contentAreaHeight / height);
             const scaledWidth = width * scale;
             const scaledHeight = height * scale;
             const x = (a4Width - scaledWidth) / 2;
-            const y = 110 + (a4Height - 110 - scaledHeight) / 2; // Start from footer top
+            const y = footerHeight + (a4Height - headerHeight - footerHeight - scaledHeight) / 2;
 
             newPage.drawPage(embeddedPage, {
               x: x,
@@ -629,30 +913,25 @@
       async function createPlaceholderSignature(pdfDoc) {
         // Create a canvas to draw a signature placeholder
         const canvas = document.createElement('canvas');
-        canvas.width = 200;
-        canvas.height = 60;
+        canvas.width = 300; // Wider canvas for better aspect ratio
+        canvas.height = 100;
         const ctx = canvas.getContext('2d');
         
         // Draw signature background
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // Draw signature border
         ctx.strokeStyle = '#5b86e5';
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 3]);
-        ctx.strokeRect(2, 2, canvas.width-4, canvas.height-4);
+        ctx.strokeRect(5, 5, canvas.width-10, canvas.height-10);
         
         // Draw signature text
         ctx.fillStyle = '#333333';
-        ctx.font = 'italic 18px Arial';
+        ctx.font = 'italic 24px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('Signature Image', canvas.width/2, canvas.height/2 + 5);
-        
-        // Draw "Myrtille Industries" text
-        ctx.fillStyle = '#5b86e5';
-        ctx.font = 'bold 14px Arial';
-        ctx.fillText('Myrtille Industries', canvas.width/2, canvas.height - 10);
+        ctx.fillText('Myrtille Industries Signature', canvas.width/2, canvas.height/2 + 10);
         
         // Convert canvas to base64
         const dataUrl = canvas.toDataURL('image/png');
