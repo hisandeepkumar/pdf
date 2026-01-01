@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PDF Signature Adder — All Pages Visible</title>
+
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    *{ box-sizing:border-box; font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial; }
+    html,body{ height:100%; margin:0; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg'); color:#e6eef8; }
+     body{ display:flex; align-items:flex-start; justify-content:center; padding:28px; }
+
+    /* container will grow to fit all pages (no fixed height) */
+    .container{
+      width:100%; max-width:980px; background:rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px); border-radius:16px; padding:20px 22px 160px; /* bottom spacing for floating button */
+      border:1px solid rgba(255,255,255,0.06); box-shadow:0 12px 40px rgba(0,0,0,0.6);
+      /* No max-height or overflow so it expands to show all pages */
+      min-height: 60px;
+    }
+
+    .header{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .header h1{ margin:0; font-size:20px; font-weight:700; color:#fff; display:flex; gap:10px; align-items:center;}
+    .header i{ color:#60a5fa; font-size:26px; }
+
+    /* Signature Preview Section */
+    .signature-preview-section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .signature-preview-section h3 {
+      margin: 0 0 16px 0;
+      color: #dbeafe;
+      font-weight: 600;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .signature-preview-section h3 i {
+      color: #60a5fa;
+    }
+    
+    .signature-preview-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .signature-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      padding: 12px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+      background: rgba(255,255,255,0.03);
+      min-width: 180px;
+    }
+    
+    .signature-option:hover {
+      background: rgba(96,165,250,0.08);
+      border-color: rgba(96,165,250,0.3);
+    }
+    
+    .signature-option.selected {
+      background: rgba(96,165,250,0.12);
+      border-color: #60a5fa;
+      box-shadow: 0 4px 12px rgba(96,165,250,0.2);
+    }
+    
+    .signature-option .preview-img {
+      width: 160px;
+      height: 70px;
+      object-fit: contain;
+      background: white;
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .signature-option .signature-name {
+      font-weight: 600;
+      color: #cfe8ff;
+      font-size: 14px;
+    }
+    
+    .signature-option .selected-badge {
+      margin-top: 6px;
+      font-size: 12px;
+      background: #10b981;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      display: none;
+    }
+    
+    .signature-option.selected .selected-badge {
+      display: block;
+    }
+
+    .upload-area{
+      border:2px dashed rgba(255,255,255,0.18); padding:20px; border-radius:12px; text-align:center; cursor:pointer; background:rgba(255,255,255,0.02);
+      margin-bottom:14px; position:relative;
+    }
+    .upload-area:hover{ border-color:#60a5fa; background:rgba(96,165,250,0.04); }
+    .upload-area i{ font-size:34px; color:#60a5fa; display:block; margin-bottom:8px; }
+    .upload-area input[type=file]{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+
+    .controls{ display:flex; gap:12px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+    .controls .left{ display:flex; gap:10px; align-items:center; }
+    .controls label{ font-weight:700; color:#dbeafe; }
+
+    /* preview-list now auto-expands — no max-height */
+    .preview-list{ display:flex; flex-direction:column; gap:18px; padding-right:6px; }
+
+    .preview-item{ background:rgba(255,255,255,0.02); border-radius:10px; padding:12px; display:flex; flex-direction:column; align-items:center; }
+    .preview-item h3{ margin:0 0 8px; color:#cfe8ff; font-weight:700; width:100%; text-align:left; }
+
+    /* canvas-wrap fills available width (full page visible) */
+    .canvas-wrap{ position:relative; width:100%; display:flex; justify-content:center; }
+    canvas{ width:100% !important; height:auto !important; border-radius:6px; box-shadow:0 8px 30px rgba(0,0,0,0.6); background:white; display:block; }
+
+    .sig-layer{ position:absolute; left:0; top:0; pointer-events:auto; }
+
+    .signature{ position:absolute; cursor:move; touch-action:none; user-select:none; display:flex; align-items:center; transition:transform 120ms ease; }
+    .signature img{ display:block; width:189px; height:auto; pointer-events:none; opacity:0.96; border-radius:4px; }
+    .signature.pulse{ animation: sigPulse 360ms ease; }
+    @keyframes sigPulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
+
+    .delete-btn{ position:absolute; right:-10px; top:-10px; width:26px; height:26px; background:#ef4444; color:white; border-radius:50%; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+    /* glass-like floating pill */
+    .floating-btn{
+      position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:9999;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px) saturate(1.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+      color: black; padding:12px 28px; border-radius:999px; font-weight:800; cursor:pointer; display:flex; gap:10px; align-items:center;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    .floating-btn:hover{ transform:translateX(-50%) translateY(-4px); box-shadow:0 18px 44px rgba(0,0,0,0.6); background: rgba(255,255,255,0.08); }
+    .floating-btn:disabled{ opacity:0.6; cursor:not-allowed; }
+
+    .progress{ position:fixed; left:50%; transform:translateX(-50%); bottom:78px; width:420px; height:8px; background:rgba(255,255,255,0.04); border-radius:8px; overflow:hidden; display:none; z-index:9998; }
+    .progress > div{ width:0%; height:100%; background:linear-gradient(90deg,#5b86e5,#36d1dc); transition:width 200ms linear; }
+
+    .footer-note{ margin-top:12px; color:rgba(255,255,255,0.6); font-size:13px; text-align:center; }
+
+    @media (max-width:760px){
+      .container{ padding-bottom:220px; }
+      .progress{ width:86%; }
+      .floating-btn{ width:86%; left:50%; transform:translateX(-50%); }
+      .signature img{ width:140px; }
+      .signature-preview-container {
+        gap: 12px;
+      }
+      .signature-option {
+        min-width: 140px;
+      }
+      .signature-option .preview-img {
+        width: 130px;
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <div class="header">
+      <i class="fas fa-file-signature"></i>
+      <h1>PDF Signature Adder</h1>
+    </div>
+
+    <!-- Signature Preview Section -->
+    <div class="signature-preview-section">
+      <h3><i class="fas fa-signature"></i> Select Signature</h3>
+      <div class="signature-preview-container" id="signaturePreviewContainer">
+        <!-- Signature 1 -->
+        <div class="signature-option selected" data-signature="signature1">
+          <img src="apollo_signature1.png" alt="Signature 1" class="preview-img" id="sigPreview1" onerror="handleImageError(this, 1)">
+          <div class="signature-name">Signature 1</div>
+          <div class="selected-badge">Selected</div>
+        </div>
+        
+        <!-- Signature 2 -->
+        <div class="signature-option" data-signature="signature2">
+          <img src="apollo_signature2.png" alt="Signature 2" class="preview-img" id="sigPreview2" onerror="handleImageError(this, 2)">
+          <div class="signature-name">Signature 2</div>
+          <div class="selected-badge">Selected</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="upload-area" id="uploadArea">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <h3>Upload a PDF (single)</h3>
+      <p>Select a PDF and previews for every page will appear below (container expands to show all pages).</p>
+      <input id="pdfInput" type="file" accept="application/pdf">
+    </div>
+
+    <div class="controls">
+      <div class="left">
+        <label>Signature Width</label>
+        <input id="sigRange" type="range" min="50" max="350" value="189" />
+        <span id="sigVal" style="font-weight:700; color:#cfe8ff;">189 px</span>
+      </div>
+
+      <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+        <span id="currentSigInfo" style="font-weight:600; color:#60a5fa;">Using: Signature 1</span>
+      </div>
+    </div>
+
+    <div class="preview-list" id="previewList" aria-live="polite"></div>
+
+    <div class="footer-note">Positions preserved exactly. Clicking on an existing signature prevents overlay (it pulses).</div>
+  </div>
+
+  <div class="progress" id="progress"><div id="progressBar"></div></div>
+  <button class="floating-btn" id="generateBtn" disabled><i class="fas fa-download"></i> Generate Signed PDF</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', ()=> {
+  const pdfInput = document.getElementById('pdfInput');
+  const uploadArea = document.getElementById('uploadArea');
+  const previewList = document.getElementById('previewList');
+  const sigRange = document.getElementById('sigRange');
+  const sigVal = document.getElementById('sigVal');
+  const generateBtn = document.getElementById('generateBtn');
+  const progress = document.getElementById('progress');
+  const progressBar = document.getElementById('progressBar');
+  const container = document.getElementById('container');
+  const signaturePreviewContainer = document.getElementById('signaturePreviewContainer');
+  const currentSigInfo = document.getElementById('currentSigInfo');
+  const sigPreview1 = document.getElementById('sigPreview1');
+  const sigPreview2 = document.getElementById('sigPreview2');
+
+  const DPR = window.devicePixelRatio || 1;
+  let selectedPdfFile = null;
+  let pdfLibDoc = null;
+  let pdfJsDoc = null;
+  let signatureImgUrl = null;
+  let signatureWidth = 189; // default
+  let pageData = [];
+  let originalFilename = '';
+  
+  // Store both signature images
+  let signature1Data = null;
+  let signature2Data = null;
+  let currentSignature = 'signature1'; // Default to signature 1
+
+  // Handle image loading errors
+  function handleImageError(imgElement, sigNumber) {
+    console.warn(`Signature ${sigNumber} not found, using fallback`);
+    imgElement.src = `data:image/svg+xml;base64,${btoa(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80" viewBox="0 0 200 80">
+        <rect width="200" height="80" fill="#f3f4f6" rx="4"/>
+        <text x="50%" y="50%" font-family="Arial" font-size="14" fill="#6b7280" text-anchor="middle" dy=".3em">
+          Signature ${sigNumber} (Not Found)
+        </text>
+      </svg>`
+    )}`;
+  }
+
+  // Load both signatures at startup
+  async function loadBothSignatures() {
+    try {
+      // Try to load signature 1
+      const response1 = await fetch('apollo_signature1.png');
+      if (response1.ok) {
+        const blob1 = await response1.blob();
+        signature1Data = {
+          blob: blob1,
+          url: URL.createObjectURL(blob1),
+          name: 'Signature 1'
+        };
+        sigPreview1.src = signature1Data.url;
+      }
+    } catch (e) {
+      console.warn('Signature 1 not found');
+    }
+    
+    try {
+      // Try to load signature 2
+      const response2 = await fetch('apollo_signature2.png');
+      if (response2.ok) {
+        const blob2 = await response2.blob();
+        signature2Data = {
+          blob: blob2,
+          url: URL.createObjectURL(blob2),
+          name: 'Signature 2'
+        };
+        sigPreview2.src = signature2Data.url;
+      }
+    } catch (e) {
+      console.warn('Signature 2 not found');
+    }
+    
+    // Set default signature
+    setCurrentSignature('signature1');
+  }
+
+  // Set current signature
+  function setCurrentSignature(sigId) {
+    currentSignature = sigId;
+    
+    // Update UI
+    document.querySelectorAll('.signature-option').forEach(option => {
+      if (option.dataset.signature === sigId) {
+        option.classList.add('selected');
+      } else {
+        option.classList.remove('selected');
+      }
+    });
+    
+    // Update signature image URL
+    if (sigId === 'signature1' && signature1Data) {
+      signatureImgUrl = signature1Data.url;
+      currentSigInfo.textContent = 'Using: Signature 1';
+    } else if (sigId === 'signature2' && signature2Data) {
+      signatureImgUrl = signature2Data.url;
+      currentSigInfo.textContent = 'Using: Signature 2';
+    } else {
+      // Fallback if signatures not found
+      signatureImgUrl = `data:image/svg+xml;base64,${btoa(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="150">
+          <path d="M10 90 C 60 10, 140 10, 190 90 S 330 170, 390 90" stroke="#111827" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <text x="50" y="130" font-family="Arial" font-size="16" fill="#111827">${sigId === 'signature1' ? 'Signature 1' : 'Signature 2'}</text>
+        </svg>`
+      )}`;
+      currentSigInfo.textContent = `Using: ${sigId === 'signature1' ? 'Signature 1 (Fallback)' : 'Signature 2 (Fallback)'}`;
+    }
+    
+    // Update all existing signatures on pages
+    updateAllSignatures();
+  }
+
+  // Update all existing signatures with current signature image
+  function updateAllSignatures() {
+    document.querySelectorAll('.signature img').forEach(img => {
+      img.src = signatureImgUrl;
+    });
+  }
+
+  // Signature selection event listeners
+  signaturePreviewContainer.addEventListener('click', (e) => {
+    const signatureOption = e.target.closest('.signature-option');
+    if (signatureOption) {
+      const sigId = signatureOption.dataset.signature;
+      setCurrentSignature(sigId);
+    }
+  });
+
+  sigRange.addEventListener('input', ()=> {
+    signatureWidth = parseInt(sigRange.value,10);
+    sigVal.textContent = signatureWidth + ' px';
+    document.querySelectorAll('.signature img').forEach(img => img.style.width = signatureWidth + 'px');
+    pageData.forEach(pd => pd.signatures && pd.signatures.forEach(s => s.visualWidth = signatureWidth));
+  });
+
+  // drag/drop UI
+  ['dragenter','dragover'].forEach(ev => uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.classList.add('active'); }));
+  ['dragleave','drop'].forEach(ev => uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.classList.remove('active'); }));
+  uploadArea.addEventListener('drop', e=> { if(e.dataTransfer?.files?.length) handlePdf(e.dataTransfer.files[0]); });
+
+  pdfInput.addEventListener('change', (e)=> { 
+    if(e.target.files?.length) {
+      handlePdf(e.target.files[0]);
+      originalFilename = e.target.files[0].name.replace(/\.pdf$/i, '');
+    }
+  });
+
+  async function handlePdf(file){
+    if(!file) return;
+    if(file.type !== 'application/pdf'){ alert('Please upload a PDF'); return; }
+    selectedPdfFile = file;
+    previewList.innerHTML = '';
+    pageData = [];
+    generateBtn.disabled = true;
+
+    // Ensure signatures are loaded
+    if (!signature1Data && !signature2Data) {
+      await loadBothSignatures();
+    }
+
+    try{
+      const ab = await file.arrayBuffer();
+      pdfLibDoc = await PDFLib.PDFDocument.load(ab);
+      pdfJsDoc = await pdfjsLib.getDocument({data:ab}).promise;
+      const total = pdfLibDoc.getPageCount();
+
+      const cs = getComputedStyle(container);
+      const padLeft = parseFloat(cs.paddingLeft || 20);
+      const padRight = parseFloat(cs.paddingRight || 20);
+      const availableWidth = Math.max(300, container.clientWidth - padLeft - padRight - 4);
+
+      for(let p=1;p<=total;p++){
+        const page = await pdfJsDoc.getPage(p);
+        const base = page.getViewport({scale:1});
+        const scale = (availableWidth / base.width);
+        const viewport = page.getViewport({scale});
+        const cssW = Math.round(viewport.width);
+        const cssH = Math.round(viewport.height);
+
+        const canvas = document.createElement('canvas');
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+        canvas.width = Math.floor(cssW * DPR);
+        canvas.height = Math.floor(cssH * DPR);
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(DPR,0,0,DPR,0,0);
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        const libPage = pdfLibDoc.getPage(p-1);
+        const psize = libPage.getSize();
+
+        const item = document.createElement('div');
+        item.className = 'preview-item';
+        const title = document.createElement('h3');
+        title.textContent = `Page ${p}`;
+        item.appendChild(title);
+
+        const wrap = document.createElement('div');
+        wrap.className = 'canvas-wrap';
+        wrap.style.width = cssW + 'px';
+        wrap.style.height = cssH + 'px';
+        wrap.appendChild(canvas);
+
+        const layer = document.createElement('div');
+        layer.className = 'sig-layer';
+        layer.style.width = cssW + 'px';
+        layer.style.height = cssH + 'px';
+        layer.style.left = '0';
+        layer.style.top = '0';
+        layer.style.position = 'absolute';
+        wrap.style.position = 'relative';
+        wrap.appendChild(layer);
+
+        item.appendChild(wrap);
+        previewList.appendChild(item);
+
+        pageData[p-1] = {
+          pdfSize: { width: psize.width, height: psize.height },
+          viewport: { width: viewport.width, height: viewport.height },
+          canvasElem: canvas,
+          layerElem: layer,
+          wrapElem: wrap,
+          signatures: []
+        };
+
+        layer.addEventListener('click', async (ev) => {
+          ev.preventDefault();
+          
+          // Make sure we have a signature loaded
+          if (!signatureImgUrl) {
+            await loadBothSignatures();
+          }
+
+          const rect = layer.getBoundingClientRect();
+          const clickX = ev.clientX - rect.left;
+          const clickY = ev.clientY - rect.top;
+
+          // prevent overlay
+          const existing = Array.from(layer.querySelectorAll('.signature'));
+          for(const el of existing){
+            const br = el.getBoundingClientRect();
+            const relLeft = br.left - rect.left;
+            const relTop  = br.top - rect.top;
+            const relRight = relLeft + br.width;
+            const relBottom = relTop + br.height;
+            if(clickX >= relLeft && clickX <= relRight && clickY >= relTop && clickY <= relBottom){
+              el.classList.add('pulse');
+              setTimeout(()=> el.classList.remove('pulse'), 360);
+              return;
+            }
+          }
+
+          addSignatureToPage(p-1, clickX, clickY);
+        });
+      }
+
+      generateBtn.disabled = pageData.every(pd => !pd.signatures || pd.signatures.length === 0);
+      previewList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    }catch(err){
+      console.error('PDF load/render error', err);
+      alert('Error loading PDF: ' + (err.message || err));
+    }
+  }
+
+  function addSignatureToPage(pageIndex, x_css, y_css){
+    const pd = pageData[pageIndex];
+    if(!pd) return;
+    const layer = pd.layerElem;
+    const id = `sig-${pageIndex}-${Date.now()}`;
+    const sig = document.createElement('div');
+    sig.className = 'signature';
+    sig.id = id;
+
+    const left = x_css - (signatureWidth/2);
+    const top = y_css - (signatureWidth/2);
+    sig.style.left = Math.max(0,left) + 'px';
+    sig.style.top = Math.max(0,top) + 'px';
+    sig.style.width = signatureWidth + 'px';
+
+    const img = document.createElement('img');
+    img.src = signatureImgUrl;
+    img.style.width = signatureWidth + 'px';
+    sig.appendChild(img);
+
+    const del = document.createElement('button');
+    del.className = 'delete-btn';
+    del.innerHTML = '<i class="fas fa-trash"></i>';
+    del.addEventListener('click', (e)=> {
+      e.stopPropagation();
+      sig.remove();
+      pd.signatures = pd.signatures.filter(s => s.id !== id);
+      generateBtn.disabled = pageData.every(p=> p.signatures.length===0);
+    });
+    sig.appendChild(del);
+
+    layer.appendChild(sig);
+
+    const scaleX = pd.pdfSize.width / pd.viewport.width;
+    const scaleY = pd.pdfSize.height / pd.viewport.height;
+    const pdfX = (left) * scaleX;
+    const pdfTop = (top) * scaleY;
+
+    const stored = { 
+      id, 
+      x_pdf: pdfX, 
+      top_pdf: pdfTop, 
+      visualWidth: signatureWidth,
+      signatureType: currentSignature // Store which signature was used
+    };
+    pd.signatures.push(stored);
+
+    makeDraggable(sig, pageIndex, stored);
+    generateBtn.disabled = false;
+  }
+
+  function makeDraggable(domEl, pageIndex, stored){
+    let dragging=false, startX=0, startY=0, startLeft=0, startTop=0;
+    const layer = pageData[pageIndex].layerElem;
+
+    const down = (e) => {
+      e.preventDefault();
+      dragging = true;
+      const cx = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+      const cy = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+      startX = cx; startY = cy;
+      startLeft = parseFloat(domEl.style.left || 0);
+      startTop = parseFloat(domEl.style.top || 0);
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', up);
+      document.addEventListener('touchmove', move, {passive:false});
+      document.addEventListener('touchend', up);
+    };
+
+    const move = (e) => {
+      if(!dragging) return;
+      e.preventDefault();
+      const cx = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+      const cy = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+      const dx = cx - startX, dy = cy - startY;
+      let newLeft = startLeft + dx, newTop = startTop + dy;
+      newLeft = Math.max(0, Math.min(newLeft, layer.clientWidth - domEl.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, layer.clientHeight - domEl.offsetHeight));
+      domEl.style.left = newLeft + 'px';
+      domEl.style.top = newTop + 'px';
+
+      const pd = pageData[pageIndex];
+      const sX = pd.pdfSize.width / pd.viewport.width;
+      const sY = pd.pdfSize.height / pd.viewport.height;
+      stored.x_pdf = newLeft * sX;
+      stored.top_pdf = newTop * sY;
+      stored.visualWidth = parseFloat(domEl.offsetWidth);
+    };
+
+    const up = (e) => {
+      dragging = false;
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+      document.removeEventListener('touchmove', move);
+      document.removeEventListener('touchend', up);
+    };
+
+    domEl.addEventListener('mousedown', down);
+    domEl.addEventListener('touchstart', down, {passive:false});
+  }
+
+  // Generate PDF
+  generateBtn.addEventListener('click', async ()=>{
+    if(!selectedPdfFile) { alert('Upload a PDF first'); return; }
+    if(pageData.every(pd => !pd.signatures || pd.signatures.length===0)) { alert('Place at least one signature'); return; }
+    
+    try{
+      generateBtn.disabled = true;
+      progress.style.display = 'block';
+      progressBar.style.width = '6%';
+
+      const ab = await selectedPdfFile.arrayBuffer();
+      progressBar.style.width = '18%';
+      const pdfDoc = await PDFLib.PDFDocument.load(ab);
+      progressBar.style.width = '36%';
+
+      // Embed signatures
+      let embeddedSignature1 = null;
+      let embeddedSignature2 = null;
+      
+      if (signature1Data && signature1Data.blob) {
+        const imgBytes1 = await signature1Data.blob.arrayBuffer();
+        if (signature1Data.blob.type === 'image/png') {
+          embeddedSignature1 = await pdfDoc.embedPng(imgBytes1);
+        } else {
+          embeddedSignature1 = await pdfDoc.embedJpg(imgBytes1);
+        }
+      }
+      
+      if (signature2Data && signature2Data.blob) {
+        const imgBytes2 = await signature2Data.blob.arrayBuffer();
+        if (signature2Data.blob.type === 'image/png') {
+          embeddedSignature2 = await pdfDoc.embedPng(imgBytes2);
+        } else {
+          embeddedSignature2 = await pdfDoc.embedJpg(imgBytes2);
+        }
+      }
+      
+      progressBar.style.width = '62%';
+
+      const pages = pdfDoc.getPages();
+      for(let i=0;i<pages.length;i++){
+        const page = pages[i];
+        const pd = pageData[i];
+        if(!pd) continue;
+        for(const s of pd.signatures){
+          let embedded = null;
+          
+          // Use the correct embedded signature based on what was used
+          if (s.signatureType === 'signature1' && embeddedSignature1) {
+            embedded = embeddedSignature1;
+          } else if (s.signatureType === 'signature2' && embeddedSignature2) {
+            embedded = embeddedSignature2;
+          }
+          
+          if (!embedded) {
+            // Fallback if signature not found
+            const fallbackSvg = `data:image/svg+xml;base64,${btoa(
+              `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="150">
+                <path d="M10 90 C 60 10, 140 10, 190 90 S 330 170, 390 90" stroke="#111827" stroke-width="6" fill="none" stroke-linecap="round"/>
+                <text x="50" y="130" font-family="Arial" font-size="16" fill="#111827">${s.signatureType === 'signature1' ? 'Signature 1' : 'Signature 2'}</text>
+              </svg>`
+            )}`;
+            const fallbackResponse = await fetch(fallbackSvg);
+            const fallbackBlob = await fallbackResponse.blob();
+            const fallbackBytes = await fallbackBlob.arrayBuffer();
+            embedded = await pdfDoc.embedPng(fallbackBytes);
+          }
+          
+          const pdfW = (s.visualWidth || signatureWidth) * (pd.pdfSize.width / pd.viewport.width);
+          const imgW = embedded.width, imgH = embedded.height;
+          const pdfH = (pdfW / imgW) * imgH;
+          const yBottom = pd.pdfSize.height - s.top_pdf - pdfH;
+          page.drawImage(embedded, { x: s.x_pdf, y: yBottom, width: pdfW, height: pdfH, opacity:1 });
+        }
+      }
+      progressBar.style.width = '86%';
+      const out = await pdfDoc.save();
+      progressBar.style.width = '96%';
+
+      const blob = new Blob([out], { type:'application/pdf' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      
+      const downloadFilename = originalFilename ? `${originalFilename}_signed.pdf` : `signed_document.pdf`;
+      a.download = downloadFilename;
+      
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      progressBar.style.width = '100%';
+      setTimeout(()=> { progress.style.display='none'; progressBar.style.width='0%'; }, 600);
+
+      // Clear previews
+      previewList.innerHTML = '';
+      pageData = [];
+      selectedPdfFile = null;
+      originalFilename = '';
+      generateBtn.disabled = true;
+    }catch(err){
+      console.error(err);
+      alert('Error generating signed PDF: ' + (err.message || err));
+      generateBtn.disabled = false;
+      progress.style.display = 'none';
+      progressBar.style.width = '0%';
+    }
+  });
+
+  // Toggle generate button depending on signatures present
+  const mo = new MutationObserver(()=> {
+    generateBtn.disabled = pageData.every(pd => !pd.signatures || pd.signatures.length===0);
+  });
+  mo.observe(previewList, { childList:true, subtree:true });
+
+  // Load signatures on startup
+  loadBothSignatures();
+});
+</script>
+</body>
+</html>
