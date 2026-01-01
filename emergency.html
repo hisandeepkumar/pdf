@@ -399,7 +399,7 @@
 
     <!-- Toggle Buttons -->
     <div class="toggle-container">
-      <div class="toggle-btn active" id="dateTimeToggle">
+      <div class="toggle-btn" id="dateTimeToggle">
         <div>
           <div class="toggle-label">Date & Time</div>
           <div class="toggle-description">Add current date & time below PAN Card</div>
@@ -407,7 +407,7 @@
         <div class="toggle-switch-small"></div>
       </div>
 
-      <div class="toggle-btn active" id="signatureSealToggle">
+      <div class="toggle-btn" id="signatureSealToggle">
         <div>
           <div class="toggle-label">Signature & Seal</div>
           <div class="toggle-description">Add "Signature and Seal of Bidder" text</div>
@@ -415,7 +415,7 @@
         <div class="toggle-switch-small"></div>
       </div>
 
-      <div class="toggle-btn active" id="pageNumberToggle">
+      <div class="toggle-btn" id="pageNumberToggle">
         <div>
           <div class="toggle-label">Page Numbers</div>
           <div class="toggle-description">Add page numbers at bottom right</div>
@@ -423,7 +423,7 @@
         <div class="toggle-switch-small"></div>
       </div>
 
-      <div class="toggle-btn active" id="headerToggle">
+      <div class="toggle-btn" id="headerToggle">
         <div>
           <div class="toggle-label">Header</div>
           <div class="toggle-description">Add Myrtille Industries header</div>
@@ -604,6 +604,20 @@
         const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
         
         return `${date}-${month}-${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+      }
+
+      // Function to generate final filename
+      function generateFinalFilename(originalName) {
+        // Remove .pdf extension
+        let baseName = originalName.replace(/\.pdf$/i, '');
+        
+        // Check if the name already ends with "final file"
+        if (!baseName.toLowerCase().endsWith(' final file')) {
+          baseName = baseName + ' final file';
+        }
+        
+        // Add .pdf extension back
+        return baseName + '.pdf';
       }
 
       async function generateWithLetterhead() {
@@ -872,11 +886,11 @@
           const finalPdfBytes = await finalPdf.save();
           const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
           
-          // Generate filename with date and time
-          const dateTime = getFormattedDateTime();
-          const filename = `Myrtille_Industries_${dateTime}.pdf`;
+          // Generate filename based on original file name
+          const originalFileName = currentFile.name;
+          const finalFileName = generateFinalFilename(originalFileName);
           
-          saveAs(blob, filename);
+          saveAs(blob, finalFileName);
 
           statusMessage.textContent = "Document generated successfully!";
           progressBar.style.width = "100%";
