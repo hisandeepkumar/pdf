@@ -457,6 +457,87 @@
     </div>
   </div>
 
+
+
+
+
+  
+  <!-- back button -->
+  <button
+  type="button"
+  title="Back"
+  aria-label="Go back"
+  onclick="this.style.transform='scale(0.9)';setTimeout(()=>{if(history.length>1){history.back();}else if(document.referrer){location.href=document.referrer;}else{location.href='/';}},120)"
+  onkeydown="if(event.key==='Enter'||event.code==='Space'){event.preventDefault();this.click();}"
+  onmouseenter="this.style.transform='translateY(-4px) scale(1.05)';this.style.boxShadow='0 18px 45px rgba(0,0,0,.28), inset 0 1px 1px rgba(255,255,255,.85)';this.firstElementChild.style.transform='rotate(360deg)';"
+  onmouseleave="this.style.transform='translateY(0) scale(1)';this.style.boxShadow='0 10px 30px rgba(0,0,0,.18), inset 0 1px 1px rgba(255,255,255,.7)';this.firstElementChild.style.transform='rotate(0deg)';"
+  style="
+    position:fixed;
+    top:16px;
+    left:16px;
+    z-index:2147483647;
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    border:none;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,.15));
+    backdrop-filter:blur(14px) saturate(160%);
+    -webkit-backdrop-filter:blur(14px) saturate(160%);
+    box-shadow:0 10px 30px rgba(0,0,0,.18), inset 0 1px 1px rgba(255,255,255,.7);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s cubic-bezier(.2,.8,.2,1);
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+  "
+>
+  <!-- glow ring -->
+  <span
+    style="
+      position:absolute;
+      inset:-6px;
+      border-radius:50%;
+      background:conic-gradient(from 0deg,rgba(255,255,255,0),rgba(255,255,255,.6),rgba(255,255,255,0));
+      filter:blur(8px);
+      opacity:.6;
+      animation:spin 6s linear infinite;
+    "
+  ></span>
+
+  <!-- arrow -->
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden="true"
+    style="
+      position:relative;
+      z-index:2;
+      transition:transform .35s ease;
+    "
+  >
+    <path
+      d="M15 18l-6-6 6-6"
+      stroke="rgba(20,20,20,.9)"
+      stroke-width="2.4"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+
+  <!-- inline keyframes -->
+  <style>
+    @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  </style>
+</button>
+
+
+  
+
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const uploadArea = document.getElementById('uploadArea');
