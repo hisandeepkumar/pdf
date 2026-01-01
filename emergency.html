@@ -142,125 +142,6 @@
       color: #5b86e5;
     }
 
-    .address-selector {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin-top: 24px;
-      flex-wrap: wrap;
-    }
-
-    .address-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 12px;
-      padding: 14px 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 14px;
-      font-weight: 500;
-      color: #f0f0f0;
-      display: flex;
-      align-items: center;
-      text-align: left;
-      width: 100%;
-      max-width: 280px;
-    }
-
-    .address-btn i {
-      margin-right: 12px;
-      font-size: 20px;
-    }
-
-    .address-btn.active {
-      background: rgba(91, 134, 229, 0.3);
-      border-color: #5b86e5;
-      box-shadow: 0 0 15px rgba(91, 134, 229, 0.4);
-    }
-
-    .address-btn:hover:not(.active) {
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .address-btn .address-title {
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: #5b86e5;
-    }
-
-    .address-btn .address-details {
-      font-size: 12px;
-      opacity: 0.8;
-      line-height: 1.4;
-    }
-
-    /* Watermark Toggle Styles */
-    .watermark-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 24px 0;
-      color: #f0f0f0;
-      font-size: 16px;
-      font-weight: 500;
-    }
-
-    .watermark-toggle label {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      flex-direction: row;
-    }
-
-    .watermark-toggle input[type="checkbox"] {
-      display: none;
-    }
-
-    .toggle-switch {
-      width: 60px;
-      height: 30px;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 15px;
-      position: relative;
-      transition: background 0.3s ease, border-color 0.3s ease;
-      box-shadow: 0 4px 15px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
-    }
-
-    .toggle-switch::before {
-      content: '';
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      background: #f0f0f0;
-      border-radius: 50%;
-      top: 3px;
-      left: 3px;
-      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    .watermark-toggle input:checked + .toggle-switch {
-      background: #34c759;
-      border-color: #34c759;
-    }
-
-    .watermark-toggle input:checked + .toggle-switch::before {
-      transform: translateX(30px);
-      background: #ffffff;
-    }
-
-    .toggle-switch:hover {
-      background: rgba(255, 255, 255, 0.25);
-      box-shadow: 0 6px 20px rgba(91, 134, 229, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3);
-    }
-
-    .watermark-toggle input:checked + .toggle-switch:hover {
-      background: #2db44e;
-    }
-
     .btn {
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(12px);
@@ -414,25 +295,6 @@
         font-size: 14px;
         padding: 12px 24px;
       }
-      .address-btn {
-        max-width: 100%;
-      }
-      .watermark-toggle {
-        font-size: 14px;
-      }
-      .toggle-switch {
-        width: 50px;
-        height: 25px;
-      }
-      .toggle-switch::before {
-        width: 20px;
-        height: 20px;
-        top: 2.5px;
-        left: 2.5px;
-      }
-      .watermark-toggle input:checked + .toggle-switch::before {
-        transform: translateX(25px);
-      }
     }
   </style>
 </head>
@@ -453,40 +315,6 @@
       <p>File: <span id="fileName">-</span></p>
       <p>Size: <span id="fileSize">-</span></p>
       <p>Pages: <span id="filePages">-</span></p>
-    </div>
-
-    <div class="address-selector">
-      <div class="address-btn active" id="newAddressBtn">
-        <i class="fas fa-home"></i>
-        <div>
-          <div class="address-title">New Address</div>
-          <div class="address-details">
-            PLOT NO 25, DEEPNAGAR<br>
-            NEAR GUJAR KI THADI<br>
-            Jaipur, Rajasthan 302019
-          </div>
-        </div>
-      </div>
-      <div class="address-btn" id="oldAddressBtn">
-        <i class="fas fa-building"></i>
-        <div>
-          <div class="address-title">Old Address</div>
-          <div class="address-details">
-            92 SURAJ NAGAR (E)<br>
-            CIVIL LINES SODALA<br>
-            Jaipur, Rajasthan
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Watermark Toggle -->
-    <div class="watermark-toggle">
-      <label for="watermarkToggle">
-        MYRTILLE INDUSTRIES Watermark
-        <input type="checkbox" id="watermarkToggle" aria-label="Enable Watermark">
-        <span class="toggle-switch"></span>
-      </label>
     </div>
 
     <button class="btn" id="generateBtn" disabled>
@@ -529,58 +357,8 @@
       const successMessage = document.getElementById('successMessage');
       const errorMessage = document.getElementById('errorMessage');
       const errorText = document.getElementById('errorText');
-      const newAddressBtn = document.getElementById('newAddressBtn');
-      const oldAddressBtn = document.getElementById('oldAddressBtn');
-      const watermarkToggle = document.getElementById('watermarkToggle');
 
-      let selectedAddress = 'new'; // Default to new address
       let currentFile = null; // Store the current file
-      
-      // Address data
-      const addressData = {
-        new: {
-          address: [
-            "Building No./Flat No.: PLOT NO 25",
-            "Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI",
-            "City/Town/Village: Jaipur",
-            "District: Jaipur",
-            "State: Rajasthan",
-            "PIN Code: 302019"
-          ],
-          contact: [
-            "Mobile: +91 9782099489",
-            "Email: myrtilleindia@gmail.com",
-            "GST: 08AMHPY5013C1Z4",
-            "URN: UDYAM-RJ-17-0084962"
-          ]
-        },
-        old: {
-          address: [
-            "92 SURAJ NAGAR (E)",
-            "CIVIL LINES SODALA",
-            "JAIPUR (RAJ)"
-          ],
-          contact: [
-            "Mobile: +91 9782099489",
-            "Email: anilyadav.bme@gmail.com",
-            "GST: 08AMHPY5013C",
-            "URN: UDYAM-RJ-17-0084962"
-          ]
-        }
-      };
-
-      // Address selection
-      newAddressBtn.addEventListener('click', () => {
-        selectedAddress = 'new';
-        newAddressBtn.classList.add('active');
-        oldAddressBtn.classList.remove('active');
-      });
-
-      oldAddressBtn.addEventListener('click', () => {
-        selectedAddress = 'old';
-        oldAddressBtn.classList.add('active');
-        newAddressBtn.classList.remove('active');
-      });
 
       // Upload area click handler
       uploadArea.addEventListener('click', () => {
@@ -672,38 +450,6 @@
         return `${date}_${month}_${year}_${formattedHours}_${formattedMinutes}`;
       }
 
-      // Function to create a placeholder image for signature
-      function createSignatureImage() {
-        // Create a canvas to draw a signature placeholder
-        const canvas = document.createElement('canvas');
-        canvas.width = 200;
-        canvas.height = 60;
-        const ctx = canvas.getContext('2d');
-        
-        // Draw signature background
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw signature border
-        ctx.strokeStyle = '#5b86e5';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5, 3]);
-        ctx.strokeRect(2, 2, canvas.width-4, canvas.height-4);
-        
-        // Draw signature text
-        ctx.fillStyle = '#333333';
-        ctx.font = 'italic 18px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Signature Image', canvas.width/2, canvas.height/2 + 5);
-        
-        // Draw "Myrtille Industries" text
-        ctx.fillStyle = '#5b86e5';
-        ctx.font = 'bold 14px Arial';
-        ctx.fillText('Myrtille Industries', canvas.width/2, canvas.height - 10);
-        
-        return canvas.toDataURL('image/png');
-      }
-
       async function generateWithLetterhead() {
         if (!currentFile) {
           showError("Please upload a PDF file first");
@@ -729,18 +475,26 @@
 
           const helveticaFont = await finalPdf.embedFont(PDFLib.StandardFonts.Helvetica);
           const helveticaBoldFont = await finalPdf.embedFont(PDFLib.StandardFonts.HelveticaBold);
-          const helveticaObliqueFont = await finalPdf.embedFont(PDFLib.StandardFonts.HelveticaOblique);
 
           const a4Width = 595.28;
           const a4Height = 841.89;
 
-          // Get the selected address data
-          const address = addressData[selectedAddress].address;
-          const contact = addressData[selectedAddress].contact;
-
-          // Create signature image
-          const signatureImageData = createSignatureImage();
-          const signatureImage = await finalPdf.embedPng(signatureImageData);
+          // Try to load the signature image from the server
+          let signatureImage;
+          try {
+            // First, try to load the image from the same directory
+            const signatureImageUrl = 'myrtille_signature.png';
+            const signatureImageBytes = await fetch(signatureImageUrl)
+              .then(res => {
+                if (!res.ok) throw new Error('Signature image not found');
+                return res.arrayBuffer();
+              });
+            signatureImage = await finalPdf.embedPng(signatureImageBytes);
+          } catch (error) {
+            console.log('Signature image not found, creating placeholder:', error);
+            // Create a placeholder signature image
+            signatureImage = await createPlaceholderSignature(finalPdf);
+          }
 
           for (let index = 0; index < pageCount; index++) {
             const progress = 20 + (index / pageCount * 70);
@@ -841,39 +595,6 @@
               width: scaledWidth,
               height: scaledHeight,
             });
-
-            // Add watermark on top layer if enabled
-            if (watermarkToggle.checked) {
-              const watermarkText = "MYRTILLE INDUSTRIES";
-              const font = helveticaBoldFont;
-              const { width: pageWidth, height: pageHeight } = newPage.getSize();
-              const diagonalLength = Math.sqrt(pageWidth * pageWidth + pageHeight * pageHeight);
-              const angle = Math.atan2(pageHeight, pageWidth) * (180 / Math.PI);
-              let fontSize = diagonalLength / 10;
-              let textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-              const maxTextWidth = diagonalLength * 0.8;
-
-              while (textWidth > maxTextWidth && fontSize > 10) {
-                fontSize -= 2;
-                textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-              }
-              if (watermarkText.length <= 10) {
-                fontSize = Math.max(fontSize, diagonalLength / 15);
-                textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-              }
-
-              const xCenter = pageWidth / 2 - (textWidth * Math.cos(angle * Math.PI / 180)) / 2;
-              const yCenter = pageHeight / 2 - (textWidth * Math.sin(angle * Math.PI / 180)) / 2;
-              newPage.drawText(watermarkText, {
-                x: xCenter,
-                y: yCenter,
-                size: fontSize,
-                font: font,
-                color: PDFLib.rgb(0.231, 0.525, 0.898),
-                opacity: 0.3,
-                rotate: PDFLib.degrees(angle),
-              });
-            }
           }
 
           statusMessage.textContent = "Finalizing document...";
@@ -902,6 +623,52 @@
           console.error('Error:', error);
           showError(`Error processing PDF: ${error.message}`);
         }
+      }
+
+      // Function to create a placeholder signature image
+      async function createPlaceholderSignature(pdfDoc) {
+        // Create a canvas to draw a signature placeholder
+        const canvas = document.createElement('canvas');
+        canvas.width = 200;
+        canvas.height = 60;
+        const ctx = canvas.getContext('2d');
+        
+        // Draw signature background
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw signature border
+        ctx.strokeStyle = '#5b86e5';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 3]);
+        ctx.strokeRect(2, 2, canvas.width-4, canvas.height-4);
+        
+        // Draw signature text
+        ctx.fillStyle = '#333333';
+        ctx.font = 'italic 18px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Signature Image', canvas.width/2, canvas.height/2 + 5);
+        
+        // Draw "Myrtille Industries" text
+        ctx.fillStyle = '#5b86e5';
+        ctx.font = 'bold 14px Arial';
+        ctx.fillText('Myrtille Industries', canvas.width/2, canvas.height - 10);
+        
+        // Convert canvas to base64
+        const dataUrl = canvas.toDataURL('image/png');
+        
+        // Remove the data URL prefix
+        const base64Data = dataUrl.split(',')[1];
+        
+        // Convert base64 to Uint8Array
+        const binaryString = atob(base64Data);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        // Embed the image in the PDF
+        return await pdfDoc.embedPng(bytes);
       }
 
       function showError(message) {
