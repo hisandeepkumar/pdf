@@ -653,11 +653,14 @@
             console.log('Signature image not found, creating placeholder:', error);
             // Create a placeholder signature image
             signatureImage = await createPlaceholderSignature(finalPdf);
-            signatureAspectRatio = 200/60; // Placeholder aspect ratio
+            const signatureDims = signatureImage.scale(1);
+            signatureAspectRatio = signatureDims.width / signatureDims.height;
           }
 
           // Try to load header image
           let headerImage = null;
+          let headerAspectRatio = 1;
+          let headerHeight = 0;
           if (headerToggle.classList.contains('active')) {
             try {
               const headerImageUrl = 'myrtille_header.png';
@@ -667,14 +670,20 @@
                   return res.arrayBuffer();
                 });
               headerImage = await finalPdf.embedPng(headerImageBytes);
+              const headerDims = headerImage.scale(1);
+              headerAspectRatio = headerDims.width / headerDims.height;
+              
+              // Calculate header height based on A4 width and image aspect ratio
+              headerHeight = (a4Width - 40) / headerAspectRatio; // Full width minus 20px padding on each side
+              headerHeight = Math.min(headerHeight, 120); // Limit max height to 120 points
             } catch (error) {
               console.log('Header image not found:', error);
               headerImage = null;
+              headerHeight = 60; // Default height if image not found
             }
           }
 
           // Define header and footer heights
-          const headerHeight = headerImage ? 80 : 0;
           const footerHeight = 110;
 
           for (let index = 0; index < pageCount; index++) {
@@ -688,54 +697,30 @@
 
             // Draw header if enabled
             if (headerImage && headerToggle.classList.contains('active')) {
-              // Draw header background
-              newPage.drawRectangle({
+              // Draw header image to fit full width
+              newPage.drawImage(headerImage, {
                 x: 0,
                 y: a4Height - headerHeight,
                 width: a4Width,
                 height: headerHeight,
-                color: PDFLib.rgb(1, 1, 1),
               });
 
-              // Draw header image
-              const headerDims = headerImage.scale(1);
-              const headerAspectRatio = headerDims.width / headerDims.height;
-              const headerImgWidth = a4Width - 80;
-              const headerImgHeight = headerImgWidth / headerAspectRatio;
-              
-              // Scale down if too tall
-              const finalHeaderHeight = Math.min(headerImgHeight, headerHeight - 10);
-              const finalHeaderWidth = finalHeaderHeight * headerAspectRatio;
-              
-              newPage.drawImage(headerImage, {
-                x: (a4Width - finalHeaderWidth) / 2,
-                y: a4Height - headerHeight + (headerHeight - finalHeaderHeight) / 2,
-                width: finalHeaderWidth,
-                height: finalHeaderHeight,
-              });
-
+              // Add header line (separator)
               newPage.drawLine({
-                start: { x: 40, y: a4Height - headerHeight },
-                end: { x: a4Width - 40, y: a4Height - headerHeight },
+                start: { x: 0, y: a4Height - headerHeight },
+                end: { x: a4Width, y: a4Height - headerHeight },
                 thickness: 1,
                 color: PDFLib.rgb(0.7, 0.7, 0.7),
               });
             }
 
-            // Draw footer
+            // Draw footer with white background
             newPage.drawRectangle({
               x: 0,
               y: 0,
               width: a4Width,
               height: footerHeight,
-              color: PDFLib.rgb(0.95, 0.95, 0.95),
-            });
-
-            newPage.drawLine({
-              start: { x: 40, y: footerHeight },
-              end: { x: a4Width - 40, y: footerHeight },
-              thickness: 1,
-              color: PDFLib.rgb(0.7, 0.7, 0.7),
+              color: PDFLib.rgb(1, 1, 1), // Pure white
             });
 
             // Draw left side footer text - MYRTILLE INDUSTRIES
@@ -785,12 +770,12 @@
               });
             }
 
-            // Draw middle signature image with proper aspect ratio
-            const signatureWidth = 150; // Fixed width
+            // Draw middle signature image - BIGGER SIZE
+            const signatureWidth = 200; // Increased from 150 to 200 (33% bigger)
             const signatureHeight = signatureWidth / signatureAspectRatio;
             
             // Ensure height doesn't exceed available space
-            const finalSignatureHeight = Math.min(signatureHeight, 60);
+            const finalSignatureHeight = Math.min(signatureHeight, 80); // Increased from 60 to 80
             const finalSignatureWidth = finalSignatureHeight * signatureAspectRatio;
             
             newPage.drawImage(signatureImage, {
@@ -913,8 +898,8 @@
       async function createPlaceholderSignature(pdfDoc) {
         // Create a canvas to draw a signature placeholder
         const canvas = document.createElement('canvas');
-        canvas.width = 300; // Wider canvas for better aspect ratio
-        canvas.height = 100;
+        canvas.width = 400; // Even wider canvas for better aspect ratio
+        canvas.height = 120;
         const ctx = canvas.getContext('2d');
         
         // Draw signature background
@@ -929,7 +914,7 @@
         
         // Draw signature text
         ctx.fillStyle = '#333333';
-        ctx.font = 'italic 24px Arial';
+        ctx.font = 'italic 28px Arial';
         ctx.textAlign = 'center';
         ctx.fillText('Myrtille Industries Signature', canvas.width/2, canvas.height/2 + 10);
         
