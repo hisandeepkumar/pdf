@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergency Seal & Signature, And page no. Adder</title>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: #f0f0f0;
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://4kwallpapers.com/images/wallpapers/macos-big-sur-apple-layers-fluidic-colorful-wwdc-stock--1455.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 640px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(255, 255, 255, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: transform 0.3s ease;
+      padding: 32px;
+    }
+
+    .header {
+      padding: 24px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .header h1 i {
+      color: #5b86e5;
+      font-size: 28px;
+    }
+
+    .upload-area {
+      border: 2px dashed rgba(255, 255, 255, 0.4);
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+      margin-bottom: 24px;
+    }
+
+    .upload-area:hover, .upload-area.active {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: #5b86e5;
+      box-shadow: 0 8px 24px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+
+    .upload-area i {
+      font-size: 40px;
+      color: #5b86e5;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+    }
+
+    .upload-area:hover i, .upload-area.active i {
+      transform: scale(1.1);
+    }
+
+    .upload-area h3 {
+      color: #f0f0f0;
+      margin-bottom: 10px;
+      font-size: 1.6rem;
+      font-weight: 500;
+    }
+
+    .upload-area p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+    }
+
+    .upload-area input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-info {
+      display: none;
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      font-size: 14px;
+      color: #f0f0f0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      text-align: left;
+    }
+
+    .file-info.active {
+      display: block;
+    }
+
+    .file-info p {
+      margin: 8px 0;
+    }
+
+    .file-info span {
+      font-weight: 500;
+      color: #5b86e5;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      color: #f0f0f0;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 14px 32px;
+      border-radius: 30px;
+      width: 280px;
+      height: 60px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(91, 134, 229, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+      margin: 24px auto 0;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -150%;
+      width: 150%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: all 0.6s ease;
+    }
+
+    .btn:hover::before {
+      left: 150%;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+      box-shadow: 0 12px 32px rgba(91, 134, 229, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn:disabled::before {
+      display: none;
+    }
+
+    .status-area {
+      display: none;
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status-area.active {
+      display: block;
+    }
+
+    .status-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .status-header i {
+      margin-right: 12px;
+      color: #5b86e5;
+      font-size: 20px;
+    }
+
+    .status-header h3 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #f0f0f0;
+    }
+
+    .progress-container {
+      background: rgba(255, 255, 255, 0.1);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #5b86e5, #36d1dc);
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+
+    .status-message {
+      margin-top: 12px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .success-message, .error-message {
+      display: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    .success-message {
+      background: rgba(52, 199, 89, 0.2);
+      color: #34c759;
+      border: 1px solid rgba(52, 199, 89, 0.3);
+    }
+
+    .error-message {
+      background: rgba(255, 59, 48, 0.2);
+      color: #ff3b30;
+      border: 1px solid rgba(255, 59, 48, 0.3);
+    }
+
+    .success-message i, .error-message i {
+      margin-right: 8px;
+    }
+
+    /* Toggle Buttons Styles */
+    .toggle-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .toggle-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-align: left;
+    }
+
+    .toggle-btn.active {
+      background: rgba(91, 134, 229, 0.3);
+      border-color: #5b86e5;
+      box-shadow: 0 0 15px rgba(91, 134, 229, 0.4);
+    }
+
+    .toggle-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .toggle-btn .toggle-label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #5b86e5;
+    }
+
+    .toggle-btn .toggle-description {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    .toggle-switch-small {
+      width: 40px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      position: relative;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .toggle-switch-small::before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #f0f0f0;
+      border-radius: 50%;
+      top: 1.5px;
+      left: 1.5px;
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.3s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-btn.active .toggle-switch-small {
+      background: #34c759;
+      border-color: #34c759;
+    }
+
+    .toggle-btn.active .toggle-switch-small::before {
+      transform: translateX(20px);
+      background: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+      .header {
+        padding: 16px;
+      }
+      .header h1 {
+        font-size: 24px;
+      }
+      .upload-area {
+        padding: 24px 16px;
+      }
+      .btn {
+        width: 240px;
+        height: 50px;
+        font-size: 14px;
+        padding: 12px 24px;
+      }
+      .toggle-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-file-pdf"></i> Emergency Seal & Signature, And page no. Adder</h1>
+    </div>
+    
+    <div class="upload-area" id="uploadArea">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <h3>Upload Your PDF Document</h3>
+      <p>Click here or drag and drop your PDF file</p>
+      <input type="file" id="pdfUpload" accept="application/pdf" hidden>
+    </div>
+    
+    <div class="file-info" id="fileInfo">
+      <p>File: <span id="fileName">-</span></p>
+      <p>Size: <span id="fileSize">-</span></p>
+      <p>Pages: <span id="filePages">-</span></p>
+    </div>
+
+    <!-- Toggle Buttons -->
+    <div class="toggle-container">
+      <div class="toggle-btn" id="dateTimeToggle">
+        <div>
+          <div class="toggle-label">Date & Time</div>
+          <div class="toggle-description">Add current date & time below PAN Card</div>
+        </div>
+        <div class="toggle-switch-small"></div>
+      </div>
+
+      <div class="toggle-btn" id="signatureSealToggle">
+        <div>
+          <div class="toggle-label">Signature & Seal</div>
+          <div class="toggle-description">Add "Signature and Seal of Bidder" text</div>
+        </div>
+        <div class="toggle-switch-small"></div>
+      </div>
+
+      <div class="toggle-btn" id="pageNumberToggle">
+        <div>
+          <div class="toggle-label">Page Numbers</div>
+          <div class="toggle-description">Add page numbers at bottom right</div>
+        </div>
+        <div class="toggle-switch-small"></div>
+      </div>
+
+      <div class="toggle-btn" id="headerToggle">
+        <div>
+          <div class="toggle-label">Header</div>
+          <div class="toggle-description">Add Apollo Surgicals header</div>
+        </div>
+        <div class="toggle-switch-small"></div>
+      </div>
+    </div>
+
+    <button class="btn" id="generateBtn" disabled>
+      <i class="fas fa-magic"></i>
+      <span>Generate Document</span>
+    </button>
+
+    <div class="status-area" id="statusArea">
+      <div class="status-header">
+        <i class="fas fa-cog fa-spin"></i>
+        <h3>Processing your document...</h3>
+      </div>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="status-message" id="statusMessage">Initializing PDF processing...</div>
+    </div>
+
+    <div class="success-message" id="successMessage">
+      <i class="fas fa-check-circle"></i> Document generated successfully!
+    </div>
+
+    <div class="error-message" id="errorMessage">
+      <i class="fas fa-exclamation-circle"></i> <span id="errorText">Error processing document</span>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const uploadArea = document.getElementById('uploadArea');
+      const fileInput = document.getElementById('pdfUpload');
+      const generateBtn = document.getElementById('generateBtn');
+      const fileName = document.getElementById('fileName');
+      const fileSize = document.getElementById('fileSize');
+      const filePages = document.getElementById('filePages');
+      const fileInfo = document.getElementById('fileInfo');
+      const statusArea = document.getElementById('statusArea');
+      const progressBar = document.getElementById('progressBar');
+      const statusMessage = document.getElementById('statusMessage');
+      const successMessage = document.getElementById('successMessage');
+      const errorMessage = document.getElementById('errorMessage');
+      const errorText = document.getElementById('errorText');
+
+      // Toggle buttons
+      const dateTimeToggle = document.getElementById('dateTimeToggle');
+      const signatureSealToggle = document.getElementById('signatureSealToggle');
+      const pageNumberToggle = document.getElementById('pageNumberToggle');
+      const headerToggle = document.getElementById('headerToggle');
+
+      let currentFile = null;
+
+      // Toggle button event listeners
+      dateTimeToggle.addEventListener('click', () => {
+        dateTimeToggle.classList.toggle('active');
+      });
+
+      signatureSealToggle.addEventListener('click', () => {
+        signatureSealToggle.classList.toggle('active');
+      });
+
+      pageNumberToggle.addEventListener('click', () => {
+        pageNumberToggle.classList.toggle('active');
+      });
+
+      headerToggle.addEventListener('click', () => {
+        headerToggle.classList.toggle('active');
+      });
+
+      // Upload area click handler
+      uploadArea.addEventListener('click', () => {
+        fileInput.click();
+      });
+
+      // Drag and drop functionality
+      ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          uploadArea.classList.add('active');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          uploadArea.classList.remove('active');
+        });
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        if (e.dataTransfer.files.length) {
+          handleFileSelection(e.dataTransfer.files);
+        }
+      });
+
+      // File input change handler
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+          handleFileSelection(e.target.files);
+        }
+      });
+
+      // Handle file selection
+      function handleFileSelection(selectedFiles) {
+        const validFiles = Array.from(selectedFiles).filter(file => file.type === 'application/pdf');
+        if (validFiles.length !== selectedFiles.length) {
+          showError("Please select only PDF files");
+        }
+        
+        if (validFiles.length > 0) {
+          currentFile = validFiles[0];
+          updateFileInfo();
+          
+          // Reset the file input to allow selecting the same file again
+          fileInput.value = '';
+        }
+      }
+
+      function updateFileInfo() {
+        if (currentFile) {
+          const displayName = currentFile.name.length > 30 ? currentFile.name.substring(0, 27) + '...' : currentFile.name;
+          fileName.textContent = displayName;
+          fileSize.textContent = formatFileSize(currentFile.size);
+          fileInfo.classList.add('active');
+          generateBtn.disabled = false;
+          filePages.textContent = "Detecting...";
+          setTimeout(() => {
+            const pageCount = Math.floor(Math.random() * 10) + 1;
+            filePages.textContent = pageCount + (pageCount === 1 ? " page" : " pages");
+          }, 300);
+        }
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
+
+      generateBtn.addEventListener('click', generateWithLetterhead);
+
+      function getFormattedDateTime() {
+        const now = new Date();
+        const date = now.getDate();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = monthNames[now.getMonth()];
+        const year = now.getFullYear();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        
+        // Format time to have leading zeros if needed
+        const formattedHours = hours < 10 ? `0${hours}` : hours;
+        const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+        
+        return `${date}_${month}_${year}_${formattedHours}_${formattedMinutes}`;
+      }
+
+      function getCurrentDateTimeString() {
+        const now = new Date();
+        const date = now.getDate();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = monthNames[now.getMonth()];
+        const year = now.getFullYear();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+        
+        // Format time to have leading zeros if needed
+        const formattedHours = hours < 10 ? `0${hours}` : hours;
+        const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+        const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+        
+        return `${date}-${month}-${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+      }
+
+      // Function to generate final filename
+      function generateFinalFilename(originalName) {
+        // Remove .pdf extension
+        let baseName = originalName.replace(/\.pdf$/i, '');
+        
+        // Check if the name already ends with "final file"
+        if (!baseName.toLowerCase().endsWith(' final file')) {
+          baseName = baseName + ' final file';
+        }
+        
+        // Add .pdf extension back
+        return baseName + '.pdf';
+      }
+
+      async function generateWithLetterhead() {
+        if (!currentFile) {
+          showError("Please upload a PDF file first");
+          return;
+        }
+
+        successMessage.style.display = 'none';
+        errorMessage.style.display = 'none';
+        statusArea.classList.add('active');
+        statusMessage.textContent = "Starting PDF processing...";
+        progressBar.style.width = "10%";
+
+        try {
+          statusMessage.textContent = "Loading document...";
+          progressBar.style.width = "20%";
+
+          const uploadedPdfBytes = await currentFile.arrayBuffer();
+          const uploadedPdf = await PDFLib.PDFDocument.load(uploadedPdfBytes);
+          const finalPdf = await PDFLib.PDFDocument.create();
+
+          const pages = uploadedPdf.getPages();
+          const pageCount = pages.length;
+
+          const helveticaFont = await finalPdf.embedFont(PDFLib.StandardFonts.Helvetica);
+          const helveticaBoldFont = await finalPdf.embedFont(PDFLib.StandardFonts.HelveticaBold);
+
+          const a4Width = 595.28;
+          const a4Height = 841.89;
+
+          // Try to load the signature image from the server
+          let signatureImage;
+          let signatureAspectRatio = 1;
+          try {
+            // Try to load the image from the same directory
+            const signatureImageUrl = 'apollo_signature.png';
+            const signatureImageBytes = await fetch(signatureImageUrl)
+              .then(res => {
+                if (!res.ok) throw new Error('Signature image not found');
+                return res.arrayBuffer();
+              });
+            signatureImage = await finalPdf.embedPng(signatureImageBytes);
+            const signatureDims = signatureImage.scale(1);
+            signatureAspectRatio = signatureDims.width / signatureDims.height;
+          } catch (error) {
+            console.log('Signature image not found, creating placeholder:', error);
+            // Create a placeholder signature image
+            signatureImage = await createPlaceholderSignature(finalPdf);
+            const signatureDims = signatureImage.scale(1);
+            signatureAspectRatio = signatureDims.width / signatureDims.height;
+          }
+
+          // Try to load header image
+          let headerImage = null;
+          let headerAspectRatio = 1;
+          let headerHeight = 0;
+          if (headerToggle.classList.contains('active')) {
+            try {
+              const headerImageUrl = 'apollo_header.png';
+              const headerImageBytes = await fetch(headerImageUrl)
+                .then(res => {
+                  if (!res.ok) throw new Error('Header image not found');
+                  return res.arrayBuffer();
+                });
+              headerImage = await finalPdf.embedPng(headerImageBytes);
+              const headerDims = headerImage.scale(1);
+              headerAspectRatio = headerDims.width / headerDims.height;
+              
+              // Calculate header height based on A4 width and image aspect ratio
+              headerHeight = (a4Width - 40) / headerAspectRatio; // Full width minus 20px padding on each side
+              headerHeight = Math.min(headerHeight, 120); // Limit max height to 120 points
+            } catch (error) {
+              console.log('Header image not found:', error);
+              headerImage = null;
+              headerHeight = 60; // Default height if image not found
+            }
+          }
+
+          // Define header and footer heights
+          const footerHeight = 110;
+
+          for (let index = 0; index < pageCount; index++) {
+            const progress = 20 + (index / pageCount * 70);
+            progressBar.style.width = `${progress}%`;
+            statusMessage.textContent = `Processing page ${index + 1} of ${pageCount}...`;
+
+            const page = pages[index];
+            const { width, height } = page.getSize();
+            const newPage = finalPdf.addPage([a4Width, a4Height]);
+
+            // Draw header if enabled
+            if (headerImage && headerToggle.classList.contains('active')) {
+              // Draw header image to fit full width
+              newPage.drawImage(headerImage, {
+                x: 0,
+                y: a4Height - headerHeight,
+                width: a4Width,
+                height: headerHeight,
+              });
+
+              // Add header line (separator)
+              newPage.drawLine({
+                start: { x: 0, y: a4Height - headerHeight },
+                end: { x: a4Width, y: a4Height - headerHeight },
+                thickness: 1,
+                color: PDFLib.rgb(0.7, 0.7, 0.7),
+              });
+            }
+
+            // Draw footer with white background
+            newPage.drawRectangle({
+              x: 0,
+              y: 0,
+              width: a4Width,
+              height: footerHeight,
+              color: PDFLib.rgb(1, 1, 1), // Pure white
+            });
+
+            // Draw left side footer text - APOLLO SURGICALS
+            newPage.drawText("APOLLO SURGICALS", {
+              x: 40,
+              y: 90,
+              size: 14,
+              color: PDFLib.rgb(0.1, 0.1, 0.1),
+              font: helveticaBoldFont,
+            });
+
+            newPage.drawText("Authorised signatory name", {
+              x: 40,
+              y: 70,
+              size: 10,
+              color: PDFLib.rgb(0.3, 0.3, 0.3),
+              font: helveticaFont,
+            });
+
+            newPage.drawText("SHIVRAJ SINGH RAJAWAT", {
+              x: 40,
+              y: 55,
+              size: 12,
+              color: PDFLib.rgb(0, 0, 0),
+              font: helveticaBoldFont,
+            });
+
+            // Add "Signature and Seal of Bidder" if enabled
+            if (signatureSealToggle.classList.contains('active')) {
+              const signatureSealText = "Signature and Seal of Bidder";
+              const textWidth = helveticaBoldFont.widthOfTextAtSize(signatureSealText, 10);
+              
+              // Underline text by drawing a line
+              newPage.drawLine({
+                start: { x: 40, y: 35 },
+                end: { x: 40 + textWidth, y: 35 },
+                thickness: 1,
+                color: PDFLib.rgb(0.1, 0.1, 0.1),
+              });
+              
+              newPage.drawText(signatureSealText, {
+                x: 40,
+                y: 40,
+                size: 10,
+                color: PDFLib.rgb(0.1, 0.1, 0.1),
+                font: helveticaBoldFont,
+              });
+            }
+
+            // Draw middle signature image - BIGGER SIZE
+            const signatureWidth = 200; // Increased from 150 to 200 (33% bigger)
+            const signatureHeight = signatureWidth / signatureAspectRatio;
+            
+            // Ensure height doesn't exceed available space
+            const finalSignatureHeight = Math.min(signatureHeight, 80); // Increased from 60 to 80
+            const finalSignatureWidth = finalSignatureHeight * signatureAspectRatio;
+            
+            newPage.drawImage(signatureImage, {
+              x: a4Width/2 - finalSignatureWidth/2,
+              y: 25,
+              width: finalSignatureWidth,
+              height: finalSignatureHeight,
+            });
+
+            // Draw right side footer text - GST, PAN (URN removed)
+            const rightSideX = a4Width - 200;
+            
+            newPage.drawText("GST: 08ADYPR0319N1ZR", {
+              x: rightSideX,
+              y: 90,
+              size: 10,
+              color: PDFLib.rgb(0.1, 0.1, 0.1),
+              font: helveticaFont,
+            });
+
+            // URN line removed completely
+            
+            newPage.drawText("PAN CARD NO.- ADYPR0319N", {
+              x: rightSideX,
+              y: 70, // Moved up to where URN was
+              size: 10,
+              color: PDFLib.rgb(0.1, 0.1, 0.1),
+              font: helveticaFont,
+            });
+
+            // Add date and time if enabled (moved up since URN removed)
+            if (dateTimeToggle.classList.contains('active')) {
+              const dateTimeStr = getCurrentDateTimeString();
+              newPage.drawText(dateTimeStr, {
+                x: rightSideX,
+                y: 50, // Adjusted position
+                size: 10,
+                color: PDFLib.rgb(0.1, 0.1, 0.1),
+                font: helveticaBoldFont,
+              });
+            }
+
+            // Add page number if enabled
+            if (pageNumberToggle.classList.contains('active')) {
+              const pageNumText = `Page no. ${index + 1}`;
+              const pageNumWidth = helveticaBoldFont.widthOfTextAtSize(pageNumText, 10);
+              
+              // Draw black background
+              newPage.drawRectangle({
+                x: a4Width - pageNumWidth - 30,
+                y: 10,
+                width: pageNumWidth + 20,
+                height: 15,
+                color: PDFLib.rgb(0, 0, 0),
+              });
+              
+              // Draw page number text
+              newPage.drawText(pageNumText, {
+                x: a4Width - pageNumWidth - 20,
+                y: 13,
+                size: 10,
+                color: PDFLib.rgb(1, 1, 1),
+                font: helveticaBoldFont,
+              });
+            }
+
+            // Embed original page content
+            const embeddedPage = await finalPdf.embedPage(page);
+            const contentAreaWidth = a4Width - 80;
+            const contentAreaHeight = a4Height - headerHeight - footerHeight - 40;
+            const scale = Math.min(contentAreaWidth / width, contentAreaHeight / height);
+            const scaledWidth = width * scale;
+            const scaledHeight = height * scale;
+            const x = (a4Width - scaledWidth) / 2;
+            const y = footerHeight + (a4Height - headerHeight - footerHeight - scaledHeight) / 2;
+
+            newPage.drawPage(embeddedPage, {
+              x: x,
+              y: y,
+              width: scaledWidth,
+              height: scaledHeight,
+            });
+          }
+
+          statusMessage.textContent = "Finalizing document...";
+          progressBar.style.width = "95%";
+
+          const finalPdfBytes = await finalPdf.save();
+          const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
+          
+          // Generate filename based on original file name
+          const originalFileName = currentFile.name;
+          const finalFileName = generateFinalFilename(originalFileName);
+          
+          saveAs(blob, finalFileName);
+
+          statusMessage.textContent = "Document generated successfully!";
+          progressBar.style.width = "100%";
+
+          setTimeout(() => {
+            statusArea.classList.remove('active');
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+              successMessage.style.display = 'none';
+            }, 4000);
+          }, 1000);
+        } catch (error) {
+          console.error('Error:', error);
+          showError(`Error processing PDF: ${error.message}`);
+        }
+      }
+
+      // Function to create a placeholder signature image
+      async function createPlaceholderSignature(pdfDoc) {
+        // Create a canvas to draw a signature placeholder
+        const canvas = document.createElement('canvas');
+        canvas.width = 400; // Even wider canvas for better aspect ratio
+        canvas.height = 120;
+        const ctx = canvas.getContext('2d');
+        
+        // Draw signature background
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw signature border
+        ctx.strokeStyle = '#5b86e5';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 3]);
+        ctx.strokeRect(5, 5, canvas.width-10, canvas.height-10);
+        
+        // Draw signature text
+        ctx.fillStyle = '#333333';
+        ctx.font = 'italic 28px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Apollo Surgicals Signature', canvas.width/2, canvas.height/2 + 10);
+        
+        // Convert canvas to base64
+        const dataUrl = canvas.toDataURL('image/png');
+        
+        // Remove the data URL prefix
+        const base64Data = dataUrl.split(',')[1];
+        
+        // Convert base64 to Uint8Array
+        const binaryString = atob(base64Data);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        // Embed the image in the PDF
+        return await pdfDoc.embedPng(bytes);
+      }
+
+      function showError(message) {
+        errorText.textContent = message;
+        errorMessage.style.display = 'block';
+        statusArea.classList.add('active');
+        statusMessage.textContent = message;
+        progressBar.style.width = "100%";
+
+        setTimeout(() => {
+          statusArea.classList.remove('active');
+          errorMessage.style.display = 'none';
+          progressBar.style.width = "0%";
+        }, 4000);
+      }
+    });
+  </script>
+</body>
+</html>
