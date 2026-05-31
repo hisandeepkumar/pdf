@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>PDF Compressor · Images only | Text selectable & sharp</title>
+  <title>PDF Compressor · Images only | Text unchanged & selectable</title>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,7 +11,7 @@
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
     body {
       min-height:100vh; display:flex; justify-content:center; align-items:center;
-      padding:24px;  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
+      padding:24px; background:linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('https://images.unsplash.com/photo-1586074292757-9d4118c4c519?q=80&w=1974&auto=format');
       background-size:cover; background-position:center; background-attachment:fixed;
     }
     .glass-card {
@@ -130,42 +130,19 @@
   dropZone.addEventListener('click',()=> fileInput.click());
   fileInput.addEventListener('change',e=>{ if(e.target.files.length) handleFile(e.target.files[0]); });
 
-  // ----- Safe image compression (no .replace errors) -----
+  // ----- NEW RELIABLE IMAGE COMPRESSION (no reference mapping errors) -----
   async function compressImagesOnly(pdfBuffer, strength, flatten) {
     const quality = Math.max(0.3, Math.min(0.92, strength/100 * 0.7 + 0.3));
+    // Load source document
     const srcDoc = await PDFLib.PDFDocument.load(pdfBuffer);
+    // Create new document and copy all pages (preserving text, fonts, vectors)
     const newDoc = await PDFLib.PDFDocument.create();
     const pages = await newDoc.copyPages(srcDoc, srcDoc.getPageIndices());
-    pages.forEach(p => newDoc.addPage(p));
+    for (const page of pages) newDoc.addPage(page);
     
-    // Collect all image objects safely
-    const imageMap = new Map();
-    const allIndirect = srcDoc.context.enumerateIndirectObjects();
-    for (let [ref, obj] of allIndirect) {
-      try {
-        if (!(obj instanceof PDFLib.PDFDict)) continue;
-        const subtype = obj.get(PDFLib.PDFName.of('Subtype'));
-        if (!subtype || subtype.toString() !== '/Image') continue;
-        const filter = obj.get(PDFLib.PDFName.of('Filter'));
-        const filterStr = filter ? filter.toString() : '';
-        if (!['/DCTDecode','/JPXDecode','/FlateDecode'].includes(filterStr)) continue;
-        const stream = obj.get(PDFLib.PDFName.of('Stream'));
-        if (!stream || !stream.contents) continue;
-        const rawBytes = stream.contents;
-        const blob = new Blob([rawBytes], { type: 'image/jpeg' });
-        const bitmap = await createImageBitmap(blob);
-        const canvas = document.createElement('canvas');
-        canvas.width = bitmap.width;
-        canvas.height = bitmap.height;
-        canvas.getContext('2d').drawImage(bitmap,0,0);
-        const compBlob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', quality));
-        const compBytes = await compBlob.arrayBuffer();
-        const newImg = await newDoc.embedJpg(compBytes);
-        imageMap.set(ref.toString(), newImg);
-      } catch(e) { console.warn('skip image', e); }
-    }
-    
-    // Replace image references in pages
+    // Now we will find all image objects in the new document and replace them
+    // Collect unique image references first
+    const imageRefs = new Set(); // store indirect reference objects
     for (const page of newDoc.getPages()) {
       const resources = page.node.get(PDFLib.PDFName.of('Resources'));
       if (!resources) continue;
@@ -173,15 +150,58 @@
       if (!(xObject instanceof PDFLib.PDFDict)) continue;
       const keys = xObject.keys();
       for (const key of keys) {
-        const val = xObject.get(PDFLib.PDFName.of(key));
-        if (!val) continue;
-        const refStr = val.toString();
-        if (imageMap.has(refStr)) {
-          xObject.set(PDFLib.PDFName.of(key), imageMap.get(refStr).ref);
+        const value = xObject.get(PDFLib.PDFName.of(key));
+        if (value instanceof PDFLib.PDFDict) {
+          const subtype = value.get(PDFLib.PDFName.of('Subtype'));
+          if (subtype && subtype.toString() === '/Image') {
+            // This is an image object; get its indirect reference
+            if (value.ref) imageRefs.add(value.ref);
+          }
         }
       }
     }
     
+    // For each unique image, compress and replace
+    const replacementMap = new Map(); // old ref -> new image object
+    for (const oldRef of imageRefs) {
+      try {
+        const imageObj = newDoc.context.lookup(oldRef);
+        if (!imageObj || !(imageObj instanceof PDFLib.PDFDict)) continue;
+        const stream = imageObj.get(PDFLib.PDFName.of('Stream'));
+        if (!stream || !stream.contents) continue;
+        const rawBytes = stream.contents;
+        // Decode using canvas
+        const blob = new Blob([rawBytes], { type: 'image/jpeg' });
+        const bitmap = await createImageBitmap(blob);
+        const canvas = document.createElement('canvas');
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(bitmap, 0, 0);
+        const compressedBlob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', quality));
+        const compressedBytes = await compressedBlob.arrayBuffer();
+        const newImage = await newDoc.embedJpg(compressedBytes);
+        replacementMap.set(oldRef, newImage);
+      } catch(e) { console.warn('Could not compress image', e); }
+    }
+    
+    // Replace references in all XObject dictionaries
+    for (const page of newDoc.getPages()) {
+      const resources = page.node.get(PDFLib.PDFName.of('Resources'));
+      if (!resources) continue;
+      const xObject = resources.get(PDFLib.PDFName.of('XObject'));
+      if (!(xObject instanceof PDFLib.PDFDict)) continue;
+      const keys = xObject.keys();
+      for (const key of keys) {
+        const value = xObject.get(PDFLib.PDFName.of(key));
+        if (value instanceof PDFLib.PDFDict && value.ref && replacementMap.has(value.ref)) {
+          const newImage = replacementMap.get(value.ref);
+          xObject.set(PDFLib.PDFName.of(key), newImage.ref);
+        }
+      }
+    }
+    
+    // Optional flattening
     if (flatten) {
       newDoc.setTitle(''); newDoc.setAuthor(''); newDoc.setSubject(''); newDoc.setCreator('PDF Compactor');
       for (const page of newDoc.getPages()) {
@@ -192,7 +212,9 @@
       const outlines = catalog.get(PDFLib.PDFName.of('Outlines'));
       if (outlines) catalog.set(PDFLib.PDFName.of('Outlines'), null);
     }
-    return await newDoc.save({ useObjectStreams: true, addDefaultPage: false });
+    
+    const finalBytes = await newDoc.save({ useObjectStreams: true, addDefaultPage: false });
+    return finalBytes;
   }
   
   compressBtn.addEventListener('click', async () => {
@@ -205,7 +227,7 @@
     statsPanel.style.display = 'none';
     try {
       const origSize = currentPdfFile.size;
-      const strength = parseInt(strengthSlider.value,10);
+      const strength = parseInt(strengthSlider.value, 10);
       const doFlatten = flattenToggle.checked;
       const arrayBuf = await currentPdfFile.arrayBuffer();
       progressFill.style.width = '20%';
