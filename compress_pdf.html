@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>PDF Compactor · Selective page compression with previews</title>
+  <title>PDF Compactor · Full Page Previews · Selective Compression</title>
   <!-- PDF.js + pdf-lib -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
@@ -14,12 +14,12 @@
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
     body {
       min-height: 100vh;
-      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('images/background.jpg');
+      background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('images/background.jpg');
       background-attachment: fixed;
       padding: 24px;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
     }
     body::before {
       content: "";
@@ -31,11 +31,11 @@
       pointer-events: none;
     }
 
-    /* main glass container */
+    /* main glass container - expands with content */
     .glass-card {
       width: 100%;
-      max-width: 1300px;
-      background: rgba(20, 28, 35, 0.65);
+      max-width: 1100px;
+      background: rgba(20, 28, 35, 0.7);
       backdrop-filter: blur(16px);
       border-radius: 2rem;
       box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
@@ -46,7 +46,7 @@
     .glass-header {
       padding: 1.3rem 2rem;
       text-align: center;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.35);
       border-bottom: 1px solid rgba(255,255,255,0.1);
     }
     .glass-header h1 {
@@ -60,7 +60,7 @@
     }
     .glass-header h1 i { color: #5f9eff; }
     .sub {
-      color: rgba(220,240,255,0.8);
+      color: rgba(220,240,255,0.85);
       margin-top: 0.4rem;
       font-size: 0.8rem;
       display: flex;
@@ -98,103 +98,105 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.4);
       border-radius: 1rem;
-      padding: 0.5rem 1rem;
+      padding: 0.6rem 1rem;
       margin-bottom: 1rem;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
     }
-    .pdf-info span { color: #ccdeff; font-size: 0.85rem; }
+    .pdf-info span { color: #ccdeff; font-size: 0.85rem; font-weight: 500; }
     .clear-pdf-btn {
-      background: rgba(220,70,70,0.5);
+      background: rgba(220,70,70,0.6);
       border: none;
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 30px;
       color: white;
       cursor: pointer;
       font-size: 0.75rem;
       transition: 0.2s;
     }
-    .clear-pdf-btn:hover { background: rgba(220,70,70,0.8); }
+    .clear-pdf-btn:hover { background: rgba(220,70,70,0.9); }
 
-    /* preview grid (all pages visible, scrollable) */
-    .preview-section {
+    /* preview list - vertical full-width pages (like reference) */
+    .preview-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
       margin: 1rem 0 1.5rem;
     }
-    .preview-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .preview-header h3 { color: #eef4ff; font-weight: 500; }
-    .selection-tools {
-      display: flex;
-      gap: 10px;
-    }
-    .selection-tools button {
-      background: rgba(60,100,150,0.6);
-      border: none;
-      padding: 5px 14px;
-      border-radius: 40px;
-      color: white;
-      font-size: 0.7rem;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .selection-tools button:hover { background: #2f6bc0; }
-
-    .page-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-      gap: 1.2rem;
-      max-height: 540px;
-      overflow-y: auto;
-      padding: 6px 4px 12px;
-      border-radius: 1rem;
-    }
-    .page-card {
-      background: rgba(0,0,0,0.45);
+    .preview-item {
+      background: rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(4px);
-      border-radius: 1rem;
-      padding: 0.7rem;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.2);
-      transition: 0.15s;
+      border-radius: 1.2rem;
+      padding: 1rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.2s;
       cursor: pointer;
       position: relative;
     }
-    .page-card.selected {
+    .preview-item.selected {
       border: 2px solid #5f9eff;
-      background: rgba(95,158,255,0.2);
+      background: rgba(95, 158, 255, 0.12);
       box-shadow: 0 0 0 1px #5f9eff;
     }
-    .page-thumb {
-      width: 100%;
-      aspect-ratio: 1 / 1.35;
-      object-fit: contain;
-      background: #1a252f;
-      border-radius: 8px;
-      margin-bottom: 8px;
+    .preview-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      padding: 0 0.2rem;
     }
-    .page-number {
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: #cae3ff;
+    .page-title {
+      font-weight: 600;
+      color: #e0edff;
+      font-size: 1rem;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 6px;
+      gap: 8px;
     }
-    .page-number i { visibility: hidden; font-size: 0.7rem; }
-    .page-card.selected .page-number i { visibility: visible; color: #5f9eff; }
+    .page-title i { color: #5f9eff; }
+    .selection-badge {
+      background: rgba(255,255,255,0.15);
+      border-radius: 30px;
+      padding: 4px 12px;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+    .canvas-wrap {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    canvas {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: block;
+    }
+    .preview-item .select-overlay {
+      position: absolute;
+      bottom: 12px;
+      right: 16px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 40px;
+      padding: 5px 12px;
+      font-size: 0.7rem;
+      color: white;
+      pointer-events: none;
+    }
+    .preview-item.selected .select-overlay {
+      background: #5f9eff;
+      color: white;
+    }
 
     /* compression slider */
     .slider-card {
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.35);
       backdrop-filter: blur(4px);
       border-radius: 1.2rem;
       padding: 0.8rem 1rem;
@@ -230,7 +232,7 @@
 
     /* stats & progress */
     .stats-container {
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.35);
       border-radius: 1rem;
       padding: 0.7rem 1rem;
       margin: 1rem 0;
@@ -241,7 +243,7 @@
       color: #cddff5;
     }
     .btn-compress {
-      background: rgba(40,90,160,0.85);
+      background: rgba(40,90,160,0.9);
       backdrop-filter: blur(12px);
       color: white;
       border: none;
@@ -301,7 +303,7 @@
       width: 46px;
       height: 46px;
       border-radius: 50%;
-      background: rgba(30,40,55,0.7);
+      background: rgba(30,40,55,0.8);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255,255,255,0.2);
       display: flex;
@@ -313,7 +315,7 @@
     }
     @media (max-width: 700px) {
       .content { padding: 1rem; }
-      .page-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+      .preview-item { padding: 0.7rem; }
     }
   </style>
 </head>
@@ -321,14 +323,14 @@
 <button class="back-float" id="backButton"><i class="fas fa-arrow-left"></i></button>
 <div class="glass-card">
   <div class="glass-header">
-    <h1><i class="fas fa-file-pdf"></i> PDF Compactor · Select pages</h1>
-    <div class="sub"><span><i class="fas fa-lock"></i> 0% upload · local only</span><span><i class="fas fa-eye"></i> See every page</span><span><i class="fas fa-memory"></i> Selection saved</span></div>
+    <h1><i class="fas fa-file-pdf"></i> PDF Compactor · Visual Select</h1>
+    <div class="sub"><span><i class="fas fa-lock"></i> 0% upload · local only</span><span><i class="fas fa-eye"></i> Full page previews</span><span><i class="fas fa-memory"></i> Selection memory</span></div>
   </div>
   <div class="content">
     <div id="dropZone" class="drop-zone">
       <i class="fas fa-cloud-upload-alt"></i>
       <h3>Drop PDF or click to browse</h3>
-      <p>🔒 Your file stays in your browser — all processing happens locally</p>
+      <p>🔒 Your file never leaves this device — full page previews below</p>
       <input type="file" id="fileInput" class="hidden-input" accept="application/pdf">
     </div>
 
@@ -337,27 +339,27 @@
       <button id="clearPdfBtn" class="clear-pdf-btn"><i class="fas fa-trash-alt"></i> Remove PDF</button>
     </div>
 
-    <!-- Preview section with page grid -->
+    <!-- Preview area: vertical list, each page full-width canvas -->
     <div id="previewSection" class="preview-section" style="display: none;">
-      <div class="preview-header">
-        <h3><i class="fas fa-images"></i> Page previews — click to select pages for compression</h3>
-        <div class="selection-tools">
-          <button id="selectAllPagesBtn"><i class="fas fa-check-double"></i> All</button>
-          <button id="clearAllPagesBtn"><i class="fas fa-ban"></i> None</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 12px;">
+        <h3 style="color:#eef4ff; font-weight:500;"><i class="fas fa-images"></i> Click on any page to select/unselect for compression</h3>
+        <div style="display: flex; gap: 10px;">
+          <button id="selectAllBtn" class="selection-tool-btn" style="background: rgba(60,100,150,0.7); border:none; padding:6px 14px; border-radius:40px; color:white; cursor:pointer;"><i class="fas fa-check-double"></i> All</button>
+          <button id="clearAllBtn" class="selection-tool-btn" style="background: rgba(60,100,150,0.7); border:none; padding:6px 14px; border-radius:40px; color:white; cursor:pointer;"><i class="fas fa-ban"></i> None</button>
         </div>
       </div>
-      <div id="pageGrid" class="page-grid"></div>
+      <div id="previewListContainer" class="preview-list"></div>
     </div>
 
     <!-- Compression quality slider -->
     <div class="slider-card">
       <div class="slider-header">
-        <span><i class="fas fa-compress-alt"></i> JPEG quality (selected pages)</span>
+        <span><i class="fas fa-compress-alt"></i> JPEG compression quality (selected pages)</span>
         <span id="qualityLabel" class="quality-badge">balanced · 70%</span>
       </div>
       <input type="range" id="qualitySlider" min="0" max="100" value="70">
       <div class="range-labels" style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 0.7rem; color:#b0c9f0;">
-        <span>🔥 max reduction</span><span>✨ best quality</span>
+        <span>🔥 max reduction (lower quality)</span><span>✨ best quality (larger size)</span>
       </div>
     </div>
 
@@ -373,10 +375,10 @@
       <div id="progressMsg" class="info-note" style="margin-top: 6px; background: none;">Processing...</div>
     </div>
     <div class="info-note">
-      <i class="fas fa-info-circle"></i> <strong>How it works</strong> — Selected pages are re‑rendered as JPEG (quality slider above) to drastically reduce size. Unselected pages stay original (text/vector preserved). Your page selection is cached for each file.
+      <i class="fas fa-info-circle"></i> <strong>How it works</strong> — <strong>Selected pages</strong> are re‑rendered as JPEG (quality slider) to drastically reduce size. Unselected pages stay original (text/vector preserved). Selection is cached per file. Click any preview to toggle.
     </div>
   </div>
-  <div class="footer"><i class="fas fa-heart"></i> Privacy-first · Selections remembered · Recompress anytime</div>
+  <div class="footer"><i class="fas fa-heart"></i> Privacy-first · Full page previews · Selections remembered</div>
 </div>
 
 <script>
@@ -389,7 +391,7 @@
   const pdfFileNameSpan = document.getElementById('pdfFileName');
   const pageCountSpan = document.getElementById('pageCount');
   const previewSection = document.getElementById('previewSection');
-  const pageGrid = document.getElementById('pageGrid');
+  const previewListContainer = document.getElementById('previewListContainer');
   const qualitySlider = document.getElementById('qualitySlider');
   const qualityLabel = document.getElementById('qualityLabel');
   const compressBtn = document.getElementById('compressBtn');
@@ -401,20 +403,20 @@
   const progressFill = document.getElementById('progressFill');
   const progressMsg = document.getElementById('progressMsg');
   const clearPdfBtn = document.getElementById('clearPdfBtn');
-  const selectAllPagesBtn = document.getElementById('selectAllPagesBtn');
-  const clearAllPagesBtn = document.getElementById('clearAllPagesBtn');
+  const selectAllBtn = document.getElementById('selectAllBtn');
+  const clearAllBtn = document.getElementById('clearAllBtn');
 
   // State
   let currentFile = null;
   let currentArrayBuffer = null;
-  let pdfLibDocument = null;      // original pdf-lib doc
-  let pdfJsDocument = null;       // pdf.js doc for rendering previews & compression
+  let pdfLibDocument = null;
+  let pdfJsDocument = null;
   let totalPages = 0;
   let selectedPages = [];         // boolean array
   let fileIdentifier = "";
-  let pageThumbScales = [];       // store scale factor for each page (for preview)
+  let pageCanvases = [];          // store canvas elements for rebuilding selection ui
 
-  // helper
+  // Helper
   function formatBytes(bytes) {
     if (!bytes) return "0 B";
     const k = 1024;
@@ -430,19 +432,16 @@
   qualitySlider.addEventListener('input', (e) => updateQualityLabel(e.target.value));
   updateQualityLabel(qualitySlider.value);
 
-  // Generate unique file identifier
   function getFileId(file) {
-    return `pdf_sel_${file.name}_${file.size}_${file.lastModified}`;
+    return `pdf_fullpreview_${file.name}_${file.size}_${file.lastModified}`;
   }
 
-  // Persist selection to localStorage
   function persistSelection() {
     if (!fileIdentifier || !selectedPages.length) return;
     const selectedIndices = selectedPages.reduce((acc, val, idx) => val ? [...acc, idx] : acc, []);
     localStorage.setItem(fileIdentifier, JSON.stringify(selectedIndices));
   }
 
-  // Load cached selection
   function loadCachedSelection(identifier, total) {
     const raw = localStorage.getItem(identifier);
     if (!raw) return null;
@@ -454,62 +453,88 @@
     } catch(e) { return null; }
   }
 
-  // Render preview grid with thumbnails
-  async function renderPreviews() {
+  // Render full-width previews (like reference)
+  async function renderFullPreviews() {
     if (!pdfJsDocument || totalPages === 0) return;
-    pageGrid.innerHTML = '';
-    // calculate thumbnail width (grid item ~170px, canvas inside)
-    const thumbWidth = 160;
+    previewListContainer.innerHTML = '';
+    pageCanvases = [];
+    
+    // Get container width for proper scaling
+    const containerEl = document.querySelector('.glass-card');
+    const containerWidth = Math.min(containerEl.clientWidth - 80, 900); // max width for canvas
+    const baseWidth = containerWidth > 200 ? containerWidth : 700;
+    
     for (let i = 1; i <= totalPages; i++) {
       const page = await pdfJsDocument.getPage(i);
       const origView = page.getViewport({ scale: 1.0 });
-      const scale = thumbWidth / origView.width;
-      const viewport = page.getViewport({ scale: Math.min(scale, 0.7) }); // limit for quality
+      const scale = baseWidth / origView.width;
+      const viewport = page.getViewport({ scale: Math.min(scale, 1.2) }); // limit scale but good visibility
+      
       const canvas = document.createElement('canvas');
       canvas.width = viewport.width;
       canvas.height = viewport.height;
       canvas.style.width = '100%';
       canvas.style.height = 'auto';
-      canvas.className = 'page-thumb';
       const ctx = canvas.getContext('2d');
       await page.render({ canvasContext: ctx, viewport }).promise;
       
-      const card = document.createElement('div');
-      card.className = `page-card ${selectedPages[i-1] ? 'selected' : ''}`;
-      card.dataset.pageIdx = i-1;
-      const thumbClone = canvas.cloneNode(true);
-      thumbClone.classList.add('page-thumb');
-      const pageNumDiv = document.createElement('div');
-      pageNumDiv.className = 'page-number';
-      pageNumDiv.innerHTML = `<i class="fas fa-check-circle"></i> Page ${i}`;
-      card.appendChild(thumbClone);
-      card.appendChild(pageNumDiv);
-      card.addEventListener('click', (e) => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = `preview-item ${selectedPages[i-1] ? 'selected' : ''}`;
+      itemDiv.dataset.pageIdx = i-1;
+      
+      // header with page number and selection badge
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'preview-header-line';
+      headerDiv.innerHTML = `
+        <div class="page-title"><i class="fas fa-file-alt"></i> Page ${i}</div>
+        <div class="selection-badge">${selectedPages[i-1] ? '✓ Selected for compression' : 'Click to select'}</div>
+      `;
+      
+      const canvasWrap = document.createElement('div');
+      canvasWrap.className = 'canvas-wrap';
+      canvasWrap.appendChild(canvas);
+      
+      const overlaySpan = document.createElement('div');
+      overlaySpan.className = 'select-overlay';
+      overlaySpan.innerHTML = selectedPages[i-1] ? '<i class="fas fa-check-circle"></i> Will compress' : '<i class="fas fa-mouse-pointer"></i> Click to select';
+      
+      itemDiv.appendChild(headerDiv);
+      itemDiv.appendChild(canvasWrap);
+      itemDiv.appendChild(overlaySpan);
+      
+      itemDiv.addEventListener('click', (e) => {
         e.stopPropagation();
-        const idx = parseInt(card.dataset.pageIdx);
+        const idx = parseInt(itemDiv.dataset.pageIdx);
         selectedPages[idx] = !selectedPages[idx];
-        if (selectedPages[idx]) card.classList.add('selected');
-        else card.classList.remove('selected');
+        // update UI
+        if (selectedPages[idx]) {
+          itemDiv.classList.add('selected');
+          headerDiv.querySelector('.selection-badge').innerHTML = '✓ Selected for compression';
+          overlaySpan.innerHTML = '<i class="fas fa-check-circle"></i> Will compress';
+        } else {
+          itemDiv.classList.remove('selected');
+          headerDiv.querySelector('.selection-badge').innerHTML = 'Click to select';
+          overlaySpan.innerHTML = '<i class="fas fa-mouse-pointer"></i> Click to select';
+        }
         persistSelection();
         updateCompressButton();
       });
-      pageGrid.appendChild(card);
+      
+      previewListContainer.appendChild(itemDiv);
+      pageCanvases.push(canvas);
     }
   }
 
-  // Load PDF from file
   async function loadPDF(file) {
     if (!file || file.type !== 'application/pdf') {
       alert('Please select a valid PDF file.');
       return;
     }
-    // clean previous state
     statsPanel.style.display = 'none';
     progressArea.style.display = 'none';
     compressBtn.disabled = true;
     currentFile = file;
     currentArrayBuffer = await file.arrayBuffer();
-    // load pdf-lib and pdf.js
     try {
       pdfLibDocument = await PDFLib.PDFDocument.load(currentArrayBuffer.slice(0));
       pdfJsDocument = await pdfjsLib.getDocument({ data: currentArrayBuffer.slice(0) }).promise;
@@ -519,12 +544,11 @@
       if (cached) selectedPages = cached;
       else selectedPages = new Array(totalPages).fill(false);
       
-      // update UI
       pdfFileNameSpan.innerText = file.name;
       pageCountSpan.innerText = totalPages;
       pdfInfoBar.style.display = 'flex';
       previewSection.style.display = 'block';
-      await renderPreviews();
+      await renderFullPreviews();
       updateCompressButton();
     } catch (err) {
       console.error(err);
@@ -548,7 +572,7 @@
     totalPages = 0;
     pdfInfoBar.style.display = 'none';
     previewSection.style.display = 'none';
-    pageGrid.innerHTML = '';
+    previewListContainer.innerHTML = '';
     statsPanel.style.display = 'none';
     compressBtn.disabled = true;
     compressBtn.innerHTML = '<i class="fas fa-cogs"></i> Compress selected pages';
@@ -556,32 +580,43 @@
     fileInput.value = '';
   }
 
-  // Clear current PDF
-  clearPdfBtn.addEventListener('click', () => {
-    resetUI();
-  });
-
-  // Select / Deselect all
-  selectAllPagesBtn.addEventListener('click', () => {
+  clearPdfBtn.addEventListener('click', resetUI);
+  
+  selectAllBtn.addEventListener('click', () => {
     if (!selectedPages.length) return;
     for (let i = 0; i < selectedPages.length; i++) selectedPages[i] = true;
-    const cards = document.querySelectorAll('.page-card');
-    cards.forEach(card => card.classList.add('selected'));
+    // refresh UI items
+    const items = document.querySelectorAll('.preview-item');
+    items.forEach((item, idx) => {
+      if (selectedPages[idx]) {
+        item.classList.add('selected');
+        const badge = item.querySelector('.selection-badge');
+        const overlay = item.querySelector('.select-overlay');
+        if (badge) badge.innerHTML = '✓ Selected for compression';
+        if (overlay) overlay.innerHTML = '<i class="fas fa-check-circle"></i> Will compress';
+      }
+    });
     persistSelection();
     updateCompressButton();
   });
-  clearAllPagesBtn.addEventListener('click', () => {
+  
+  clearAllBtn.addEventListener('click', () => {
     if (!selectedPages.length) return;
     for (let i = 0; i < selectedPages.length; i++) selectedPages[i] = false;
-    const cards = document.querySelectorAll('.page-card');
-    cards.forEach(card => card.classList.remove('selected'));
+    const items = document.querySelectorAll('.preview-item');
+    items.forEach((item, idx) => {
+      item.classList.remove('selected');
+      const badge = item.querySelector('.selection-badge');
+      const overlay = item.querySelector('.select-overlay');
+      if (badge) badge.innerHTML = 'Click to select';
+      if (overlay) overlay.innerHTML = '<i class="fas fa-mouse-pointer"></i> Click to select';
+    });
     persistSelection();
     updateCompressButton();
   });
 
-  // ----- COMPRESSION ENGINE (selective: selected pages => JPEG, others copy original) -----
+  // ----- COMPRESSION ENGINE (selected pages => JPEG, others copy original) -----
   function getJpegQualityFromSlider(value) {
-    // 0..100 -> 0.25 .. 0.92
     return Math.min(0.92, Math.max(0.25, value / 100 * 0.67 + 0.25));
   }
 
@@ -592,12 +627,10 @@
     progressCallback({ percent: 3, message: `Preparing compression (JPEG quality: ${Math.round(quality*100)}%)` });
     
     for (let i = 0; i < total; i++) {
-      const pageIndex = i;
-      if (selectedPages[pageIndex]) {
-        // Render selected page at full resolution to JPEG
+      if (selectedPages[i]) {
         progressCallback({ percent: 5 + Math.floor((i / total) * 70), message: `Compressing page ${i+1}/${total} (JPEG)` });
         const page = await pdfJsDocument.getPage(i+1);
-        const viewport = page.getViewport({ scale: 1.0 }); // original size
+        const viewport = page.getViewport({ scale: 1.0 }); // original resolution
         const canvas = document.createElement('canvas');
         canvas.width = viewport.width;
         canvas.height = viewport.height;
@@ -608,24 +641,22 @@
         });
         const imgBytes = await blob.arrayBuffer();
         const embeddedImg = await newPdfDoc.embedJpg(imgBytes);
-        const { width, height } = viewport;
-        const pdfPage = newPdfDoc.addPage([width, height]);
-        pdfPage.drawImage(embeddedImg, { x: 0, y: 0, width, height });
+        const pdfPage = newPdfDoc.addPage([viewport.width, viewport.height]);
+        pdfPage.drawImage(embeddedImg, { x: 0, y: 0, width: viewport.width, height: viewport.height });
         canvas.remove();
       } else {
-        progressCallback({ percent: 5 + Math.floor((i / total) * 70), message: `Copying original page ${i+1} (no compression)` });
+        progressCallback({ percent: 5 + Math.floor((i / total) * 70), message: `Copying original page ${i+1} (uncompressed)` });
         const [copiedPage] = await newPdfDoc.copyPages(pdfLibDocument, [i]);
         newPdfDoc.addPage(copiedPage);
       }
       await new Promise(r => setTimeout(r, 2));
     }
-    progressCallback({ percent: 90, message: 'Finalizing PDF structure...' });
+    progressCallback({ percent: 90, message: 'Finalizing PDF...' });
     const compressedBytes = await newPdfDoc.save();
     progressCallback({ percent: 100, message: 'Done! Download ready.' });
     return compressedBytes;
   }
 
-  // Compress button handler
   compressBtn.addEventListener('click', async () => {
     if (!currentFile || !selectedPages.some(v=>v)) {
       alert('Please select at least one page to compress.');
@@ -655,7 +686,6 @@
       savedPercentSpan.innerText = `${savedPercent}% (${formatBytes(savedBytes)})`;
       statsPanel.style.display = 'flex';
       
-      // download
       const url = URL.createObjectURL(compressedBlob);
       const a = document.createElement('a');
       let outName = currentFile.name.replace(/\.pdf$/i, '');
@@ -682,7 +712,7 @@
     }
   });
 
-  // Drag & drop handlers
+  // Drag & drop
   dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('active'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
   dropZone.addEventListener('drop', (e) => {
