@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>PDF Compactor · Full Page Previews · Selective Compression</title>
+  <title>PDF Compactor · 1.5MP resize + Target size control</title>
   <!-- PDF.js + pdf-lib -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
     body {
       min-height: 100vh;
       background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('images/background.jpg');
@@ -31,7 +31,6 @@
       pointer-events: none;
     }
 
-    /* main glass container - expands with content */
     .glass-card {
       width: 100%;
       max-width: 1100px;
@@ -73,7 +72,6 @@
       padding: 1.8rem 2rem;
     }
 
-    /* dropzone */
     .drop-zone {
       border: 2px dashed rgba(255,255,255,0.3);
       border-radius: 1.5rem;
@@ -93,7 +91,6 @@
     .drop-zone h3 { color: #eef4ff; font-weight: 500; }
     .hidden-input { display: none; }
 
-    /* pdf info bar */
     .pdf-info {
       display: flex;
       justify-content: space-between;
@@ -114,11 +111,8 @@
       color: white;
       cursor: pointer;
       font-size: 0.75rem;
-      transition: 0.2s;
     }
-    .clear-pdf-btn:hover { background: rgba(220,70,70,0.9); }
 
-    /* preview list - vertical full-width pages (like reference) */
     .preview-list {
       display: flex;
       flex-direction: column;
@@ -138,14 +132,12 @@
     .preview-item.selected {
       border: 2px solid #5f9eff;
       background: rgba(95, 158, 255, 0.12);
-      box-shadow: 0 0 0 1px #5f9eff;
     }
     .preview-header-line {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 0.8rem;
-      padding: 0 0.2rem;
     }
     .page-title {
       font-weight: 600;
@@ -155,13 +147,11 @@
       align-items: center;
       gap: 8px;
     }
-    .page-title i { color: #5f9eff; }
     .selection-badge {
       background: rgba(255,255,255,0.15);
       border-radius: 30px;
       padding: 4px 12px;
       font-size: 0.7rem;
-      font-weight: 500;
     }
     .canvas-wrap {
       width: 100%;
@@ -178,7 +168,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       display: block;
     }
-    .preview-item .select-overlay {
+    .select-overlay {
       position: absolute;
       bottom: 12px;
       right: 16px;
@@ -191,46 +181,45 @@
     }
     .preview-item.selected .select-overlay {
       background: #5f9eff;
-      color: white;
     }
 
-    /* compression slider */
-    .slider-card {
+    .advanced-card {
       background: rgba(0,0,0,0.35);
       backdrop-filter: blur(4px);
       border-radius: 1.2rem;
-      padding: 0.8rem 1rem;
+      padding: 1rem;
       margin: 1rem 0;
     }
-    .slider-header {
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .option-group {
       display: flex;
-      justify-content: space-between;
-      color: #eef3ff;
-      margin-bottom: 0.6rem;
+      flex-direction: column;
+      gap: 6px;
     }
-    .quality-badge {
-      background: #1e3a5f;
-      padding: 0.2rem 0.8rem;
-      border-radius: 60px;
-      font-size: 0.7rem;
+    .option-group label {
+      font-size: 0.75rem;
+      color: #cae3ff;
+      font-weight: 500;
     }
-    input[type="range"] {
-      width: 100%;
-      height: 5px;
-      -webkit-appearance: none;
-      background: #2e4a6a;
+    .option-group input, .option-group select {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 8px 10px;
       border-radius: 10px;
+      color: white;
+      font-size: 0.85rem;
     }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      background: #5f9eff;
-      border-radius: 50%;
-      cursor: pointer;
+    .target-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
-
-    /* stats & progress */
+    .target-row input { flex: 1; }
+    .target-row select { width: 80px; }
     .stats-container {
       background: rgba(0,0,0,0.35);
       border-radius: 1rem;
@@ -315,7 +304,7 @@
     }
     @media (max-width: 700px) {
       .content { padding: 1rem; }
-      .preview-item { padding: 0.7rem; }
+      .options-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -323,14 +312,14 @@
 <button class="back-float" id="backButton"><i class="fas fa-arrow-left"></i></button>
 <div class="glass-card">
   <div class="glass-header">
-    <h1><i class="fas fa-file-pdf"></i> PDF Compactor · Visual Select</h1>
-    <div class="sub"><span><i class="fas fa-lock"></i> 0% upload · local only</span><span><i class="fas fa-eye"></i> Full page previews</span><span><i class="fas fa-memory"></i> Selection memory</span></div>
+    <h1><i class="fas fa-file-pdf"></i> PDF Compactor · Smart 1.5MP + Target Size</h1>
+    <div class="sub"><span><i class="fas fa-lock"></i> 0% upload · local only</span><span><i class="fas fa-arrows-spin"></i> 1.5MP resize first</span><span><i class="fas fa-bullseye"></i> Hit target size</span></div>
   </div>
   <div class="content">
     <div id="dropZone" class="drop-zone">
       <i class="fas fa-cloud-upload-alt"></i>
       <h3>Drop PDF or click to browse</h3>
-      <p>🔒 Your file never leaves this device — full page previews below</p>
+      <p>🔒 Full page previews · Selected pages → resize to ≤1.5MP → JPEG compress to meet your target PDF size</p>
       <input type="file" id="fileInput" class="hidden-input" accept="application/pdf">
     </div>
 
@@ -339,27 +328,39 @@
       <button id="clearPdfBtn" class="clear-pdf-btn"><i class="fas fa-trash-alt"></i> Remove PDF</button>
     </div>
 
-    <!-- Preview area: vertical list, each page full-width canvas -->
     <div id="previewSection" class="preview-section" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 12px;">
-        <h3 style="color:#eef4ff; font-weight:500;"><i class="fas fa-images"></i> Click on any page to select/unselect for compression</h3>
+        <h3 style="color:#eef4ff; font-weight:500;"><i class="fas fa-images"></i> Click any page to select for compression</h3>
         <div style="display: flex; gap: 10px;">
-          <button id="selectAllBtn" class="selection-tool-btn" style="background: rgba(60,100,150,0.7); border:none; padding:6px 14px; border-radius:40px; color:white; cursor:pointer;"><i class="fas fa-check-double"></i> All</button>
-          <button id="clearAllBtn" class="selection-tool-btn" style="background: rgba(60,100,150,0.7); border:none; padding:6px 14px; border-radius:40px; color:white; cursor:pointer;"><i class="fas fa-ban"></i> None</button>
+          <button id="selectAllBtn" style="background: rgba(60,100,150,0.7); border:none; padding:6px 14px; border-radius:40px; color:white; cursor:pointer;"><i class="fas fa-check-double"></i> All</button>
+          <button id="clearAllBtn" style="background: rgba(60,100,150,0.7); border:none; padding:6px 14px; border-radius:40px; color:white; cursor:pointer;"><i class="fas fa-ban"></i> None</button>
         </div>
       </div>
       <div id="previewListContainer" class="preview-list"></div>
     </div>
 
-    <!-- Compression quality slider -->
-    <div class="slider-card">
-      <div class="slider-header">
-        <span><i class="fas fa-compress-alt"></i> JPEG compression quality (selected pages)</span>
-        <span id="qualityLabel" class="quality-badge">balanced · 70%</span>
+    <!-- Compression settings: target size + optional fixed quality -->
+    <div class="advanced-card">
+      <div class="options-grid">
+        <div class="option-group">
+          <label><i class="fas fa-bullseye"></i> Target final PDF size</label>
+          <div class="target-row">
+            <input type="number" id="targetSizeVal" placeholder="Auto (no target)" step="0.1" min="0.1">
+            <select id="targetUnit">
+              <option value="KB">KB</option>
+              <option value="MB" selected>MB</option>
+            </select>
+          </div>
+          <small style="color:#aac0df;">Algorithm will auto‑adjust JPEG quality to hit target</small>
+        </div>
+        <div class="option-group">
+          <label><i class="fas fa-palette"></i> Manual quality (if no target)</label>
+          <input type="range" id="manualQuality" min="20" max="95" value="75">
+          <span id="qualityVal" style="font-size:0.7rem;">75%</span>
+        </div>
       </div>
-      <input type="range" id="qualitySlider" min="0" max="100" value="70">
-      <div class="range-labels" style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 0.7rem; color:#b0c9f0;">
-        <span>🔥 max reduction (lower quality)</span><span>✨ best quality (larger size)</span>
+      <div class="info-note" style="margin-top: 8px; background: rgba(0,0,0,0.4);">
+        <i class="fas fa-lightbulb"></i> <strong>Smart pipeline:</strong> Each selected page → resize to max <strong>1.5 Megapixels</strong> (preserve ratio) → then compress with JPEG quality that makes the whole PDF as close as possible to your target size. Unselected pages remain original.
       </div>
     </div>
 
@@ -375,10 +376,13 @@
       <div id="progressMsg" class="info-note" style="margin-top: 6px; background: none;">Processing...</div>
     </div>
     <div class="info-note">
-      <i class="fas fa-info-circle"></i> <strong>How it works</strong> — <strong>Selected pages</strong> are re‑rendered as JPEG (quality slider) to drastically reduce size. Unselected pages stay original (text/vector preserved). Selection is cached per file. Click any preview to toggle.
+      <i class="fas fa-microchip"></i> <strong>Algorithm</strong><br>
+      1️⃣ Selected pages are rendered, then <strong>downscaled to max 1.5 megapixels</strong> (e.g., 1500×1000).<br>
+      2️⃣ If target size is set, binary search on JPEG quality (20–95%) to meet target overall PDF size.<br>
+      3️⃣ Unselected pages copied as‑is. Final PDF downloaded.
     </div>
   </div>
-  <div class="footer"><i class="fas fa-heart"></i> Privacy-first · Full page previews · Selections remembered</div>
+  <div class="footer"><i class="fas fa-heart"></i> Privacy-first · 1.5MP resize + Target‑aware compression</div>
 </div>
 
 <script>
@@ -392,8 +396,10 @@
   const pageCountSpan = document.getElementById('pageCount');
   const previewSection = document.getElementById('previewSection');
   const previewListContainer = document.getElementById('previewListContainer');
-  const qualitySlider = document.getElementById('qualitySlider');
-  const qualityLabel = document.getElementById('qualityLabel');
+  const targetSizeVal = document.getElementById('targetSizeVal');
+  const targetUnit = document.getElementById('targetUnit');
+  const manualQuality = document.getElementById('manualQuality');
+  const qualityVal = document.getElementById('qualityVal');
   const compressBtn = document.getElementById('compressBtn');
   const statsPanel = document.getElementById('statsPanel');
   const origSizeSpan = document.getElementById('origSize');
@@ -406,329 +412,221 @@
   const selectAllBtn = document.getElementById('selectAllBtn');
   const clearAllBtn = document.getElementById('clearAllBtn');
 
-  // State
-  let currentFile = null;
-  let currentArrayBuffer = null;
-  let pdfLibDocument = null;
-  let pdfJsDocument = null;
-  let totalPages = 0;
-  let selectedPages = [];         // boolean array
-  let fileIdentifier = "";
-  let pageCanvases = [];          // store canvas elements for rebuilding selection ui
+  manualQuality.addEventListener('input', () => qualityVal.innerText = manualQuality.value + '%');
+  qualityVal.innerText = manualQuality.value + '%';
 
-  // Helper
-  function formatBytes(bytes) {
-    if (!bytes) return "0 B";
-    const k = 1024;
-    const sizes = ["B", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  }
+  let currentFile = null, pdfLibDocument = null, pdfJsDocument = null, totalPages = 0, selectedPages = [], fileIdentifier = "";
 
-  function updateQualityLabel(value) {
-    let text = value <= 30 ? "high compression (aggressive)" : (value <= 70 ? "balanced" : "quality priority");
-    qualityLabel.innerText = `${text} · ${value}%`;
-  }
-  qualitySlider.addEventListener('input', (e) => updateQualityLabel(e.target.value));
-  updateQualityLabel(qualitySlider.value);
+  function formatBytes(bytes) { if (!bytes) return "0 B"; const k=1024; const sizes=["B","KB","MB"]; const i=Math.floor(Math.log(bytes)/Math.log(k)); return parseFloat((bytes/Math.pow(k,i)).toFixed(2))+" "+sizes[i]; }
+  function getFileId(file) { return `pdf_15mp_${file.name}_${file.size}_${file.lastModified}`; }
+  function persistSelection() { if(fileIdentifier && selectedPages.length) localStorage.setItem(fileIdentifier, JSON.stringify(selectedPages.reduce((a,v,i)=>v?[...a,i]:a,[]))); }
+  function loadCachedSelection(id,total) { const raw=localStorage.getItem(id); if(raw) try{ const arr=JSON.parse(raw); const ns=new Array(total).fill(false); arr.forEach(i=>{if(i<total) ns[i]=true;}); return ns; }catch(e){} return null; }
 
-  function getFileId(file) {
-    return `pdf_fullpreview_${file.name}_${file.size}_${file.lastModified}`;
-  }
-
-  function persistSelection() {
-    if (!fileIdentifier || !selectedPages.length) return;
-    const selectedIndices = selectedPages.reduce((acc, val, idx) => val ? [...acc, idx] : acc, []);
-    localStorage.setItem(fileIdentifier, JSON.stringify(selectedIndices));
-  }
-
-  function loadCachedSelection(identifier, total) {
-    const raw = localStorage.getItem(identifier);
-    if (!raw) return null;
-    try {
-      const indices = JSON.parse(raw);
-      const newSel = new Array(total).fill(false);
-      indices.forEach(idx => { if (idx < total) newSel[idx] = true; });
-      return newSel;
-    } catch(e) { return null; }
-  }
-
-  // Render full-width previews (like reference)
   async function renderFullPreviews() {
-    if (!pdfJsDocument || totalPages === 0) return;
+    if(!pdfJsDocument) return;
     previewListContainer.innerHTML = '';
-    pageCanvases = [];
-    
-    // Get container width for proper scaling
-    const containerEl = document.querySelector('.glass-card');
-    const containerWidth = Math.min(containerEl.clientWidth - 80, 900); // max width for canvas
-    const baseWidth = containerWidth > 200 ? containerWidth : 700;
-    
-    for (let i = 1; i <= totalPages; i++) {
-      const page = await pdfJsDocument.getPage(i);
-      const origView = page.getViewport({ scale: 1.0 });
-      const scale = baseWidth / origView.width;
-      const viewport = page.getViewport({ scale: Math.min(scale, 1.2) }); // limit scale but good visibility
-      
-      const canvas = document.createElement('canvas');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      canvas.style.width = '100%';
-      canvas.style.height = 'auto';
-      const ctx = canvas.getContext('2d');
-      await page.render({ canvasContext: ctx, viewport }).promise;
-      
-      const itemDiv = document.createElement('div');
-      itemDiv.className = `preview-item ${selectedPages[i-1] ? 'selected' : ''}`;
-      itemDiv.dataset.pageIdx = i-1;
-      
-      // header with page number and selection badge
-      const headerDiv = document.createElement('div');
-      headerDiv.className = 'preview-header-line';
-      headerDiv.innerHTML = `
-        <div class="page-title"><i class="fas fa-file-alt"></i> Page ${i}</div>
-        <div class="selection-badge">${selectedPages[i-1] ? '✓ Selected for compression' : 'Click to select'}</div>
+    const containerWidth = Math.min(document.querySelector('.glass-card').clientWidth - 80, 900);
+    for(let i=1;i<=totalPages;i++){
+      const page=await pdfJsDocument.getPage(i);
+      const origView=page.getViewport({scale:1});
+      const scale=containerWidth/origView.width;
+      const viewport=page.getViewport({scale:Math.min(scale,1.2)});
+      const canvas=document.createElement('canvas');
+      canvas.width=viewport.width; canvas.height=viewport.height; canvas.style.width='100%'; canvas.style.height='auto';
+      await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
+      const item=document.createElement('div'); item.className=`preview-item ${selectedPages[i-1]?'selected':''}`; item.dataset.pageIdx=i-1;
+      item.innerHTML=`
+        <div class="preview-header-line"><div class="page-title"><i class="fas fa-file-alt"></i> Page ${i}</div><div class="selection-badge">${selectedPages[i-1]?'✓ Selected for compression':'Click to select'}</div></div>
+        <div class="canvas-wrap"></div><div class="select-overlay">${selectedPages[i-1]?'<i class="fas fa-check-circle"></i> Will compress':'<i class="fas fa-mouse-pointer"></i> Click to select'}</div>
       `;
-      
-      const canvasWrap = document.createElement('div');
-      canvasWrap.className = 'canvas-wrap';
-      canvasWrap.appendChild(canvas);
-      
-      const overlaySpan = document.createElement('div');
-      overlaySpan.className = 'select-overlay';
-      overlaySpan.innerHTML = selectedPages[i-1] ? '<i class="fas fa-check-circle"></i> Will compress' : '<i class="fas fa-mouse-pointer"></i> Click to select';
-      
-      itemDiv.appendChild(headerDiv);
-      itemDiv.appendChild(canvasWrap);
-      itemDiv.appendChild(overlaySpan);
-      
-      itemDiv.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const idx = parseInt(itemDiv.dataset.pageIdx);
-        selectedPages[idx] = !selectedPages[idx];
-        // update UI
-        if (selectedPages[idx]) {
-          itemDiv.classList.add('selected');
-          headerDiv.querySelector('.selection-badge').innerHTML = '✓ Selected for compression';
-          overlaySpan.innerHTML = '<i class="fas fa-check-circle"></i> Will compress';
-        } else {
-          itemDiv.classList.remove('selected');
-          headerDiv.querySelector('.selection-badge').innerHTML = 'Click to select';
-          overlaySpan.innerHTML = '<i class="fas fa-mouse-pointer"></i> Click to select';
-        }
-        persistSelection();
-        updateCompressButton();
-      });
-      
-      previewListContainer.appendChild(itemDiv);
-      pageCanvases.push(canvas);
+      item.querySelector('.canvas-wrap').appendChild(canvas);
+      item.addEventListener('click',(e)=>{ e.stopPropagation(); const idx=parseInt(item.dataset.pageIdx); selectedPages[idx]=!selectedPages[idx];
+        if(selectedPages[idx]){ item.classList.add('selected'); item.querySelector('.selection-badge').innerHTML='✓ Selected for compression'; item.querySelector('.select-overlay').innerHTML='<i class="fas fa-check-circle"></i> Will compress'; }
+        else{ item.classList.remove('selected'); item.querySelector('.selection-badge').innerHTML='Click to select'; item.querySelector('.select-overlay').innerHTML='<i class="fas fa-mouse-pointer"></i> Click to select'; }
+        persistSelection(); updateCompressButton(); });
+      previewListContainer.appendChild(item);
     }
   }
 
-  async function loadPDF(file) {
-    if (!file || file.type !== 'application/pdf') {
-      alert('Please select a valid PDF file.');
-      return;
+  async function loadPDF(file){
+    if(!file || file.type!=='application/pdf'){ alert('Please select a valid PDF'); return; }
+    currentFile=file;
+    statsPanel.style.display='none'; progressArea.style.display='none'; compressBtn.disabled=true;
+    const ab=await file.arrayBuffer();
+    pdfLibDocument=await PDFLib.PDFDocument.load(ab.slice(0));
+    pdfJsDocument=await pdfjsLib.getDocument({data:ab.slice(0)}).promise;
+    totalPages=pdfLibDocument.getPageCount();
+    fileIdentifier=getFileId(file);
+    const cached=loadCachedSelection(fileIdentifier,totalPages);
+    selectedPages=cached?cached:new Array(totalPages).fill(false);
+    pdfFileNameSpan.innerText=file.name; pageCountSpan.innerText=totalPages;
+    pdfInfoBar.style.display='flex'; previewSection.style.display='block';
+    await renderFullPreviews(); updateCompressButton();
+  }
+  function updateCompressButton(){ const any=selectedPages.some(v=>v); compressBtn.disabled=!currentFile||!any; if(!any&&currentFile) compressBtn.innerHTML='<i class="fas fa-ban"></i> Select at least one page'; else compressBtn.innerHTML='<i class="fas fa-cogs"></i> Compress selected pages'; }
+  clearPdfBtn.addEventListener('click',()=>{ currentFile=null; pdfLibDocument=null; pdfJsDocument=null; selectedPages=[]; totalPages=0; pdfInfoBar.style.display='none'; previewSection.style.display='none'; previewListContainer.innerHTML=''; compressBtn.disabled=true; statsPanel.style.display='none'; fileInput.value=''; });
+  selectAllBtn.addEventListener('click',()=>{ if(!selectedPages.length) return; for(let i=0;i<selectedPages.length;i++) selectedPages[i]=true; persistSelection(); renderFullPreviews(); updateCompressButton(); });
+  clearAllBtn.addEventListener('click',()=>{ if(!selectedPages.length) return; for(let i=0;i<selectedPages.length;i++) selectedPages[i]=false; persistSelection(); renderFullPreviews(); updateCompressButton(); });
+
+  // --- Core: resize to max 1.5 megapixels (preserve aspect) then compress to JPEG with given quality ---
+  const MAX_PIXELS = 1.5 * 1000000; // 1,500,000 pixels
+
+  async function renderPageToResizedJPEG(pageNum, qualityPercent) {
+    const page = await pdfJsDocument.getPage(pageNum);
+    let viewport = page.getViewport({ scale: 1.0 });
+    let width = viewport.width;
+    let height = viewport.height;
+    const currentPixels = width * height;
+    if (currentPixels > MAX_PIXELS) {
+      const scale = Math.sqrt(MAX_PIXELS / currentPixels);
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
     }
-    statsPanel.style.display = 'none';
-    progressArea.style.display = 'none';
-    compressBtn.disabled = true;
-    currentFile = file;
-    currentArrayBuffer = await file.arrayBuffer();
-    try {
-      pdfLibDocument = await PDFLib.PDFDocument.load(currentArrayBuffer.slice(0));
-      pdfJsDocument = await pdfjsLib.getDocument({ data: currentArrayBuffer.slice(0) }).promise;
-      totalPages = pdfLibDocument.getPageCount();
-      fileIdentifier = getFileId(file);
-      const cached = loadCachedSelection(fileIdentifier, totalPages);
-      if (cached) selectedPages = cached;
-      else selectedPages = new Array(totalPages).fill(false);
-      
-      pdfFileNameSpan.innerText = file.name;
-      pageCountSpan.innerText = totalPages;
-      pdfInfoBar.style.display = 'flex';
-      previewSection.style.display = 'block';
-      await renderFullPreviews();
-      updateCompressButton();
-    } catch (err) {
-      console.error(err);
-      alert('Failed to load PDF: ' + (err.message || 'corrupted or password protected?'));
-      resetUI();
-    }
-  }
-
-  function updateCompressButton() {
-    const anySelected = selectedPages.some(v => v === true);
-    compressBtn.disabled = !currentFile || !anySelected;
-    if (!anySelected && currentFile) compressBtn.innerHTML = '<i class="fas fa-ban"></i> Select at least one page';
-    else if (currentFile) compressBtn.innerHTML = '<i class="fas fa-cogs"></i> Compress selected pages';
-  }
-
-  function resetUI() {
-    currentFile = null;
-    pdfLibDocument = null;
-    pdfJsDocument = null;
-    selectedPages = [];
-    totalPages = 0;
-    pdfInfoBar.style.display = 'none';
-    previewSection.style.display = 'none';
-    previewListContainer.innerHTML = '';
-    statsPanel.style.display = 'none';
-    compressBtn.disabled = true;
-    compressBtn.innerHTML = '<i class="fas fa-cogs"></i> Compress selected pages';
-    progressArea.style.display = 'none';
-    fileInput.value = '';
-  }
-
-  clearPdfBtn.addEventListener('click', resetUI);
-  
-  selectAllBtn.addEventListener('click', () => {
-    if (!selectedPages.length) return;
-    for (let i = 0; i < selectedPages.length; i++) selectedPages[i] = true;
-    // refresh UI items
-    const items = document.querySelectorAll('.preview-item');
-    items.forEach((item, idx) => {
-      if (selectedPages[idx]) {
-        item.classList.add('selected');
-        const badge = item.querySelector('.selection-badge');
-        const overlay = item.querySelector('.select-overlay');
-        if (badge) badge.innerHTML = '✓ Selected for compression';
-        if (overlay) overlay.innerHTML = '<i class="fas fa-check-circle"></i> Will compress';
-      }
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    const renderContext = await page.render({
+      canvasContext: ctx,
+      viewport: page.getViewport({ scale: width / viewport.width }),
+      intent: 'print'
+    }).promise;
+    await renderContext;
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => resolve(blob), 'image/jpeg', qualityPercent / 100);
     });
-    persistSelection();
-    updateCompressButton();
-  });
-  
-  clearAllBtn.addEventListener('click', () => {
-    if (!selectedPages.length) return;
-    for (let i = 0; i < selectedPages.length; i++) selectedPages[i] = false;
-    const items = document.querySelectorAll('.preview-item');
-    items.forEach((item, idx) => {
-      item.classList.remove('selected');
-      const badge = item.querySelector('.selection-badge');
-      const overlay = item.querySelector('.select-overlay');
-      if (badge) badge.innerHTML = 'Click to select';
-      if (overlay) overlay.innerHTML = '<i class="fas fa-mouse-pointer"></i> Click to select';
-    });
-    persistSelection();
-    updateCompressButton();
-  });
-
-  // ----- COMPRESSION ENGINE (selected pages => JPEG, others copy original) -----
-  function getJpegQualityFromSlider(value) {
-    return Math.min(0.92, Math.max(0.25, value / 100 * 0.67 + 0.25));
   }
 
-  async function compressSelectedPages(progressCallback) {
-    const quality = getJpegQualityFromSlider(parseInt(qualitySlider.value));
-    const newPdfDoc = await PDFLib.PDFDocument.create();
-    const total = totalPages;
-    progressCallback({ percent: 3, message: `Preparing compression (JPEG quality: ${Math.round(quality*100)}%)` });
-    
-    for (let i = 0; i < total; i++) {
-      if (selectedPages[i]) {
-        progressCallback({ percent: 5 + Math.floor((i / total) * 70), message: `Compressing page ${i+1}/${total} (JPEG)` });
-        const page = await pdfJsDocument.getPage(i+1);
-        const viewport = page.getViewport({ scale: 1.0 }); // original resolution
-        const canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext('2d');
-        await page.render({ canvasContext: ctx, viewport }).promise;
-        const blob = await new Promise((resolve) => {
-          canvas.toBlob((b) => resolve(b), 'image/jpeg', quality);
-        });
+  // Build full PDF using given quality for selected pages, return total size in bytes
+  async function buildPdfWithQuality(qualityPercent, progressCallback) {
+    const newPdf = await PDFLib.PDFDocument.create();
+    const selectedIndices = selectedPages.reduce((arr,val,idx)=>val?[...arr,idx]:arr,[]);
+    const selectedBlobs = [];
+    // render all selected pages with this quality (resize to 1.5MP already inside)
+    for(let i=0; i<selectedIndices.length; i++){
+      const pageNum = selectedIndices[i]+1;
+      if(progressCallback) progressCallback({ percent: 10 + Math.floor((i/selectedIndices.length)*40), message: `Rendering page ${pageNum} (quality ${qualityPercent}%)` });
+      const blob = await renderPageToResizedJPEG(pageNum, qualityPercent);
+      selectedBlobs.push(blob);
+    }
+    // build document
+    let blobMap = new Map();
+    for(let i=0;i<selectedIndices.length;i++) blobMap.set(selectedIndices[i], selectedBlobs[i]);
+    for(let i=0;i<totalPages;i++){
+      if(blobMap.has(i)){
+        const blob = blobMap.get(i);
         const imgBytes = await blob.arrayBuffer();
-        const embeddedImg = await newPdfDoc.embedJpg(imgBytes);
-        const pdfPage = newPdfDoc.addPage([viewport.width, viewport.height]);
-        pdfPage.drawImage(embeddedImg, { x: 0, y: 0, width: viewport.width, height: viewport.height });
-        canvas.remove();
+        const img = await newPdf.embedJpg(imgBytes);
+        // get dimensions from blob via image
+        const tempImg = await createImageFromBlob(blob);
+        const page = newPdf.addPage([tempImg.width, tempImg.height]);
+        page.drawImage(img, { x:0, y:0, width:tempImg.width, height:tempImg.height });
       } else {
-        progressCallback({ percent: 5 + Math.floor((i / total) * 70), message: `Copying original page ${i+1} (uncompressed)` });
-        const [copiedPage] = await newPdfDoc.copyPages(pdfLibDocument, [i]);
-        newPdfDoc.addPage(copiedPage);
+        const [copiedPage] = await newPdf.copyPages(pdfLibDocument, [i]);
+        newPdf.addPage(copiedPage);
       }
-      await new Promise(r => setTimeout(r, 2));
+      if(progressCallback) progressCallback({ percent: 55 + Math.floor((i/totalPages)*30), message: `Building page ${i+1}/${totalPages}` });
     }
-    progressCallback({ percent: 90, message: 'Finalizing PDF...' });
-    const compressedBytes = await newPdfDoc.save();
-    progressCallback({ percent: 100, message: 'Done! Download ready.' });
-    return compressedBytes;
+    const outBytes = await newPdf.save();
+    return outBytes;
   }
 
-  compressBtn.addEventListener('click', async () => {
-    if (!currentFile || !selectedPages.some(v=>v)) {
-      alert('Please select at least one page to compress.');
-      return;
+  async function createImageFromBlob(blob){
+    return new Promise((res,rej)=>{
+      const img=new Image();
+      img.onload=()=>{ const canvas=document.createElement('canvas'); canvas.width=img.width; canvas.height=img.height; canvas.getContext('2d').drawImage(img,0,0); res(canvas); };
+      img.onerror=rej;
+      img.src=URL.createObjectURL(blob);
+    });
+  }
+
+  // Main compression with target size logic (binary search on quality)
+  async function compressWithTarget(progressCallback) {
+    const targetRaw = targetSizeVal.value;
+    let targetBytes = null;
+    if(targetRaw && !isNaN(parseFloat(targetRaw))){
+      const val = parseFloat(targetRaw);
+      const unit = targetUnit.value;
+      targetBytes = unit === 'MB' ? val * 1024 * 1024 : val * 1024;
     }
-    compressBtn.disabled = true;
-    const originalHTML = compressBtn.innerHTML;
-    compressBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processing pages...';
-    progressArea.style.display = 'block';
-    progressFill.style.width = '0%';
-    progressMsg.innerText = 'Starting...';
-    statsPanel.style.display = 'none';
+    const selectedIndices = selectedPages.reduce((arr,val,idx)=>val?[...arr,idx]:arr,[]);
+    if(selectedIndices.length===0) throw new Error("No pages selected");
     
-    try {
+    // first get size of unselected pages (original)
+    let unselectedSize = 0;
+    const tempDoc = await PDFLib.PDFDocument.create();
+    for(let i=0;i<totalPages;i++){
+      if(!selectedPages[i]){
+        const [copied] = await tempDoc.copyPages(pdfLibDocument, [i]);
+        tempDoc.addPage(copied);
+      }
+    }
+    const unselectedBytes = await tempDoc.save();
+    unselectedSize = unselectedBytes.length;
+    
+    // if no target, use manual quality
+    if(!targetBytes){
+      progressCallback({ percent: 5, message: `No target, using manual quality ${manualQuality.value}%` });
+      const finalBytes = await buildPdfWithQuality(parseInt(manualQuality.value), progressCallback);
+      return finalBytes;
+    }
+    
+    // binary search quality between 20 and 95
+    let low=20, high=95, bestQuality=75, bestBytes=null;
+    for(let iter=0; iter<12; iter++){
+      const mid = Math.floor((low+high)/2);
+      progressCallback({ percent: 10 + (iter*5), message: `Trying quality ${mid}% ...` });
+      const totalBytes = await buildPdfWithQuality(mid, null);
+      if(totalBytes <= targetBytes){
+        bestQuality = mid;
+        bestBytes = totalBytes;
+        low = mid+1;
+      } else {
+        high = mid-1;
+      }
+      if(low>high) break;
+    }
+    // final render with bestQuality
+    progressCallback({ percent: 70, message: `Optimized quality ${bestQuality}% -> building final PDF` });
+    const finalBytes = await buildPdfWithQuality(bestQuality, progressCallback);
+    return finalBytes;
+  }
+
+  compressBtn.addEventListener('click', async ()=>{
+    if(!currentFile || !selectedPages.some(v=>v)){ alert('Select at least one page'); return; }
+    compressBtn.disabled=true; const originalHtml=compressBtn.innerHTML;
+    compressBtn.innerHTML='<i class="fas fa-spinner fa-pulse"></i> Applying smart compression (1.5MP + target)...';
+    progressArea.style.display='block'; progressFill.style.width='0%'; progressMsg.innerText='Initializing...';
+    statsPanel.style.display='none';
+    try{
       const originalSize = currentFile.size;
-      const compressedBytes = await compressSelectedPages(({ percent, message }) => {
-        progressFill.style.width = `${percent}%`;
-        progressMsg.innerText = message;
-      });
-      const compressedBlob = new Blob([compressedBytes], { type: 'application/pdf' });
+      const compressedBytes = await compressWithTarget(({percent,message})=>{ progressFill.style.width=`${percent}%`; progressMsg.innerText=message; });
+      const compressedBlob = new Blob([compressedBytes], {type:'application/pdf'});
       const compressedSize = compressedBlob.size;
-      const savedBytes = originalSize - compressedSize;
-      const savedPercent = ((savedBytes / originalSize) * 100).toFixed(1);
-      
-      origSizeSpan.innerText = formatBytes(originalSize);
-      compSizeSpan.innerText = formatBytes(compressedSize);
-      savedPercentSpan.innerText = `${savedPercent}% (${formatBytes(savedBytes)})`;
-      statsPanel.style.display = 'flex';
-      
+      const savedBytes = originalSize-compressedSize;
+      const savedPercent = ((savedBytes/originalSize)*100).toFixed(1);
+      origSizeSpan.innerText=formatBytes(originalSize);
+      compSizeSpan.innerText=formatBytes(compressedSize);
+      savedPercentSpan.innerText=`${savedPercent}% (${formatBytes(savedBytes)})`;
+      statsPanel.style.display='flex';
       const url = URL.createObjectURL(compressedBlob);
       const a = document.createElement('a');
-      let outName = currentFile.name.replace(/\.pdf$/i, '');
-      outName = `${outName}_compressed_selected.pdf`;
-      a.href = url;
-      a.download = outName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      let outName = currentFile.name.replace(/\.pdf$/i,'') + '_15mp_compressed.pdf';
+      a.href=url; a.download=outName; document.body.appendChild(a); a.click(); document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
-      progressMsg.innerText = '✓ Download started. You can adjust selection/quality and compress again.';
-      setTimeout(() => {
-        if (progressArea.style.display === 'block') progressArea.style.display = 'none';
-      }, 4000);
-    } catch (err) {
-      console.error(err);
-      alert('Compression error: ' + (err.message || 'unknown error'));
-      progressArea.style.display = 'none';
-    } finally {
-      compressBtn.disabled = false;
-      compressBtn.innerHTML = originalHTML;
-      updateCompressButton();
-    }
+      progressMsg.innerText='✓ Done! Download started. (Each selected page was resized to ≤1.5MP + adaptive JPEG)';
+      setTimeout(()=>{ if(progressArea.style.display==='block') progressArea.style.display='none'; },4000);
+    }catch(err){ console.error(err); alert('Compression error: '+err.message); progressArea.style.display='none'; }
+    finally{ compressBtn.disabled=false; compressBtn.innerHTML=originalHtml; updateCompressButton(); }
   });
 
   // Drag & drop
-  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('active'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
-  dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('active');
-    if (e.dataTransfer.files.length) loadPDF(e.dataTransfer.files[0]);
-  });
-  dropZone.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', (e) => { if (e.target.files.length) loadPDF(e.target.files[0]); });
-
-  // Back button
-  document.getElementById('backButton')?.addEventListener('click', () => {
-    if (window.history.length > 1) window.history.back();
-    else if (document.referrer) window.location.href = document.referrer;
-    else window.location.href = '/';
-  });
+  dropZone.addEventListener('dragover',e=>{ e.preventDefault(); dropZone.classList.add('active'); });
+  dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('active'));
+  dropZone.addEventListener('drop',e=>{ e.preventDefault(); dropZone.classList.remove('active'); if(e.dataTransfer.files.length) loadPDF(e.dataTransfer.files[0]); });
+  dropZone.addEventListener('click',()=>fileInput.click());
+  fileInput.addEventListener('change',e=>{ if(e.target.files.length) loadPDF(e.target.files[0]); });
+  document.getElementById('backButton')?.addEventListener('click',()=>{ if(window.history.length>1) window.history.back(); else if(document.referrer) window.location.href=document.referrer; else window.location.href='/'; });
 </script>
 </body>
 </html>
