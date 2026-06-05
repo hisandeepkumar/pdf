@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>PDF Compactor · 1.5MP resize + Target size control</title>
-  <!-- PDF.js + pdf-lib -->
+  <title>PDF Compactor · Smart 1.5MP + Target Size · Cache Fixed</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <!-- Google Fonts + Font Awesome 6 -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -278,6 +276,22 @@
       color: #aac5e8;
       margin-top: 1rem;
     }
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e3a5fcc;
+      backdrop-filter: blur(12px);
+      color: white;
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      z-index: 1200;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
     .footer {
       text-align: center;
       font-size: 0.7rem;
@@ -339,7 +353,6 @@
       <div id="previewListContainer" class="preview-list"></div>
     </div>
 
-    <!-- Compression settings: target size + optional fixed quality -->
     <div class="advanced-card">
       <div class="options-grid">
         <div class="option-group">
@@ -360,7 +373,7 @@
         </div>
       </div>
       <div class="info-note" style="margin-top: 8px; background: rgba(0,0,0,0.4);">
-        <i class="fas fa-lightbulb"></i> <strong>Smart pipeline:</strong> Each selected page → resize to max <strong>1.5 Megapixels</strong> (preserve ratio) → then compress with JPEG quality that makes the whole PDF as close as possible to your target size. Unselected pages remain original.
+        <i class="fas fa-lightbulb"></i> <strong>Smart pipeline:</strong> Each selected page → resize to max <strong>1.5 Megapixels</strong> (preserve ratio) → then compress with JPEG quality that makes the whole PDF as close as possible to your target size. Unselected pages remain original. <strong>Your page selections are cached (by filename + size) and restored automatically.</strong>
       </div>
     </div>
 
@@ -379,11 +392,13 @@
       <i class="fas fa-microchip"></i> <strong>Algorithm</strong><br>
       1️⃣ Selected pages are rendered, then <strong>downscaled to max 1.5 megapixels</strong> (e.g., 1500×1000).<br>
       2️⃣ If target size is set, binary search on JPEG quality (20–95%) to meet target overall PDF size.<br>
-      3️⃣ Unselected pages copied as‑is. Final PDF downloaded.
+      3️⃣ Unselected pages copied as‑is. Final PDF downloaded.<br>
+      ✅ <strong>Selection cache fixed:</strong> uses only filename + file size (ignores lastModified) – selections persist after re-upload.
     </div>
   </div>
   <div class="footer"><i class="fas fa-heart"></i> Privacy-first · 1.5MP resize + Target‑aware compression</div>
 </div>
+<div id="toastMsg" class="toast"></div>
 
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
@@ -411,6 +426,13 @@
   const clearPdfBtn = document.getElementById('clearPdfBtn');
   const selectAllBtn = document.getElementById('selectAllBtn');
   const clearAllBtn = document.getElementById('clearAllBtn');
+  const toast = document.getElementById('toastMsg');
+
+  function showToast(msg, duration=3000) {
+    toast.style.opacity = '1';
+    toast.innerText = msg;
+    setTimeout(() => { toast.style.opacity = '0'; }, duration);
+  }
 
   manualQuality.addEventListener('input', () => qualityVal.innerText = manualQuality.value + '%');
   qualityVal.innerText = manualQuality.value + '%';
@@ -418,7 +440,10 @@
   let currentFile = null, pdfLibDocument = null, pdfJsDocument = null, totalPages = 0, selectedPages = [], fileIdentifier = "";
 
   function formatBytes(bytes) { if (!bytes) return "0 B"; const k=1024; const sizes=["B","KB","MB"]; const i=Math.floor(Math.log(bytes)/Math.log(k)); return parseFloat((bytes/Math.pow(k,i)).toFixed(2))+" "+sizes[i]; }
-  function getFileId(file) { return `pdf_15mp_${file.name}_${file.size}_${file.lastModified}`; }
+  
+  // IMPORTANT: cache key uses ONLY name + size (no lastModified) so selections survive re-upload of same file
+  function getFileId(file) { return `pdf_15mp_${file.name}_${file.size}`; }
+  
   function persistSelection() { if(fileIdentifier && selectedPages.length) localStorage.setItem(fileIdentifier, JSON.stringify(selectedPages.reduce((a,v,i)=>v?[...a,i]:a,[]))); }
   function loadCachedSelection(id,total) { const raw=localStorage.getItem(id); if(raw) try{ const arr=JSON.parse(raw); const ns=new Array(total).fill(false); arr.forEach(i=>{if(i<total) ns[i]=true;}); return ns; }catch(e){} return null; }
 
@@ -458,13 +483,22 @@
     totalPages=pdfLibDocument.getPageCount();
     fileIdentifier=getFileId(file);
     const cached=loadCachedSelection(fileIdentifier,totalPages);
-    selectedPages=cached?cached:new Array(totalPages).fill(false);
+    if(cached) {
+      selectedPages = cached;
+      showToast(`✅ Restored ${selectedPages.filter(v=>v).length} previously selected page(s) from cache`, 2500);
+    } else {
+      selectedPages = new Array(totalPages).fill(false);
+    }
     pdfFileNameSpan.innerText=file.name; pageCountSpan.innerText=totalPages;
     pdfInfoBar.style.display='flex'; previewSection.style.display='block';
     await renderFullPreviews(); updateCompressButton();
   }
   function updateCompressButton(){ const any=selectedPages.some(v=>v); compressBtn.disabled=!currentFile||!any; if(!any&&currentFile) compressBtn.innerHTML='<i class="fas fa-ban"></i> Select at least one page'; else compressBtn.innerHTML='<i class="fas fa-cogs"></i> Compress selected pages'; }
-  clearPdfBtn.addEventListener('click',()=>{ currentFile=null; pdfLibDocument=null; pdfJsDocument=null; selectedPages=[]; totalPages=0; pdfInfoBar.style.display='none'; previewSection.style.display='none'; previewListContainer.innerHTML=''; compressBtn.disabled=true; statsPanel.style.display='none'; fileInput.value=''; });
+  clearPdfBtn.addEventListener('click',()=>{ 
+    currentFile=null; pdfLibDocument=null; pdfJsDocument=null; selectedPages=[]; totalPages=0; 
+    pdfInfoBar.style.display='none'; previewSection.style.display='none'; previewListContainer.innerHTML=''; 
+    compressBtn.disabled=true; statsPanel.style.display='none'; fileInput.value=''; 
+  });
   selectAllBtn.addEventListener('click',()=>{ if(!selectedPages.length) return; for(let i=0;i<selectedPages.length;i++) selectedPages[i]=true; persistSelection(); renderFullPreviews(); updateCompressButton(); });
   clearAllBtn.addEventListener('click',()=>{ if(!selectedPages.length) return; for(let i=0;i<selectedPages.length;i++) selectedPages[i]=false; persistSelection(); renderFullPreviews(); updateCompressButton(); });
 
@@ -497,19 +531,16 @@
     });
   }
 
-  // Build full PDF using given quality for selected pages, return total size in bytes
   async function buildPdfWithQuality(qualityPercent, progressCallback) {
     const newPdf = await PDFLib.PDFDocument.create();
     const selectedIndices = selectedPages.reduce((arr,val,idx)=>val?[...arr,idx]:arr,[]);
     const selectedBlobs = [];
-    // render all selected pages with this quality (resize to 1.5MP already inside)
     for(let i=0; i<selectedIndices.length; i++){
       const pageNum = selectedIndices[i]+1;
       if(progressCallback) progressCallback({ percent: 10 + Math.floor((i/selectedIndices.length)*40), message: `Rendering page ${pageNum} (quality ${qualityPercent}%)` });
       const blob = await renderPageToResizedJPEG(pageNum, qualityPercent);
       selectedBlobs.push(blob);
     }
-    // build document
     let blobMap = new Map();
     for(let i=0;i<selectedIndices.length;i++) blobMap.set(selectedIndices[i], selectedBlobs[i]);
     for(let i=0;i<totalPages;i++){
@@ -517,7 +548,6 @@
         const blob = blobMap.get(i);
         const imgBytes = await blob.arrayBuffer();
         const img = await newPdf.embedJpg(imgBytes);
-        // get dimensions from blob via image
         const tempImg = await createImageFromBlob(blob);
         const page = newPdf.addPage([tempImg.width, tempImg.height]);
         page.drawImage(img, { x:0, y:0, width:tempImg.width, height:tempImg.height });
@@ -540,7 +570,6 @@
     });
   }
 
-  // Main compression with target size logic (binary search on quality)
   async function compressWithTarget(progressCallback) {
     const targetRaw = targetSizeVal.value;
     let targetBytes = null;
@@ -552,7 +581,7 @@
     const selectedIndices = selectedPages.reduce((arr,val,idx)=>val?[...arr,idx]:arr,[]);
     if(selectedIndices.length===0) throw new Error("No pages selected");
     
-    // first get size of unselected pages (original)
+    // size of unselected pages (original)
     let unselectedSize = 0;
     const tempDoc = await PDFLib.PDFDocument.create();
     for(let i=0;i<totalPages;i++){
@@ -564,14 +593,12 @@
     const unselectedBytes = await tempDoc.save();
     unselectedSize = unselectedBytes.length;
     
-    // if no target, use manual quality
     if(!targetBytes){
       progressCallback({ percent: 5, message: `No target, using manual quality ${manualQuality.value}%` });
       const finalBytes = await buildPdfWithQuality(parseInt(manualQuality.value), progressCallback);
       return finalBytes;
     }
     
-    // binary search quality between 20 and 95
     let low=20, high=95, bestQuality=75, bestBytes=null;
     for(let iter=0; iter<12; iter++){
       const mid = Math.floor((low+high)/2);
@@ -586,7 +613,6 @@
       }
       if(low>high) break;
     }
-    // final render with bestQuality
     progressCallback({ percent: 70, message: `Optimized quality ${bestQuality}% -> building final PDF` });
     const finalBytes = await buildPdfWithQuality(bestQuality, progressCallback);
     return finalBytes;
