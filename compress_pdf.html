@@ -3,684 +3,638 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>PDF Compactor · Privacy-first in-browser</title>
-  <!-- PDF.js + pdf-lib -->
+  <title>Document Scanner Studio | PDF Scan Simulation</title>
+  <!-- PDF.js & jsPDF CDNs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <!-- Google Fonts + Font Awesome 6 -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Optional: simple UI improvements -->
   <style>
     * {
-      margin: 0;
-      padding: 0;
       box-sizing: border-box;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: system-ui, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
     }
 
     body {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-       background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
-      background-attachment: fixed;
-      position: relative;
-    }
-    /* subtle animated grid */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        linear-gradient(rgba(80, 160, 200, 0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(80, 160, 200, 0.08) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
+      background: #f1f4f9;
+      margin: 0;
+      padding: 24px 20px;
     }
 
-    /* main glass card */
-    .glass-card {
-      width: 100%;
-      max-width: 720px;
-      background: rgba(20, 28, 35, 0.55);
-      backdrop-filter: blur(16px);
-      border-radius: 2rem;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
-      overflow: hidden;
-      transition: transform 0.2s ease;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    .scanner-container {
+      max-width: 1280px;
+      margin: 0 auto;
     }
 
-    /* header */
-    .glass-header {
-      padding: 1.8rem 2rem;
+    .header {
       text-align: center;
-      background: rgba(0, 0, 0, 0.2);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      margin-bottom: 30px;
     }
-    .glass-header h1 {
-      font-size: 1.9rem;
-      font-weight: 600;
-      color: #f0f3f8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
+
+    .header h1 {
+      font-size: 2.1rem;
+      background: linear-gradient(135deg, #1a2a3a, #0f2b3d);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin: 0;
       letter-spacing: -0.3px;
     }
-    .glass-header h1 i {
-      color: #5f9eff;
-      font-size: 2rem;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-    }
-    .sub {
-      color: rgba(220, 240, 255, 0.75);
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-    .sub span i {
-      margin-right: 4px;
-      font-size: 0.75rem;
-    }
 
-    /* main content */
-    .content {
-      padding: 2rem 2rem 1.8rem;
-    }
-
-    /* dropzone style (glassmorphic) */
-    .drop-zone {
-      border: 2px dashed rgba(255, 255, 255, 0.35);
-      border-radius: 1.5rem;
-      padding: 2.2rem 1rem;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(4px);
-      transition: all 0.25s ease;
-      cursor: pointer;
-      margin-bottom: 1.8rem;
-    }
-    .drop-zone:hover, .drop-zone.active {
-      background: rgba(95, 158, 255, 0.12);
-      border-color: #5f9eff;
-      box-shadow: 0 8px 24px rgba(95, 158, 255, 0.2);
-    }
-    .drop-zone i {
-      font-size: 3rem;
-      color: #aac9ff;
-      margin-bottom: 12px;
-    }
-    .drop-zone h3 {
-      color: #eef4ff;
+    .header p {
+      color: #4a627a;
+      margin-top: 8px;
       font-weight: 500;
-      font-size: 1.4rem;
     }
-    .drop-zone p {
-      color: rgba(230, 240, 255, 0.7);
-      margin-top: 6px;
+
+    .card {
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      transition: all 0.2s;
     }
-    .hidden-input {
+
+    .upload-area {
+      border: 2px dashed #bbcfe0;
+      border-radius: 24px;
+      background: #fafcff;
+      padding: 32px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .upload-area:hover {
+      border-color: #2c7da0;
+      background: #f0f6fe;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .file-name {
+      font-weight: 600;
+      color: #0b3b4f;
+      margin-top: 12px;
+      word-break: break-all;
+    }
+
+    input[type="file"] {
       display: none;
     }
 
-    /* selected file item (shiny effect as reference) */
-    .file-list-area {
-      margin: 0.5rem 0 1.5rem;
-    }
-    .file-item {
+    .options-grid {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(4px);
-      border-radius: 1rem;
-      padding: 0.8rem 1.2rem;
-      margin-bottom: 10px;
-      border: 1px solid rgba(255,255,255,0.2);
-      transition: all 0.2s;
+      flex-wrap: wrap;
+      gap: 28px;
+      margin: 20px 0 20px 0;
+      align-items: flex-end;
     }
-    .file-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: #f0f4fa;
-      font-weight: 500;
-      word-break: break-all;
+
+    .opt-group {
       flex: 1;
-    }
-    .file-info i {
-      font-size: 1.4rem;
-      color: #5f9eff;
-    }
-    .delete-file {
-      background: rgba(255, 70, 70, 0.2);
-      border: none;
-      width: 32px;
-      height: 32px;
-      border-radius: 40px;
-      color: #ffb4a2;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .delete-file:hover {
-      background: rgba(255, 80, 80, 0.5);
-      color: white;
-      transform: scale(1.03);
+      min-width: 150px;
     }
 
-    /* compression slider (glass style) */
-    .slider-card {
-      background: rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(4px);
-      border-radius: 1.4rem;
-      padding: 1rem 1.2rem;
-      margin: 1.4rem 0;
-      border: 1px solid rgba(255,255,255,0.15);
-    }
-    .slider-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 0.8rem;
-      color: #eef3ff;
-      font-weight: 500;
-    }
-    .quality-badge {
-      background: #1e3a5f;
-      padding: 0.2rem 0.9rem;
-      border-radius: 60px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: #bdd9ff;
-    }
-    input[type="range"] {
-      width: 100%;
-      height: 5px;
-      -webkit-appearance: none;
-      background: #2e4a6a;
-      border-radius: 10px;
-      outline: none;
-    }
-    input[type="range"]:focus {
-      outline: none;
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      background: #5f9eff;
-      border-radius: 50%;
-      cursor: pointer;
-      box-shadow: 0 0 6px #7fb4ff;
-      border: none;
-    }
-    .range-labels {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 8px;
-      font-size: 0.7rem;
-      color: #a0bedb;
-    }
-
-    /* stats panel */
-    .stats-container {
-      background: rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(8px);
-      border-radius: 1.2rem;
-      padding: 0.8rem 1rem;
-      margin: 1rem 0;
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: #cddff5;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .stats-container span strong {
-      color: #ffde9c;
-    }
-
-    /* button */
-    .btn-compress {
-      background: rgba(40, 90, 160, 0.8);
-      backdrop-filter: blur(12px);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.35);
-      padding: 14px 20px;
-      border-radius: 3rem;
-      width: 100%;
-      font-size: 1rem;
+    .opt-group label {
+      display: block;
       font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #2c5a77;
+      margin-bottom: 8px;
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 1px solid #cbdde9;
+      background: white;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.25s ease;
+    }
+
+    .threshold-row {
+      margin-top: 12px;
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: 12px;
-      margin: 1rem 0 0.8rem;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
     }
-    .btn-compress:hover:not(:disabled) {
-      background: #2f6bc0;
-      transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba(55, 110, 220, 0.4);
+
+    .threshold-row span {
+      font-size: 0.9rem;
+      background: #eef2f7;
+      padding: 4px 12px;
+      border-radius: 36px;
     }
-    .btn-compress:disabled {
-      background: rgba(100, 120, 140, 0.6);
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    button {
+      background: #1d5e7c;
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 12px 28px;
+      border-radius: 44px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 100%;
+    }
+
+    button:hover {
+      background: #0f4159;
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      background: #9bb7c9;
       cursor: not-allowed;
-      opacity: 0.6;
       transform: none;
     }
 
-    /* progress */
-    .progress-wrapper {
-      margin: 1rem 0 0.5rem;
-      display: none;
+    .progress-section {
+      margin: 24px 0 16px 0;
     }
-    .progress-bar-bg {
-      width: 100%;
-      height: 8px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 12px;
+
+    .progress-bar {
+      background: #e2e8f0;
+      border-radius: 40px;
+      height: 12px;
       overflow: hidden;
     }
+
     .progress-fill {
       width: 0%;
       height: 100%;
-      background: linear-gradient(90deg, #5f9eff, #8bb6ff);
-      border-radius: 12px;
-      transition: width 0.25s ease;
+      background: #2c7da0;
+      border-radius: 40px;
+      transition: width 0.2s ease;
     }
-    .progress-text {
-      font-size: 0.7rem;
-      color: #bdd1f0;
+
+    .status-msg {
+      font-size: 0.85rem;
+      color: #2c5a77;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .preview-area {
+      background: #f8fafd;
+      border-radius: 20px;
+      padding: 16px;
+      margin-top: 16px;
       text-align: center;
-      margin-top: 6px;
+      font-size: 0.8rem;
+      color: #2e6a47;
+      border: 1px solid #dce5ed;
     }
-    .info-note {
-      background: rgba(0,0,0,0.25);
-      border-radius: 1rem;
-      padding: 0.5rem 1rem;
+
+    hr {
+      margin: 18px 0;
+      border-color: #e2edf5;
+    }
+
+    .badge {
+      background: #eef2ff;
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 40px;
       font-size: 0.7rem;
-      color: #9bb5da;
+      font-weight: 600;
+    }
+
+    footer {
       text-align: center;
-      margin-top: 1.2rem;
+      font-size: 0.75rem;
+      color: #6a7c8f;
     }
-    .footer {
-      text-align: center;
-      font-size: 0.7rem;
-      color: rgba(200,215,240,0.7);
-      padding: 1rem 1.5rem 1.3rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      margin-top: 0.5rem;
-    }
-    .footer a {
-      color: #8db5ff;
-      text-decoration: none;
-    }
-    /* floating back button (from reference) */
-    .back-float {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 1000;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: rgba(30, 40, 55, 0.7);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: 0.2s;
-      color: #eef4ff;
-    }
-    .back-float:hover {
-      background: #2f4b70;
-      transform: scale(1.03);
-    }
-    @media (max-width: 600px) {
-      .content { padding: 1.4rem; }
-      .glass-header h1 { font-size: 1.5rem; }
+    @media (max-width: 700px) {
+      .card { padding: 20px; }
+      .options-grid { flex-direction: column; gap: 16px; }
     }
   </style>
 </head>
 <body>
-
-<button class="back-float" id="backButton" title="Go back">
-  <i class="fas fa-arrow-left"></i>
-</button>
-
-<div class="glass-card">
-  <div class="glass-header">
-    <h1><i class="fas fa-file-pdf"></i> PDF Compactor</h1>
-    <div class="sub">
-      <span><i class="fas fa-lock"></i> 0% upload · stays local</span>
-      <span><i class="fas fa-bolt"></i> instant in-browser</span>
-      <span><i class="fas fa-image"></i> ideal for scanned PDFs</span>
-    </div>
+<div class="scanner-container">
+  <div class="header">
+    <h1>📄 SCAN SIMULATOR PRO</h1>
+    <p>Upload PDF → apply scanner settings (DPI, color mode, bit depth) → export scanned PDF</p>
   </div>
-  <div class="content">
-    <!-- Dropzone -->
-    <div id="dropZone" class="drop-zone">
-      <i class="fas fa-cloud-upload-alt"></i>
-      <h3>Drop PDF here or click to browse</h3>
-      <p>🔒 Your file never leaves this device</p>
-      <input type="file" id="fileInput" class="hidden-input" accept="application/pdf">
+
+  <div class="card">
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">📂📑</div>
+      <div>Click or drag PDF here</div>
+      <input type="file" id="pdfInput" accept="application/pdf" />
+      <div class="file-name" id="fileName">No file selected</div>
     </div>
 
-    <!-- selected file area (single file) -->
-    <div id="fileListContainer" class="file-list-area"></div>
-
-    <!-- compression slider (glassmorph) -->
-    <div class="slider-card">
-      <div class="slider-header">
-        <span><i class="fas fa-compress-alt"></i> Compression intensity</span>
-        <span id="intensityLabel" class="quality-badge">balanced · 60%</span>
+    <div class="options-grid">
+      <div class="opt-group">
+        <label>🖨️ OUTPUT DPI (scan resolution)</label>
+        <select id="dpiSelect">
+          <option value="72">72 DPI (low / fast)</option>
+          <option value="150">150 DPI (draft)</option>
+          <option value="300" selected>300 DPI (standard)</option>
+          <option value="600">600 DPI (high quality)</option>
+        </select>
       </div>
-      <input type="range" id="strengthSlider" min="0" max="100" value="64">
-      <div class="range-labels">
-        <span>🔥 max size reduction</span>
-        <span>✨ quality priority</span>
+      <div class="opt-group">
+        <label>🎨 COLOR MODE / BIT DEPTH</label>
+        <select id="colorModeSelect">
+          <option value="color">Full Color (24-bit RGB)</option>
+          <option value="grayscale">Grayscale (8‑bit simulation)</option>
+          <option value="bw">Black & White (1‑bit / threshold)</option>
+        </select>
+      </div>
+      <div class="opt-group" id="thresholdGroup" style="display: none;">
+        <label>⚫ B&W THRESHOLD (0–255)</label>
+        <div class="threshold-row">
+          <input type="range" id="thresholdSlider" min="0" max="255" value="128" step="1">
+          <span id="thresholdValue">128</span>
+        </div>
+        <div class="checkbox-label">
+          <input type="checkbox" id="ditherCheckbox">
+          <span>🌀 Floyd-Steinberg dithering (better scan texture)</span>
+        </div>
       </div>
     </div>
 
-    <!-- stats panel (initially hidden) -->
-    <div id="statsPanel" class="stats-container" style="display: none;">
-      <span>📄 Original: <strong id="origSize">—</strong></span>
-      <span>🗜️ Compressed: <strong id="compSize">—</strong></span>
-      <span>🎯 Saved: <strong id="savedPercent">—</strong></span>
+    <button id="scanBtn">🔍 SCAN PDF → GENERATE SCANNED PDF</button>
+
+    <div class="progress-section" id="progressSection" style="display: none;">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="status-msg" id="statusMsg">Processing pages...</div>
     </div>
 
-    <!-- compress button -->
-    <button id="compressActionBtn" class="btn-compress" disabled>
-      <i class="fas fa-cogs"></i> <span>Compress PDF</span>
-    </button>
-
-    <!-- progress area -->
-    <div id="progressArea" class="progress-wrapper">
-      <div class="progress-bar-bg"><div id="progressFill" class="progress-fill"></div></div>
-      <div id="progressMessage" class="progress-text">Processing...</div>
-    </div>
-
-    <div class="info-note">
-      <i class="fas fa-shield-alt"></i> No server upload — we re‑render & compress pages inside your browser using JPEG optimization.
+    <div class="preview-area" id="previewInfo">
+      ⚙️ <strong>Smart scanner simulation</strong> — each PDF page will be rasterized at selected DPI, converted to chosen color/bit mode, and embedded as a crisp scanned image. Generates a permanent "scanned copy" PDF.
     </div>
   </div>
-  <div class="footer">
-    <i class="fas fa-heart" style="color:#ff8a7a;"></i> Privacy-first compressor • Inspired by OpenToolKit/CompressPDF
-  </div>
+  <footer>✔️ Fully client-side | PDF.js + jsPDF | every page transformed like a physical scanner</footer>
 </div>
 
 <script>
-  // Configure PDF.js worker
+  // Configure PDF.js worker (use CDN worker)
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
   // DOM elements
-  const dropZone = document.getElementById('dropZone');
-  const fileInput = document.getElementById('fileInput');
-  const fileListContainer = document.getElementById('fileListContainer');
-  const strengthSlider = document.getElementById('strengthSlider');
-  const intensityLabel = document.getElementById('intensityLabel');
-  const compressBtn = document.getElementById('compressActionBtn');
-  const statsPanel = document.getElementById('statsPanel');
-  const origSizeSpan = document.getElementById('origSize');
-  const compSizeSpan = document.getElementById('compSize');
-  const savedPercentSpan = document.getElementById('savedPercent');
-  const progressArea = document.getElementById('progressArea');
+  const pdfInput = document.getElementById('pdfInput');
+  const fileNameSpan = document.getElementById('fileName');
+  const uploadArea = document.getElementById('uploadArea');
+  const scanBtn = document.getElementById('scanBtn');
+  const dpiSelect = document.getElementById('dpiSelect');
+  const colorModeSelect = document.getElementById('colorModeSelect');
+  const thresholdGroup = document.getElementById('thresholdGroup');
+  const thresholdSlider = document.getElementById('thresholdSlider');
+  const thresholdValueSpan = document.getElementById('thresholdValue');
+  const ditherCheckbox = document.getElementById('ditherCheckbox');
+  const progressSection = document.getElementById('progressSection');
   const progressFill = document.getElementById('progressFill');
-  const progressMessage = document.getElementById('progressMessage');
+  const statusMsgSpan = document.getElementById('statusMsg');
+  const previewInfo = document.getElementById('previewInfo');
 
-  let currentPDFFile = null;
-  let currentFileName = "";
+  let currentPdfFile = null;
+  let pdfDocument = null;
+  let isProcessing = false;
 
-  // update slider label
-  function updateSliderLabel(value) {
-    let label = '';
-    if (value < 25) label = '🔥 max compression';
-    else if (value < 50) label = '📦 high compression';
-    else if (value < 75) label = '⚖️ balanced';
-    else label = '✨ low compression / quality';
-    intensityLabel.innerText = `${label} · ${value}%`;
-  }
-  strengthSlider.addEventListener('input', (e) => updateSliderLabel(e.target.value));
-  updateSliderLabel(strengthSlider.value);
-
-  // helper: format bytes
-  function formatBytes(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-
-  // render single file UI (with trash)
-  function renderSelectedFile() {
-    if (!currentPDFFile) {
-      fileListContainer.innerHTML = '';
-      compressBtn.disabled = true;
-      statsPanel.style.display = 'none';
-      return;
-    }
-    fileListContainer.innerHTML = `
-      <div class="file-item">
-        <div class="file-info">
-          <i class="fas fa-file-pdf"></i>
-          <span>${currentPDFFile.name} (${formatBytes(currentPDFFile.size)})</span>
-        </div>
-        <button class="delete-file" id="removeFileBtn" title="Remove file"><i class="fas fa-trash-alt"></i></button>
-      </div>
-    `;
-    compressBtn.disabled = false;
-    // remove event
-    const removeBtn = document.getElementById('removeFileBtn');
-    if (removeBtn) {
-      removeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        currentPDFFile = null;
-        currentFileName = "";
-        fileInput.value = '';
-        renderSelectedFile();
-        statsPanel.style.display = 'none';
-        progressArea.style.display = 'none';
-      });
-    }
-  }
-
-  // handle file selection (from input or drop)
-  function handleFile(file) {
+  // --- file handling ---
+  uploadArea.addEventListener('click', () => pdfInput.click());
+  pdfInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
     if (file && file.type === 'application/pdf') {
-      currentPDFFile = file;
-      currentFileName = file.name;
-      renderSelectedFile();
-      statsPanel.style.display = 'none';
-      progressArea.style.display = 'none';
+      currentPdfFile = file;
+      fileNameSpan.innerText = file.name;
+      previewInfo.innerHTML = `✅ <strong>${file.name}</strong> loaded. Configure scan settings and click "SCAN PDF".`;
     } else if (file) {
       alert('Please select a valid PDF file.');
-      currentPDFFile = null;
-      renderSelectedFile();
+      pdfInput.value = '';
+      fileNameSpan.innerText = 'No file selected';
+      currentPdfFile = null;
+      previewInfo.innerHTML = `⚠️ Invalid file. Upload a PDF.`;
+    } else {
+      currentPdfFile = null;
+      fileNameSpan.innerText = 'No file selected';
+    }
+  });
+
+  // toggle threshold UI based on color mode
+  function toggleThresholdUI() {
+    const mode = colorModeSelect.value;
+    if (mode === 'bw') {
+      thresholdGroup.style.display = 'block';
+    } else {
+      thresholdGroup.style.display = 'none';
     }
   }
+  colorModeSelect.addEventListener('change', toggleThresholdUI);
+  toggleThresholdUI();
 
-  // Drag & drop listeners
-  dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.classList.add('active');
-  });
-  dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.remove('active');
-  });
-  dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('active');
-    const dt = e.dataTransfer.files;
-    if (dt.length > 0 && dt[0].type === 'application/pdf') {
-      handleFile(dt[0]);
-      // sync file input for consistency
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(dt[0]);
-      fileInput.files = dataTransfer.files;
-    } else if (dt.length > 0) {
-      alert('Only PDF files are supported.');
-    }
-  });
-  dropZone.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', (e) => {
-    if (e.target.files.length) handleFile(e.target.files[0]);
+  thresholdSlider.addEventListener('input', (e) => {
+    thresholdValueSpan.innerText = e.target.value;
   });
 
-  // ------------------ CORE COMPRESSION ENGINE (pdf.js + pdf-lib) ------------------
-  function getCompressionParams(strength) {
-    // strength 0~100: scale from 0.2 to 1.0, jpeg quality 0.25 to 0.95
-    const scale = Math.max(0.2, Math.min(1.0, strength / 100 * 0.8 + 0.2));
-    const quality = Math.max(0.25, Math.min(0.95, strength / 100 * 0.7 + 0.25));
-    return { scale, quality };
-  }
+  // Helper: convert canvas ImageData to new processed ImageData based on mode + dither (BW only)
+  function processImageData(imageData, mode, thresholdVal, useDither) {
+    const data = imageData.data;
+    const width = imageData.width;
+    const height = imageData.height;
+    const newImageData = new ImageData(width, height);
+    const newData = newImageData.data;
 
-  async function compressPdfWithProgress(pdfArrayBuffer, strength, onProgress) {
-    const { scale, quality } = getCompressionParams(strength);
-    const loadingTask = pdfjsLib.getDocument({ data: pdfArrayBuffer, useSystemFonts: true });
-    const pdfDoc = await loadingTask.promise;
-    const totalPages = pdfDoc.numPages;
-    if (totalPages === 0) throw new Error('PDF has no pages');
-    
-    onProgress({ percent: 5, message: `Loaded PDF · ${totalPages} pages` });
-    
-    // render all pages to JPEG blobs with compression
-    const pagesData = [];
-    for (let i = 1; i <= totalPages; i++) {
-      const page = await pdfDoc.getPage(i);
-      const viewport = page.getViewport({ scale: scale });
-      const canvas = document.createElement('canvas');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      const ctx = canvas.getContext('2d');
-      await page.render({ canvasContext: ctx, viewport, intent: 'print' }).promise;
-      const blob = await new Promise((resolve) => {
-        canvas.toBlob((b) => resolve(b), 'image/jpeg', quality);
-      });
-      pagesData.push({ blob, width: canvas.width, height: canvas.height });
-      const percent = 10 + Math.floor((i / totalPages) * 45);
-      onProgress({ percent: Math.min(55, percent), message: `Rendering page ${i}/${totalPages} (JPEG compression)` });
-      await new Promise(r => setTimeout(r, 5));
-    }
-    
-    // rebuild PDF using pdf-lib
-    onProgress({ percent: 60, message: 'Rebuilding optimized PDF ...' });
-    const newPdfDoc = await PDFLib.PDFDocument.create();
-    for (let idx = 0; idx < pagesData.length; idx++) {
-      const { blob, width, height } = pagesData[idx];
-      const imgBytes = await blob.arrayBuffer();
-      let embeddedImg;
-      try {
-        embeddedImg = await newPdfDoc.embedJpg(imgBytes);
-      } catch (e) {
-        console.warn("jpeg fallback", e);
-        embeddedImg = await newPdfDoc.embedJpg(imgBytes);
+    if (mode === 'color') {
+      // keep original RGB, just copy (full color)
+      for (let i = 0; i < data.length; i += 4) {
+        newData[i] = data[i];     // R
+        newData[i+1] = data[i+1]; // G
+        newData[i+2] = data[i+2]; // B
+        newData[i+3] = 255;       // opaque
       }
-      const page = newPdfDoc.addPage([width, height]);
-      page.drawImage(embeddedImg, { x: 0, y: 0, width, height });
-      const step = 30 + Math.floor((idx + 1) / pagesData.length * 35);
-      onProgress({ percent: Math.min(95, step), message: `Building page ${idx+1}/${pagesData.length}` });
-      await new Promise(r => setTimeout(r, 3));
+      return newImageData;
     }
-    const compressedBytes = await newPdfDoc.save();
-    onProgress({ percent: 100, message: 'Compression finished!' });
-    return compressedBytes;
+    else if (mode === 'grayscale') {
+      // 8-bit simulated (luma)
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i+1];
+        const b = data[i+2];
+        const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+        newData[i] = gray;
+        newData[i+1] = gray;
+        newData[i+2] = gray;
+        newData[i+3] = 255;
+      }
+      return newImageData;
+    }
+    else if (mode === 'bw') {
+      // Black & White with optional Floyd-Steinberg dithering (1-bit simulation)
+      if (!useDither) {
+        // simple threshold
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i+1];
+          const b = data[i+2];
+          const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+          const bw = luminance >= thresholdVal ? 255 : 0;
+          newData[i] = bw;
+          newData[i+1] = bw;
+          newData[i+2] = bw;
+          newData[i+3] = 255;
+        }
+        return newImageData;
+      } else {
+        // Floyd-Steinberg dithering for high quality "scanned" 1-bit look
+        // first create grayscale array
+        const grayPixels = new Float32Array(width * height);
+        for (let i = 0, idx = 0; i < data.length; i += 4, idx++) {
+          const r = data[i];
+          const g = data[i+1];
+          const b = data[i+2];
+          grayPixels[idx] = 0.299 * r + 0.587 * g + 0.114 * b;
+        }
+        // quantize to 0 or 255 with error diffusion
+        const outputPixels = new Uint8ClampedArray(width * height);
+        // copy errors to float array
+        const errors = new Float32Array(width * height);
+        for (let i = 0; i < width * height; i++) errors[i] = 0;
+        
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const idx = y * width + x;
+            let oldPixel = grayPixels[idx] + errors[idx];
+            oldPixel = Math.min(255, Math.max(0, oldPixel));
+            const newPixel = oldPixel >= thresholdVal ? 255 : 0;
+            outputPixels[idx] = newPixel;
+            const quantError = oldPixel - newPixel;
+            // Floyd-Steinberg coefficients
+            if (x + 1 < width) {
+              errors[idx + 1] += quantError * (7 / 16);
+            }
+            if (y + 1 < height) {
+              if (x - 1 >= 0) {
+                errors[idx + width - 1] += quantError * (3 / 16);
+              }
+              errors[idx + width] += quantError * (5 / 16);
+              if (x + 1 < width) {
+                errors[idx + width + 1] += quantError * (1 / 16);
+              }
+            }
+          }
+        }
+        // fill newImageData with B&W values
+        for (let i = 0; i < width * height; i++) {
+          const val = outputPixels[i];
+          const idx4 = i * 4;
+          newData[idx4] = val;
+          newData[idx4+1] = val;
+          newData[idx4+2] = val;
+          newData[idx4+3] = 255;
+        }
+        return newImageData;
+      }
+    }
+    return newImageData;
   }
 
-  // compress main action
-  compressBtn.addEventListener('click', async () => {
-    if (!currentPDFFile) {
-      alert('Please upload a PDF file.');
+  // render a single page with given scale, apply post-processing, return canvas
+  async function renderAndProcessPage(page, scale, mode, threshold, useDither, originalPtWidth, originalPtHeight) {
+    // create viewport with target scale
+    const viewport = page.getViewport({ scale: scale });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d');
+    
+    const renderContext = {
+      canvasContext: ctx,
+      viewport: viewport,
+      background: 'white',
+    };
+    
+    await page.render(renderContext).promise;
+    
+    // get image data from canvas
+    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    // apply processing (color mode, bw, dither)
+    const processedImageData = processImageData(imageData, mode, threshold, useDither);
+    // put back to same canvas
+    ctx.putImageData(processedImageData, 0, 0);
+    
+    // return canvas and original page dimensions in points (for final PDF sizing)
+    return { canvas, widthPt: originalPtWidth, heightPt: originalPtHeight };
+  }
+  
+  // main scanning process
+  async function scanPdfToScannedPdf() {
+    if (!currentPdfFile) {
+      alert('📁 Please upload a PDF file first.');
       return;
     }
-    // disable button & reset stats
-    compressBtn.disabled = true;
-    compressBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Compressing...';
-    progressArea.style.display = 'block';
+    if (isProcessing) {
+      alert('Scan already in progress, please wait.');
+      return;
+    }
+    
+    isProcessing = true;
+    scanBtn.disabled = true;
+    progressSection.style.display = 'block';
     progressFill.style.width = '0%';
-    progressMessage.innerText = 'Initializing...';
-    statsPanel.style.display = 'none';
+    statusMsgSpan.innerText = 'Loading PDF document ...';
     
     try {
-      const originalSize = currentPDFFile.size;
-      const strengthVal = parseInt(strengthSlider.value, 10);
-      const arrayBuffer = await currentPDFFile.arrayBuffer();
+      const arrayBuffer = await currentPdfFile.arrayBuffer();
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, useSystemFonts: true });
+      pdfDocument = await loadingTask.promise;
+      const totalPages = pdfDocument.numPages;
+      statusMsgSpan.innerText = `📄 PDF loaded: ${totalPages} pages. Preparing scan at ${dpiSelect.value} DPI ...`;
       
-      // compression with progress callback
-      const compressedBytes = await compressPdfWithProgress(arrayBuffer, strengthVal, ({ percent, message }) => {
+      const dpi = parseInt(dpiSelect.value, 10);
+      const colorMode = colorModeSelect.value;
+      const thresholdVal = parseInt(thresholdSlider.value, 10);
+      const useDither = ditherCheckbox.checked;
+      
+      // scale = target DPI / 72 (PDF points per inch)
+      const scale = dpi / 72;
+      
+      // array to store processed canvases and their original point dimensions
+      const pagesData = [];
+      
+      for (let i = 1; i <= totalPages; i++) {
+        // update progress
+        const percent = ((i-1) / totalPages) * 100;
         progressFill.style.width = `${percent}%`;
-        progressMessage.innerText = message;
+        statusMsgSpan.innerText = `🖨️ Scanning page ${i} / ${totalPages} (${dpi} DPI, ${colorMode === 'bw' ? 'B&W' : colorMode}) ...`;
+        
+        const page = await pdfDocument.getPage(i);
+        // get original page dimensions in points (1/72 inch)
+        const originalViewport = page.getViewport({ scale: 1 });
+        const origWidthPt = originalViewport.width;
+        const origHeightPt = originalViewport.height;
+        
+        // render and process
+        const { canvas, widthPt, heightPt } = await renderAndProcessPage(page, scale, colorMode, thresholdVal, useDither, origWidthPt, origHeightPt);
+        pagesData.push({
+          canvas: canvas,
+          widthPt: widthPt,
+          heightPt: heightPt,
+        });
+        
+        // small yield for UI
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+      
+      progressFill.style.width = '90%';
+      statusMsgSpan.innerText = '📑 Generating scanned PDF document ...';
+      
+      // Generate PDF using jsPDF (unit = points)
+      const { jsPDF } = window.jspdf;
+      if (!pagesData.length) throw new Error('No pages processed');
+      
+      // first page dimensions
+      const firstPage = pagesData[0];
+      let pdfDoc = new jsPDF({
+        unit: 'pt',
+        format: [firstPage.widthPt, firstPage.heightPt],
+        orientation: firstPage.widthPt > firstPage.heightPt ? 'landscape' : 'portrait'
       });
       
-      const compressedBlob = new Blob([compressedBytes], { type: 'application/pdf' });
-      const compressedSize = compressedBlob.size;
-      const savedBytes = originalSize - compressedSize;
-      const savedPercentRaw = ((savedBytes / originalSize) * 100).toFixed(1);
+      // add first page image
+      const imgDataFirst = firstPage.canvas.toDataURL('image/png');
+      pdfDoc.addImage(imgDataFirst, 'PNG', 0, 0, firstPage.widthPt, firstPage.heightPt, undefined, 'FAST');
       
-      // show stats
-      origSizeSpan.innerText = formatBytes(originalSize);
-      compSizeSpan.innerText = formatBytes(compressedSize);
-      savedPercentSpan.innerText = `${savedPercentRaw}% (${formatBytes(savedBytes)})`;
-      statsPanel.style.display = 'flex';
+      // add remaining pages
+      for (let idx = 1; idx < pagesData.length; idx++) {
+        const pg = pagesData[idx];
+        pdfDoc.addPage([pg.widthPt, pg.heightPt], pg.widthPt > pg.heightPt ? 'l' : 'p');
+        const imgData = pg.canvas.toDataURL('image/png');
+        pdfDoc.addImage(imgData, 'PNG', 0, 0, pg.widthPt, pg.heightPt, undefined, 'FAST');
+      }
       
-      // download
-      const downloadUrl = URL.createObjectURL(compressedBlob);
-      const downloadLink = document.createElement('a');
-      let outName = currentFileName.replace(/\.pdf$/i, '');
-      outName = `${outName}_compressed_${strengthVal}.pdf`;
-      downloadLink.href = downloadUrl;
-      downloadLink.download = outName;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
+      // finalize and download
+      const pdfBlob = pdfDoc.output('blob');
+      const downloadUrl = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      const originalName = currentPdfFile.name.replace('.pdf', '');
+      const modeSuffix = colorMode === 'bw' ? 'BW' : (colorMode === 'grayscale' ? 'GRAY' : 'COLOR');
+      a.download = `${originalName}_SCANNED_${dpi}DPI_${modeSuffix}.pdf`;
+      a.href = downloadUrl;
+      a.click();
       URL.revokeObjectURL(downloadUrl);
       
-      progressMessage.innerText = '✅ Done! Download started.';
-      setTimeout(() => {
-        if (progressArea.style.display === 'block') {
-          progressArea.style.display = 'none';
-        }
-      }, 3000);
-    } catch (err) {
-      console.error(err);
-      alert('Compression error: ' + (err.message || 'Unknown error. PDF might be corrupted or password protected.'));
-      progressArea.style.display = 'none';
+      progressFill.style.width = '100%';
+      statusMsgSpan.innerText = `✅ Scan complete! PDF generated with ${totalPages} pages at ${dpi} DPI, ${colorMode.toUpperCase()} mode.`;
+      previewInfo.innerHTML = `🎉 <strong>Success!</strong> Scanned PDF downloaded. The output mimics a scanned document: each page is rasterized with selected DPI & color settings.`;
+      
+    } catch (error) {
+      console.error(error);
+      statusMsgSpan.innerText = `❌ Error during scanning: ${error.message}`;
+      previewInfo.innerHTML = `⚠️ Scanning failed. ${error.message}. Please try another PDF or lower DPI.`;
     } finally {
-      compressBtn.disabled = false;
-      compressBtn.innerHTML = '<i class="fas fa-cogs"></i> Compress PDF';
-      // if stats already visible keep it
+      isProcessing = false;
+      scanBtn.disabled = false;
+      // keep progress visible but reset after delay? optional
+      setTimeout(() => {
+        if (!isProcessing) {
+          // after download, but don't reset user feedback aggressively
+        }
+      }, 2000);
+    }
+  }
+  
+  scanBtn.addEventListener('click', scanPdfToScannedPdf);
+  
+  // drag & drop enhancement
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#2c7da0';
+    uploadArea.style.background = '#eef4fc';
+  });
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.style.borderColor = '#bbcfe0';
+    uploadArea.style.background = '#fafcff';
+  });
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#bbcfe0';
+    uploadArea.style.background = '#fafcff';
+    const files = e.dataTransfer.files;
+    if (files.length && files[0].type === 'application/pdf') {
+      currentPdfFile = files[0];
+      pdfInput.files = files;
+      fileNameSpan.innerText = currentPdfFile.name;
+      previewInfo.innerHTML = `📄 Dropped: ${currentPdfFile.name}. Ready to scan.`;
+    } else {
+      alert('Please drop a valid PDF file.');
     }
   });
   
-  // back button functionality (as per design)
-  const backBtn = document.getElementById('backButton');
-  if (backBtn) {
-    backBtn.addEventListener('click', () => {
-      if (window.history.length > 1) window.history.back();
-      else if (document.referrer) window.location.href = document.referrer;
-      else window.location.href = '/';
-    });
-  }
+  // additional info: show current DPI scale warning for huge dimensions
+  dpiSelect.addEventListener('change', () => {
+    const dpi = dpiSelect.value;
+    if (dpi >= 600) {
+      previewInfo.innerHTML = `⚠️ High DPI (${dpi}) will produce large images & heavy processing. Recommended 300 DPI for balance.`;
+    } else {
+      previewInfo.innerHTML = `✨ Selected ${dpi} DPI. Click "SCAN PDF" to generate scanned document.`;
+    }
+  });
   
-  // initial reset
-  renderSelectedFile();
+  // init message
+  console.log('Scanner Studio ready');
 </script>
 </body>
 </html>
