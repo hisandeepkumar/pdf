@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Document Scanner Studio | PDF Scan Simulation</title>
+  <!-- PDF.js & jsPDF CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Optional: simple UI improvements -->
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
+    }
+
+    body {
+      background: #f1f4f9;
+      margin: 0;
+      padding: 24px 20px;
+    }
+
+    .scanner-container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 2.1rem;
+      background: linear-gradient(135deg, #1a2a3a, #0f2b3d);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin: 0;
+      letter-spacing: -0.3px;
+    }
+
+    .header p {
+      color: #4a627a;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .card {
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      transition: all 0.2s;
+    }
+
+    .upload-area {
+      border: 2px dashed #bbcfe0;
+      border-radius: 24px;
+      background: #fafcff;
+      padding: 32px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .upload-area:hover {
+      border-color: #2c7da0;
+      background: #f0f6fe;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .file-name {
+      font-weight: 600;
+      color: #0b3b4f;
+      margin-top: 12px;
+      word-break: break-all;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 28px;
+      margin: 20px 0 20px 0;
+      align-items: flex-end;
+    }
+
+    .opt-group {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .opt-group label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #2c5a77;
+      margin-bottom: 8px;
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 1px solid #cbdde9;
+      background: white;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .threshold-row {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .threshold-row span {
+      font-size: 0.9rem;
+      background: #eef2f7;
+      padding: 4px 12px;
+      border-radius: 36px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    button {
+      background: #1d5e7c;
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 12px 28px;
+      border-radius: 44px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 100%;
+    }
+
+    button:hover {
+      background: #0f4159;
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      background: #9bb7c9;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .progress-section {
+      margin: 24px 0 16px 0;
+    }
+
+    .progress-bar {
+      background: #e2e8f0;
+      border-radius: 40px;
+      height: 12px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: #2c7da0;
+      border-radius: 40px;
+      transition: width 0.2s ease;
+    }
+
+    .status-msg {
+      font-size: 0.85rem;
+      color: #2c5a77;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .preview-area {
+      background: #f8fafd;
+      border-radius: 20px;
+      padding: 16px;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #2e6a47;
+      border: 1px solid #dce5ed;
+    }
+
+    hr {
+      margin: 18px 0;
+      border-color: #e2edf5;
+    }
+
+    .badge {
+      background: #eef2ff;
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #6a7c8f;
+    }
+    @media (max-width: 700px) {
+      .card { padding: 20px; }
+      .options-grid { flex-direction: column; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="scanner-container">
+  <div class="header">
+    <h1>📄 SCAN SIMULATOR PRO</h1>
+    <p>Upload PDF → apply scanner settings (DPI, color mode, bit depth) → export scanned PDF</p>
+  </div>
+
+  <div class="card">
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">📂📑</div>
+      <div>Click or drag PDF here</div>
+      <input type="file" id="pdfInput" accept="application/pdf" />
+      <div class="file-name" id="fileName">No file selected</div>
+    </div>
+
+    <div class="options-grid">
+      <div class="opt-group">
+        <label>🖨️ OUTPUT DPI (scan resolution)</label>
+        <select id="dpiSelect">
+          <option value="72">72 DPI (low / fast)</option>
+          <option value="150">150 DPI (draft)</option>
+          <option value="300" selected>300 DPI (standard)</option>
+          <option value="600">600 DPI (high quality)</option>
+        </select>
+      </div>
+      <div class="opt-group">
+        <label>🎨 COLOR MODE / BIT DEPTH</label>
+        <select id="colorModeSelect">
+          <option value="color">Full Color (24-bit RGB)</option>
+          <option value="grayscale">Grayscale (8‑bit simulation)</option>
+          <option value="bw">Black & White (1‑bit / threshold)</option>
+        </select>
+      </div>
+      <div class="opt-group" id="thresholdGroup" style="display: none;">
+        <label>⚫ B&W THRESHOLD (0–255)</label>
+        <div class="threshold-row">
+          <input type="range" id="thresholdSlider" min="0" max="255" value="128" step="1">
+          <span id="thresholdValue">128</span>
+        </div>
+        <div class="checkbox-label">
+          <input type="checkbox" id="ditherCheckbox">
+          <span>🌀 Floyd-Steinberg dithering (better scan texture)</span>
+        </div>
+      </div>
+    </div>
+
+    <button id="scanBtn">🔍 SCAN PDF → GENERATE SCANNED PDF</button>
+
+    <div class="progress-section" id="progressSection" style="display: none;">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="status-msg" id="statusMsg">Processing pages...</div>
+    </div>
+
+    <div class="preview-area" id="previewInfo">
+      ⚙️ <strong>Smart scanner simulation</strong> — each PDF page will be rasterized at selected DPI, converted to chosen color/bit mode, and embedded as a crisp scanned image. Generates a permanent "scanned copy" PDF.
+    </div>
+  </div>
+  <footer>✔️ Fully client-side | PDF.js + jsPDF | every page transformed like a physical scanner</footer>
+</div>
+
+<script>
+  // Configure PDF.js worker (use CDN worker)
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+  // DOM elements
+  const pdfInput = document.getElementById('pdfInput');
+  const fileNameSpan = document.getElementById('fileName');
+  const uploadArea = document.getElementById('uploadArea');
+  const scanBtn = document.getElementById('scanBtn');
+  const dpiSelect = document.getElementById('dpiSelect');
+  const colorModeSelect = document.getElementById('colorModeSelect');
+  const thresholdGroup = document.getElementById('thresholdGroup');
+  const thresholdSlider = document.getElementById('thresholdSlider');
+  const thresholdValueSpan = document.getElementById('thresholdValue');
+  const ditherCheckbox = document.getElementById('ditherCheckbox');
+  const progressSection = document.getElementById('progressSection');
+  const progressFill = document.getElementById('progressFill');
+  const statusMsgSpan = document.getElementById('statusMsg');
+  const previewInfo = document.getElementById('previewInfo');
+
+  let currentPdfFile = null;
+  let pdfDocument = null;
+  let isProcessing = false;
+
+  // --- file handling ---
+  uploadArea.addEventListener('click', () => pdfInput.click());
+  pdfInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      currentPdfFile = file;
+      fileNameSpan.innerText = file.name;
+      previewInfo.innerHTML = `✅ <strong>${file.name}</strong> loaded. Configure scan settings and click "SCAN PDF".`;
+    } else if (file) {
+      alert('Please select a valid PDF file.');
+      pdfInput.value = '';
+      fileNameSpan.innerText = 'No file selected';
+      currentPdfFile = null;
+      previewInfo.innerHTML = `⚠️ Invalid file. Upload a PDF.`;
+    } else {
+      currentPdfFile = null;
+      fileNameSpan.innerText = 'No file selected';
+    }
+  });
+
+  // toggle threshold UI based on color mode
+  function toggleThresholdUI() {
+    const mode = colorModeSelect.value;
+    if (mode === 'bw') {
+      thresholdGroup.style.display = 'block';
+    } else {
+      thresholdGroup.style.display = 'none';
+    }
+  }
+  colorModeSelect.addEventListener('change', toggleThresholdUI);
+  toggleThresholdUI();
+
+  thresholdSlider.addEventListener('input', (e) => {
+    thresholdValueSpan.innerText = e.target.value;
+  });
+
+  // Helper: convert canvas ImageData to new processed ImageData based on mode + dither (BW only)
+  function processImageData(imageData, mode, thresholdVal, useDither) {
+    const data = imageData.data;
+    const width = imageData.width;
+    const height = imageData.height;
+    const newImageData = new ImageData(width, height);
+    const newData = newImageData.data;
+
+    if (mode === 'color') {
+      // keep original RGB, just copy (full color)
+      for (let i = 0; i < data.length; i += 4) {
+        newData[i] = data[i];     // R
+        newData[i+1] = data[i+1]; // G
+        newData[i+2] = data[i+2]; // B
+        newData[i+3] = 255;       // opaque
+      }
+      return newImageData;
+    }
+    else if (mode === 'grayscale') {
+      // 8-bit simulated (luma)
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i+1];
+        const b = data[i+2];
+        const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+        newData[i] = gray;
+        newData[i+1] = gray;
+        newData[i+2] = gray;
+        newData[i+3] = 255;
+      }
+      return newImageData;
+    }
+    else if (mode === 'bw') {
+      // Black & White with optional Floyd-Steinberg dithering (1-bit simulation)
+      if (!useDither) {
+        // simple threshold
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i+1];
+          const b = data[i+2];
+          const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+          const bw = luminance >= thresholdVal ? 255 : 0;
+          newData[i] = bw;
+          newData[i+1] = bw;
+          newData[i+2] = bw;
+          newData[i+3] = 255;
+        }
+        return newImageData;
+      } else {
+        // Floyd-Steinberg dithering for high quality "scanned" 1-bit look
+        // first create grayscale array
+        const grayPixels = new Float32Array(width * height);
+        for (let i = 0, idx = 0; i < data.length; i += 4, idx++) {
+          const r = data[i];
+          const g = data[i+1];
+          const b = data[i+2];
+          grayPixels[idx] = 0.299 * r + 0.587 * g + 0.114 * b;
+        }
+        // quantize to 0 or 255 with error diffusion
+        const outputPixels = new Uint8ClampedArray(width * height);
+        // copy errors to float array
+        const errors = new Float32Array(width * height);
+        for (let i = 0; i < width * height; i++) errors[i] = 0;
+        
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const idx = y * width + x;
+            let oldPixel = grayPixels[idx] + errors[idx];
+            oldPixel = Math.min(255, Math.max(0, oldPixel));
+            const newPixel = oldPixel >= thresholdVal ? 255 : 0;
+            outputPixels[idx] = newPixel;
+            const quantError = oldPixel - newPixel;
+            // Floyd-Steinberg coefficients
+            if (x + 1 < width) {
+              errors[idx + 1] += quantError * (7 / 16);
+            }
+            if (y + 1 < height) {
+              if (x - 1 >= 0) {
+                errors[idx + width - 1] += quantError * (3 / 16);
+              }
+              errors[idx + width] += quantError * (5 / 16);
+              if (x + 1 < width) {
+                errors[idx + width + 1] += quantError * (1 / 16);
+              }
+            }
+          }
+        }
+        // fill newImageData with B&W values
+        for (let i = 0; i < width * height; i++) {
+          const val = outputPixels[i];
+          const idx4 = i * 4;
+          newData[idx4] = val;
+          newData[idx4+1] = val;
+          newData[idx4+2] = val;
+          newData[idx4+3] = 255;
+        }
+        return newImageData;
+      }
+    }
+    return newImageData;
+  }
+
+  // render a single page with given scale, apply post-processing, return canvas
+  async function renderAndProcessPage(page, scale, mode, threshold, useDither, originalPtWidth, originalPtHeight) {
+    // create viewport with target scale
+    const viewport = page.getViewport({ scale: scale });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d');
+    
+    const renderContext = {
+      canvasContext: ctx,
+      viewport: viewport,
+      background: 'white',
+    };
+    
+    await page.render(renderContext).promise;
+    
+    // get image data from canvas
+    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    // apply processing (color mode, bw, dither)
+    const processedImageData = processImageData(imageData, mode, threshold, useDither);
+    // put back to same canvas
+    ctx.putImageData(processedImageData, 0, 0);
+    
+    // return canvas and original page dimensions in points (for final PDF sizing)
+    return { canvas, widthPt: originalPtWidth, heightPt: originalPtHeight };
+  }
+  
+  // main scanning process
+  async function scanPdfToScannedPdf() {
+    if (!currentPdfFile) {
+      alert('📁 Please upload a PDF file first.');
+      return;
+    }
+    if (isProcessing) {
+      alert('Scan already in progress, please wait.');
+      return;
+    }
+    
+    isProcessing = true;
+    scanBtn.disabled = true;
+    progressSection.style.display = 'block';
+    progressFill.style.width = '0%';
+    statusMsgSpan.innerText = 'Loading PDF document ...';
+    
+    try {
+      const arrayBuffer = await currentPdfFile.arrayBuffer();
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, useSystemFonts: true });
+      pdfDocument = await loadingTask.promise;
+      const totalPages = pdfDocument.numPages;
+      statusMsgSpan.innerText = `📄 PDF loaded: ${totalPages} pages. Preparing scan at ${dpiSelect.value} DPI ...`;
+      
+      const dpi = parseInt(dpiSelect.value, 10);
+      const colorMode = colorModeSelect.value;
+      const thresholdVal = parseInt(thresholdSlider.value, 10);
+      const useDither = ditherCheckbox.checked;
+      
+      // scale = target DPI / 72 (PDF points per inch)
+      const scale = dpi / 72;
+      
+      // array to store processed canvases and their original point dimensions
+      const pagesData = [];
+      
+      for (let i = 1; i <= totalPages; i++) {
+        // update progress
+        const percent = ((i-1) / totalPages) * 100;
+        progressFill.style.width = `${percent}%`;
+        statusMsgSpan.innerText = `🖨️ Scanning page ${i} / ${totalPages} (${dpi} DPI, ${colorMode === 'bw' ? 'B&W' : colorMode}) ...`;
+        
+        const page = await pdfDocument.getPage(i);
+        // get original page dimensions in points (1/72 inch)
+        const originalViewport = page.getViewport({ scale: 1 });
+        const origWidthPt = originalViewport.width;
+        const origHeightPt = originalViewport.height;
+        
+        // render and process
+        const { canvas, widthPt, heightPt } = await renderAndProcessPage(page, scale, colorMode, thresholdVal, useDither, origWidthPt, origHeightPt);
+        pagesData.push({
+          canvas: canvas,
+          widthPt: widthPt,
+          heightPt: heightPt,
+        });
+        
+        // small yield for UI
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+      
+      progressFill.style.width = '90%';
+      statusMsgSpan.innerText = '📑 Generating scanned PDF document ...';
+      
+      // Generate PDF using jsPDF (unit = points)
+      const { jsPDF } = window.jspdf;
+      if (!pagesData.length) throw new Error('No pages processed');
+      
+      // first page dimensions
+      const firstPage = pagesData[0];
+      let pdfDoc = new jsPDF({
+        unit: 'pt',
+        format: [firstPage.widthPt, firstPage.heightPt],
+        orientation: firstPage.widthPt > firstPage.heightPt ? 'landscape' : 'portrait'
+      });
+      
+      // add first page image
+      const imgDataFirst = firstPage.canvas.toDataURL('image/png');
+      pdfDoc.addImage(imgDataFirst, 'PNG', 0, 0, firstPage.widthPt, firstPage.heightPt, undefined, 'FAST');
+      
+      // add remaining pages
+      for (let idx = 1; idx < pagesData.length; idx++) {
+        const pg = pagesData[idx];
+        pdfDoc.addPage([pg.widthPt, pg.heightPt], pg.widthPt > pg.heightPt ? 'l' : 'p');
+        const imgData = pg.canvas.toDataURL('image/png');
+        pdfDoc.addImage(imgData, 'PNG', 0, 0, pg.widthPt, pg.heightPt, undefined, 'FAST');
+      }
+      
+      // finalize and download
+      const pdfBlob = pdfDoc.output('blob');
+      const downloadUrl = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      const originalName = currentPdfFile.name.replace('.pdf', '');
+      const modeSuffix = colorMode === 'bw' ? 'BW' : (colorMode === 'grayscale' ? 'GRAY' : 'COLOR');
+      a.download = `${originalName}_SCANNED_${dpi}DPI_${modeSuffix}.pdf`;
+      a.href = downloadUrl;
+      a.click();
+      URL.revokeObjectURL(downloadUrl);
+      
+      progressFill.style.width = '100%';
+      statusMsgSpan.innerText = `✅ Scan complete! PDF generated with ${totalPages} pages at ${dpi} DPI, ${colorMode.toUpperCase()} mode.`;
+      previewInfo.innerHTML = `🎉 <strong>Success!</strong> Scanned PDF downloaded. The output mimics a scanned document: each page is rasterized with selected DPI & color settings.`;
+      
+    } catch (error) {
+      console.error(error);
+      statusMsgSpan.innerText = `❌ Error during scanning: ${error.message}`;
+      previewInfo.innerHTML = `⚠️ Scanning failed. ${error.message}. Please try another PDF or lower DPI.`;
+    } finally {
+      isProcessing = false;
+      scanBtn.disabled = false;
+      // keep progress visible but reset after delay? optional
+      setTimeout(() => {
+        if (!isProcessing) {
+          // after download, but don't reset user feedback aggressively
+        }
+      }, 2000);
+    }
+  }
+  
+  scanBtn.addEventListener('click', scanPdfToScannedPdf);
+  
+  // drag & drop enhancement
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#2c7da0';
+    uploadArea.style.background = '#eef4fc';
+  });
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.style.borderColor = '#bbcfe0';
+    uploadArea.style.background = '#fafcff';
+  });
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#bbcfe0';
+    uploadArea.style.background = '#fafcff';
+    const files = e.dataTransfer.files;
+    if (files.length && files[0].type === 'application/pdf') {
+      currentPdfFile = files[0];
+      pdfInput.files = files;
+      fileNameSpan.innerText = currentPdfFile.name;
+      previewInfo.innerHTML = `📄 Dropped: ${currentPdfFile.name}. Ready to scan.`;
+    } else {
+      alert('Please drop a valid PDF file.');
+    }
+  });
+  
+  // additional info: show current DPI scale warning for huge dimensions
+  dpiSelect.addEventListener('change', () => {
+    const dpi = dpiSelect.value;
+    if (dpi >= 600) {
+      previewInfo.innerHTML = `⚠️ High DPI (${dpi}) will produce large images & heavy processing. Recommended 300 DPI for balance.`;
+    } else {
+      previewInfo.innerHTML = `✨ Selected ${dpi} DPI. Click "SCAN PDF" to generate scanned document.`;
+    }
+  });
+  
+  // init message
+  console.log('Scanner Studio ready');
+</script>
+</body>
+</html>
