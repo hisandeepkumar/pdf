@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Glass Tile Story – 3D Glass Effect</title>
+  <title>Glass Tile Story – 5px Margin Guaranteed</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -93,8 +93,8 @@
 <body>
   <div class="container" id="app">
     <div class="header">
-      <h1><i class="fas fa-glass-whiskey"></i> Glass Tile Story</h1>
-      <p>Rounded glass tile · 3D depth · Shadow &amp; reflection</p>
+      <h1><i class="fas fa-glass-whiskey"></i> Glass Tile Pro</h1>
+      <p>Rounded glass tile · Guaranteed 5px margin from canvas edge</p>
     </div>
     <div class="upload-area" id="uploadArea">
       <i class="fas fa-cloud-upload-alt"></i>
@@ -155,7 +155,7 @@
       <button class="btn-generate" id="generateBtn" disabled>
         <span class="shine"></span>
         <i class="fas fa-wand-sparkles"></i>
-        <span>Generate Glass Tile</span>
+        <span>Generate Tile</span>
       </button>
     </div>
     <div class="btn-download-wrap" id="downloadWrap">
@@ -164,7 +164,7 @@
       </button>
     </div>
     <div class="footer">
-      <span>✦ Blurred cover + Rounded glass tile with shadow ✦</span><br />
+      <span>✦ Tile strictly inside canvas · Always 5px margin from edges ✦</span><br />
       <span>Made with <span class="heart">❤️</span> by <a href="#" target="_blank">Sandeep</a></span>
     </div>
   </div>
@@ -293,7 +293,7 @@
     });
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // GENERATE – Glass Tile with 3D effect
+    // GENERATE – Glass Tile with Guaranteed 5px Margin
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     generateBtn.addEventListener('click', generate);
 
@@ -380,34 +380,54 @@
       c.fillStyle = vignette;
       c.fillRect(0, 0, targetW, targetH);
 
-      // ── 6. Compute photo fit (original, no stretch) ──
-      const fitScale = Math.min(targetW / img.width, targetH / img.height);
+      // ── 6. NEW: Calculate Tile & Image sizes with guaranteed 5px margin ──
+      //    The tile must ALWAYS be at least 5px away from canvas edges.
+      const minMargin = 5;
+      const desiredPadding = 20; // padding between tile edge and image edge
+
+      // Maximum possible tile size respecting the 5px margin
+      const maxTileW = targetW - minMargin * 2;
+      const maxTileH = targetH - minMargin * 2;
+
+      // Maximum image size allowed inside the tile with desired padding
+      const maxImageW = maxTileW - desiredPadding * 2;
+      const maxImageH = maxTileH - desiredPadding * 2;
+
+      // Calculate scale to fit image inside the maximum allowed image size
+      // We use Math.min(..., 1) to prevent upscaling if the image is smaller than maxImageW/H
+      const fitScale = Math.min(
+        maxImageW / img.width,
+        maxImageH / img.height,
+        1
+      );
+
+      // Final image dimensions (maintaining aspect ratio)
       const fitW = img.width * fitScale;
       const fitH = img.height * fitScale;
-      const fitX = (targetW - fitW) / 2;
-      const fitY = (targetH - fitH) / 2;
 
-      // ── 7. Glass tile parameters ──
-      const tilePadding = 20; // extra space around photo
-      const tileRadius = 30; // rounded corners
-      const tileX = fitX - tilePadding;
-      const tileY = fitY - tilePadding;
-      const tileW = fitW + tilePadding * 2;
-      const tileH = fitH + tilePadding * 2;
+      // Tile dimensions (image size + padding)
+      const tileW = fitW + desiredPadding * 2;
+      const tileH = fitH + desiredPadding * 2;
 
-      // ── 8. Draw glass tile with shadow (3D effect) ──
-      // Save context for shadow
+      // Tile position (centered on canvas)
+      const tileX = (targetW - tileW) / 2;
+      const tileY = (targetH - tileH) / 2;
+
+      // Image position (centered inside the tile)
+      const imgX = tileX + (tileW - fitW) / 2;
+      const imgY = tileY + (tileH - fitH) / 2;
+
+      // ── 7. Draw glass tile with shadow (3D effect) ──
       c.save();
 
-      // a) Drop shadow (to lift tile from background)
-      c.shadowColor = 'rgba(0,0,0,0.5)';
+      // Drop shadow (to lift tile from background)
+      c.shadowColor = 'rgba(0,0,0,0.6)';
       c.shadowBlur = 40;
       c.shadowOffsetX = 0;
-      c.shadowOffsetY = 12;
+      c.shadowOffsetY = 15;
 
-      // b) Draw the glass tile (rounded rect)
-      // We'll use a rounded rectangle path
-      const r = tileRadius;
+      // Rounded rectangle function (since canvas doesn't have native rounded rect)
+      const r = 30; // corner radius
       c.beginPath();
       c.moveTo(tileX + r, tileY);
       c.lineTo(tileX + tileW - r, tileY);
@@ -420,20 +440,15 @@
       c.quadraticCurveTo(tileX, tileY, tileX + r, tileY);
       c.closePath();
 
-      // Fill with semi-transparent white (glass)
-      c.fillStyle = 'rgba(255,255,255,0.15)';
+      // Fill tile with semi-transparent glass
+      c.fillStyle = 'rgba(255,255,255,0.12)';
       c.fill();
+      c.shadowColor = 'transparent'; // reset shadow for stroke
 
-      // Also a border (glass edge)
-      c.shadowColor = 'transparent'; // turn off shadow for stroke
-      c.strokeStyle = 'rgba(255,255,255,0.25)';
-      c.lineWidth = 2;
-      c.stroke();
-
-      c.restore(); // restore shadow
-
-      // ── 9. Clip the tile region and draw the photo inside ──
+      // ── 8. Clip & Draw Image inside the rounded tile ──
+      // We need to clip to the rounded rectangle so the image doesn't overflow the tile
       c.save();
+      // Re-create the rounded rect path for clipping
       c.beginPath();
       c.moveTo(tileX + r, tileY);
       c.lineTo(tileX + tileW - r, tileY);
@@ -447,12 +462,11 @@
       c.closePath();
       c.clip();
 
-      // Draw the original photo (fit inside)
-      c.drawImage(img, fitX, fitY, fitW, fitH);
-
+      // Draw the image (fitted, centered)
+      c.drawImage(img, imgX, imgY, fitW, fitH);
       c.restore(); // remove clip
 
-      // ── 10. Glass effects on top of tile ──
+      // ── 9. Glass Overlay Effects (on top of the image) ──
       // a) Inner glow / highlight (top-left to bottom-right)
       const glassGrad = c.createLinearGradient(tileX, tileY, tileX + tileW, tileY + tileH);
       glassGrad.addColorStop(0, 'rgba(255,255,255,0.20)');
@@ -473,12 +487,12 @@
       c.closePath();
       c.fill();
 
-      // b) Reflection streak (diagonal)
+      // b) Diagonal reflection streak
       const streak = c.createLinearGradient(tileX + tileW * 0.2, tileY, tileX + tileW * 0.8, tileY + tileH);
       streak.addColorStop(0, 'rgba(255,255,255,0)');
-      streak.addColorStop(0.4, 'rgba(255,255,255,0.04)');
+      streak.addColorStop(0.4, 'rgba(255,255,255,0.03)');
       streak.addColorStop(0.5, 'rgba(255,255,255,0.12)');
-      streak.addColorStop(0.6, 'rgba(255,255,255,0.04)');
+      streak.addColorStop(0.6, 'rgba(255,255,255,0.03)');
       streak.addColorStop(1, 'rgba(255,255,255,0)');
       c.fillStyle = streak;
       c.beginPath();
@@ -494,23 +508,24 @@
       c.closePath();
       c.fill();
 
-      // c) Subtle border highlight on top edge (glass thickness)
-      c.save();
-      c.shadowColor = 'rgba(255,255,255,0.1)';
-      c.shadowBlur = 8;
-      c.shadowOffsetX = 0;
-      c.shadowOffsetY = -2;
-      c.strokeStyle = 'rgba(255,255,255,0.15)';
-      c.lineWidth = 1.5;
+      // c) Tile Border (clearly visible in all directions)
+      c.strokeStyle = 'rgba(255,255,255,0.45)';
+      c.lineWidth = 2.5;
+      c.shadowColor = 'transparent';
       c.beginPath();
       c.moveTo(tileX + r, tileY);
       c.lineTo(tileX + tileW - r, tileY);
       c.quadraticCurveTo(tileX + tileW, tileY, tileX + tileW, tileY + r);
+      c.lineTo(tileX + tileW, tileY + tileH - r);
+      c.quadraticCurveTo(tileX + tileW, tileY + tileH, tileX + tileW - r, tileY + tileH);
+      c.lineTo(tileX + r, tileY + tileH);
+      c.quadraticCurveTo(tileX, tileY + tileH, tileX, tileY + tileH - r);
+      c.lineTo(tileX, tileY + r);
+      c.quadraticCurveTo(tileX, tileY, tileX + r, tileY);
+      c.closePath();
       c.stroke();
-      c.restore();
 
-      // ── 11. Final: faint outer glow around tile to blend ──
-      c.save();
+      // ── 10. Final: faint outer glow around tile to blend ──
       c.shadowColor = 'rgba(255,255,255,0.05)';
       c.shadowBlur = 30;
       c.shadowOffsetX = 0;
@@ -548,7 +563,7 @@
       downloadBtn.onclick = () => {
         const link = document.createElement('a');
         const baseName = state.fileName.replace(/\.[^.]+$/, '') || 'image';
-        link.download = `${baseName}_${state.selectedRatio}_glass_tile.png`;
+        link.download = `${baseName}_${state.selectedRatio}_tile.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       };
@@ -571,7 +586,7 @@
     previewCanvas.style.display = 'none';
     placeholder.style.display = 'block';
     generateBtn.disabled = true;
-    console.log('✦ Glass Tile Story – 3D glass tile with rounded edges ✦');
+    console.log('✦ Glass Tile Pro – Strict 5px Margin ✦');
   </script>
 </body>
 </html>
