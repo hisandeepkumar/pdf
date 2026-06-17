@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Glass Tile Pro – Rounded & Feathered Photo</title>
+    <title>Glass Tile Pro – Premium Glow</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
@@ -313,7 +312,7 @@
     <div class="container" id="app">
         <div class="header">
             <h1><i class="fas fa-glass-whiskey"></i> Glass Tile Pro</h1>
-            <p>Rounded tile · Soft feathered photo edges · 8px margin</p>
+            <p>Rounded tile · Soft feathered photo · Premium outer glow</p>
         </div>
         <div class="upload-area" id="uploadArea">
             <i class="fas fa-cloud-upload-alt"></i>
@@ -382,7 +381,7 @@
             </button>
         </div>
         <div class="footer">
-            <div class="footer-text">Tile margin 8px · Photo edges softly feathered (30px) · Equal border thickness | Made with <span style="color: #ff4d4d;">❤️</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" style="color: #5b86e5; text-decoration: none;">Sandeep</a></div>
+            <div class="footer-text">Tile margin 8px · 30px edge feather · Premium outer glow | Made with <span style="color: #ff4d4d;">❤️</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" style="color: #5b86e5; text-decoration: none;">Sandeep</a></div>
         </div>
     </div>
     <button class="back-btn" type="button" title="Back" aria-label="Go back" onclick="(function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })();">
@@ -434,22 +433,18 @@
             ctx.closePath();
         }
 
-        // ── MAIN FIX: Sab taraf se 30px inset feather ──
-        // Canvas masking use karke image ke upar ek gradient overlay lagata hai
-        // jo top, bottom, left, right — sabhi edges pe transparent se opaque fade karta hai.
-        // Ye rounded corners ke saath bhi kaam karta hai.
-        function applyEdgeFeather(c, imgX, imgY, fitW, fitH, featherSize, photoRadius) {
-            // Step 1: Image ke bounds ka ek offscreen canvas banao
-            const fc = document.createElement('canvas');
-            fc.width = fitW;
-            fc.height = fitH;
-            const fCtx = fc.getContext('2d');
-
-            // Step 2: Pehle image draw karo (source canvas se copy)
-            // Hum yahan seedha image se draw karte hain — caller se pass karein
-            // Isliye is function ko image bhi chahiye
-            // Refactor: image parameter add karte hain
-            return fc; // placeholder, actual logic neeche generate() mein hai
+        function roundedRectCtx(ctx, x, y, w, h, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + w - radius, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+            ctx.lineTo(x + w, y + h - radius);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+            ctx.lineTo(x + radius, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
         }
 
         let isUploading = false;
@@ -571,7 +566,9 @@
             canvas.height = targetH;
             const c = canvas.getContext('2d');
 
-            // ── 1. Cover image ──
+            // ──────────────────────────────────────────────────────────────
+            // 1. COVER IMAGE (stretch to fill canvas)
+            // ──────────────────────────────────────────────────────────────
             const imgAspect = img.width / img.height;
             const targetAspect = targetW / targetH;
             let coverW, coverH, coverX, coverY;
@@ -585,7 +582,9 @@
             coverX = Math.round(coverX); coverY = Math.round(coverY);
             coverW = Math.round(coverW); coverH = Math.round(coverH);
 
-            // ── 2. Blurred background ──
+            // ──────────────────────────────────────────────────────────────
+            // 2. BLURRED BACKGROUND
+            // ──────────────────────────────────────────────────────────────
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = targetW; tempCanvas.height = targetH;
             const tCtx = tempCanvas.getContext('2d');
@@ -598,7 +597,9 @@
             bCtx.drawImage(tempCanvas, 0, 0);
             c.drawImage(blurCanvas, 0, 0);
 
-            // ── 3. Vignette ──
+            // ──────────────────────────────────────────────────────────────
+            // 3. DARK VIGNETTE
+            // ──────────────────────────────────────────────────────────────
             const vignette = c.createRadialGradient(
                 targetW / 2, targetH / 2, Math.min(targetW, targetH) * 0.15,
                 targetW / 2, targetH / 2, Math.max(targetW, targetH) * 0.75
@@ -610,12 +611,14 @@
             c.fillStyle = vignette;
             c.fillRect(0, 0, targetW, targetH);
 
-            // ── 4. Tile & image dimensions ──
+            // ──────────────────────────────────────────────────────────────
+            // 4. TILE & IMAGE DIMENSIONS
+            // ──────────────────────────────────────────────────────────────
             const minMargin = 8;
             const padding = 20;
             const tileRadius = 30;
             const photoRadius = Math.max(tileRadius - padding, 4);
-            const featherSize = 30; // ← 30px inset feather sab edges pe
+            const featherSize = 30;
 
             const maxTileW = targetW - minMargin * 2;
             const maxTileH = targetH - minMargin * 2;
@@ -633,7 +636,46 @@
             const imgX = tileX + (tileW - fitW) / 2;
             const imgY = tileY + (tileH - fitH) / 2;
 
-            // ── 5. Glass tile shadow ──
+            // ════════════════════════════════════════════════════════════
+            // ║  ★★★  PREMIUM OUTER GLOW — START  ★★★                 ║
+            // ════════════════════════════════════════════════════════════
+            // Yeh glow tile ke bahar (perimeter) draw hota hai.
+            // Glow sirf tile ki shape (rounded rect) par hai — extra area nahi.
+            // Opacity 0.65 (65%) tak badhayi gayi hai taaki saaf dikhe.
+            // Blur 16px — soft bloom ke liye.
+            // Line width 18px — glow ki thickness (core + bloom milakar).
+            // Gradient sequence: 13 colours jo smoothly blend hote hain.
+            // ════════════════════════════════════════════════════════════
+            c.save();
+            // Glow opacity — 65% for premium visibility
+            c.globalAlpha = 0.65;
+            // Soft bloom — 16px blur for smooth spread
+            c.filter = 'blur(16px)';
+
+            // Linear gradient with exact colour sequence (13 colours)
+            const grad = c.createLinearGradient(tileX, tileY, tileX + tileW, tileY + tileH);
+            const colors = [
+                '#4C9688', '#54AE96', '#9CBF9B', '#A6C96C', '#F0CD61', '#F29F45',
+                '#F29F90', '#E96C8A', '#D85BB8', '#B06BE0', '#8B7BE5', '#6C81D8', '#5AA7E8'
+            ];
+            const steps = colors.length - 1;
+            colors.forEach((col, i) => {
+                grad.addColorStop(i / steps, col);
+            });
+            c.strokeStyle = grad;
+            // Glow thickness — 18px (3px core + 15px bloom)
+            c.lineWidth = 18;
+            // Draw glow along the tile's rounded rectangle path
+            roundedRect(c, tileX, tileY, tileW, tileH, tileRadius);
+            c.stroke();
+            c.restore();
+            // ════════════════════════════════════════════════════════════
+            // ║  ★★★  PREMIUM OUTER GLOW — END  ★★★                   ║
+            // ════════════════════════════════════════════════════════════
+
+            // ──────────────────────────────────────────────────────────────
+            // 5. GLASS TILE SHADOW
+            // ──────────────────────────────────────────────────────────────
             c.save();
             c.shadowColor = 'rgba(0,0,0,0.6)';
             c.shadowBlur = 40;
@@ -644,72 +686,58 @@
             c.fill();
             c.shadowColor = 'transparent';
 
-            // ── 6. IMAGE WITH PROPER 30px EDGE FEATHER (FIXED) ──
-            //
-            // Approach: Offscreen canvas pe image draw karo, phir
-            // "destination-out" composite mode se ek gradient mask lagao
-            // jo sab 4 edges pe 30px tak transparent kare.
-            // Phir is masked image ko main canvas pe clip ke andar draw karo.
-            //
+            // ──────────────────────────────────────────────────────────────
+            // 6. IMAGE WITH 30px EDGE FEATHER (rounded corners)
+            // ──────────────────────────────────────────────────────────────
             const photoCanvas = document.createElement('canvas');
             photoCanvas.width = Math.ceil(fitW);
             photoCanvas.height = Math.ceil(fitH);
             const pCtx = photoCanvas.getContext('2d');
 
-            // 6a. Rounded rect clip lagao photo canvas pe
             pCtx.save();
             roundedRectCtx(pCtx, 0, 0, fitW, fitH, photoRadius);
             pCtx.clip();
-
-            // 6b. Image draw karo
             pCtx.drawImage(img, 0, 0, fitW, fitH);
             pCtx.restore();
 
-            // 6c. destination-out se gradient mask — har edge pe alag linear gradient
-            // Ye existing pixels ko erase karta hai (alpha 0 karta hai)
-            // Jahan gradient opaque hai, wahan pixels puri tarah erase hote hain
-            // Jahan gradient transparent hai, wahan pixels intact rehte hain
+            // Feather mask (destination-out)
             pCtx.globalCompositeOperation = 'destination-out';
 
-            // TOP edge — 0 se featherSize tak fade
             const topGrad = pCtx.createLinearGradient(0, 0, 0, featherSize);
-            topGrad.addColorStop(0, 'rgba(0,0,0,1)');      // puri tarah erase
-            topGrad.addColorStop(1, 'rgba(0,0,0,0)');      // kuch erase nahi
+            topGrad.addColorStop(0, 'rgba(0,0,0,1)');
+            topGrad.addColorStop(1, 'rgba(0,0,0,0)');
             pCtx.fillStyle = topGrad;
             pCtx.fillRect(0, 0, fitW, featherSize);
 
-            // BOTTOM edge
             const botGrad = pCtx.createLinearGradient(0, fitH - featherSize, 0, fitH);
             botGrad.addColorStop(0, 'rgba(0,0,0,0)');
             botGrad.addColorStop(1, 'rgba(0,0,0,1)');
             pCtx.fillStyle = botGrad;
             pCtx.fillRect(0, fitH - featherSize, fitW, featherSize);
 
-            // LEFT edge
             const leftGrad = pCtx.createLinearGradient(0, 0, featherSize, 0);
             leftGrad.addColorStop(0, 'rgba(0,0,0,1)');
             leftGrad.addColorStop(1, 'rgba(0,0,0,0)');
             pCtx.fillStyle = leftGrad;
             pCtx.fillRect(0, 0, featherSize, fitH);
 
-            // RIGHT edge
             const rightGrad = pCtx.createLinearGradient(fitW - featherSize, 0, fitW, 0);
             rightGrad.addColorStop(0, 'rgba(0,0,0,0)');
             rightGrad.addColorStop(1, 'rgba(0,0,0,1)');
             pCtx.fillStyle = rightGrad;
             pCtx.fillRect(fitW - featherSize, 0, featherSize, fitH);
 
-            // Composite mode reset
             pCtx.globalCompositeOperation = 'source-over';
 
-            // 6d. Is feathered photo ko main canvas pe draw karo (rounded clip ke andar)
             c.save();
             roundedRect(c, imgX, imgY, fitW, fitH, photoRadius);
             c.clip();
             c.drawImage(photoCanvas, imgX, imgY);
             c.restore();
 
-            // ── 7. Glass overlay effects ──
+            // ──────────────────────────────────────────────────────────────
+            // 7. GLASS OVERLAY EFFECTS
+            // ──────────────────────────────────────────────────────────────
             const glassGrad = c.createLinearGradient(tileX, tileY, tileX + tileW, tileY + tileH);
             glassGrad.addColorStop(0, 'rgba(255,255,255,0.20)');
             glassGrad.addColorStop(0.3, 'rgba(255,255,255,0.05)');
@@ -719,7 +747,6 @@
             roundedRect(c, tileX, tileY, tileW, tileH, tileRadius);
             c.fill();
 
-            // Diagonal reflection streak
             const streak = c.createLinearGradient(tileX + tileW * 0.2, tileY, tileX + tileW * 0.8, tileY + tileH);
             streak.addColorStop(0, 'rgba(255,255,255,0)');
             streak.addColorStop(0.4, 'rgba(255,255,255,0.03)');
@@ -730,15 +757,15 @@
             roundedRect(c, tileX, tileY, tileW, tileH, tileRadius);
             c.fill();
 
-            // Tile border
             c.strokeStyle = 'rgba(255,255,255,0.45)';
             c.lineWidth = 2.5;
             roundedRect(c, tileX, tileY, tileW, tileH, tileRadius);
             c.stroke();
-
             c.restore();
 
-            // ── 8. Preview ──
+            // ──────────────────────────────────────────────────────────────
+            // 8. PREVIEW
+            // ──────────────────────────────────────────────────────────────
             previewCanvas.width = targetW;
             previewCanvas.height = targetH;
             previewCanvas.style.width = '100%';
@@ -761,21 +788,6 @@
             };
         }
 
-        // roundedRect ka duplicate jo pCtx ke liye bhi kaam kare
-        function roundedRectCtx(ctx, x, y, w, h, radius) {
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.lineTo(x + w - radius, y);
-            ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
-            ctx.lineTo(x + w, y + h - radius);
-            ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
-            ctx.lineTo(x + radius, y + h);
-            ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
-            ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y);
-            ctx.closePath();
-        }
-
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
@@ -787,7 +799,7 @@
         previewCanvas.style.display = 'none';
         placeholder.style.display = 'block';
         generateBtn.disabled = true;
-        console.log('✦ Glass Tile Pro – 30px edge feather on all 4 sides (fixed) ✦');
+        console.log('✦ Glass Tile Pro – 30px edge feather + premium outer glow ✦');
     </script>
 </body>
 </html>
