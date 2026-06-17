@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Instagram Story – Ambient Fill</title>
+  <title>Glass Story – Blur + Glass Sheet</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -93,8 +93,8 @@
 <body>
   <div class="container" id="app">
     <div class="header">
-      <h1><i class="fas fa-story"></i> Story Ambient Fill</h1>
-      <p>Instagram-style blur &amp; dark gradient · Extra area filled with zoomed+blurred photo</p>
+      <h1><i class="fas fa-glass-whiskey"></i> Glass Story</h1>
+      <p>Blurred background + Glass sheet on top</p>
     </div>
     <div class="upload-area" id="uploadArea">
       <i class="fas fa-cloud-upload-alt"></i>
@@ -155,7 +155,7 @@
       <button class="btn-generate" id="generateBtn" disabled>
         <span class="shine"></span>
         <i class="fas fa-wand-sparkles"></i>
-        <span>Generate Story</span>
+        <span>Generate Glass</span>
       </button>
     </div>
     <div class="btn-download-wrap" id="downloadWrap">
@@ -164,7 +164,7 @@
       </button>
     </div>
     <div class="footer">
-      <span>✦ Zoom + Blur + Dark Gradient (Instagram style) ✦</span><br />
+      <span>✦ Blurred cover background + Original image on glass ✦</span><br />
       <span>Made with <span class="heart">❤️</span> by <a href="#" target="_blank">Sandeep</a></span>
     </div>
   </div>
@@ -293,7 +293,7 @@
     });
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // GENERATE – Instagram-style Ambient Fill
+    // GENERATE – Glass Story (Blurred Cover + Glass Sheet on top)
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     generateBtn.addEventListener('click', generate);
 
@@ -325,80 +325,113 @@
         targetH = Math.floor(targetH * scale);
       }
 
-      // Main canvas
       const canvas = document.createElement('canvas');
       canvas.width = targetW;
       canvas.height = targetH;
       const c = canvas.getContext('2d');
 
-      // ── 1. Compute zoom-to-fill dimensions ──
-      // We want to scale the image so that it completely covers the target canvas (like "cover" in CSS).
+      // ── 1. Stretch (cover) the image to fill canvas ──
       const imgAspect = img.width / img.height;
       const targetAspect = targetW / targetH;
-      let zoomW, zoomH, zoomX, zoomY;
+      let coverW, coverH, coverX, coverY;
       if (imgAspect > targetAspect) {
-        // image is wider → scale to fit height, then crop width
-        zoomH = targetH;
-        zoomW = targetH * imgAspect;
-        zoomX = (targetW - zoomW) / 2;
-        zoomY = 0;
+        coverH = targetH;
+        coverW = targetH * imgAspect;
+        coverX = (targetW - coverW) / 2;
+        coverY = 0;
       } else {
-        zoomW = targetW;
-        zoomH = targetW / imgAspect;
-        zoomX = 0;
-        zoomY = (targetH - zoomH) / 2;
+        coverW = targetW;
+        coverH = targetW / imgAspect;
+        coverX = 0;
+        coverY = (targetH - coverH) / 2;
       }
-      // Round to avoid subpixel
-      zoomX = Math.round(zoomX);
-      zoomY = Math.round(zoomY);
-      zoomW = Math.round(zoomW);
-      zoomH = Math.round(zoomH);
+      coverX = Math.round(coverX);
+      coverY = Math.round(coverY);
+      coverW = Math.round(coverW);
+      coverH = Math.round(coverH);
 
-      // ── 2. Draw zoomed image on a temporary canvas ──
+      // ── 2. Draw cover on temp canvas ──
       const tempCanvas = document.createElement('canvas');
       tempCanvas.width = targetW;
       tempCanvas.height = targetH;
       const tCtx = tempCanvas.getContext('2d');
-      tCtx.drawImage(img, zoomX, zoomY, zoomW, zoomH);
+      tCtx.drawImage(img, coverX, coverY, coverW, coverH);
 
-      // ── 3. Apply heavy blur to the temp canvas ──
+      // ── 3. Heavy blur on cover ──
       const blurCanvas = document.createElement('canvas');
       blurCanvas.width = targetW;
       blurCanvas.height = targetH;
       const bCtx = blurCanvas.getContext('2d');
-      bCtx.filter = 'blur(22px)'; // heavy blur for ambient feel
+      bCtx.filter = 'blur(24px)';
       bCtx.drawImage(tempCanvas, 0, 0);
 
-      // ── 4. Draw blurred background on main canvas ──
+      // ── 4. Draw blurred background ──
       c.drawImage(blurCanvas, 0, 0);
 
-      // ── 5. Draw the original image centered (without scaling) ──
-      // Calculate centered position
-      const centerX = (targetW - img.width) / 2;
-      const centerY = (targetH - img.height) / 2;
-      c.drawImage(img, Math.round(centerX), Math.round(centerY));
-
-      // ── 6. Add dark gradient overlay for ambient blend (vignette) ──
-      const grad = c.createRadialGradient(
-        targetW / 2, targetH / 2, Math.min(targetW, targetH) * 0.2,
+      // ── 5. Add dark vignette for ambient depth ──
+      const vignette = c.createRadialGradient(
+        targetW / 2, targetH / 2, Math.min(targetW, targetH) * 0.15,
         targetW / 2, targetH / 2, Math.max(targetW, targetH) * 0.75
       );
-      grad.addColorStop(0, 'rgba(0,0,0,0)');
-      grad.addColorStop(0.5, 'rgba(0,0,0,0)');
-      grad.addColorStop(0.8, 'rgba(0,0,0,0.25)');
-      grad.addColorStop(1, 'rgba(0,0,0,0.55)');
-      c.fillStyle = grad;
+      vignette.addColorStop(0, 'rgba(0,0,0,0)');
+      vignette.addColorStop(0.5, 'rgba(0,0,0,0)');
+      vignette.addColorStop(0.8, 'rgba(0,0,0,0.20)');
+      vignette.addColorStop(1, 'rgba(0,0,0,0.50)');
+      c.fillStyle = vignette;
       c.fillRect(0, 0, targetW, targetH);
 
-      // ── 7. (Optional) Slight white glow at center for depth ──
-      const glow = c.createRadialGradient(
-        targetW / 2, targetH / 2, 0,
-        targetW / 2, targetH / 2, Math.min(targetW, targetH) * 0.3
-      );
-      glow.addColorStop(0, 'rgba(255,255,255,0.04)');
-      glow.addColorStop(1, 'rgba(255,255,255,0)');
-      c.fillStyle = glow;
+      // ── 6. Draw original image centered (no stretch) ──
+      const fitScale = Math.min(targetW / img.width, targetH / img.height);
+      const fitW = img.width * fitScale;
+      const fitH = img.height * fitScale;
+      const fitX = (targetW - fitW) / 2;
+      const fitY = (targetH - fitH) / 2;
+      c.drawImage(img, Math.round(fitX), Math.round(fitY), Math.round(fitW), Math.round(fitH));
+
+      // ── 7. Glass sheet effect on top of the original image ──
+      // We'll create a glass overlay that covers the entire canvas, 
+      // but we only want to affect the area where the image is, or we can apply globally.
+      // For a realistic glass look, we add:
+      //   - A subtle white gradient (glare) from top-left to bottom-right
+      //   - A thin border highlight (inner shadow) around the image
+      //   - A slight transparency to give a glass feel
+
+      // a) Glass glare: linear gradient from white (0.15) to transparent
+      const glassGrad = c.createLinearGradient(0, 0, targetW, targetH);
+      glassGrad.addColorStop(0, 'rgba(255,255,255,0.12)');
+      glassGrad.addColorStop(0.3, 'rgba(255,255,255,0.04)');
+      glassGrad.addColorStop(0.7, 'rgba(255,255,255,0)');
+      glassGrad.addColorStop(1, 'rgba(255,255,255,0.08)');
+      c.fillStyle = glassGrad;
       c.fillRect(0, 0, targetW, targetH);
+
+      // b) Glass edge highlight: a subtle inner shadow on the image area
+      // We'll draw a soft border using a shadow
+      c.save();
+      c.shadowColor = 'rgba(255,255,255,0.15)';
+      c.shadowBlur = 20;
+      c.shadowOffsetX = 0;
+      c.shadowOffsetY = 0;
+      // Draw a transparent rect with shadow to create inner glow
+      c.strokeStyle = 'rgba(255,255,255,0)'; // invisible stroke
+      c.lineWidth = 2;
+      c.strokeRect(fitX, fitY, fitW, fitH);
+      c.restore();
+
+      // c) Add a faint white border (glass frame)
+      c.strokeStyle = 'rgba(255,255,255,0.08)';
+      c.lineWidth = 1.5;
+      c.strokeRect(fitX - 2, fitY - 2, fitW + 4, fitH + 4);
+
+      // d) A subtle reflection streak (diagonal)
+      const streak = c.createLinearGradient(fitX + fitW * 0.2, fitY, fitX + fitW * 0.8, fitY + fitH);
+      streak.addColorStop(0, 'rgba(255,255,255,0)');
+      streak.addColorStop(0.4, 'rgba(255,255,255,0.02)');
+      streak.addColorStop(0.5, 'rgba(255,255,255,0.06)');
+      streak.addColorStop(0.6, 'rgba(255,255,255,0.02)');
+      streak.addColorStop(1, 'rgba(255,255,255,0)');
+      c.fillStyle = streak;
+      c.fillRect(fitX, fitY, fitW, fitH);
 
       // ── Display on preview ──
       previewCanvas.width = targetW;
@@ -417,7 +450,7 @@
       downloadBtn.onclick = () => {
         const link = document.createElement('a');
         const baseName = state.fileName.replace(/\.[^.]+$/, '') || 'image';
-        link.download = `${baseName}_${state.selectedRatio}_story.png`;
+        link.download = `${baseName}_${state.selectedRatio}_glass.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       };
@@ -440,7 +473,7 @@
     previewCanvas.style.display = 'none';
     placeholder.style.display = 'block';
     generateBtn.disabled = true;
-    console.log('✦ Instagram Story Ambient Fill ✦');
+    console.log('✦ Glass Story – Blurred cover + Glass sheet on photo ✦');
   </script>
 </body>
 </html>
