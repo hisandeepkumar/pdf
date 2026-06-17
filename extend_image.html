@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aspect Ratio Studio – Glowing Dot Fill</title>
+    <title>Aspect Ratio Studio – Glowing Micro LED Dots</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        /* ── Reset & Base ── */
         * {
             margin: 0;
             padding: 0;
@@ -25,7 +24,6 @@
             color: #f0f0f0;
         }
 
-        /* ── Main Container (Glass) ── */
         .container {
             width: 100%;
             max-width: 780px;
@@ -39,7 +37,6 @@
             transition: transform 0.3s ease;
         }
 
-        /* ── Header ── */
         .header {
             text-align: center;
             padding-bottom: 18px;
@@ -73,7 +70,6 @@
             letter-spacing: 0.2px;
         }
 
-        /* ── Upload Area ── */
         .upload-area {
             border: 2px dashed rgba(255, 255, 255, 0.25);
             border-radius: 20px;
@@ -143,7 +139,6 @@
             }
         }
 
-        /* ── Aspect Ratio Section ── */
         .ratios-section {
             margin: 16px 0 10px;
         }
@@ -207,7 +202,6 @@
             font-weight: 400;
         }
 
-        /* ── Preview Canvas ── */
         .preview-wrap {
             margin: 18px 0 16px;
             border-radius: 16px;
@@ -243,7 +237,6 @@
             opacity: 0.3;
         }
 
-        /* ── Pill‑shaped Glass 3D Generate Button ── */
         .btn-generate-wrap {
             display: flex;
             justify-content: center;
@@ -263,11 +256,8 @@
             display: flex;
             align-items: center;
             gap: 14px;
-            box-shadow:
-                0 8px 32px rgba(91, 134, 229, 0.3),
-                0 4px 16px rgba(0, 0, 0, 0.3),
-                inset 0 2px 0 rgba(255, 255, 255, 0.2),
-                inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(91, 134, 229, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3),
+                inset 0 2px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
             transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
             position: relative;
             overflow: hidden;
@@ -292,11 +282,8 @@
         }
         .btn-generate:hover {
             transform: perspective(800px) rotateX(3deg) rotateY(4deg) scale(1.02);
-            box-shadow:
-                0 14px 48px rgba(91, 134, 229, 0.45),
-                0 6px 20px rgba(0, 0, 0, 0.4),
-                inset 0 2px 0 rgba(255, 255, 255, 0.3),
-                inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            box-shadow: 0 14px 48px rgba(91, 134, 229, 0.45), 0 6px 20px rgba(0, 0, 0, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
             background: rgba(255, 255, 255, 0.12);
             border-color: rgba(255, 255, 255, 0.3);
         }
@@ -333,7 +320,6 @@
             left: 150%;
         }
 
-        /* ── Download button (shown after generation) ── */
         .btn-download-wrap {
             display: none;
             justify-content: center;
@@ -362,7 +348,6 @@
             box-shadow: 0 8px 32px rgba(0, 200, 150, 0.25);
         }
 
-        /* ── Footer ── */
         .footer {
             margin-top: 24px;
             text-align: center;
@@ -395,7 +380,6 @@
             }
         }
 
-        /* ── Responsive ── */
         @media (max-width: 640px) {
             .container {
                 padding: 18px 14px 22px;
@@ -447,7 +431,6 @@
             }
         }
 
-        /* ── Scrollbar ── */
         ::-webkit-scrollbar {
             width: 4px;
         }
@@ -467,13 +450,11 @@
 
     <div class="container" id="app">
 
-        <!-- Header -->
         <div class="header">
             <h1><i class="fas fa-magic"></i> Aspect Ratio Studio</h1>
-            <p>Upload a photo &amp; fill extra space with glowing microscopic dots ✦</p>
+            <p>Upload a photo · pick a ratio · fill extra space with <strong style="color:#7b93ff;">glowing micro LEDs</strong></p>
         </div>
 
-        <!-- Upload -->
         <div class="upload-area" id="uploadArea">
             <i class="fas fa-cloud-upload-alt"></i>
             <h3>Upload Photo</h3>
@@ -482,10 +463,8 @@
         </div>
         <div class="file-info" id="fileInfo"></div>
 
-        <!-- Aspect Ratios -->
         <div class="ratios-section" id="ratiosSection">
 
-            <!-- YouTube -->
             <div class="platform-group">
                 <div class="platform-label"><i class="fab fa-youtube" style="color:#ff3b3b;"></i> YouTube</div>
                 <div class="ratio-buttons" data-platform="youtube">
@@ -497,7 +476,6 @@
                 </div>
             </div>
 
-            <!-- Instagram -->
             <div class="platform-group">
                 <div class="platform-label"><i class="fab fa-instagram" style="color:#e1306c;"></i> Instagram</div>
                 <div class="ratio-buttons" data-platform="instagram">
@@ -509,7 +487,6 @@
                 </div>
             </div>
 
-            <!-- WhatsApp -->
             <div class="platform-group">
                 <div class="platform-label"><i class="fab fa-whatsapp" style="color:#25d366;"></i> WhatsApp</div>
                 <div class="ratio-buttons" data-platform="whatsapp">
@@ -520,7 +497,6 @@
                 </div>
             </div>
 
-            <!-- Twitter / X -->
             <div class="platform-group">
                 <div class="platform-label"><i class="fab fa-twitter" style="color:#1d9bf0;"></i> Twitter / X</div>
                 <div class="ratio-buttons" data-platform="twitter">
@@ -534,7 +510,6 @@
 
         </div>
 
-        <!-- Preview -->
         <div class="preview-wrap" id="previewWrap">
             <canvas id="previewCanvas"></canvas>
             <div class="preview-placeholder" id="placeholder">
@@ -543,7 +518,6 @@
             </div>
         </div>
 
-        <!-- Generate Button (pill, glass 3D) -->
         <div class="btn-generate-wrap">
             <button class="btn-generate" id="generateBtn" disabled>
                 <span class="shine"></span>
@@ -552,16 +526,14 @@
             </button>
         </div>
 
-        <!-- Download (hidden until generated) -->
         <div class="btn-download-wrap" id="downloadWrap">
             <button class="btn-download" id="downloadBtn">
                 <i class="fas fa-download"></i> Download Image
             </button>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
-            <span>✦ Glowing Dot Fill · No stretching · Pure CSS &amp; Canvas ✦</span>
+            <span>✦ Glowing Micro LED Fill · Spaced dots · Smooth edge blend ✦</span>
             <br />
             <span>Made with <span class="heart">❤️</span> by <a href="#" target="_blank">Sandeep</a></span>
         </div>
@@ -573,13 +545,11 @@
         //  STATE
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         const state = {
-            image: null, // HTMLImageElement
-            imageData: null, // ImageData (for pixel sampling)
+            image: null,
             fileName: '',
-            selectedRatio: null, // e.g. "16:9"
-            canvasWidth: 800,
-            canvasHeight: 800,
+            selectedRatio: null,
             generated: false,
+            generatedCanvas: null,
         };
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -611,8 +581,9 @@
             return (bytes / 1048576).toFixed(1) + ' MB';
         }
 
-        // Clamp
         function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+        function lerp(a, b, t) { return a + (b - a) * t; }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         //  FILE UPLOAD
@@ -652,10 +623,8 @@
                     fileInfo.textContent = `${file.name} · ${formatFileSize(file.size)}`;
                     fileInfo.style.display = 'block';
                     generateBtn.disabled = false;
-                    // Reset generated state
                     state.generated = false;
                     downloadWrap.style.display = 'none';
-                    // Show preview (raw image)
                     renderRawPreview();
                 };
                 img.src = e.target.result;
@@ -664,7 +633,7 @@
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        //  RENDER RAW PREVIEW (before generation)
+        //  RENDER RAW PREVIEW
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         function renderRawPreview() {
             if (!state.image) return;
@@ -687,8 +656,6 @@
             ctx.drawImage(img, 0, 0, dispW, dispH);
             placeholder.style.display = 'none';
             previewCanvas.style.display = 'block';
-            state.canvasWidth = dispW;
-            state.canvasHeight = dispH;
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -696,26 +663,22 @@
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         ratioBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                // Deselect all
                 ratioBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 state.selectedRatio = btn.dataset.ratio;
-                // If image loaded, enable generate
                 if (state.image) generateBtn.disabled = false;
-                // Reset generated state
                 state.generated = false;
                 downloadWrap.style.display = 'none';
-                // Show raw preview again if image exists
                 if (state.image) renderRawPreview();
             });
         });
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        //  GENERATE → GLOWING DOTS
+        //  GENERATE → GLOWING MICRO LED DOTS
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        generateBtn.addEventListener('click', generateWithDots);
+        generateBtn.addEventListener('click', generateWithLEDDots);
 
-        function generateWithDots() {
+        function generateWithLEDDots() {
             if (!state.image || !state.selectedRatio) {
                 alert('Please upload an image and select an aspect ratio.');
                 return;
@@ -724,8 +687,7 @@
             const ratio = parseRatio(state.selectedRatio);
             const img = state.image;
 
-            // Target canvas size (we'll use a sensible resolution)
-            // We want at least 800px on the long side, but not too huge
+            // Target canvas size
             const baseSize = 1000;
             let targetW, targetH;
             if (ratio.w >= ratio.h) {
@@ -735,11 +697,8 @@
                 targetH = baseSize;
                 targetW = Math.floor(baseSize * (ratio.w / ratio.h));
             }
-            // Ensure minimum 400px
             if (targetW < 400) targetW = 400;
             if (targetH < 400) targetH = 400;
-
-            // Make sure it's not too large (max 2000px)
             const maxDim = 2000;
             if (targetW > maxDim || targetH > maxDim) {
                 const scale = Math.min(maxDim / targetW, maxDim / targetH);
@@ -747,49 +706,44 @@
                 targetH = Math.floor(targetH * scale);
             }
 
-            // Create working canvas
             const canvas = document.createElement('canvas');
             canvas.width = targetW;
             canvas.height = targetH;
             const c = canvas.getContext('2d');
 
-            // Clear with dark background (so dots pop)
+            // Dark bg
             c.fillStyle = '#0b0b16';
             c.fillRect(0, 0, targetW, targetH);
 
-            // ── 1. Draw image centered, maintaining aspect ratio ──
+            // ── Draw photo centered ──
             const imgAspect = img.width / img.height;
             const targetAspect = targetW / targetH;
             let drawX, drawY, drawW, drawH;
             if (imgAspect > targetAspect) {
-                // Image is wider → fit to width
                 drawW = targetW;
                 drawH = targetW / imgAspect;
                 drawX = 0;
                 drawY = (targetH - drawH) / 2;
             } else {
-                // Image is taller → fit to height
                 drawH = targetH;
                 drawW = targetH * imgAspect;
                 drawX = (targetW - drawW) / 2;
                 drawY = 0;
             }
-
-            // Draw the image (with slight rounding to avoid subpixel issues)
             const ix = Math.round(drawX);
             const iy = Math.round(drawY);
             const iw = Math.round(drawW);
             const ih = Math.round(drawH);
             c.drawImage(img, ix, iy, iw, ih);
 
-            // ── 2. Get image data for edge sampling ──
+            // ── Get image data for edge sampling ──
             const imageData = c.getImageData(0, 0, targetW, targetH);
             const data = imageData.data;
 
-            // ── 3. Generate glowing dots in empty areas ──
-            generateDots(c, data, targetW, targetH, ix, iy, iw, ih);
+            // ── Generate micro LED dots in extra area ──
+            generateLEDDots(c, data, targetW, targetH, ix, iy, iw, ih);
 
-            // ── 4. Display on preview ──
+            // ── Display on preview ──
             previewCanvas.width = targetW;
             previewCanvas.height = targetH;
             previewCanvas.style.width = '100%';
@@ -799,353 +753,391 @@
             pctx.drawImage(canvas, 0, 0);
             placeholder.style.display = 'none';
             previewCanvas.style.display = 'block';
-            state.canvasWidth = targetW;
-            state.canvasHeight = targetH;
             state.generated = true;
-
-            // Store the canvas for download
             state.generatedCanvas = canvas;
 
-            // Show download button
             downloadWrap.style.display = 'flex';
-
-            // Enable download
             downloadBtn.onclick = () => {
                 const link = document.createElement('a');
                 const baseName = state.fileName.replace(/\.[^.]+$/, '') || 'image';
-                link.download = `${baseName}_${state.selectedRatio}_glowing.png`;
+                link.download = `${baseName}_${state.selectedRatio}_led.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             };
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        //  GLOWING DOT GENERATOR
+        //  MICRO LED DOT GENERATOR  —  spaced, glowing, full coverage
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        function generateDots(ctx, imageData, w, h, photoX, photoY, photoW, photoH) {
-            // ── config ──
-            const spacing = 4; // base spacing between dots
-            const maxDotSize = 2.8;
-            const minDotSize = 0.4;
-            const fadeDist = 160; // pixels from edge where dots fade to zero
-            const jitter = 0.45; // random jitter fraction of spacing
-            const glowRadius = 6;
-            const opacityBase = 0.92;
+        function generateLEDDots(ctx, imageData, w, h, photoX, photoY, photoW, photoH) {
+            // ── Config ──
+            const spacing = 12; // space between dot centers
+            const dotCore = 1.8; // core radius (bright center)
+            const glowRadius = 7; // glow radius around each dot
+            const edgeFade = 30; // pixels from photo edge where dots fade in
 
-            // Helper: get pixel color from imageData (clamped to photo area)
+            // Helper: get edge color from photo (clamped)
             function getEdgeColor(x, y) {
                 const cx = clamp(Math.round(x), photoX, photoX + photoW - 1);
                 const cy = clamp(Math.round(y), photoY, photoY + photoH - 1);
                 const idx = (cy * w + cx) * 4;
                 return {
-                    r: imageData[idx] || 0,
-                    g: imageData[idx + 1] || 0,
-                    b: imageData[idx + 2] || 0,
-                    a: imageData[idx + 3] || 255,
+                    r: data[idx] || 0,
+                    g: data[idx + 1] || 0,
+                    b: data[idx + 2] || 0,
+                    a: data[idx + 3] || 255,
                 };
             }
 
-            // Draw a single glowing dot
-            function drawDot(x, y, size, r, g, b, opacity) {
-                if (size < 0.1 || opacity < 0.02) return;
-                const rad = Math.max(size, 0.3);
+            // Draw one glowing micro LED
+            function drawLED(x, y, radius, glow, r, g, b, opacity) {
+                if (opacity < 0.02 || radius < 0.1) return;
 
-                // Glow via radial gradient
-                const grad = ctx.createRadialGradient(x, y, 0, x, y, rad + glowRadius);
-                const alpha = opacity * opacityBase;
-                grad.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
-                grad.addColorStop(0.4, `rgba(${r},${g},${b},${alpha * 0.7})`);
+                // Glow (soft outer)
+                const grad = ctx.createRadialGradient(x, y, 0, x, y, glow);
+                const alpha = clamp(opacity, 0, 1);
+                grad.addColorStop(0, `rgba(${Math.min(255,r+60)},${Math.min(255,g+60)},${Math.min(255,b+60)},${alpha})`);
+                grad.addColorStop(0.15, `rgba(${r},${g},${b},${alpha * 0.95})`);
+                grad.addColorStop(0.5, `rgba(${r},${g},${b},${alpha * 0.5})`);
                 grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
                 ctx.fillStyle = grad;
-
                 ctx.beginPath();
-                ctx.arc(x, y, rad + glowRadius, 0, Math.PI * 2);
+                ctx.arc(x, y, glow, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Core dot (brighter)
-                ctx.fillStyle = `rgba(${Math.min(255,r+40)},${Math.min(255,g+40)},${Math.min(255,b+40)},${alpha * 0.9})`;
+                // Core (bright LED center)
+                const coreR = Math.max(radius * 0.45, 0.4);
+                const bright = 1.4;
+                ctx.fillStyle =
+                    `rgba(${Math.min(255,r*1.6)},${Math.min(255,g*1.6)},${Math.min(255,b*1.6)},${alpha * 0.95})`;
                 ctx.beginPath();
-                ctx.arc(x, y, rad * 0.6, 0, Math.PI * 2);
+                ctx.arc(x, y, coreR, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Tiny bright center
-                if (rad > 0.8) {
-                    ctx.fillStyle = `rgba(255,255,255,${alpha * 0.25})`;
+                // Tiny white hot-spot (LED feel)
+                if (radius > 0.6) {
+                    ctx.fillStyle = `rgba(255,255,255,${alpha * 0.3})`;
                     ctx.beginPath();
-                    ctx.arc(x - rad * 0.15, y - rad * 0.15, rad * 0.2, 0, Math.PI * 2);
+                    ctx.arc(x - radius * 0.12, y - radius * 0.12, radius * 0.18, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
 
-            // Random jitter
-            function jit() { return (Math.random() - 0.5) * spacing * jitter; }
+            // ── Helper: process a rectangular region with grid ──
+            function processRegion(startX, endX, startY, endY, edgeFn) {
+                // edgeFn(x,y) returns {r,g,b} for the nearest edge
+                for (let x = startX; x < endX; x += spacing) {
+                    for (let y = startY; y < endY; y += spacing) {
+                        // Check if this point is inside the photo
+                        const inside = (x >= photoX && x < photoX + photoW && y >= photoY && y < photoY + photoH);
+                        if (inside) continue;
 
-            // ── TOP side (y < photoY) ──
+                        // Distance to photo edge
+                        const dx = Math.max(photoX - x, 0, x - (photoX + photoW - 1));
+                        const dy = Math.max(photoY - y, 0, y - (photoY + photoH - 1));
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        // Skip if too far from photo (only fill the extra area)
+                        // Actually we want to fill ALL extra area, so no skip
+
+                        // Get edge color
+                        const color = edgeFn(x, y);
+
+                        // Fade: smaller & dimmer near the edge, full brightness further out
+                        const fadeIn = clamp(dist / edgeFade, 0, 1);
+                        const sizeScale = 0.4 + 0.6 * fadeIn;
+                        const opacityScale = 0.35 + 0.65 * fadeIn;
+
+                        const radius = dotCore * sizeScale;
+                        const glow = glowRadius * (0.7 + 0.3 * fadeIn);
+                        const op = opacityScale;
+
+                        // Jitter for organic feel
+                        const jx = (Math.random() - 0.5) * spacing * 0.35;
+                        const jy = (Math.random() - 0.5) * spacing * 0.35;
+
+                        drawLED(x + jx, y + jy, radius, glow, color.r, color.g, color.b, op);
+                    }
+                }
+            }
+
+            // ── TOP region (above photo) ──
             if (photoY > 0) {
-                const startX = Math.max(0, photoX);
-                const endX = Math.min(w, photoX + photoW);
+                const startX = Math.max(0, photoX - 20);
+                const endX = Math.min(w, photoX + photoW + 20);
                 for (let x = startX; x < endX; x += spacing) {
-                    const edgeColor = getEdgeColor(x, photoY);
-                    const distFromEdge = photoY;
-                    const maxY = Math.max(0, photoY - fadeDist);
-                    for (let y = photoY - spacing; y >= maxY; y -= spacing) {
+                    for (let y = 0; y < photoY; y += spacing) {
+                        const color = getEdgeColor(x, photoY);
                         const dist = photoY - y;
-                        const fade = clamp(1 - dist / fadeDist, 0, 1);
-                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
-                        const op = fade * 0.9 + 0.08;
-                        drawDot(
-                            x + jit(),
-                            y + jit(),
-                            size,
-                            edgeColor.r, edgeColor.g, edgeColor.b,
-                            op
-                        );
+                        const fadeIn = clamp(dist / edgeFade, 0, 1);
+                        const sizeScale = 0.3 + 0.7 * fadeIn;
+                        const opacityScale = 0.25 + 0.75 * fadeIn;
+                        const radius = dotCore * sizeScale;
+                        const glow = glowRadius * (0.6 + 0.4 * fadeIn);
+                        const jx = (Math.random() - 0.5) * spacing * 0.3;
+                        const jy = (Math.random() - 0.5) * spacing * 0.3;
+                        drawLED(x + jx, y + jy, radius, glow, color.r, color.g, color.b, opacityScale);
                     }
                 }
             }
 
-            // ── BOTTOM side (y > photoY + photoH) ──
+            // ── BOTTOM region ──
             if (photoY + photoH < h) {
-                const startX = Math.max(0, photoX);
-                const endX = Math.min(w, photoX + photoW);
+                const startX = Math.max(0, photoX - 20);
+                const endX = Math.min(w, photoX + photoW + 20);
                 for (let x = startX; x < endX; x += spacing) {
-                    const edgeColor = getEdgeColor(x, photoY + photoH - 1);
-                    const maxY = Math.min(h, photoY + photoH + fadeDist);
-                    for (let y = photoY + photoH + spacing; y < maxY; y += spacing) {
+                    for (let y = photoY + photoH; y < h; y += spacing) {
+                        const color = getEdgeColor(x, photoY + photoH - 1);
                         const dist = y - (photoY + photoH);
-                        const fade = clamp(1 - dist / fadeDist, 0, 1);
-                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
-                        const op = fade * 0.9 + 0.08;
-                        drawDot(
-                            x + jit(),
-                            y + jit(),
-                            size,
-                            edgeColor.r, edgeColor.g, edgeColor.b,
-                            op
-                        );
+                        const fadeIn = clamp(dist / edgeFade, 0, 1);
+                        const sizeScale = 0.3 + 0.7 * fadeIn;
+                        const opacityScale = 0.25 + 0.75 * fadeIn;
+                        const radius = dotCore * sizeScale;
+                        const glow = glowRadius * (0.6 + 0.4 * fadeIn);
+                        const jx = (Math.random() - 0.5) * spacing * 0.3;
+                        const jy = (Math.random() - 0.5) * spacing * 0.3;
+                        drawLED(x + jx, y + jy, radius, glow, color.r, color.g, color.b, opacityScale);
                     }
                 }
             }
 
-            // ── LEFT side (x < photoX) ──
+            // ── LEFT region ──
             if (photoX > 0) {
-                const startY = Math.max(0, photoY);
-                const endY = Math.min(h, photoY + photoH);
-                for (let y = startY; y < endY; y += spacing) {
-                    const edgeColor = getEdgeColor(photoX, y);
-                    const maxX = Math.max(0, photoX - fadeDist);
-                    for (let x = photoX - spacing; x >= maxX; x -= spacing) {
+                const startY = Math.max(0, photoY - 20);
+                const endY = Math.min(h, photoY + photoH + 20);
+                for (let x = 0; x < photoX; x += spacing) {
+                    for (let y = startY; y < endY; y += spacing) {
+                        const color = getEdgeColor(photoX, y);
                         const dist = photoX - x;
-                        const fade = clamp(1 - dist / fadeDist, 0, 1);
-                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
-                        const op = fade * 0.9 + 0.08;
-                        drawDot(
-                            x + jit(),
-                            y + jit(),
-                            size,
-                            edgeColor.r, edgeColor.g, edgeColor.b,
-                            op
-                        );
+                        const fadeIn = clamp(dist / edgeFade, 0, 1);
+                        const sizeScale = 0.3 + 0.7 * fadeIn;
+                        const opacityScale = 0.25 + 0.75 * fadeIn;
+                        const radius = dotCore * sizeScale;
+                        const glow = glowRadius * (0.6 + 0.4 * fadeIn);
+                        const jx = (Math.random() - 0.5) * spacing * 0.3;
+                        const jy = (Math.random() - 0.5) * spacing * 0.3;
+                        drawLED(x + jx, y + jy, radius, glow, color.r, color.g, color.b, opacityScale);
                     }
                 }
             }
 
-            // ── RIGHT side (x > photoX + photoW) ──
+            // ── RIGHT region ──
             if (photoX + photoW < w) {
-                const startY = Math.max(0, photoY);
-                const endY = Math.min(h, photoY + photoH);
-                for (let y = startY; y < endY; y += spacing) {
-                    const edgeColor = getEdgeColor(photoX + photoW - 1, y);
-                    const maxX = Math.min(w, photoX + photoW + fadeDist);
-                    for (let x = photoX + photoW + spacing; x < maxX; x += spacing) {
+                const startY = Math.max(0, photoY - 20);
+                const endY = Math.min(h, photoY + photoH + 20);
+                for (let x = photoX + photoW; x < w; x += spacing) {
+                    for (let y = startY; y < endY; y += spacing) {
+                        const color = getEdgeColor(photoX + photoW - 1, y);
                         const dist = x - (photoX + photoW);
-                        const fade = clamp(1 - dist / fadeDist, 0, 1);
-                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
-                        const op = fade * 0.9 + 0.08;
-                        drawDot(
-                            x + jit(),
-                            y + jit(),
-                            size,
-                            edgeColor.r, edgeColor.g, edgeColor.b,
-                            op
-                        );
+                        const fadeIn = clamp(dist / edgeFade, 0, 1);
+                        const sizeScale = 0.3 + 0.7 * fadeIn;
+                        const opacityScale = 0.25 + 0.75 * fadeIn;
+                        const radius = dotCore * sizeScale;
+                        const glow = glowRadius * (0.6 + 0.4 * fadeIn);
+                        const jx = (Math.random() - 0.5) * spacing * 0.3;
+                        const jy = (Math.random() - 0.5) * spacing * 0.3;
+                        drawLED(x + jx, y + jy, radius, glow, color.r, color.g, color.b, opacityScale);
                     }
                 }
             }
 
-            // ── CORNERS: fill remaining gaps with blended dots ──
-            // Top-left corner
+            // ── CORNERS (fill diagonals with blended colors) ──
+            // Top-left
             if (photoX > 0 && photoY > 0) {
-                const maxX = Math.max(0, photoX - fadeDist);
-                const maxY = Math.max(0, photoY - fadeDist);
-                for (let x = photoX - spacing; x >= maxX; x -= spacing) {
-                    for (let y = photoY - spacing; y >= maxY; y -= spacing) {
+                for (let x = 0; x < photoX; x += spacing) {
+                    for (let y = 0; y < photoY; y += spacing) {
                         const distX = photoX - x;
                         const distY = photoY - y;
                         const dist = Math.sqrt(distX * distX + distY * distY);
-                        if (dist > fadeDist) continue;
-                        const fade = clamp(1 - dist / fadeDist, 0, 1);
-                        // blend colors from top and left edges
+                        const fadeIn = clamp(dist / edgeFade, 0, 1);
                         const cTop = getEdgeColor(x, photoY);
                         const cLeft = getEdgeColor(photoX, y);
                         const blend = distX / (distX + distY + 0.001);
-                        const r = cTop.r * (1 - blend) + cLeft.r * blend;
-                        const g = cTop.g * (1 - blend) + cLeft.g * blend;
-                        const b = cTop.b * (1 - blend) + cLeft.b * blend;
-                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
-                        const op = fade * 0.85 + 0.06;
-                        drawDot(
-                            x + jit(),
-                            y + jit(),
-                            size,
-                            r, g, b,
-                            op
-                        );
+                        const r = lerp(cTop.r, cLeft.r, blend);
+                        const g = lerp(cTop.g, cLeft.g, blend);
+                        const b = lerp(cTop.b, cLeft.b, blend);
+                        const sizeScale = 0.3 + 0.7 * fadeIn;
+                        const opacityScale = 0.2 + 0.8 * fadeIn;
+                        const radius = dotCore * sizeScale;
+                        const glow = glowRadius * (0.6 + 0.4 * fadeIn);
+                        const jx = (Math.random() - 0.5) * spacing * 0.3;
+                        const jy = (Math.random() - 0.5) * spacing * 0.3;
+                        drawLED(x + jx, y + jy, radius, glow, r, g, b, opacityScale);
                     }
                 }
             }
 
-            // Top-right corner
+            // Top-right
             if (photoX + photoW < w && photoY > 0) {
-                const maxX = Math.min(w, photoX + photoW + fadeDist);
-                const maxY = Math.max(0, photoY - fadeDist);
-                for (let x = photoX + photoW + spacing; x < maxX; x += spacing) {
-                    for (let y = photoY - spacing; y >= maxY; y -= spacing) {
+                for (let x = photoX + photoW; x < w; x += spacing) {
+                    for (let y = 0; y < photoY; y += spacing) {
                         const distX = x - (photoX + photoW);
                         const distY = photoY - y;
                         const dist = Math.sqrt(distX * distX + distY * distY);
-                        if (dist > fadeDist) continue;
-                        const fade = clamp(1 - dist / fadeDist, 0, 1);
+                        const fadeIn = clamp(dist / edgeFade, 0, 1);
                         const cTop = getEdgeColor(x, photoY);
                         const cRight = getEdgeColor(photoX + photoW - 1, y);
                         const blend = distX / (distX + distY + 0.001);
-                        const r = cTop.r * (1 - blend) + cRight.r * blend;
-                        const g = cTop.g * (1 - blend) + cRight.g * blend;
-                        const b = cTop.b * (1 - blend) + cRight.b * blend;
-                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
-                        const op = fade * 0.85 + 0.06;
-                        drawDot(
-                            x + jit(),
-                            y + jit(),
-                            size,
-                            r, g, b,
-                            op
-                        );
+                        const r = lerp(cTop.r, cRight.r, blend);
+                        const g = lerp(cTop.g, cRight.g, blend);
+                        const b = lerp(cTop.b, cRight.b, blend);
+                        const sizeScale = 0.3 + 0.7 * fadeIn;
+                        const opacityScale = 0.2 + 0.8 * fadeIn;
+                        const radius = dotCore * sizeScale;
+                        const glow = glowRadius * (0.6 + 0.4 * fadeIn);
+                        const jx = (Math.random() - 0.5) * spacing * 0.3;
+                        const jy = (Math.random() - 0.5) * spacing * 0.3;
+                        drawLED(x + jx, y + jy, radius, glow, r, g, b, opacityScale);
                     }
                 }
             }
 
-            // Bottom-left corner
+            // Bottom-left
             if (photoX > 0 && photoY + photoH < h) {
-                const maxX = Math.max(0, photoX - fadeDist);
-                const maxY = Math.min(h, photoY + photoH + fadeDist);
-                for (let x = photoX - spacing; x >= maxX; x -= spacing) {
-                    for (let y = photoY + photoH + spacing; y < maxY; y += spacing) {
+                for (let x = 0; x < photoX; x += spacing) {
+                    for (let y = photoY + photoH; y < h; y += spacing) {
                         const distX = photoX - x;
                         const distY = y - (photoY + photoH);
                         const dist = Math.sqrt(distX * distX + distY * distY);
-                        if (dist > fadeDist) continue;
-                        const fade = clamp(1 - dist / fadeDist, 0, 1);
+                        const fadeIn = clamp(dist / edgeFade, 0, 1);
                         const cBottom = getEdgeColor(x, photoY + photoH - 1);
                         const cLeft = getEdgeColor(photoX, y);
                         const blend = distX / (distX + distY + 0.001);
-                        const r = cBottom.r * (1 - blend) + cLeft.r * blend;
-                        const g = cBottom.g * (1 - blend) + cLeft.g * blend;
-                        const b = cBottom.b * (1 - blend) + cLeft.b * blend;
-                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
-                        const op = fade * 0.85 + 0.06;
-                        drawDot(
-                            x + jit(),
-                            y + jit(),
-                            size,
-                            r, g, b,
-                            op
-                        );
+                        const r = lerp(cBottom.r, cLeft.r, blend);
+                        const g = lerp(cBottom.g, cLeft.g, blend);
+                        const b = lerp(cBottom.b, cLeft.b, blend);
+                        const sizeScale = 0.3 + 0.7 * fadeIn;
+                        const opacityScale = 0.2 + 0.8 * fadeIn;
+                        const radius = dotCore * sizeScale;
+                        const glow = glowRadius * (0.6 + 0.4 * fadeIn);
+                        const jx = (Math.random() - 0.5) * spacing * 0.3;
+                        const jy = (Math.random() - 0.5) * spacing * 0.3;
+                        drawLED(x + jx, y + jy, radius, glow, r, g, b, opacityScale);
                     }
                 }
             }
 
-            // Bottom-right corner
+            // Bottom-right
             if (photoX + photoW < w && photoY + photoH < h) {
-                const maxX = Math.min(w, photoX + photoW + fadeDist);
-                const maxY = Math.min(h, photoY + photoH + fadeDist);
-                for (let x = photoX + photoW + spacing; x < maxX; x += spacing) {
-                    for (let y = photoY + photoH + spacing; y < maxY; y += spacing) {
+                for (let x = photoX + photoW; x < w; x += spacing) {
+                    for (let y = photoY + photoH; y < h; y += spacing) {
                         const distX = x - (photoX + photoW);
                         const distY = y - (photoY + photoH);
                         const dist = Math.sqrt(distX * distX + distY * distY);
-                        if (dist > fadeDist) continue;
-                        const fade = clamp(1 - dist / fadeDist, 0, 1);
+                        const fadeIn = clamp(dist / edgeFade, 0, 1);
                         const cBottom = getEdgeColor(x, photoY + photoH - 1);
                         const cRight = getEdgeColor(photoX + photoW - 1, y);
                         const blend = distX / (distX + distY + 0.001);
-                        const r = cBottom.r * (1 - blend) + cRight.r * blend;
-                        const g = cBottom.g * (1 - blend) + cRight.g * blend;
-                        const b = cBottom.b * (1 - blend) + cRight.b * blend;
-                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
-                        const op = fade * 0.85 + 0.06;
-                        drawDot(
-                            x + jit(),
-                            y + jit(),
-                            size,
-                            r, g, b,
-                            op
-                        );
+                        const r = lerp(cBottom.r, cRight.r, blend);
+                        const g = lerp(cBottom.g, cRight.g, blend);
+                        const b = lerp(cBottom.b, cRight.b, blend);
+                        const sizeScale = 0.3 + 0.7 * fadeIn;
+                        const opacityScale = 0.2 + 0.8 * fadeIn;
+                        const radius = dotCore * sizeScale;
+                        const glow = glowRadius * (0.6 + 0.4 * fadeIn);
+                        const jx = (Math.random() - 0.5) * spacing * 0.3;
+                        const jy = (Math.random() - 0.5) * spacing * 0.3;
+                        drawLED(x + jx, y + jy, radius, glow, r, g, b, opacityScale);
                     }
                 }
             }
 
-            // ── extra pass: blend along the photo edge for smooth transition ──
-            // Add a subtle glow along the photo boundary
-            const edgeGlowWidth = 6;
-            for (let x = photoX; x < photoX + photoW; x += 1.5) {
-                // top edge glow
+            // ── EDGE GLOW: soft glow along the photo boundary to eliminate sharp edge ──
+            function drawEdgeGlow() {
+                // Draw a soft glow along the photo edges
+                const glowWidth = 12;
+                const edgeOpacity = 0.25;
+
+                // Top edge
                 if (photoY > 0) {
-                    const c = getEdgeColor(x, photoY);
-                    for (let dy = 0; dy < edgeGlowWidth; dy += 1.5) {
-                        const fade = 1 - dy / edgeGlowWidth;
-                        const size = 0.3 + fade * 1.2;
-                        const op = fade * 0.25;
-                        drawDot(x + jit() * 0.3, photoY - dy + jit() * 0.3, size, c.r, c.g, c.b, op);
+                    for (let x = photoX; x < photoX + photoW; x += 1.5) {
+                        const color = getEdgeColor(x, photoY);
+                        for (let dy = 0; dy < glowWidth; dy += 1.2) {
+                            const fade = 1 - dy / glowWidth;
+                            const alpha = edgeOpacity * fade * 0.6;
+                            const r = color.r,
+                                g = color.g,
+                                b = color.b;
+                            const grad = ctx.createRadialGradient(x, photoY - dy, 0, x, photoY - dy, 4);
+                            grad.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
+                            grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+                            ctx.fillStyle = grad;
+                            ctx.beginPath();
+                            ctx.arc(x, photoY - dy, 4, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
                     }
                 }
-                // bottom edge glow
+
+                // Bottom edge
                 if (photoY + photoH < h) {
-                    const c = getEdgeColor(x, photoY + photoH - 1);
-                    for (let dy = 0; dy < edgeGlowWidth; dy += 1.5) {
-                        const fade = 1 - dy / edgeGlowWidth;
-                        const size = 0.3 + fade * 1.2;
-                        const op = fade * 0.25;
-                        drawDot(x + jit() * 0.3, photoY + photoH + dy + jit() * 0.3, size, c.r, c.g, c.b, op);
+                    for (let x = photoX; x < photoX + photoW; x += 1.5) {
+                        const color = getEdgeColor(x, photoY + photoH - 1);
+                        for (let dy = 0; dy < glowWidth; dy += 1.2) {
+                            const fade = 1 - dy / glowWidth;
+                            const alpha = edgeOpacity * fade * 0.6;
+                            const r = color.r,
+                                g = color.g,
+                                b = color.b;
+                            const grad = ctx.createRadialGradient(x, photoY + photoH + dy, 0, x, photoY + photoH + dy, 4);
+                            grad.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
+                            grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+                            ctx.fillStyle = grad;
+                            ctx.beginPath();
+                            ctx.arc(x, photoY + photoH + dy, 4, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
                     }
                 }
-            }
-            for (let y = photoY; y < photoY + photoH; y += 1.5) {
-                // left edge glow
+
+                // Left edge
                 if (photoX > 0) {
-                    const c = getEdgeColor(photoX, y);
-                    for (let dx = 0; dx < edgeGlowWidth; dx += 1.5) {
-                        const fade = 1 - dx / edgeGlowWidth;
-                        const size = 0.3 + fade * 1.2;
-                        const op = fade * 0.25;
-                        drawDot(photoX - dx + jit() * 0.3, y + jit() * 0.3, size, c.r, c.g, c.b, op);
+                    for (let y = photoY; y < photoY + photoH; y += 1.5) {
+                        const color = getEdgeColor(photoX, y);
+                        for (let dx = 0; dx < glowWidth; dx += 1.2) {
+                            const fade = 1 - dx / glowWidth;
+                            const alpha = edgeOpacity * fade * 0.6;
+                            const r = color.r,
+                                g = color.g,
+                                b = color.b;
+                            const grad = ctx.createRadialGradient(photoX - dx, y, 0, photoX - dx, y, 4);
+                            grad.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
+                            grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+                            ctx.fillStyle = grad;
+                            ctx.beginPath();
+                            ctx.arc(photoX - dx, y, 4, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
                     }
                 }
-                // right edge glow
+
+                // Right edge
                 if (photoX + photoW < w) {
-                    const c = getEdgeColor(photoX + photoW - 1, y);
-                    for (let dx = 0; dx < edgeGlowWidth; dx += 1.5) {
-                        const fade = 1 - dx / edgeGlowWidth;
-                        const size = 0.3 + fade * 1.2;
-                        const op = fade * 0.25;
-                        drawDot(photoX + photoW + dx + jit() * 0.3, y + jit() * 0.3, size, c.r, c.g, c.b, op);
+                    for (let y = photoY; y < photoY + photoH; y += 1.5) {
+                        const color = getEdgeColor(photoX + photoW - 1, y);
+                        for (let dx = 0; dx < glowWidth; dx += 1.2) {
+                            const fade = 1 - dx / glowWidth;
+                            const alpha = edgeOpacity * fade * 0.6;
+                            const r = color.r,
+                                g = color.g,
+                                b = color.b;
+                            const grad = ctx.createRadialGradient(photoX + photoW + dx, y, 0, photoX + photoW + dx, y, 4);
+                            grad.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
+                            grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+                            ctx.fillStyle = grad;
+                            ctx.beginPath();
+                            ctx.arc(photoX + photoW + dx, y, 4, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
                     }
                 }
             }
+
+            drawEdgeGlow();
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        //  WINDOW RESIZE – re-render preview if not generated
+        //  RESIZE HANDLER
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -1160,13 +1152,12 @@
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         //  INIT
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // Show placeholder
         previewCanvas.style.display = 'none';
         placeholder.style.display = 'block';
         generateBtn.disabled = true;
 
-        console.log('✦ Aspect Ratio Studio loaded · Glowing Dot Fill ✦');
-        console.log('Upload a photo, pick a ratio, and hit Generate!');
+        console.log('✦ Aspect Ratio Studio · Glowing Micro LED Dots ✦');
+        console.log('Upload, select ratio, Generate — spaced dots, smooth edge, full coverage.');
     </script>
 
 </body>
