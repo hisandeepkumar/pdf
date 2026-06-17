@@ -3,98 +3,445 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aspect Ratio Studio – Mirror + Glass + Glowing Dots</title>
+    <title>Aspect Ratio Studio – Ambient Mist Edge</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
         body {
-            min-height:100vh; display:flex; justify-content:center; align-items:flex-start;
-            padding:28px 20px; background:radial-gradient(ellipse at 20% 50%, #1a1a2e, #0d0d1a);
-            color:#f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 28px 20px;
+            background: radial-gradient(ellipse at 20% 50%, #1a1a2e, #0d0d1a);
+            color: #f0f0f0;
         }
+
         .container {
-            width:100%; max-width:780px; background:rgba(255,255,255,0.08);
-            backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-            border-radius:32px; padding:28px 30px 34px;
-            border:1px solid rgba(255,255,255,0.15);
-            box-shadow:0 20px 60px rgba(0,0,0,0.6), 0 4px 20px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.1);
+            width: 100%;
+            max-width: 780px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 28px 30px 34px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 4px 20px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
-        .header { text-align:center; padding-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:22px; }
-        .header h1 { font-size:28px; font-weight:700; letter-spacing:-0.3px; display:flex; align-items:center; justify-content:center; gap:12px; background:linear-gradient(135deg,#ffffff 30%,#a0b4ff 80%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-        .header h1 i { font-size:28px; -webkit-text-fill-color:initial; color:#7b93ff; filter:drop-shadow(0 0 12px rgba(91,134,229,0.5)); }
-        .header p { color:rgba(255,255,255,0.6); font-size:0.95rem; margin-top:6px; font-weight:400; letter-spacing:0.2px; }
+
+        .header {
+            text-align: center;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 22px;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #ffffff 30%, #a0b4ff 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header h1 i {
+            font-size: 28px;
+            -webkit-text-fill-color: initial;
+            color: #7b93ff;
+            filter: drop-shadow(0 0 12px rgba(91, 134, 229, 0.5));
+        }
+        .header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+            margin-top: 6px;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+        }
+
         .upload-area {
-            border:2px dashed rgba(255,255,255,0.25); border-radius:20px; padding:38px 20px 32px;
-            text-align:center; background:rgba(255,255,255,0.04); cursor:pointer;
-            transition:all 0.35s ease; position:relative; margin-bottom:18px;
+            border: 2px dashed rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            padding: 38px 20px 32px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+            transition: all 0.35s ease;
+            position: relative;
+            margin-bottom: 18px;
         }
-        .upload-area:hover, .upload-area.active { background:rgba(255,255,255,0.08); border-color:#7b93ff; box-shadow:0 0 40px rgba(91,134,229,0.15), inset 0 0 30px rgba(91,134,229,0.05); }
-        .upload-area i { font-size:44px; color:#7b93ff; margin-bottom:12px; transition:transform 0.3s; display:inline-block; }
-        .upload-area:hover i { transform:scale(1.08) translateY(-2px); }
-        .upload-area h3 { font-size:1.5rem; font-weight:600; color:#fff; margin-bottom:6px; }
-        .upload-area p { color:rgba(255,255,255,0.6); font-size:1rem; }
-        .upload-area input[type="file"] { position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
-        .file-info { text-align:center; font-size:0.95rem; font-weight:500; color:#b8c8ff; padding:6px 0 12px; display:none; word-break:break-all; background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0) 100%); background-size:200% 100%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:shineText 2.8s linear infinite; }
-        @keyframes shineText { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
-        .ratios-section { margin:16px 0 10px; }
-        .platform-group { margin-bottom:16px; }
-        .platform-label { display:flex; align-items:center; gap:10px; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:0.6px; color:rgba(255,255,255,0.5); margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px; }
-        .platform-label i { font-size:1rem; color:rgba(255,255,255,0.4); }
-        .ratio-buttons { display:flex; flex-wrap:wrap; gap:8px; }
+        .upload-area:hover,
+        .upload-area.active {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #7b93ff;
+            box-shadow: 0 0 40px rgba(91, 134, 229, 0.15), inset 0 0 30px rgba(91, 134, 229, 0.05);
+        }
+        .upload-area i {
+            font-size: 44px;
+            color: #7b93ff;
+            margin-bottom: 12px;
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+        .upload-area:hover i {
+            transform: scale(1.08) translateY(-2px);
+        }
+        .upload-area h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .upload-area p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-info {
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #b8c8ff;
+            padding: 6px 0 12px;
+            display: none;
+            word-break: break-all;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shineText 2.8s linear infinite;
+        }
+        @keyframes shineText {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .ratios-section {
+            margin: 16px 0 10px;
+        }
+        .platform-group {
+            margin-bottom: 16px;
+        }
+        .platform-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 6px;
+        }
+        .platform-label i {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .ratio-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
         .ratio-btn {
-            background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
-            color:rgba(255,255,255,0.7); padding:6px 16px; border-radius:40px; font-size:0.78rem;
-            font-weight:500; cursor:pointer; transition:all 0.25s ease; backdrop-filter:blur(4px);
-            letter-spacing:0.2px; display:flex; align-items:center; gap:4px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(4px);
+            letter-spacing: 0.2px;
         }
-        .ratio-btn:hover { background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.25); color:#fff; transform:translateY(-1px); box-shadow:0 4px 16px rgba(0,0,0,0.2); }
-        .ratio-btn.active { background:linear-gradient(135deg,#5b86e5,#36d1dc); border-color:transparent; color:#fff; box-shadow:0 4px 20px rgba(91,134,229,0.35); }
+        .ratio-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        .ratio-btn.active {
+            background: linear-gradient(135deg, #5b86e5, #36d1dc);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(91, 134, 229, 0.35);
+        }
+
         .preview-wrap {
-            margin:18px 0 16px; border-radius:16px; overflow:hidden;
-            background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.06);
-            position:relative; min-height:200px; display:flex; align-items:center; justify-content:center;
+            margin: 18px 0 16px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .preview-wrap canvas { display:block; width:100%; height:auto; max-height:560px; object-fit:contain; background:#0b0b16; }
-        .preview-placeholder { color:rgba(255,255,255,0.2); font-size:1rem; font-weight:400; padding:40px 20px; text-align:center; width:100%; }
-        .preview-placeholder i { font-size:48px; display:block; margin-bottom:12px; opacity:0.3; }
-        .btn-generate-wrap { display:flex; justify-content:center; margin:14px 0 6px; }
+        .preview-wrap canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 560px;
+            object-fit: contain;
+            background: #0b0b16;
+        }
+        .preview-placeholder {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 1rem;
+            font-weight: 400;
+            padding: 40px 20px;
+            text-align: center;
+            width: 100%;
+        }
+        .preview-placeholder i {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        .btn-generate-wrap {
+            display: flex;
+            justify-content: center;
+            margin: 14px 0 6px;
+        }
         .btn-generate {
-            background:rgba(255,255,255,0.08); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-            border:1px solid rgba(255,255,255,0.2); padding:16px 48px; border-radius:9999px;
-            font-size:1.1rem; font-weight:600; color:#fff; cursor:pointer;
-            display:flex; align-items:center; gap:14px;
-            box-shadow:0 8px 32px rgba(91,134,229,0.3), 0 4px 16px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -2px 0 rgba(0,0,0,0.2);
-            transition:all 0.35s cubic-bezier(0.22,1,0.36,1);
-            position:relative; overflow:hidden; letter-spacing:0.3px; min-width:220px; justify-content:center;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 16px 48px;
+            border-radius: 9999px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 8px 32px rgba(91, 134, 229, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3),
+                inset 0 2px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+            min-width: 220px;
+            justify-content: center;
         }
-        .btn-generate::before { content:''; position:absolute; top:-50%; left:-60%; width:200%; height:200%; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), transparent 60%); opacity:0; transition:opacity 0.5s ease; pointer-events:none; }
-        .btn-generate:hover::before { opacity:1; }
-        .btn-generate:hover { transform:perspective(800px) rotateX(3deg) rotateY(4deg) scale(1.02); box-shadow:0 14px 48px rgba(91,134,229,0.45), 0 6px 20px rgba(0,0,0,0.4), inset 0 2px 0 rgba(255,255,255,0.3), inset 0 -2px 0 rgba(0,0,0,0.2); background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.3); }
-        .btn-generate:active { transform:perspective(800px) rotateX(1deg) rotateY(1deg) scale(0.98); }
-        .btn-generate:disabled { opacity:0.4; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
-        .btn-generate i { font-size:1.3rem; color:#7b93ff; filter:drop-shadow(0 0 10px rgba(91,134,229,0.4)); transition:transform 0.3s; }
-        .btn-generate:hover i { transform:rotate(-8deg) scale(1.05); }
-        .btn-generate .shine { position:absolute; top:0; left:-150%; width:120%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform:skewX(-20deg); transition:left 0.8s ease; pointer-events:none; }
-        .btn-generate:hover .shine { left:150%; }
-        .btn-download-wrap { display:none; justify-content:center; margin:8px 0 0; }
-        .btn-download { background:rgba(0,200,150,0.15); backdrop-filter:blur(8px); border:1px solid rgba(0,255,200,0.2); padding:12px 32px; border-radius:9999px; font-size:0.95rem; font-weight:500; color:#8fffd0; cursor:pointer; display:flex; align-items:center; gap:10px; transition:all 0.3s ease; box-shadow:0 4px 20px rgba(0,200,150,0.15); }
-        .btn-download:hover { background:rgba(0,200,150,0.25); border-color:rgba(0,255,200,0.4); transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,200,150,0.25); }
-        .footer { margin-top:24px; text-align:center; color:rgba(255,255,255,0.3); font-size:0.8rem; padding-top:16px; border-top:1px solid rgba(255,255,255,0.05); letter-spacing:0.2px; }
-        .footer a { color:#7b93ff; text-decoration:none; font-weight:500; }
-        .footer a:hover { text-decoration:underline; }
-        .footer .heart { color:#ff6b6b; display:inline-block; animation:pulseHeart 1.8s ease-in-out infinite; }
-        @keyframes pulseHeart { 0%,100% { transform:scale(1); } 50% { transform:scale(1.2); } }
-        @media (max-width:640px) { .container { padding:18px 14px 22px; border-radius:24px; } .header h1 { font-size:22px; gap:8px; } .header h1 i { font-size:22px; } .upload-area { padding:24px 14px 20px; } .upload-area h3 { font-size:1.2rem; } .ratio-btn { font-size:0.7rem; padding:5px 12px; } .btn-generate { padding:14px 28px; font-size:0.95rem; min-width:160px; } .platform-label { font-size:0.7rem; } .preview-wrap canvas { max-height:340px; } }
-        @media (max-width:420px) { .container { padding:12px 8px 16px; border-radius:18px; } .ratio-btn { font-size:0.65rem; padding:4px 10px; } .btn-generate { padding:12px 20px; font-size:0.85rem; min-width:130px; gap:8px; } }
-        ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:rgba(255,255,255,0.03); } ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:10px; } ::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.25); }
+        .btn-generate::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .btn-generate:hover::before {
+            opacity: 1;
+        }
+        .btn-generate:hover {
+            transform: perspective(800px) rotateX(3deg) rotateY(4deg) scale(1.02);
+            box-shadow: 0 14px 48px rgba(91, 134, 229, 0.45), 0 6px 20px rgba(0, 0, 0, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .btn-generate:active {
+            transform: perspective(800px) rotateX(1deg) rotateY(1deg) scale(0.98);
+        }
+        .btn-generate:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .btn-generate i {
+            font-size: 1.3rem;
+            color: #7b93ff;
+            filter: drop-shadow(0 0 10px rgba(91, 134, 229, 0.4));
+            transition: transform 0.3s;
+        }
+        .btn-generate:hover i {
+            transform: rotate(-8deg) scale(1.05);
+        }
+        .btn-generate .shine {
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 120%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.8s ease;
+            pointer-events: none;
+        }
+        .btn-generate:hover .shine {
+            left: 150%;
+        }
+
+        .btn-download-wrap {
+            display: none;
+            justify-content: center;
+            margin: 8px 0 0;
+        }
+        .btn-download {
+            background: rgba(0, 200, 150, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 255, 200, 0.2);
+            padding: 12px 32px;
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #8fffd0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 200, 150, 0.15);
+        }
+        .btn-download:hover {
+            background: rgba(0, 200, 150, 0.25);
+            border-color: rgba(0, 255, 200, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 200, 150, 0.25);
+        }
+
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.8rem;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            letter-spacing: 0.2px;
+        }
+        .footer a {
+            color: #7b93ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .footer .heart {
+            color: #ff6b6b;
+            display: inline-block;
+            animation: pulseHeart 1.8s ease-in-out infinite;
+        }
+        @keyframes pulseHeart {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 18px 14px 22px;
+                border-radius: 24px;
+            }
+            .header h1 {
+                font-size: 22px;
+                gap: 8px;
+            }
+            .header h1 i {
+                font-size: 22px;
+            }
+            .upload-area {
+                padding: 24px 14px 20px;
+            }
+            .upload-area h3 {
+                font-size: 1.2rem;
+            }
+            .ratio-btn {
+                font-size: 0.7rem;
+                padding: 5px 12px;
+            }
+            .btn-generate {
+                padding: 14px 28px;
+                font-size: 0.95rem;
+                min-width: 160px;
+            }
+            .platform-label {
+                font-size: 0.7rem;
+            }
+            .preview-wrap canvas {
+                max-height: 340px;
+            }
+        }
+        @media (max-width: 420px) {
+            .container {
+                padding: 12px 8px 16px;
+                border-radius: 18px;
+            }
+            .ratio-btn {
+                font-size: 0.65rem;
+                padding: 4px 10px;
+            }
+            .btn-generate {
+                padding: 12px 20px;
+                font-size: 0.85rem;
+                min-width: 130px;
+                gap: 8px;
+            }
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
     </style>
 </head>
 <body>
     <div class="container" id="app">
         <div class="header">
-            <h1><i class="fas fa-magic"></i> Aspect Ratio Studio</h1>
-            <p>Mirror fill · Glass blur · Glowing micro LED dots</p>
+            <h1><i class="fas fa-water"></i> Ambient Mist Edge</h1>
+            <p>Mirror fill · Glass blur · Glowing mist dots</p>
         </div>
         <div class="upload-area" id="uploadArea">
             <i class="fas fa-cloud-upload-alt"></i>
@@ -106,7 +453,7 @@
         <div class="ratios-section" id="ratiosSection">
             <div class="platform-group">
                 <div class="platform-label"><i class="fab fa-youtube" style="color:#ff3b3b;"></i> YouTube</div>
-                <div class="ratio-buttons" data-platform="youtube">
+                <div class="ratio-buttons">
                     <button class="ratio-btn" data-ratio="16:9">16:9</button>
                     <button class="ratio-btn" data-ratio="9:16">9:16</button>
                     <button class="ratio-btn" data-ratio="4:3">4:3</button>
@@ -116,7 +463,7 @@
             </div>
             <div class="platform-group">
                 <div class="platform-label"><i class="fab fa-instagram" style="color:#e1306c;"></i> Instagram</div>
-                <div class="ratio-buttons" data-platform="instagram">
+                <div class="ratio-buttons">
                     <button class="ratio-btn" data-ratio="1:1">1:1</button>
                     <button class="ratio-btn" data-ratio="4:5">4:5</button>
                     <button class="ratio-btn" data-ratio="5:4">5:4</button>
@@ -126,7 +473,7 @@
             </div>
             <div class="platform-group">
                 <div class="platform-label"><i class="fab fa-whatsapp" style="color:#25d366;"></i> WhatsApp</div>
-                <div class="ratio-buttons" data-platform="whatsapp">
+                <div class="ratio-buttons">
                     <button class="ratio-btn" data-ratio="1:1">1:1</button>
                     <button class="ratio-btn" data-ratio="4:3">4:3</button>
                     <button class="ratio-btn" data-ratio="16:9">16:9</button>
@@ -135,7 +482,7 @@
             </div>
             <div class="platform-group">
                 <div class="platform-label"><i class="fab fa-twitter" style="color:#1d9bf0;"></i> Twitter / X</div>
-                <div class="ratio-buttons" data-platform="twitter">
+                <div class="ratio-buttons">
                     <button class="ratio-btn" data-ratio="16:9">16:9</button>
                     <button class="ratio-btn" data-ratio="1:1">1:1</button>
                     <button class="ratio-btn" data-ratio="4:3">4:3</button>
@@ -155,7 +502,7 @@
             <button class="btn-generate" id="generateBtn" disabled>
                 <span class="shine"></span>
                 <i class="fas fa-wand-sparkles"></i>
-                <span>Generate</span>
+                <span>Generate Mist</span>
             </button>
         </div>
         <div class="btn-download-wrap" id="downloadWrap">
@@ -164,7 +511,7 @@
             </button>
         </div>
         <div class="footer">
-            <span>✦ Mirror + Glass blur + Glowing LED dots ✦</span><br />
+            <span>✦ Mirror fill · Glass blur · Glowing mist dots ✦</span><br />
             <span>Made with <span class="heart">❤️</span> by <a href="#" target="_blank">Sandeep</a></span>
         </div>
     </div>
@@ -202,12 +549,15 @@
             const parts = str.split(':').map(Number);
             return { w: parts[0], h: parts[1] };
         }
+
         function formatFileSize(bytes) {
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
             return (bytes / 1048576).toFixed(1) + ' MB';
         }
+
         function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
         function lerp(a, b, t) { return a + (b - a) * t; }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -294,7 +644,7 @@
         });
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // GENERATE – Mirror + Glass blur + Glowing Dots
+        // GENERATE – Mirror + Glass Blur + Mist Dots
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         generateBtn.addEventListener('click', generate);
 
@@ -326,13 +676,13 @@
                 targetH = Math.floor(targetH * scale);
             }
 
-            // Create main canvas
+            // Main canvas
             const canvas = document.createElement('canvas');
             canvas.width = targetW;
             canvas.height = targetH;
             const c = canvas.getContext('2d');
 
-            // Compute photo placement (centered, preserving aspect)
+            // Photo placement (centered)
             const imgAspect = img.width / img.height;
             const targetAspect = targetW / targetH;
             let photoX, photoY, photoW, photoH;
@@ -347,165 +697,110 @@
                 photoX = (targetW - photoW) / 2;
                 photoY = 0;
             }
-            // Round to integers
             photoX = Math.round(photoX);
             photoY = Math.round(photoY);
             photoW = Math.round(photoW);
             photoH = Math.round(photoH);
 
-            // ── 1. Fill extended area with mirrored edge content ──
-            // We'll create a temporary canvas for the mirrored fills, then blur it.
+            // ── 1. Mirror fill extended areas ──
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = targetW;
             tempCanvas.height = targetH;
             const tCtx = tempCanvas.getContext('2d');
-
-            // Draw the original image first (so we can sample from it)
             tCtx.drawImage(img, photoX, photoY, photoW, photoH);
 
-            // Helper to get pixel color from image at (x,y) relative to canvas
-            function getPixelColor(x, y) {
-                // Clamp to image bounds
+            function getPixel(x, y) {
                 const cx = clamp(Math.round(x), photoX, photoX + photoW - 1);
                 const cy = clamp(Math.round(y), photoY, photoY + photoH - 1);
-                const imageData = tCtx.getImageData(cx, cy, 1, 1);
-                return {
-                    r: imageData.data[0],
-                    g: imageData.data[1],
-                    b: imageData.data[2],
-                    a: imageData.data[3]
-                };
+                const d = tCtx.getImageData(cx, cy, 1, 1).data;
+                return { r: d[0], g: d[1], b: d[2], a: d[3] };
             }
 
-            // We'll fill the extended areas by drawing mirrored strips.
-            // Top area: y from 0 to photoY-1
+            // Top
             if (photoY > 0) {
-                // Take top row of the image (y = photoY) and mirror vertically
-                // Draw a strip from y=0 to photoY-1, using source row at photoY and flipping y
-                for (let y = 0; y < photoY; y++) {
-                    const srcY = photoY + (photoY - y); // mirror: photoY + (photoY - y) = 2*photoY - y
-                    // but we need to clamp to photoY+photoH-1? Actually we only mirror the top row, but we can mirror the entire top area by scaling.
-                    // Better: we can create a pattern by repeating and mirroring the edge.
-                    // Simpler: we can draw the whole photo flipped vertically and place above, but we need to only fill the top area.
-                    // Let's take a vertical slice of height photoY from the image, flip it, and draw above.
-                    // Use drawImage with source: (photoX, photoY, photoW, 1) and scale to photoW x photoY with flip y.
-                    // We can use a temporary canvas to flip.
-                    const strip = document.createElement('canvas');
-                    strip.width = photoW;
-                    strip.height = 1;
-                    const sCtx = strip.getContext('2d');
-                    sCtx.drawImage(img, photoX, photoY, photoW, 1, 0, 0, photoW, 1);
-                    // Now draw this strip scaled vertically with flip
-                    // We need to draw it at (photoX, 0) with height photoY, but flipped.
-                    // Use drawImage with source strip and destination with negative height.
-                    // We'll use transform: scale(1, -1) then draw.
-                    tCtx.save();
-                    tCtx.translate(photoX, photoY); // origin at bottom of strip
-                    tCtx.scale(1, -1);
-                    tCtx.drawImage(strip, 0, 0, photoW, photoY);
-                    tCtx.restore();
-                }
+                const strip = document.createElement('canvas');
+                strip.width = photoW;
+                strip.height = 1;
+                const sCtx = strip.getContext('2d');
+                sCtx.drawImage(img, photoX, photoY, photoW, 1, 0, 0, photoW, 1);
+                tCtx.save();
+                tCtx.translate(photoX, photoY);
+                tCtx.scale(1, -1);
+                tCtx.drawImage(strip, 0, 0, photoW, photoY);
+                tCtx.restore();
             }
-
-            // Bottom area
+            // Bottom
             if (photoY + photoH < targetH) {
-                // Take bottom row of the image (y = photoY+photoH-1) and flip vertically
                 const strip = document.createElement('canvas');
                 strip.width = photoW;
                 strip.height = 1;
                 const sCtx = strip.getContext('2d');
                 sCtx.drawImage(img, photoX, photoY + photoH - 1, photoW, 1, 0, 0, photoW, 1);
-                // Draw scaled and flipped below
                 tCtx.save();
                 tCtx.translate(photoX, photoY + photoH);
                 tCtx.scale(1, -1);
                 tCtx.drawImage(strip, 0, 0, photoW, targetH - (photoY + photoH));
                 tCtx.restore();
             }
-
-            // Left area
+            // Left
             if (photoX > 0) {
                 const strip = document.createElement('canvas');
                 strip.width = 1;
                 strip.height = photoH;
                 const sCtx = strip.getContext('2d');
                 sCtx.drawImage(img, photoX, photoY, 1, photoH, 0, 0, 1, photoH);
-                // Draw scaled and flipped horizontally
                 tCtx.save();
                 tCtx.translate(photoX, photoY);
                 tCtx.scale(-1, 1);
                 tCtx.drawImage(strip, 0, 0, photoX, photoH);
                 tCtx.restore();
             }
-
-            // Right area
+            // Right
             if (photoX + photoW < targetW) {
                 const strip = document.createElement('canvas');
                 strip.width = 1;
                 strip.height = photoH;
                 const sCtx = strip.getContext('2d');
                 sCtx.drawImage(img, photoX + photoW - 1, photoY, 1, photoH, 0, 0, 1, photoH);
-                // Draw scaled and flipped
                 tCtx.save();
                 tCtx.translate(photoX + photoW, photoY);
                 tCtx.scale(-1, 1);
                 tCtx.drawImage(strip, 0, 0, targetW - (photoX + photoW), photoH);
                 tCtx.restore();
             }
-
-            // Corners: fill with combination of both flips (we can just copy from opposite corner)
-            // For simplicity, we'll fill corners with the corner pixel stretched.
-            // Top-left corner: from (0,0) to (photoX, photoY)
-            if (photoX > 0 && photoY > 0) {
-                const color = getPixelColor(photoX, photoY);
-                tCtx.fillStyle = `rgba(${color.r},${color.g},${color.b},${color.a/255})`;
-                tCtx.fillRect(0, 0, photoX, photoY);
-            }
-            // Top-right corner
-            if (photoX + photoW < targetW && photoY > 0) {
-                const color = getPixelColor(photoX + photoW - 1, photoY);
-                tCtx.fillStyle = `rgba(${color.r},${color.g},${color.b},${color.a/255})`;
-                tCtx.fillRect(photoX + photoW, 0, targetW - (photoX + photoW), photoY);
-            }
-            // Bottom-left corner
-            if (photoX > 0 && photoY + photoH < targetH) {
-                const color = getPixelColor(photoX, photoY + photoH - 1);
-                tCtx.fillStyle = `rgba(${color.r},${color.g},${color.b},${color.a/255})`;
-                tCtx.fillRect(0, photoY + photoH, photoX, targetH - (photoY + photoH));
-            }
-            // Bottom-right corner
-            if (photoX + photoW < targetW && photoY + photoH < targetH) {
-                const color = getPixelColor(photoX + photoW - 1, photoY + photoH - 1);
-                tCtx.fillStyle = `rgba(${color.r},${color.g},${color.b},${color.a/255})`;
-                tCtx.fillRect(photoX + photoW, photoY + photoH, targetW - (photoX + photoW), targetH - (photoY + photoH));
+            // Corners: fill with corner color
+            const corners = [
+                [0, 0, photoX, photoY, photoX, photoY],
+                [photoX + photoW, 0, targetW - (photoX + photoW), photoY, photoX + photoW - 1, photoY],
+                [0, photoY + photoH, photoX, targetH - (photoY + photoH), photoX, photoY + photoH - 1],
+                [photoX + photoW, photoY + photoH, targetW - (photoX + photoW), targetH - (photoY + photoH), photoX + photoW -
+                    1, photoY + photoH - 1]
+            ];
+            for (const [cx, cy, cw, ch, sx, sy] of corners) {
+                if (cw > 0 && ch > 0) {
+                    const col = getPixel(sx, sy);
+                    tCtx.fillStyle = `rgba(${col.r},${col.g},${col.b},${col.a/255})`;
+                    tCtx.fillRect(cx, cy, cw, ch);
+                }
             }
 
-            // Now tempCanvas has the original image + mirrored fills (the extended areas are filled with mirrored content).
-
-            // ── 2. Apply blur to the entire tempCanvas (glass effect) ──
-            // We'll create a blurred version of tempCanvas.
+            // ── 2. Glass blur ──
             const blurCanvas = document.createElement('canvas');
             blurCanvas.width = targetW;
             blurCanvas.height = targetH;
             const bCtx = blurCanvas.getContext('2d');
-            // Apply blur filter
-            bCtx.filter = 'blur(8px)';
+            bCtx.filter = 'blur(10px)';
             bCtx.drawImage(tempCanvas, 0, 0);
 
-            // ── 3. Composite: start with the blurred extended area, then draw the sharp original image on top ──
-            // We can just draw the blurred tempCanvas onto main canvas, then draw the original image on top (centered).
-            // That way the center is sharp, the rest is blurred glass effect.
-            c.drawImage(blurCanvas, 0, 0); // blurred full canvas
-            // Draw original image sharp on top
+            // ── 3. Composite: blurred base + sharp photo ──
+            c.drawImage(blurCanvas, 0, 0);
             c.drawImage(img, photoX, photoY, photoW, photoH);
 
-            // ── 4. Overlay glowing micro LED dots only on the extended areas ──
-            // We'll generate dots only where there is no original image.
-            // Use the pixel data from the original image (or from the canvas) to sample edge colors.
-            const imageData = c.getImageData(0, 0, targetW, targetH);
-            const data = imageData.data;
+            // ── 4. MIST DOTS on extended areas ──
+            // Get pixel data for edge sampling
+            const imgData = c.getImageData(0, 0, targetW, targetH);
+            const data = imgData.data;
 
-            // Helper: get edge color from the original image (clamped)
             function getEdgeColor(x, y) {
                 const cx = clamp(Math.round(x), photoX, photoX + photoW - 1);
                 const cy = clamp(Math.round(y), photoY, photoY + photoH - 1);
@@ -513,44 +808,49 @@
                 return { r: data[idx] || 0, g: data[idx + 1] || 0, b: data[idx + 2] || 0 };
             }
 
-            // Config for dots
-            const spacing = 14;
-            const dotCore = 1.8;
-            const glowRadius = 8;
-            const edgeFade = 25; // fade-in distance from photo edge
+            // ── Mist dot config ──
+            const spacing = 16; // space between dots
+            const maxGlow = 18; // max glow radius
+            const minGlow = 6;
+            const coreSize = 1.2;
+            const mistFade = 35; // distance from photo edge where mist fades in
 
-            function drawLED(ctx, x, y, radius, glow, r, g, b, opacity) {
-                if (opacity < 0.02 || radius < 0.1) return;
+            // Draw one mist dot (large glow, small core → misty)
+            function drawMistDot(ctx, x, y, glow, core, r, g, b, opacity) {
+                if (opacity < 0.02 || glow < 0.5) return;
                 const alpha = clamp(opacity, 0, 1);
+
+                // Large soft glow (mist)
                 const grad = ctx.createRadialGradient(x, y, 0, x, y, glow);
-                grad.addColorStop(0, `rgba(${Math.min(255,r+60)},${Math.min(255,g+60)},${Math.min(255,b+60)},${alpha})`);
-                grad.addColorStop(0.2, `rgba(${r},${g},${b},${alpha * 0.9})`);
-                grad.addColorStop(0.6, `rgba(${r},${g},${b},${alpha * 0.5})`);
+                grad.addColorStop(0, `rgba(${r},${g},${b},${alpha * 0.6})`);
+                grad.addColorStop(0.15, `rgba(${r},${g},${b},${alpha * 0.45})`);
+                grad.addColorStop(0.5, `rgba(${r},${g},${b},${alpha * 0.2})`);
                 grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
                 ctx.fillStyle = grad;
                 ctx.beginPath();
                 ctx.arc(x, y, glow, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Core
-                const coreR = Math.max(radius * 0.45, 0.4);
-                ctx.fillStyle = `rgba(${Math.min(255,r*1.6)},${Math.min(255,g*1.6)},${Math.min(255,b*1.6)},${alpha * 0.95})`;
+                // Small bright core (LED-like)
+                const coreR = Math.max(core * 0.4, 0.3);
+                ctx.fillStyle = `rgba(${Math.min(255,r+80)},${Math.min(255,g+80)},${Math.min(255,b+80)},${alpha * 0.7})`;
                 ctx.beginPath();
                 ctx.arc(x, y, coreR, 0, Math.PI * 2);
                 ctx.fill();
-                // Hot spot
-                if (radius > 0.6) {
-                    ctx.fillStyle = `rgba(255,255,255,${alpha * 0.25})`;
+
+                // Tiny hot spot
+                if (coreR > 0.4) {
+                    ctx.fillStyle = `rgba(255,255,255,${alpha * 0.2})`;
                     ctx.beginPath();
-                    ctx.arc(x - radius * 0.12, y - radius * 0.12, radius * 0.18, 0, Math.PI * 2);
+                    ctx.arc(x - coreR * 0.15, y - coreR * 0.15, coreR * 0.2, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
 
-            // Iterate over all pixels with spacing, but only if outside the photo rect
+            // ── Iterate over extended areas ──
             for (let x = 0; x < targetW; x += spacing) {
                 for (let y = 0; y < targetH; y += spacing) {
-                    // Check if inside photo
+                    // Skip if inside photo
                     const inside = (x >= photoX && x < photoX + photoW && y >= photoY && y < photoY + photoH);
                     if (inside) continue;
 
@@ -559,37 +859,65 @@
                     const dy = Math.max(photoY - y, 0, y - (photoY + photoH - 1));
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
-                    // Get edge color (sample from original image)
+                    // Fade: mist is thicker near the edge, thinner further away
+                    const fade = clamp(1 - (dist - 4) / mistFade, 0, 1);
+                    if (fade < 0.02) continue;
+
+                    // Edge color
                     const color = getEdgeColor(x, y);
 
-                    // Fade based on distance from edge: small and dim near edge, full size further
-                    const fadeIn = clamp(dist / edgeFade, 0, 1);
-                    const sizeScale = 0.4 + 0.6 * fadeIn;
-                    const opacityScale = 0.3 + 0.7 * fadeIn;
+                    // Glow radius: larger near edge, smaller as it fades
+                    const glow = minGlow + (maxGlow - minGlow) * fade;
+                    const core = coreSize * (0.4 + 0.6 * fade);
+                    const opacity = 0.25 + 0.65 * fade;
 
-                    const radius = dotCore * sizeScale;
-                    const glow = glowRadius * (0.7 + 0.3 * fadeIn);
-                    const op = opacityScale;
+                    // Jitter for organic feel
+                    const jx = (Math.random() - 0.5) * spacing * 0.4;
+                    const jy = (Math.random() - 0.5) * spacing * 0.4;
 
-                    // Jitter
-                    const jx = (Math.random() - 0.5) * spacing * 0.3;
-                    const jy = (Math.random() - 0.5) * spacing * 0.3;
-
-                    drawLED(c, x + jx, y + jy, radius, glow, color.r, color.g, color.b, op);
+                    drawMistDot(c, x + jx, y + jy, glow, core, color.r, color.g, color.b, opacity);
                 }
             }
 
-            // ── 5. (Optional) Add a subtle glass overlay gradient for extra glass feel ──
-            // Create a gradient from white to transparent at the edges
-            const grad = c.createRadialGradient(targetW/2, targetH/2, 0, targetW/2, targetH/2, Math.max(targetW, targetH)*0.7);
-            grad.addColorStop(0, 'rgba(255,255,255,0)');
-            grad.addColorStop(0.5, 'rgba(255,255,255,0)');
-            grad.addColorStop(0.85, 'rgba(255,255,255,0.05)');
-            grad.addColorStop(1, 'rgba(255,255,255,0.12)');
-            c.fillStyle = grad;
+            // ── Extra: a second, sparser layer of larger, softer dots for depth ──
+            const spacing2 = 32;
+            for (let x = 0; x < targetW; x += spacing2) {
+                for (let y = 0; y < targetH; y += spacing2) {
+                    const inside = (x >= photoX && x < photoX + photoW && y >= photoY && y < photoY + photoH);
+                    if (inside) continue;
+                    const dx = Math.max(photoX - x, 0, x - (photoX + photoW - 1));
+                    const dy = Math.max(photoY - y, 0, y - (photoY + photoH - 1));
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const fade = clamp(1 - (dist - 6) / (mistFade * 1.3), 0, 1);
+                    if (fade < 0.05) continue;
+                    const color = getEdgeColor(x, y);
+                    const glow = 20 + 16 * fade;
+                    const opacity = 0.08 + 0.2 * fade;
+                    const jx = (Math.random() - 0.5) * spacing2 * 0.3;
+                    const jy = (Math.random() - 0.5) * spacing2 * 0.3;
+                    // Very soft, large glow layer
+                    const grad = c.createRadialGradient(x + jx, y + jy, 0, x + jx, y + jy, glow);
+                    grad.addColorStop(0, `rgba(${color.r},${color.g},${color.b},${opacity * 0.3})`);
+                    grad.addColorStop(0.5, `rgba(${color.r},${color.g},${color.b},${opacity * 0.1})`);
+                    grad.addColorStop(1, `rgba(${color.r},${color.g},${color.b},0)`);
+                    c.fillStyle = grad;
+                    c.beginPath();
+                    c.arc(x + jx, y + jy, glow, 0, Math.PI * 2);
+                    c.fill();
+                }
+            }
+
+            // ── Soft vignette overlay for ambient feel ──
+            const vigGrad = c.createRadialGradient(targetW / 2, targetH / 2, Math.min(targetW, targetH) * 0.25,
+                targetW / 2, targetH / 2, Math.max(targetW, targetH) * 0.75);
+            vigGrad.addColorStop(0, 'rgba(255,255,255,0)');
+            vigGrad.addColorStop(0.6, 'rgba(255,255,255,0)');
+            vigGrad.addColorStop(0.85, 'rgba(0,0,0,0.03)');
+            vigGrad.addColorStop(1, 'rgba(0,0,0,0.12)');
+            c.fillStyle = vigGrad;
             c.fillRect(0, 0, targetW, targetH);
 
-            // ── Display on preview ──
+            // ── Display ──
             previewCanvas.width = targetW;
             previewCanvas.height = targetH;
             previewCanvas.style.width = '100%';
@@ -606,7 +934,7 @@
             downloadBtn.onclick = () => {
                 const link = document.createElement('a');
                 const baseName = state.fileName.replace(/\.[^.]+$/, '') || 'image';
-                link.download = `${baseName}_${state.selectedRatio}_glass_led.png`;
+                link.download = `${baseName}_${state.selectedRatio}_mist.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             };
@@ -629,7 +957,7 @@
         previewCanvas.style.display = 'none';
         placeholder.style.display = 'block';
         generateBtn.disabled = true;
-        console.log('✦ Aspect Ratio Studio · Mirror + Glass + Glowing Dots ✦');
+        console.log('✦ Ambient Mist Edge · Mirror + Glass + Glowing Mist Dots ✦');
     </script>
 </body>
 </html>
