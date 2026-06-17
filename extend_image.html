@@ -463,7 +463,6 @@
             background: rgba(255, 255, 255, 0.25);
         }
 
-        /* Circular Floating Back Button */
         .back-btn {
             position: fixed;
             top: 14px;
@@ -575,7 +574,6 @@
         </div>
     </div>
 
-    <!-- Circular Floating Back Button -->
     <button class="back-btn" type="button" title="Back" aria-label="Go back"
     onclick="(function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })();">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
@@ -625,10 +623,24 @@
 
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
+    // Rounded rectangle path helper
+    function roundedRect(ctx, x, y, w, h, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+    }
+
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // FILE UPLOAD – FIXED: No double popup
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // We use a flag to prevent multiple triggers
     let isUploading = false;
 
     uploadArea.addEventListener('click', (e) => {
@@ -636,12 +648,10 @@
         if (!isUploading) {
             isUploading = true;
             fileInput.click();
-            // Reset the flag after a short delay
             setTimeout(() => { isUploading = false; }, 300);
         }
     });
 
-    // Drag events
     ['dragenter', 'dragover'].forEach(ev => {
         uploadArea.addEventListener(ev, e => {
             e.preventDefault();
@@ -664,12 +674,10 @@
         }
     });
 
-    // File input change – properly reset value
     fileInput.addEventListener('change', (e) => {
         if (fileInput.files.length) {
             handleFile(fileInput.files[0]);
-            // Reset so re-uploading the same file works
-            fileInput.value = '';
+            fileInput.value = ''; // reset to allow re-upload
         }
         isUploading = false;
     });
@@ -863,71 +871,53 @@
         c.shadowOffsetX = 0;
         c.shadowOffsetY = 15;
 
-        const r = cornerRadius;
-        // Rounded rect path for tile
-        function roundedRect(ctx, x, y, w, h, radius) {
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.lineTo(x + w - radius, y);
-            ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
-            ctx.lineTo(x + w, y + h - radius);
-            ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
-            ctx.lineTo(x + radius, y + h);
-            ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
-            ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y);
-            ctx.closePath();
-        }
-
-        roundedRect(c, tileX, tileY, tileW, tileH, r);
+        roundedRect(c, tileX, tileY, tileW, tileH, cornerRadius);
         c.fillStyle = 'rgba(255,255,255,0.12)';
         c.fill();
         c.shadowColor = 'transparent';
 
-        // ── 8. Clip & Draw Image with rounded corners and feathered edge ──
-        // First, clip to the tile's rounded rect
+        // ── 8. Clip to the tile shape, then clip image separately to rounded rect ──
+        // We want the image to have rounded corners of the same radius as the tile,
+        // but we need to clip the image to its own rounded rect (imgX, imgY, fitW, fitH) with same radius.
+        // However, the image is inset, so we should clip to the image area with rounded corners.
+        // So we create a clip path for the image.
         c.save();
-        roundedRect(c, tileX, tileY, tileW, tileH, r);
+        roundedRect(c, imgX, imgY, fitW, fitH, cornerRadius);
         c.clip();
 
         // Draw the image (fitted)
         c.drawImage(img, imgX, imgY, fitW, fitH);
 
-        // ── 9. FEATHERED EDGE: Soft blur/fade at photo border ──
-        // We create a radial gradient that is transparent in center and
-        // softly fades to a semi-transparent white/blue at the edges.
-        // This gives the illusion of the photo edges being soft and blurred.
-        const featherRadius = 24; // how far the feather extends from edge
-        const centerX = tileX + tileW / 2;
-        const centerY = tileY + tileH / 2;
-        const maxDist = Math.max(tileW, tileH) * 0.7;
-
-        // Create a gradient that fades from transparent in center to
-        // a soft white/blue at the edges (with very low opacity)
-        const featherGrad = c.createRadialGradient(
-            centerX, centerY, Math.min(tileW, tileH) * 0.3,
-            centerX, centerY, maxDist
-        );
-        featherGrad.addColorStop(0, 'rgba(255,255,255,0)');
-        featherGrad.addColorStop(0.65, 'rgba(255,255,255,0)');
-        featherGrad.addColorStop(0.85, 'rgba(220,235,255,0.06)');
-        featherGrad.addColorStop(0.95, 'rgba(200,220,255,0.14)');
-        featherGrad.addColorStop(1, 'rgba(180,210,255,0.25)');
-
-        c.fillStyle = featherGrad;
-        c.fillRect(tileX, tileY, tileW, tileH);
-
-        // Additional edge blur: draw a thin blurred border along the photo edge
-        // This softens the transition even more
-        c.shadowColor = 'rgba(255,255,255,0.08)';
+        // ── 9. FEATHERED EDGE: Soft blur/fade at the photo border ──
+        // We'll draw a rounded rect over the image with a thick stroke and shadow blur
+        // to create a soft edge glow.
+        // Also add a radial gradient overlay that fades from transparent at center to a soft blue at edges.
+        // First, the stroke with shadow blur for a soft edge
+        c.shadowColor = 'rgba(180,210,255,0.35)';
         c.shadowBlur = 18;
         c.shadowOffsetX = 0;
         c.shadowOffsetY = 0;
-        c.strokeStyle = 'rgba(255,255,255,0)';
-        c.lineWidth = 1;
-        roundedRect(c, tileX + 4, tileY + 4, tileW - 8, tileH - 8, r - 4);
+        c.strokeStyle = 'rgba(180,210,255,0)'; // invisible stroke, only shadow appears
+        c.lineWidth = 8;
+        roundedRect(c, imgX, imgY, fitW, fitH, cornerRadius);
         c.stroke();
         c.shadowColor = 'transparent';
+
+        // Now a radial gradient overlay that adds a subtle blue fade at the edges (feathering)
+        const centerX = imgX + fitW / 2;
+        const centerY = imgY + fitH / 2;
+        const maxDist = Math.max(fitW, fitH) * 0.7;
+        const featherGrad = c.createRadialGradient(
+            centerX, centerY, Math.min(fitW, fitH) * 0.3,
+            centerX, centerY, maxDist
+        );
+        featherGrad.addColorStop(0, 'rgba(255,255,255,0)');
+        featherGrad.addColorStop(0.7, 'rgba(255,255,255,0)');
+        featherGrad.addColorStop(0.9, 'rgba(220,235,255,0.08)');
+        featherGrad.addColorStop(1, 'rgba(180,210,255,0.22)');
+        c.fillStyle = featherGrad;
+        roundedRect(c, imgX, imgY, fitW, fitH, cornerRadius);
+        c.fill();
 
         c.restore(); // remove clip
 
@@ -939,7 +929,7 @@
         glassGrad.addColorStop(0.7, 'rgba(255,255,255,0)');
         glassGrad.addColorStop(1, 'rgba(255,255,255,0.08)');
         c.fillStyle = glassGrad;
-        roundedRect(c, tileX, tileY, tileW, tileH, r);
+        roundedRect(c, tileX, tileY, tileW, tileH, cornerRadius);
         c.fill();
 
         // b) Diagonal reflection streak
@@ -950,24 +940,24 @@
         streak.addColorStop(0.6, 'rgba(255,255,255,0.03)');
         streak.addColorStop(1, 'rgba(255,255,255,0)');
         c.fillStyle = streak;
-        roundedRect(c, tileX, tileY, tileW, tileH, r);
+        roundedRect(c, tileX, tileY, tileW, tileH, cornerRadius);
         c.fill();
 
-        // c) Tile Border (clearly visible in all directions)
+        // c) Tile Border (clearly visible)
         c.strokeStyle = 'rgba(255,255,255,0.45)';
         c.lineWidth = 2.5;
         c.shadowColor = 'transparent';
-        roundedRect(c, tileX, tileY, tileW, tileH, r);
+        roundedRect(c, tileX, tileY, tileW, tileH, cornerRadius);
         c.stroke();
 
-        // ── 11. Final: faint outer glow around tile to blend ──
+        // ── 11. Faint outer glow around tile ──
         c.shadowColor = 'rgba(255,255,255,0.05)';
         c.shadowBlur = 30;
         c.shadowOffsetX = 0;
         c.shadowOffsetY = 0;
         c.strokeStyle = 'rgba(255,255,255,0)';
         c.lineWidth = 0;
-        roundedRect(c, tileX, tileY, tileW, tileH, r);
+        roundedRect(c, tileX, tileY, tileW, tileH, cornerRadius);
         c.stroke();
         c.restore();
 
