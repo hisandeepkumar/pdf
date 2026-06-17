@@ -1,184 +1,598 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Glass Tile Pro – Rounded & Feathered Photo</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
-    body {
-      min-height:100vh; display:flex; justify-content:center; align-items:flex-start;
-      padding:28px 20px; background:radial-gradient(ellipse at 20% 50%, #1a1a2e, #0d0d1a);
-      color:#f0f0f0;
-    }
-    .container {
-      width:100%; max-width:780px; background:rgba(255,255,255,0.08);
-      backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-      border-radius:32px; padding:28px 30px 34px;
-      border:1px solid rgba(255,255,255,0.15);
-      box-shadow:0 20px 60px rgba(0,0,0,0.6), 0 4px 20px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.1);
-    }
-    .header { text-align:center; padding-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:22px; }
-    .header h1 { font-size:28px; font-weight:700; letter-spacing:-0.3px; display:flex; align-items:center; justify-content:center; gap:12px; background:linear-gradient(135deg,#ffffff 30%,#a0b4ff 80%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-    .header h1 i { font-size:28px; -webkit-text-fill-color:initial; color:#7b93ff; filter:drop-shadow(0 0 12px rgba(91,134,229,0.5)); }
-    .header p { color:rgba(255,255,255,0.6); font-size:0.95rem; margin-top:6px; font-weight:400; letter-spacing:0.2px; }
-    .upload-area {
-      border:2px dashed rgba(255,255,255,0.25); border-radius:20px; padding:38px 20px 32px;
-      text-align:center; background:rgba(255,255,255,0.04); cursor:pointer;
-      transition:all 0.35s ease; position:relative; margin-bottom:18px;
-    }
-    .upload-area:hover, .upload-area.active { background:rgba(255,255,255,0.08); border-color:#7b93ff; box-shadow:0 0 40px rgba(91,134,229,0.15), inset 0 0 30px rgba(91,134,229,0.05); }
-    .upload-area i { font-size:44px; color:#7b93ff; margin-bottom:12px; transition:transform 0.3s; display:inline-block; }
-    .upload-area:hover i { transform:scale(1.08) translateY(-2px); }
-    .upload-area h3 { font-size:1.5rem; font-weight:600; color:#fff; margin-bottom:6px; }
-    .upload-area p { color:rgba(255,255,255,0.6); font-size:1rem; }
-    .upload-area input[type="file"] { position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
-    .file-info { text-align:center; font-size:0.95rem; font-weight:500; color:#b8c8ff; padding:6px 0 12px; display:none; word-break:break-all; background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0) 100%); background-size:200% 100%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:shineText 2.8s linear infinite; }
-    @keyframes shineText { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
-    .ratios-section { margin:16px 0 10px; }
-    .platform-group { margin-bottom:16px; }
-    .platform-label { display:flex; align-items:center; gap:10px; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:0.6px; color:rgba(255,255,255,0.5); margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px; }
-    .platform-label i { font-size:1rem; color:rgba(255,255,255,0.4); }
-    .ratio-buttons { display:flex; flex-wrap:wrap; gap:8px; }
-    .ratio-btn {
-      background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
-      color:rgba(255,255,255,0.7); padding:6px 16px; border-radius:40px; font-size:0.78rem;
-      font-weight:500; cursor:pointer; transition:all 0.25s ease; backdrop-filter:blur(4px);
-      letter-spacing:0.2px;
-    }
-    .ratio-btn:hover { background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.25); color:#fff; transform:translateY(-1px); box-shadow:0 4px 16px rgba(0,0,0,0.2); }
-    .ratio-btn.active { background:linear-gradient(135deg,#5b86e5,#36d1dc); border-color:transparent; color:#fff; box-shadow:0 4px 20px rgba(91,134,229,0.35); }
-    .preview-wrap {
-      margin:18px 0 16px; border-radius:16px; overflow:hidden;
-      background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.06);
-      position:relative; min-height:200px; display:flex; align-items:center; justify-content:center;
-    }
-    .preview-wrap canvas { display:block; width:100%; height:auto; max-height:560px; object-fit:contain; background:#0b0b16; }
-    .preview-placeholder { color:rgba(255,255,255,0.2); font-size:1rem; font-weight:400; padding:40px 20px; text-align:center; width:100%; }
-    .preview-placeholder i { font-size:48px; display:block; margin-bottom:12px; opacity:0.3; }
-    .btn-generate-wrap { display:flex; justify-content:center; margin:14px 0 6px; }
-    .btn-generate {
-      background:rgba(255,255,255,0.08); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-      border:1px solid rgba(255,255,255,0.2); padding:16px 48px; border-radius:9999px;
-      font-size:1.1rem; font-weight:600; color:#fff; cursor:pointer;
-      display:flex; align-items:center; gap:14px;
-      box-shadow:0 8px 32px rgba(91,134,229,0.3), 0 4px 16px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -2px 0 rgba(0,0,0,0.2);
-      transition:all 0.35s cubic-bezier(0.22,1,0.36,1);
-      position:relative; overflow:hidden; letter-spacing:0.3px; min-width:220px; justify-content:center;
-    }
-    .btn-generate::before { content:''; position:absolute; top:-50%; left:-60%; width:200%; height:200%; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), transparent 60%); opacity:0; transition:opacity 0.5s ease; pointer-events:none; }
-    .btn-generate:hover::before { opacity:1; }
-    .btn-generate:hover { transform:perspective(800px) rotateX(3deg) rotateY(4deg) scale(1.02); box-shadow:0 14px 48px rgba(91,134,229,0.45), 0 6px 20px rgba(0,0,0,0.4), inset 0 2px 0 rgba(255,255,255,0.3), inset 0 -2px 0 rgba(0,0,0,0.2); background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.3); }
-    .btn-generate:active { transform:perspective(800px) rotateX(1deg) rotateY(1deg) scale(0.98); }
-    .btn-generate:disabled { opacity:0.4; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
-    .btn-generate i { font-size:1.3rem; color:#7b93ff; filter:drop-shadow(0 0 10px rgba(91,134,229,0.4)); transition:transform 0.3s; }
-    .btn-generate:hover i { transform:rotate(-8deg) scale(1.05); }
-    .btn-generate .shine { position:absolute; top:0; left:-150%; width:120%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform:skewX(-20deg); transition:left 0.8s ease; pointer-events:none; }
-    .btn-generate:hover .shine { left:150%; }
-    .btn-download-wrap { display:none; justify-content:center; margin:8px 0 0; }
-    .btn-download { background:rgba(0,200,150,0.15); backdrop-filter:blur(8px); border:1px solid rgba(0,255,200,0.2); padding:12px 32px; border-radius:9999px; font-size:0.95rem; font-weight:500; color:#8fffd0; cursor:pointer; display:flex; align-items:center; gap:10px; transition:all 0.3s ease; box-shadow:0 4px 20px rgba(0,200,150,0.15); }
-    .btn-download:hover { background:rgba(0,200,150,0.25); border-color:rgba(0,255,200,0.4); transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,200,150,0.25); }
-    .footer { margin-top:24px; text-align:center; color:rgba(255,255,255,0.3); font-size:0.8rem; padding-top:16px; border-top:1px solid rgba(255,255,255,0.05); letter-spacing:0.2px; }
-    .footer a { color:#7b93ff; text-decoration:none; font-weight:500; }
-    .footer a:hover { text-decoration:underline; }
-    .footer .heart { color:#ff6b6b; display:inline-block; animation:pulseHeart 1.8s ease-in-out infinite; }
-    @keyframes pulseHeart { 0%,100% { transform:scale(1); } 50% { transform:scale(1.2); } }
-    @media (max-width:640px) { .container { padding:18px 14px 22px; border-radius:24px; } .header h1 { font-size:22px; gap:8px; } .header h1 i { font-size:22px; } .upload-area { padding:24px 14px 20px; } .upload-area h3 { font-size:1.2rem; } .ratio-btn { font-size:0.7rem; padding:5px 12px; } .btn-generate { padding:14px 28px; font-size:0.95rem; min-width:160px; } .platform-label { font-size:0.7rem; } .preview-wrap canvas { max-height:340px; } }
-    @media (max-width:420px) { .container { padding:12px 8px 16px; border-radius:18px; } .ratio-btn { font-size:0.65rem; padding:4px 10px; } .btn-generate { padding:12px 20px; font-size:0.85rem; min-width:130px; gap:8px; } }
-    ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:rgba(255,255,255,0.03); } ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:10px; } ::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.25); }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glass Tile Pro – Rounded & Feathered Photo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            color: #f0f0f0;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 780px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(255, 255, 255, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease;
+            padding: 32px;
+        }
+
+        .header {
+            padding: 24px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #ffffff 30%, #a0b4ff 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header h1 i {
+            color: #5b86e5;
+            font-size: 28px;
+            -webkit-text-fill-color: initial;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+            margin-bottom: 24px;
+        }
+
+        .upload-area:hover,
+        .upload-area.active {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: #5b86e5;
+            box-shadow: 0 8px 24px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .upload-area i {
+            font-size: 40px;
+            color: #5b86e5;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover i,
+        .upload-area.active i {
+            transform: scale(1.1);
+        }
+
+        .upload-area h3 {
+            color: #f0f0f0;
+            margin-bottom: 10px;
+            font-size: 1.6rem;
+            font-weight: 500;
+        }
+
+        .upload-area p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-info {
+            color: white;
+            font-size: 1rem;
+            margin: 10px 0;
+            text-align: center;
+            word-break: break-all;
+            padding: 0 10px;
+            display: none;
+            font-weight: bold;
+            text-decoration: underline;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 2s linear infinite;
+        }
+
+        @keyframes shine {
+            from {
+                background-position: 200% 0;
+            }
+            to {
+                background-position: -200% 0;
+            }
+        }
+
+        .ratios-section {
+            margin: 16px 0 10px;
+        }
+
+        .platform-group {
+            margin-bottom: 16px;
+        }
+
+        .platform-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 6px;
+        }
+
+        .platform-label i {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .ratio-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .ratio-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(4px);
+            letter-spacing: 0.2px;
+        }
+
+        .ratio-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .ratio-btn.active {
+            background: linear-gradient(135deg, #5b86e5, #36d1dc);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(91, 134, 229, 0.35);
+        }
+
+        .preview-wrap {
+            margin: 18px 0 16px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-wrap canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 560px;
+            object-fit: contain;
+            background: #0b0b16;
+        }
+
+        .preview-placeholder {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 1rem;
+            font-weight: 400;
+            padding: 40px 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .preview-placeholder i {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        .btn-generate-wrap {
+            display: flex;
+            justify-content: center;
+            margin: 14px 0 6px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            color: #f0f0f0;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 14px 48px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 24px rgba(91, 134, 229, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto;
+            white-space: nowrap;
+            text-align: center;
+            min-width: 220px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 150%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .btn:hover::before {
+            left: 150%;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 0 12px 32px rgba(91, 134, 229, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn:disabled::before {
+            display: none;
+        }
+
+        .btn i {
+            color: #5b86e5;
+            font-size: 1.1rem;
+        }
+
+        .btn-download-wrap {
+            display: none;
+            justify-content: center;
+            margin: 8px 0 0;
+        }
+
+        .btn-download {
+            background: rgba(0, 200, 150, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 255, 200, 0.2);
+            padding: 12px 32px;
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #8fffd0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 200, 150, 0.15);
+        }
+
+        .btn-download:hover {
+            background: rgba(0, 200, 150, 0.25);
+            border-color: rgba(0, 255, 200, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 200, 150, 0.25);
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-text {
+            display: inline-block;
+            position: relative;
+        }
+
+        .footer-text::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(90deg, #5b86e5, #36d1dc);
+            transform: scaleX(0);
+            transform-origin: bottom right;
+            transition: transform 0.5s ease;
+            animation: continuousLine 3s infinite;
+        }
+
+        @keyframes continuousLine {
+            0% {
+                transform: scaleX(0);
+                transform-origin: bottom left;
+            }
+            50% {
+                transform: scaleX(1);
+                transform-origin: bottom left;
+            }
+            51% {
+                transform: scaleX(1);
+                transform-origin: bottom right;
+            }
+            100% {
+                transform: scaleX(0);
+                transform-origin: bottom right;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            .header {
+                padding: 16px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .upload-area {
+                padding: 24px 16px;
+            }
+            .btn {
+                padding: 12px 24px;
+                font-size: 14px;
+                min-width: 160px;
+            }
+            .file-info {
+                font-size: 0.9rem;
+            }
+            .preview-wrap canvas {
+                max-height: 340px;
+            }
+            .ratio-btn {
+                font-size: 0.7rem;
+                padding: 5px 12px;
+            }
+            .platform-label {
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .container {
+                padding: 12px 8px 16px;
+                border-radius: 18px;
+            }
+            .ratio-btn {
+                font-size: 0.65rem;
+                padding: 4px 10px;
+            }
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                min-width: 130px;
+                gap: 6px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Circular Floating Back Button */
+        .back-btn {
+            position: fixed;
+            top: 14px;
+            left: 14px;
+            z-index: 2147483647;
+            width: 52px;
+            height: 52px;
+            padding: 0;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(180deg, #ffffff, #f2f2f2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform .12s ease, box-shadow .12s ease;
+            backdrop-filter: blur(6px);
+            opacity: 0.98;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+        }
+    </style>
 </head>
 <body>
-  <div class="container" id="app">
-    <div class="header">
-      <h1><i class="fas fa-glass-whiskey"></i> Glass Tile Pro</h1>
-      <p>Rounded tile · Feathered photo edges · 8px margin</p>
-    </div>
-    <div class="upload-area" id="uploadArea">
-      <i class="fas fa-cloud-upload-alt"></i>
-      <h3>Upload Photo</h3>
-      <p>Click or drag &amp; drop · JPG, PNG, WebP</p>
-      <input type="file" id="fileInput" accept="image/*" />
-    </div>
-    <div class="file-info" id="fileInfo"></div>
-    <div class="ratios-section" id="ratiosSection">
-      <div class="platform-group">
-        <div class="platform-label"><i class="fab fa-youtube" style="color:#ff3b3b;"></i> YouTube</div>
-        <div class="ratio-buttons">
-          <button class="ratio-btn" data-ratio="16:9">16:9</button>
-          <button class="ratio-btn" data-ratio="9:16">9:16</button>
-          <button class="ratio-btn" data-ratio="4:3">4:3</button>
-          <button class="ratio-btn" data-ratio="1:1">1:1</button>
-          <button class="ratio-btn" data-ratio="21:9">21:9</button>
+    <div class="container" id="app">
+        <div class="header">
+            <h1><i class="fas fa-glass-whiskey"></i> Glass Tile Pro</h1>
+            <p>Rounded tile · Feathered photo edges · 8px margin</p>
         </div>
-      </div>
-      <div class="platform-group">
-        <div class="platform-label"><i class="fab fa-instagram" style="color:#e1306c;"></i> Instagram</div>
-        <div class="ratio-buttons">
-          <button class="ratio-btn" data-ratio="1:1">1:1</button>
-          <button class="ratio-btn" data-ratio="4:5">4:5</button>
-          <button class="ratio-btn" data-ratio="5:4">5:4</button>
-          <button class="ratio-btn" data-ratio="16:9">16:9</button>
-          <button class="ratio-btn" data-ratio="9:16">9:16</button>
-        </div>
-      </div>
-      <div class="platform-group">
-        <div class="platform-label"><i class="fab fa-whatsapp" style="color:#25d366;"></i> WhatsApp</div>
-        <div class="ratio-buttons">
-          <button class="ratio-btn" data-ratio="1:1">1:1</button>
-          <button class="ratio-btn" data-ratio="4:3">4:3</button>
-          <button class="ratio-btn" data-ratio="16:9">16:9</button>
-          <button class="ratio-btn" data-ratio="9:16">9:16</button>
-        </div>
-      </div>
-      <div class="platform-group">
-        <div class="platform-label"><i class="fab fa-twitter" style="color:#1d9bf0;"></i> Twitter / X</div>
-        <div class="ratio-buttons">
-          <button class="ratio-btn" data-ratio="16:9">16:9</button>
-          <button class="ratio-btn" data-ratio="1:1">1:1</button>
-          <button class="ratio-btn" data-ratio="4:3">4:3</button>
-          <button class="ratio-btn" data-ratio="3:2">3:2</button>
-          <button class="ratio-btn" data-ratio="9:16">9:16</button>
-        </div>
-      </div>
-    </div>
-    <div class="preview-wrap" id="previewWrap">
-      <canvas id="previewCanvas"></canvas>
-      <div class="preview-placeholder" id="placeholder">
-        <i class="fas fa-image"></i>
-        <span>Upload an image &amp; select an aspect ratio</span>
-      </div>
-    </div>
-    <div class="btn-generate-wrap">
-      <button class="btn-generate" id="generateBtn" disabled>
-        <span class="shine"></span>
-        <i class="fas fa-wand-sparkles"></i>
-        <span>Generate Tile</span>
-      </button>
-    </div>
-    <div class="btn-download-wrap" id="downloadWrap">
-      <button class="btn-download" id="downloadBtn">
-        <i class="fas fa-download"></i> Download Image
-      </button>
-    </div>
-    <div class="footer">
-      <span>✦ Tile margin 8px · Photo edges softly rounded &amp; blurred ✦</span><br />
-      <span>Made with <span class="heart">❤️</span> by <a href="#" target="_blank">Sandeep</a></span>
-    </div>
-  </div>
 
-  <script>
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <h3>Upload Photo</h3>
+            <p>Click here or drag and drop your image</p>
+            <input type="file" id="fileInput" accept="image/*" hidden />
+        </div>
+        <p class="file-info" id="fileInfo"></p>
+
+        <div class="ratios-section" id="ratiosSection">
+            <div class="platform-group">
+                <div class="platform-label"><i class="fab fa-youtube" style="color:#ff3b3b;"></i> YouTube</div>
+                <div class="ratio-buttons">
+                    <button class="ratio-btn" data-ratio="16:9">16:9</button>
+                    <button class="ratio-btn" data-ratio="9:16">9:16</button>
+                    <button class="ratio-btn" data-ratio="4:3">4:3</button>
+                    <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                    <button class="ratio-btn" data-ratio="21:9">21:9</button>
+                </div>
+            </div>
+            <div class="platform-group">
+                <div class="platform-label"><i class="fab fa-instagram" style="color:#e1306c;"></i> Instagram</div>
+                <div class="ratio-buttons">
+                    <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                    <button class="ratio-btn" data-ratio="4:5">4:5</button>
+                    <button class="ratio-btn" data-ratio="5:4">5:4</button>
+                    <button class="ratio-btn" data-ratio="16:9">16:9</button>
+                    <button class="ratio-btn" data-ratio="9:16">9:16</button>
+                </div>
+            </div>
+            <div class="platform-group">
+                <div class="platform-label"><i class="fab fa-whatsapp" style="color:#25d366;"></i> WhatsApp</div>
+                <div class="ratio-buttons">
+                    <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                    <button class="ratio-btn" data-ratio="4:3">4:3</button>
+                    <button class="ratio-btn" data-ratio="16:9">16:9</button>
+                    <button class="ratio-btn" data-ratio="9:16">9:16</button>
+                </div>
+            </div>
+            <div class="platform-group">
+                <div class="platform-label"><i class="fab fa-twitter" style="color:#1d9bf0;"></i> Twitter / X</div>
+                <div class="ratio-buttons">
+                    <button class="ratio-btn" data-ratio="16:9">16:9</button>
+                    <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                    <button class="ratio-btn" data-ratio="4:3">4:3</button>
+                    <button class="ratio-btn" data-ratio="3:2">3:2</button>
+                    <button class="ratio-btn" data-ratio="9:16">9:16</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-wrap" id="previewWrap">
+            <canvas id="previewCanvas"></canvas>
+            <div class="preview-placeholder" id="placeholder">
+                <i class="fas fa-image"></i>
+                <span>Upload an image &amp; select an aspect ratio</span>
+            </div>
+        </div>
+
+        <div class="btn-generate-wrap">
+            <button class="btn" id="generateBtn" disabled>
+                <i class="fas fa-wand-sparkles"></i>
+                <span>Generate Tile</span>
+            </button>
+        </div>
+
+        <div class="btn-download-wrap" id="downloadWrap">
+            <button class="btn-download" id="downloadBtn">
+                <i class="fas fa-download"></i> Download Image
+            </button>
+        </div>
+
+        <div class="footer">
+            <div class="footer-text">Tile margin 8px · Photo edges softly rounded &amp; feathered | Made with <span style="color: #ff4d4d;">❤️</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" style="color: #5b86e5; text-decoration: none;">Sandeep</a></div>
+        </div>
+    </div>
+
+    <!-- Circular Floating Back Button -->
+    <button class="back-btn" type="button" title="Back" aria-label="Go back"
+    onclick="(function(){ if(window.history.length>1){ history.back(); } else if(document.referrer){ location.href = document.referrer; } else { location.href = '/'; } })();">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+        <path d="M15 18l-6-6 6-6" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+</button>
+
+<script>
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // STATE
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     const state = {
-      image: null,
-      fileName: '',
-      selectedRatio: null,
-      generated: false,
-      generatedCanvas: null,
+        image: null,
+        fileName: '',
+        selectedRatio: null,
+        generated: false,
+        generatedCanvas: null,
     };
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -199,107 +613,129 @@
     // HELPERS
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     function parseRatio(str) {
-      const parts = str.split(':').map(Number);
-      return { w: parts[0], h: parts[1] };
+        const parts = str.split(':').map(Number);
+        return { w: parts[0], h: parts[1] };
     }
+
     function formatFileSize(bytes) {
-      if (bytes < 1024) return bytes + ' B';
-      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-      return (bytes / 1048576).toFixed(1) + ' MB';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
     }
+
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // FILE UPLOAD – fixed double popup
+    // FILE UPLOAD – FIXED: No double popup
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // We use a flag to prevent multiple triggers
+    let isUploading = false;
+
     uploadArea.addEventListener('click', (e) => {
-      e.stopPropagation();
-      fileInput.click();
+        e.stopPropagation();
+        if (!isUploading) {
+            isUploading = true;
+            fileInput.click();
+            // Reset the flag after a short delay
+            setTimeout(() => { isUploading = false; }, 300);
+        }
     });
+
     // Drag events
     ['dragenter', 'dragover'].forEach(ev => {
-      uploadArea.addEventListener(ev, e => { e.preventDefault();
-        uploadArea.classList.add('active'); });
+        uploadArea.addEventListener(ev, e => {
+            e.preventDefault();
+            uploadArea.classList.add('active');
+        });
     });
+
     ['dragleave', 'drop'].forEach(ev => {
-      uploadArea.addEventListener(ev, e => { e.preventDefault();
-        uploadArea.classList.remove('active'); });
+        uploadArea.addEventListener(ev, e => {
+            e.preventDefault();
+            uploadArea.classList.remove('active');
+        });
     });
-    uploadArea.addEventListener('drop', e => {
-      e.preventDefault();
-      uploadArea.classList.remove('active');
-      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('active');
+        if (e.dataTransfer.files.length) {
+            handleFile(e.dataTransfer.files[0]);
+        }
     });
+
+    // File input change – properly reset value
     fileInput.addEventListener('change', (e) => {
-      if (fileInput.files.length) {
-        handleFile(fileInput.files[0]);
-        // Reset so that re-uploading the same file works
-        fileInput.value = '';
-      }
+        if (fileInput.files.length) {
+            handleFile(fileInput.files[0]);
+            // Reset so re-uploading the same file works
+            fileInput.value = '';
+        }
+        isUploading = false;
     });
 
     function handleFile(file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Please upload an image file.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          state.image = img;
-          state.fileName = file.name;
-          fileInfo.textContent = `${file.name} · ${formatFileSize(file.size)}`;
-          fileInfo.style.display = 'block';
-          generateBtn.disabled = false;
-          state.generated = false;
-          downloadWrap.style.display = 'none';
-          renderRawPreview();
+        if (!file.type.startsWith('image/')) {
+            alert('Please upload an image file (JPG, PNG, WebP, etc.)');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                state.image = img;
+                state.fileName = file.name;
+                fileInfo.textContent = `${file.name} · ${formatFileSize(file.size)}`;
+                fileInfo.style.display = 'block';
+                generateBtn.disabled = false;
+                state.generated = false;
+                downloadWrap.style.display = 'none';
+                renderRawPreview();
+            };
+            img.src = e.target.result;
         };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
     }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // RAW PREVIEW
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     function renderRawPreview() {
-      if (!state.image) return;
-      const img = state.image;
-      const container = previewCanvas.parentElement;
-      const maxW = container.clientWidth || 760;
-      const maxH = 500;
-      let dispW = img.width,
-        dispH = img.height;
-      if (dispW > maxW || dispH > maxH) {
-        const scale = Math.min(maxW / dispW, maxH / dispH);
-        dispW = Math.floor(dispW * scale);
-        dispH = Math.floor(dispH * scale);
-      }
-      previewCanvas.width = dispW;
-      previewCanvas.height = dispH;
-      previewCanvas.style.width = dispW + 'px';
-      previewCanvas.style.height = dispH + 'px';
-      ctx.clearRect(0, 0, dispW, dispH);
-      ctx.drawImage(img, 0, 0, dispW, dispH);
-      placeholder.style.display = 'none';
-      previewCanvas.style.display = 'block';
+        if (!state.image) return;
+        const img = state.image;
+        const container = previewCanvas.parentElement;
+        const maxW = container.clientWidth || 760;
+        const maxH = 500;
+        let dispW = img.width,
+            dispH = img.height;
+        if (dispW > maxW || dispH > maxH) {
+            const scale = Math.min(maxW / dispW, maxH / dispH);
+            dispW = Math.floor(dispW * scale);
+            dispH = Math.floor(dispH * scale);
+        }
+        previewCanvas.width = dispW;
+        previewCanvas.height = dispH;
+        previewCanvas.style.width = dispW + 'px';
+        previewCanvas.style.height = dispH + 'px';
+        ctx.clearRect(0, 0, dispW, dispH);
+        ctx.drawImage(img, 0, 0, dispW, dispH);
+        placeholder.style.display = 'none';
+        previewCanvas.style.display = 'block';
     }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // ASPECT RATIO SELECTION
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     ratioBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        ratioBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        state.selectedRatio = btn.dataset.ratio;
-        if (state.image) generateBtn.disabled = false;
-        state.generated = false;
-        downloadWrap.style.display = 'none';
-        if (state.image) renderRawPreview();
-      });
+        btn.addEventListener('click', () => {
+            ratioBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            state.selectedRatio = btn.dataset.ratio;
+            if (state.image) generateBtn.disabled = false;
+            state.generated = false;
+            downloadWrap.style.display = 'none';
+            if (state.image) renderRawPreview();
+        });
     });
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -308,319 +744,254 @@
     generateBtn.addEventListener('click', generate);
 
     function generate() {
-      if (!state.image || !state.selectedRatio) {
-        alert('Please upload an image and select an aspect ratio.');
-        return;
-      }
+        if (!state.image || !state.selectedRatio) {
+            alert('Please upload an image and select an aspect ratio.');
+            return;
+        }
 
-      const ratio = parseRatio(state.selectedRatio);
-      const img = state.image;
+        const ratio = parseRatio(state.selectedRatio);
+        const img = state.image;
 
-      // Target canvas size
-      const baseSize = 1000;
-      let targetW, targetH;
-      if (ratio.w >= ratio.h) {
-        targetW = baseSize;
-        targetH = Math.floor(baseSize * (ratio.h / ratio.w));
-      } else {
-        targetH = baseSize;
-        targetW = Math.floor(baseSize * (ratio.w / ratio.h));
-      }
-      if (targetW < 400) targetW = 400;
-      if (targetH < 400) targetH = 400;
-      const maxDim = 2000;
-      if (targetW > maxDim || targetH > maxDim) {
-        const scale = Math.min(maxDim / targetW, maxDim / targetH);
-        targetW = Math.floor(targetW * scale);
-        targetH = Math.floor(targetH * scale);
-      }
+        // Target canvas size
+        const baseSize = 1000;
+        let targetW, targetH;
+        if (ratio.w >= ratio.h) {
+            targetW = baseSize;
+            targetH = Math.floor(baseSize * (ratio.h / ratio.w));
+        } else {
+            targetH = baseSize;
+            targetW = Math.floor(baseSize * (ratio.w / ratio.h));
+        }
+        if (targetW < 400) targetW = 400;
+        if (targetH < 400) targetH = 400;
+        const maxDim = 2000;
+        if (targetW > maxDim || targetH > maxDim) {
+            const scale = Math.min(maxDim / targetW, maxDim / targetH);
+            targetW = Math.floor(targetW * scale);
+            targetH = Math.floor(targetH * scale);
+        }
 
-      const canvas = document.createElement('canvas');
-      canvas.width = targetW;
-      canvas.height = targetH;
-      const c = canvas.getContext('2d');
+        const canvas = document.createElement('canvas');
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const c = canvas.getContext('2d');
 
-      // ── 1. Stretch (cover) the image to fill canvas ──
-      const imgAspect = img.width / img.height;
-      const targetAspect = targetW / targetH;
-      let coverW, coverH, coverX, coverY;
-      if (imgAspect > targetAspect) {
-        coverH = targetH;
-        coverW = targetH * imgAspect;
-        coverX = (targetW - coverW) / 2;
-        coverY = 0;
-      } else {
-        coverW = targetW;
-        coverH = targetW / imgAspect;
-        coverX = 0;
-        coverY = (targetH - coverH) / 2;
-      }
-      coverX = Math.round(coverX);
-      coverY = Math.round(coverY);
-      coverW = Math.round(coverW);
-      coverH = Math.round(coverH);
+        // ── 1. Stretch (cover) the image to fill canvas ──
+        const imgAspect = img.width / img.height;
+        const targetAspect = targetW / targetH;
+        let coverW, coverH, coverX, coverY;
+        if (imgAspect > targetAspect) {
+            coverH = targetH;
+            coverW = targetH * imgAspect;
+            coverX = (targetW - coverW) / 2;
+            coverY = 0;
+        } else {
+            coverW = targetW;
+            coverH = targetW / imgAspect;
+            coverX = 0;
+            coverY = (targetH - coverH) / 2;
+        }
+        coverX = Math.round(coverX);
+        coverY = Math.round(coverY);
+        coverW = Math.round(coverW);
+        coverH = Math.round(coverH);
 
-      // ── 2. Draw cover on temp canvas ──
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = targetW;
-      tempCanvas.height = targetH;
-      const tCtx = tempCanvas.getContext('2d');
-      tCtx.drawImage(img, coverX, coverY, coverW, coverH);
+        // ── 2. Draw cover on temp canvas ──
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = targetW;
+        tempCanvas.height = targetH;
+        const tCtx = tempCanvas.getContext('2d');
+        tCtx.drawImage(img, coverX, coverY, coverW, coverH);
 
-      // ── 3. Heavy blur on cover ──
-      const blurCanvas = document.createElement('canvas');
-      blurCanvas.width = targetW;
-      blurCanvas.height = targetH;
-      const bCtx = blurCanvas.getContext('2d');
-      bCtx.filter = 'blur(24px)';
-      bCtx.drawImage(tempCanvas, 0, 0);
+        // ── 3. Heavy blur on cover ──
+        const blurCanvas = document.createElement('canvas');
+        blurCanvas.width = targetW;
+        blurCanvas.height = targetH;
+        const bCtx = blurCanvas.getContext('2d');
+        bCtx.filter = 'blur(24px)';
+        bCtx.drawImage(tempCanvas, 0, 0);
 
-      // ── 4. Draw blurred background ──
-      c.drawImage(blurCanvas, 0, 0);
+        // ── 4. Draw blurred background ──
+        c.drawImage(blurCanvas, 0, 0);
 
-      // ── 5. Dark vignette for depth ──
-      const vignette = c.createRadialGradient(
-        targetW / 2, targetH / 2, Math.min(targetW, targetH) * 0.15,
-        targetW / 2, targetH / 2, Math.max(targetW, targetH) * 0.75
-      );
-      vignette.addColorStop(0, 'rgba(0,0,0,0)');
-      vignette.addColorStop(0.5, 'rgba(0,0,0,0)');
-      vignette.addColorStop(0.8, 'rgba(0,0,0,0.20)');
-      vignette.addColorStop(1, 'rgba(0,0,0,0.50)');
-      c.fillStyle = vignette;
-      c.fillRect(0, 0, targetW, targetH);
+        // ── 5. Dark vignette for depth ──
+        const vignette = c.createRadialGradient(
+            targetW / 2, targetH / 2, Math.min(targetW, targetH) * 0.15,
+            targetW / 2, targetH / 2, Math.max(targetW, targetH) * 0.75
+        );
+        vignette.addColorStop(0, 'rgba(0,0,0,0)');
+        vignette.addColorStop(0.5, 'rgba(0,0,0,0)');
+        vignette.addColorStop(0.8, 'rgba(0,0,0,0.20)');
+        vignette.addColorStop(1, 'rgba(0,0,0,0.50)');
+        c.fillStyle = vignette;
+        c.fillRect(0, 0, targetW, targetH);
 
-      // ── 6. Calculate tile & image with 8px margin and 20px padding ──
-      const minMargin = 8; // increased from 5 to 8
-      const desiredPadding = 20; // padding between tile edge and image edge
-      const cornerRadius = 30; // tile rounded corners
+        // ── 6. Calculate tile & image with 8px margin and 20px padding ──
+        const minMargin = 8;
+        const desiredPadding = 20;
+        const cornerRadius = 30;
 
-      const maxTileW = targetW - minMargin * 2;
-      const maxTileH = targetH - minMargin * 2;
+        const maxTileW = targetW - minMargin * 2;
+        const maxTileH = targetH - minMargin * 2;
 
-      const maxImageW = maxTileW - desiredPadding * 2;
-      const maxImageH = maxTileH - desiredPadding * 2;
+        const maxImageW = maxTileW - desiredPadding * 2;
+        const maxImageH = maxTileH - desiredPadding * 2;
 
-      // Fit image inside maxImageW/H without upscaling
-      const fitScale = Math.min(
-        maxImageW / img.width,
-        maxImageH / img.height,
-        1
-      );
+        // Fit image inside maxImageW/H without upscaling
+        const fitScale = Math.min(
+            maxImageW / img.width,
+            maxImageH / img.height,
+            1
+        );
 
-      const fitW = img.width * fitScale;
-      const fitH = img.height * fitScale;
+        const fitW = img.width * fitScale;
+        const fitH = img.height * fitScale;
 
-      const tileW = fitW + desiredPadding * 2;
-      const tileH = fitH + desiredPadding * 2;
+        const tileW = fitW + desiredPadding * 2;
+        const tileH = fitH + desiredPadding * 2;
 
-      const tileX = (targetW - tileW) / 2;
-      const tileY = (targetH - tileH) / 2;
+        const tileX = (targetW - tileW) / 2;
+        const tileY = (targetH - tileH) / 2;
 
-      const imgX = tileX + (tileW - fitW) / 2;
-      const imgY = tileY + (tileH - fitH) / 2;
+        const imgX = tileX + (tileW - fitW) / 2;
+        const imgY = tileY + (tileH - fitH) / 2;
 
-      // ── 7. Draw glass tile with shadow ──
-      c.save();
-      c.shadowColor = 'rgba(0,0,0,0.6)';
-      c.shadowBlur = 40;
-      c.shadowOffsetX = 0;
-      c.shadowOffsetY = 15;
+        // ── 7. Draw glass tile with shadow ──
+        c.save();
+        c.shadowColor = 'rgba(0,0,0,0.6)';
+        c.shadowBlur = 40;
+        c.shadowOffsetX = 0;
+        c.shadowOffsetY = 15;
 
-      // Rounded rect path for tile
-      const r = cornerRadius;
-      c.beginPath();
-      c.moveTo(tileX + r, tileY);
-      c.lineTo(tileX + tileW - r, tileY);
-      c.quadraticCurveTo(tileX + tileW, tileY, tileX + tileW, tileY + r);
-      c.lineTo(tileX + tileW, tileY + tileH - r);
-      c.quadraticCurveTo(tileX + tileW, tileY + tileH, tileX + tileW - r, tileY + tileH);
-      c.lineTo(tileX + r, tileY + tileH);
-      c.quadraticCurveTo(tileX, tileY + tileH, tileX, tileY + tileH - r);
-      c.lineTo(tileX, tileY + r);
-      c.quadraticCurveTo(tileX, tileY, tileX + r, tileY);
-      c.closePath();
+        const r = cornerRadius;
+        // Rounded rect path for tile
+        function roundedRect(ctx, x, y, w, h, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + w - radius, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+            ctx.lineTo(x + w, y + h - radius);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+            ctx.lineTo(x + radius, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
 
-      c.fillStyle = 'rgba(255,255,255,0.12)';
-      c.fill();
-      c.shadowColor = 'transparent'; // reset for stroke
+        roundedRect(c, tileX, tileY, tileW, tileH, r);
+        c.fillStyle = 'rgba(255,255,255,0.12)';
+        c.fill();
+        c.shadowColor = 'transparent';
 
-      // ── 8. Clip & Draw Image with rounded corners and feathered edge ──
-      // We'll clip to the tile's rounded rect, then draw image, then add a feathered overlay.
-      c.save();
-      // Clip to tile shape
-      c.beginPath();
-      c.moveTo(tileX + r, tileY);
-      c.lineTo(tileX + tileW - r, tileY);
-      c.quadraticCurveTo(tileX + tileW, tileY, tileX + tileW, tileY + r);
-      c.lineTo(tileX + tileW, tileY + tileH - r);
-      c.quadraticCurveTo(tileX + tileW, tileY + tileH, tileX + tileW - r, tileY + tileH);
-      c.lineTo(tileX + r, tileY + tileH);
-      c.quadraticCurveTo(tileX, tileY + tileH, tileX, tileY + tileH - r);
-      c.lineTo(tileX, tileY + r);
-      c.quadraticCurveTo(tileX, tileY, tileX + r, tileY);
-      c.closePath();
-      c.clip();
+        // ── 8. Clip & Draw Image with rounded corners and feathered edge ──
+        // First, clip to the tile's rounded rect
+        c.save();
+        roundedRect(c, tileX, tileY, tileW, tileH, r);
+        c.clip();
 
-      // Draw the image (fitted)
-      c.drawImage(img, imgX, imgY, fitW, fitH);
+        // Draw the image (fitted)
+        c.drawImage(img, imgX, imgY, fitW, fitH);
 
-      // ── 9. Feather the photo edges: create a soft blur/fade at the border ──
-      // We'll draw a radial gradient that is transparent in the center and 
-      // fades to a slightly opaque white/blue at the edges to soften the sharp edge.
-      // This gives the illusion of a blurred edge.
-      // We'll use a rounded rectangle path with a gradient fill.
-      // But to make it smooth, we'll use multiple overlapping gradients.
-      // Simpler: we'll draw a stroke with a gradient that fades out.
-      // Actually, we want the edge to be blurry, not just a gradient stroke.
-      // We can use a technique: draw the image, then draw a blurred version of the image
-      // only at the edges? That's complex. Instead, we can draw a semi-transparent 
-      // gradient overlay that is dark at the edges to blend with the glass.
-      // Since the tile is glass-like, we can add a subtle white glow at the edges.
+        // ── 9. FEATHERED EDGE: Soft blur/fade at photo border ──
+        // We create a radial gradient that is transparent in center and
+        // softly fades to a semi-transparent white/blue at the edges.
+        // This gives the illusion of the photo edges being soft and blurred.
+        const featherRadius = 24; // how far the feather extends from edge
+        const centerX = tileX + tileW / 2;
+        const centerY = tileY + tileH / 2;
+        const maxDist = Math.max(tileW, tileH) * 0.7;
 
-      // We'll add an inner shadow effect: draw a rounded rectangle with a blur and 
-      // a dark stroke that fades. But easier: we can draw a radial gradient from the center
-      // to the corners that is transparent in center and white/blue at edges with low opacity.
-      // This will soften the transition.
-      // We'll also draw a thin blurred border.
+        // Create a gradient that fades from transparent in center to
+        // a soft white/blue at the edges (with very low opacity)
+        const featherGrad = c.createRadialGradient(
+            centerX, centerY, Math.min(tileW, tileH) * 0.3,
+            centerX, centerY, maxDist
+        );
+        featherGrad.addColorStop(0, 'rgba(255,255,255,0)');
+        featherGrad.addColorStop(0.65, 'rgba(255,255,255,0)');
+        featherGrad.addColorStop(0.85, 'rgba(220,235,255,0.06)');
+        featherGrad.addColorStop(0.95, 'rgba(200,220,255,0.14)');
+        featherGrad.addColorStop(1, 'rgba(180,210,255,0.25)');
 
-      // Create a gradient overlay
-      const overlayGrad = c.createRadialGradient(
-        tileX + tileW / 2, tileY + tileH / 2, Math.min(tileW, tileH) * 0.35,
-        tileX + tileW / 2, tileY + tileH / 2, Math.max(tileW, tileH) * 0.7
-      );
-      overlayGrad.addColorStop(0, 'rgba(255,255,255,0)');
-      overlayGrad.addColorStop(0.7, 'rgba(255,255,255,0)');
-      overlayGrad.addColorStop(0.9, 'rgba(200,220,255,0.08)');
-      overlayGrad.addColorStop(1, 'rgba(180,200,255,0.20)');
-      c.fillStyle = overlayGrad;
-      c.fillRect(tileX, tileY, tileW, tileH);
+        c.fillStyle = featherGrad;
+        c.fillRect(tileX, tileY, tileW, tileH);
 
-      // Add a subtle blur at the very edge by drawing a rounded rectangle with a shadow
-      // We'll draw a thin border with a blur effect.
-      c.shadowColor = 'rgba(255,255,255,0.1)';
-      c.shadowBlur = 12;
-      c.shadowOffsetX = 0;
-      c.shadowOffsetY = 0;
-      c.strokeStyle = 'rgba(255,255,255,0)';
-      c.lineWidth = 1;
-      c.beginPath();
-      c.moveTo(tileX + r, tileY);
-      c.lineTo(tileX + tileW - r, tileY);
-      c.quadraticCurveTo(tileX + tileW, tileY, tileX + tileW, tileY + r);
-      c.lineTo(tileX + tileW, tileY + tileH - r);
-      c.quadraticCurveTo(tileX + tileW, tileY + tileH, tileX + tileW - r, tileY + tileH);
-      c.lineTo(tileX + r, tileY + tileH);
-      c.quadraticCurveTo(tileX, tileY + tileH, tileX, tileY + tileH - r);
-      c.lineTo(tileX, tileY + r);
-      c.quadraticCurveTo(tileX, tileY, tileX + r, tileY);
-      c.closePath();
-      c.stroke();
-      c.shadowColor = 'transparent';
+        // Additional edge blur: draw a thin blurred border along the photo edge
+        // This softens the transition even more
+        c.shadowColor = 'rgba(255,255,255,0.08)';
+        c.shadowBlur = 18;
+        c.shadowOffsetX = 0;
+        c.shadowOffsetY = 0;
+        c.strokeStyle = 'rgba(255,255,255,0)';
+        c.lineWidth = 1;
+        roundedRect(c, tileX + 4, tileY + 4, tileW - 8, tileH - 8, r - 4);
+        c.stroke();
+        c.shadowColor = 'transparent';
 
-      c.restore(); // remove clip
+        c.restore(); // remove clip
 
-      // ── 10. Glass Overlay Effects (on top of everything) ──
-      // a) Inner glow / highlight (top-left to bottom-right)
-      const glassGrad = c.createLinearGradient(tileX, tileY, tileX + tileW, tileY + tileH);
-      glassGrad.addColorStop(0, 'rgba(255,255,255,0.20)');
-      glassGrad.addColorStop(0.3, 'rgba(255,255,255,0.05)');
-      glassGrad.addColorStop(0.7, 'rgba(255,255,255,0)');
-      glassGrad.addColorStop(1, 'rgba(255,255,255,0.08)');
-      c.fillStyle = glassGrad;
-      c.beginPath();
-      c.moveTo(tileX + r, tileY);
-      c.lineTo(tileX + tileW - r, tileY);
-      c.quadraticCurveTo(tileX + tileW, tileY, tileX + tileW, tileY + r);
-      c.lineTo(tileX + tileW, tileY + tileH - r);
-      c.quadraticCurveTo(tileX + tileW, tileY + tileH, tileX + tileW - r, tileY + tileH);
-      c.lineTo(tileX + r, tileY + tileH);
-      c.quadraticCurveTo(tileX, tileY + tileH, tileX, tileY + tileH - r);
-      c.lineTo(tileX, tileY + r);
-      c.quadraticCurveTo(tileX, tileY, tileX + r, tileY);
-      c.closePath();
-      c.fill();
+        // ── 10. Glass Overlay Effects (on top of everything) ──
+        // a) Inner glow / highlight (top-left to bottom-right)
+        const glassGrad = c.createLinearGradient(tileX, tileY, tileX + tileW, tileY + tileH);
+        glassGrad.addColorStop(0, 'rgba(255,255,255,0.20)');
+        glassGrad.addColorStop(0.3, 'rgba(255,255,255,0.05)');
+        glassGrad.addColorStop(0.7, 'rgba(255,255,255,0)');
+        glassGrad.addColorStop(1, 'rgba(255,255,255,0.08)');
+        c.fillStyle = glassGrad;
+        roundedRect(c, tileX, tileY, tileW, tileH, r);
+        c.fill();
 
-      // b) Diagonal reflection streak
-      const streak = c.createLinearGradient(tileX + tileW * 0.2, tileY, tileX + tileW * 0.8, tileY + tileH);
-      streak.addColorStop(0, 'rgba(255,255,255,0)');
-      streak.addColorStop(0.4, 'rgba(255,255,255,0.03)');
-      streak.addColorStop(0.5, 'rgba(255,255,255,0.12)');
-      streak.addColorStop(0.6, 'rgba(255,255,255,0.03)');
-      streak.addColorStop(1, 'rgba(255,255,255,0)');
-      c.fillStyle = streak;
-      c.beginPath();
-      c.moveTo(tileX + r, tileY);
-      c.lineTo(tileX + tileW - r, tileY);
-      c.quadraticCurveTo(tileX + tileW, tileY, tileX + tileW, tileY + r);
-      c.lineTo(tileX + tileW, tileY + tileH - r);
-      c.quadraticCurveTo(tileX + tileW, tileY + tileH, tileX + tileW - r, tileY + tileH);
-      c.lineTo(tileX + r, tileY + tileH);
-      c.quadraticCurveTo(tileX, tileY + tileH, tileX, tileY + tileH - r);
-      c.lineTo(tileX, tileY + r);
-      c.quadraticCurveTo(tileX, tileY, tileX + r, tileY);
-      c.closePath();
-      c.fill();
+        // b) Diagonal reflection streak
+        const streak = c.createLinearGradient(tileX + tileW * 0.2, tileY, tileX + tileW * 0.8, tileY + tileH);
+        streak.addColorStop(0, 'rgba(255,255,255,0)');
+        streak.addColorStop(0.4, 'rgba(255,255,255,0.03)');
+        streak.addColorStop(0.5, 'rgba(255,255,255,0.12)');
+        streak.addColorStop(0.6, 'rgba(255,255,255,0.03)');
+        streak.addColorStop(1, 'rgba(255,255,255,0)');
+        c.fillStyle = streak;
+        roundedRect(c, tileX, tileY, tileW, tileH, r);
+        c.fill();
 
-      // c) Tile Border (clearly visible in all directions)
-      c.strokeStyle = 'rgba(255,255,255,0.45)';
-      c.lineWidth = 2.5;
-      c.shadowColor = 'transparent';
-      c.beginPath();
-      c.moveTo(tileX + r, tileY);
-      c.lineTo(tileX + tileW - r, tileY);
-      c.quadraticCurveTo(tileX + tileW, tileY, tileX + tileW, tileY + r);
-      c.lineTo(tileX + tileW, tileY + tileH - r);
-      c.quadraticCurveTo(tileX + tileW, tileY + tileH, tileX + tileW - r, tileY + tileH);
-      c.lineTo(tileX + r, tileY + tileH);
-      c.quadraticCurveTo(tileX, tileY + tileH, tileX, tileY + tileH - r);
-      c.lineTo(tileX, tileY + r);
-      c.quadraticCurveTo(tileX, tileY, tileX + r, tileY);
-      c.closePath();
-      c.stroke();
+        // c) Tile Border (clearly visible in all directions)
+        c.strokeStyle = 'rgba(255,255,255,0.45)';
+        c.lineWidth = 2.5;
+        c.shadowColor = 'transparent';
+        roundedRect(c, tileX, tileY, tileW, tileH, r);
+        c.stroke();
 
-      // ── 11. Final: faint outer glow around tile to blend ──
-      c.shadowColor = 'rgba(255,255,255,0.05)';
-      c.shadowBlur = 30;
-      c.shadowOffsetX = 0;
-      c.shadowOffsetY = 0;
-      c.strokeStyle = 'rgba(255,255,255,0)';
-      c.lineWidth = 0;
-      c.beginPath();
-      c.moveTo(tileX + r, tileY);
-      c.lineTo(tileX + tileW - r, tileY);
-      c.quadraticCurveTo(tileX + tileW, tileY, tileX + tileW, tileY + r);
-      c.lineTo(tileX + tileW, tileY + tileH - r);
-      c.quadraticCurveTo(tileX + tileW, tileY + tileH, tileX + tileW - r, tileY + tileH);
-      c.lineTo(tileX + r, tileY + tileH);
-      c.quadraticCurveTo(tileX, tileY + tileH, tileX, tileY + tileH - r);
-      c.lineTo(tileX, tileY + r);
-      c.quadraticCurveTo(tileX, tileY, tileX + r, tileY);
-      c.closePath();
-      c.stroke();
-      c.restore();
+        // ── 11. Final: faint outer glow around tile to blend ──
+        c.shadowColor = 'rgba(255,255,255,0.05)';
+        c.shadowBlur = 30;
+        c.shadowOffsetX = 0;
+        c.shadowOffsetY = 0;
+        c.strokeStyle = 'rgba(255,255,255,0)';
+        c.lineWidth = 0;
+        roundedRect(c, tileX, tileY, tileW, tileH, r);
+        c.stroke();
+        c.restore();
 
-      // ── Display on preview ──
-      previewCanvas.width = targetW;
-      previewCanvas.height = targetH;
-      previewCanvas.style.width = '100%';
-      previewCanvas.style.height = 'auto';
-      const pctx = previewCanvas.getContext('2d');
-      pctx.clearRect(0, 0, targetW, targetH);
-      pctx.drawImage(canvas, 0, 0);
-      placeholder.style.display = 'none';
-      previewCanvas.style.display = 'block';
-      state.generated = true;
-      state.generatedCanvas = canvas;
+        // ── Display on preview ──
+        previewCanvas.width = targetW;
+        previewCanvas.height = targetH;
+        previewCanvas.style.width = '100%';
+        previewCanvas.style.height = 'auto';
+        const pctx = previewCanvas.getContext('2d');
+        pctx.clearRect(0, 0, targetW, targetH);
+        pctx.drawImage(canvas, 0, 0);
+        placeholder.style.display = 'none';
+        previewCanvas.style.display = 'block';
+        state.generated = true;
+        state.generatedCanvas = canvas;
 
-      downloadWrap.style.display = 'flex';
-      downloadBtn.onclick = () => {
-        const link = document.createElement('a');
-        const baseName = state.fileName.replace(/\.[^.]+$/, '') || 'image';
-        link.download = `${baseName}_${state.selectedRatio}_tile.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      };
+        downloadWrap.style.display = 'flex';
+        downloadBtn.onclick = () => {
+            const link = document.createElement('a');
+            const baseName = state.fileName.replace(/\.[^.]+$/, '') || 'image';
+            link.download = `${baseName}_${state.selectedRatio}_tile.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        };
     }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -628,10 +999,10 @@
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     let resizeTimer;
     window.addEventListener('resize', () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        if (!state.generated && state.image) renderRawPreview();
-      }, 300);
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (!state.generated && state.image) renderRawPreview();
+        }, 300);
     });
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -640,7 +1011,7 @@
     previewCanvas.style.display = 'none';
     placeholder.style.display = 'block';
     generateBtn.disabled = true;
-    console.log('✦ Glass Tile Pro – Rounded, feathered edges, 8px margin ✦');
-  </script>
+    console.log('✦ Glass Tile Pro – Rounded & Feathered Edges, 8px Margin ✦');
+</script>
 </body>
 </html>
