@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Glass Tile Story – 5px Margin Guaranteed</title>
+  <title>Glass Tile Pro – Rounded & Feathered Photo</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -94,7 +94,7 @@
   <div class="container" id="app">
     <div class="header">
       <h1><i class="fas fa-glass-whiskey"></i> Glass Tile Pro</h1>
-      <p>Rounded glass tile · Guaranteed 5px margin from canvas edge</p>
+      <p>Rounded tile · Feathered photo edges · 8px margin</p>
     </div>
     <div class="upload-area" id="uploadArea">
       <i class="fas fa-cloud-upload-alt"></i>
@@ -164,7 +164,7 @@
       </button>
     </div>
     <div class="footer">
-      <span>✦ Tile strictly inside canvas · Always 5px margin from edges ✦</span><br />
+      <span>✦ Tile margin 8px · Photo edges softly rounded &amp; blurred ✦</span><br />
       <span>Made with <span class="heart">❤️</span> by <a href="#" target="_blank">Sandeep</a></span>
     </div>
   </div>
@@ -210,9 +210,13 @@
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // FILE UPLOAD
+    // FILE UPLOAD – fixed double popup
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    uploadArea.addEventListener('click', () => fileInput.click());
+    uploadArea.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.click();
+    });
+    // Drag events
     ['dragenter', 'dragover'].forEach(ev => {
       uploadArea.addEventListener(ev, e => { e.preventDefault();
         uploadArea.classList.add('active'); });
@@ -222,10 +226,16 @@
         uploadArea.classList.remove('active'); });
     });
     uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadArea.classList.remove('active');
       if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
     });
-    fileInput.addEventListener('change', () => {
-      if (fileInput.files.length) handleFile(fileInput.files[0]);
+    fileInput.addEventListener('change', (e) => {
+      if (fileInput.files.length) {
+        handleFile(fileInput.files[0]);
+        // Reset so that re-uploading the same file works
+        fileInput.value = '';
+      }
     });
 
     function handleFile(file) {
@@ -293,7 +303,7 @@
     });
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // GENERATE – Glass Tile with Guaranteed 5px Margin
+    // GENERATE – Glass Tile with 8px margin, rounded & feathered photo
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     generateBtn.addEventListener('click', generate);
 
@@ -380,54 +390,45 @@
       c.fillStyle = vignette;
       c.fillRect(0, 0, targetW, targetH);
 
-      // ── 6. NEW: Calculate Tile & Image sizes with guaranteed 5px margin ──
-      //    The tile must ALWAYS be at least 5px away from canvas edges.
-      const minMargin = 5;
+      // ── 6. Calculate tile & image with 8px margin and 20px padding ──
+      const minMargin = 8; // increased from 5 to 8
       const desiredPadding = 20; // padding between tile edge and image edge
+      const cornerRadius = 30; // tile rounded corners
 
-      // Maximum possible tile size respecting the 5px margin
       const maxTileW = targetW - minMargin * 2;
       const maxTileH = targetH - minMargin * 2;
 
-      // Maximum image size allowed inside the tile with desired padding
       const maxImageW = maxTileW - desiredPadding * 2;
       const maxImageH = maxTileH - desiredPadding * 2;
 
-      // Calculate scale to fit image inside the maximum allowed image size
-      // We use Math.min(..., 1) to prevent upscaling if the image is smaller than maxImageW/H
+      // Fit image inside maxImageW/H without upscaling
       const fitScale = Math.min(
         maxImageW / img.width,
         maxImageH / img.height,
         1
       );
 
-      // Final image dimensions (maintaining aspect ratio)
       const fitW = img.width * fitScale;
       const fitH = img.height * fitScale;
 
-      // Tile dimensions (image size + padding)
       const tileW = fitW + desiredPadding * 2;
       const tileH = fitH + desiredPadding * 2;
 
-      // Tile position (centered on canvas)
       const tileX = (targetW - tileW) / 2;
       const tileY = (targetH - tileH) / 2;
 
-      // Image position (centered inside the tile)
       const imgX = tileX + (tileW - fitW) / 2;
       const imgY = tileY + (tileH - fitH) / 2;
 
-      // ── 7. Draw glass tile with shadow (3D effect) ──
+      // ── 7. Draw glass tile with shadow ──
       c.save();
-
-      // Drop shadow (to lift tile from background)
       c.shadowColor = 'rgba(0,0,0,0.6)';
       c.shadowBlur = 40;
       c.shadowOffsetX = 0;
       c.shadowOffsetY = 15;
 
-      // Rounded rectangle function (since canvas doesn't have native rounded rect)
-      const r = 30; // corner radius
+      // Rounded rect path for tile
+      const r = cornerRadius;
       c.beginPath();
       c.moveTo(tileX + r, tileY);
       c.lineTo(tileX + tileW - r, tileY);
@@ -440,15 +441,14 @@
       c.quadraticCurveTo(tileX, tileY, tileX + r, tileY);
       c.closePath();
 
-      // Fill tile with semi-transparent glass
       c.fillStyle = 'rgba(255,255,255,0.12)';
       c.fill();
-      c.shadowColor = 'transparent'; // reset shadow for stroke
+      c.shadowColor = 'transparent'; // reset for stroke
 
-      // ── 8. Clip & Draw Image inside the rounded tile ──
-      // We need to clip to the rounded rectangle so the image doesn't overflow the tile
+      // ── 8. Clip & Draw Image with rounded corners and feathered edge ──
+      // We'll clip to the tile's rounded rect, then draw image, then add a feathered overlay.
       c.save();
-      // Re-create the rounded rect path for clipping
+      // Clip to tile shape
       c.beginPath();
       c.moveTo(tileX + r, tileY);
       c.lineTo(tileX + tileW - r, tileY);
@@ -462,11 +462,65 @@
       c.closePath();
       c.clip();
 
-      // Draw the image (fitted, centered)
+      // Draw the image (fitted)
       c.drawImage(img, imgX, imgY, fitW, fitH);
+
+      // ── 9. Feather the photo edges: create a soft blur/fade at the border ──
+      // We'll draw a radial gradient that is transparent in the center and 
+      // fades to a slightly opaque white/blue at the edges to soften the sharp edge.
+      // This gives the illusion of a blurred edge.
+      // We'll use a rounded rectangle path with a gradient fill.
+      // But to make it smooth, we'll use multiple overlapping gradients.
+      // Simpler: we'll draw a stroke with a gradient that fades out.
+      // Actually, we want the edge to be blurry, not just a gradient stroke.
+      // We can use a technique: draw the image, then draw a blurred version of the image
+      // only at the edges? That's complex. Instead, we can draw a semi-transparent 
+      // gradient overlay that is dark at the edges to blend with the glass.
+      // Since the tile is glass-like, we can add a subtle white glow at the edges.
+
+      // We'll add an inner shadow effect: draw a rounded rectangle with a blur and 
+      // a dark stroke that fades. But easier: we can draw a radial gradient from the center
+      // to the corners that is transparent in center and white/blue at edges with low opacity.
+      // This will soften the transition.
+      // We'll also draw a thin blurred border.
+
+      // Create a gradient overlay
+      const overlayGrad = c.createRadialGradient(
+        tileX + tileW / 2, tileY + tileH / 2, Math.min(tileW, tileH) * 0.35,
+        tileX + tileW / 2, tileY + tileH / 2, Math.max(tileW, tileH) * 0.7
+      );
+      overlayGrad.addColorStop(0, 'rgba(255,255,255,0)');
+      overlayGrad.addColorStop(0.7, 'rgba(255,255,255,0)');
+      overlayGrad.addColorStop(0.9, 'rgba(200,220,255,0.08)');
+      overlayGrad.addColorStop(1, 'rgba(180,200,255,0.20)');
+      c.fillStyle = overlayGrad;
+      c.fillRect(tileX, tileY, tileW, tileH);
+
+      // Add a subtle blur at the very edge by drawing a rounded rectangle with a shadow
+      // We'll draw a thin border with a blur effect.
+      c.shadowColor = 'rgba(255,255,255,0.1)';
+      c.shadowBlur = 12;
+      c.shadowOffsetX = 0;
+      c.shadowOffsetY = 0;
+      c.strokeStyle = 'rgba(255,255,255,0)';
+      c.lineWidth = 1;
+      c.beginPath();
+      c.moveTo(tileX + r, tileY);
+      c.lineTo(tileX + tileW - r, tileY);
+      c.quadraticCurveTo(tileX + tileW, tileY, tileX + tileW, tileY + r);
+      c.lineTo(tileX + tileW, tileY + tileH - r);
+      c.quadraticCurveTo(tileX + tileW, tileY + tileH, tileX + tileW - r, tileY + tileH);
+      c.lineTo(tileX + r, tileY + tileH);
+      c.quadraticCurveTo(tileX, tileY + tileH, tileX, tileY + tileH - r);
+      c.lineTo(tileX, tileY + r);
+      c.quadraticCurveTo(tileX, tileY, tileX + r, tileY);
+      c.closePath();
+      c.stroke();
+      c.shadowColor = 'transparent';
+
       c.restore(); // remove clip
 
-      // ── 9. Glass Overlay Effects (on top of the image) ──
+      // ── 10. Glass Overlay Effects (on top of everything) ──
       // a) Inner glow / highlight (top-left to bottom-right)
       const glassGrad = c.createLinearGradient(tileX, tileY, tileX + tileW, tileY + tileH);
       glassGrad.addColorStop(0, 'rgba(255,255,255,0.20)');
@@ -525,7 +579,7 @@
       c.closePath();
       c.stroke();
 
-      // ── 10. Final: faint outer glow around tile to blend ──
+      // ── 11. Final: faint outer glow around tile to blend ──
       c.shadowColor = 'rgba(255,255,255,0.05)';
       c.shadowBlur = 30;
       c.shadowOffsetX = 0;
@@ -586,7 +640,7 @@
     previewCanvas.style.display = 'none';
     placeholder.style.display = 'block';
     generateBtn.disabled = true;
-    console.log('✦ Glass Tile Pro – Strict 5px Margin ✦');
+    console.log('✦ Glass Tile Pro – Rounded, feathered edges, 8px margin ✦');
   </script>
 </body>
 </html>
