@@ -3,16 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Glass Tile Pro – Rounded & Feathered Photo</title>
+    <title>Glass Tile Pro – Feathered Photo</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body {
             min-height: 100vh;
             display: flex;
@@ -36,25 +31,8 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             padding: 32px;
         }
-        .header {
-            padding: 24px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            margin-bottom: 24px;
-        }
-        .header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            background: linear-gradient(135deg, #ffffff 30%, #a0b4ff 80%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+        .header { padding: 24px; text-align: center; background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid rgba(255, 255, 255, 0.3); margin-bottom: 24px; }
+        .header h1 { font-size: 28px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 12px; background: linear-gradient(135deg, #ffffff 30%, #a0b4ff 80%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .header h1 i { color: #5b86e5; font-size: 28px; -webkit-text-fill-color: initial; }
         .header p { color: rgba(255, 255, 255, 0.6); font-size: 0.95rem; margin-top: 4px; }
         .upload-area {
@@ -69,15 +47,9 @@
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.3);
             margin-bottom: 24px;
         }
-        .upload-area:hover,
-        .upload-area.active {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: #5b86e5;
-            box-shadow: 0 8px 24px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.3);
-        }
+        .upload-area:hover, .upload-area.active { background: rgba(255, 255, 255, 0.25); border-color: #5b86e5; box-shadow: 0 8px 24px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.3); }
         .upload-area i { font-size: 40px; color: #5b86e5; margin-bottom: 15px; transition: all 0.3s; }
-        .upload-area:hover i,
-        .upload-area.active i { transform: scale(1.1); }
+        .upload-area:hover i, .upload-area.active i { transform: scale(1.1); }
         .upload-area h3 { color: #f0f0f0; margin-bottom: 10px; font-size: 1.6rem; font-weight: 500; }
         .upload-area p { color: rgba(255, 255, 255, 0.8); font-size: 1.1rem; }
         .upload-area input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
@@ -96,25 +68,10 @@
             -webkit-text-fill-color: transparent;
             animation: shine 2s linear infinite;
         }
-        @keyframes shine {
-            from { background-position: 200% 0; }
-            to { background-position: -200% 0; }
-        }
+        @keyframes shine { from { background-position: 200% 0; } to { background-position: -200% 0; } }
         .ratios-section { margin: 16px 0 10px; }
         .platform-group { margin-bottom: 16px; }
-        .platform-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 6px;
-        }
+        .platform-label { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: rgba(255, 255, 255, 0.5); margin-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 6px; }
         .platform-label i { font-size: 1rem; color: rgba(255, 255, 255, 0.4); }
         .ratio-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
         .ratio-btn {
@@ -129,19 +86,8 @@
             transition: all 0.25s ease;
             backdrop-filter: blur(4px);
         }
-        .ratio-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.25);
-            color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-        }
-        .ratio-btn.active {
-            background: linear-gradient(135deg, #5b86e5, #36d1dc);
-            border-color: transparent;
-            color: #fff;
-            box-shadow: 0 4px 20px rgba(91, 134, 229, 0.35);
-        }
+        .ratio-btn:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.25); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); }
+        .ratio-btn.active { background: linear-gradient(135deg, #5b86e5, #36d1dc); border-color: transparent; color: #fff; box-shadow: 0 4px 20px rgba(91, 134, 229, 0.35); }
         .preview-wrap {
             margin: 18px 0 16px;
             border-radius: 16px;
@@ -155,14 +101,7 @@
             justify-content: center;
         }
         .preview-wrap canvas { display: block; width: 100%; height: auto; max-height: 560px; object-fit: contain; background: #0b0b16; }
-        .preview-placeholder {
-            color: rgba(255, 255, 255, 0.2);
-            font-size: 1rem;
-            font-weight: 400;
-            padding: 40px 20px;
-            text-align: center;
-            width: 100%;
-        }
+        .preview-placeholder { color: rgba(255, 255, 255, 0.2); font-size: 1rem; font-weight: 400; padding: 40px 20px; text-align: center; width: 100%; }
         .preview-placeholder i { font-size: 48px; display: block; margin-bottom: 12px; opacity: 0.3; }
         .btn-generate-wrap { display: flex; justify-content: center; margin: 14px 0 6px; }
         .btn {
@@ -187,53 +126,15 @@
             white-space: nowrap;
             min-width: 220px;
         }
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -150%;
-            width: 150%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: all 0.6s ease;
-        }
+        .btn::before { content: ''; position: absolute; top: 0; left: -150%; width: 150%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent); transition: all 0.6s ease; }
         .btn:hover::before { left: 150%; }
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
-            box-shadow: 0 12px 32px rgba(91, 134, 229, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .btn:disabled {
-            background: rgba(255, 255, 255, 0.1);
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
+        .btn:hover { background: rgba(255, 255, 255, 0.3); transform: perspective(1000px) rotateX(5deg) rotateY(5deg); box-shadow: 0 12px 32px rgba(91, 134, 229, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.1); }
+        .btn:disabled { background: rgba(255, 255, 255, 0.1); cursor: not-allowed; box-shadow: none; transform: none; }
         .btn:disabled::before { display: none; }
         .btn i { color: #5b86e5; font-size: 1.1rem; }
         .btn-download-wrap { display: none; justify-content: center; margin: 8px 0 0; }
-        .btn-download {
-            background: rgba(0, 200, 150, 0.15);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(0, 255, 200, 0.2);
-            padding: 12px 32px;
-            border-radius: 9999px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: #8fffd0;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 200, 150, 0.15);
-        }
-        .btn-download:hover {
-            background: rgba(0, 200, 150, 0.25);
-            border-color: rgba(0, 255, 200, 0.4);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(0, 200, 150, 0.25);
-        }
+        .btn-download { background: rgba(0, 200, 150, 0.15); backdrop-filter: blur(8px); border: 1px solid rgba(0, 255, 200, 0.2); padding: 12px 32px; border-radius: 9999px; font-size: 0.95rem; font-weight: 500; color: #8fffd0; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0, 200, 150, 0.15); }
+        .btn-download:hover { background: rgba(0, 200, 150, 0.25); border-color: rgba(0, 255, 200, 0.4); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0, 200, 150, 0.25); }
         .footer {
             margin-top: 30px;
             text-align: center;
@@ -242,10 +143,7 @@
             padding: 15px;
             border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .footer-text {
-            display: inline-block;
-            position: relative;
-        }
+        .footer-text { display: inline-block; position: relative; }
         .footer-text::after {
             content: '';
             position: absolute;
@@ -286,24 +184,10 @@
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
         .back-btn {
-            position: fixed;
-            top: 14px;
-            left: 14px;
-            z-index: 2147483647;
-            width: 52px;
-            height: 52px;
-            padding: 0;
-            border-radius: 50%;
-            border: none;
-            background: linear-gradient(180deg, #ffffff, #f2f2f2);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform .12s ease, box-shadow .12s ease;
-            backdrop-filter: blur(6px);
-            opacity: 0.98;
+            position: fixed; top: 14px; left: 14px; z-index: 2147483647; width: 52px; height: 52px; padding: 0;
+            border-radius: 50%; border: none; background: linear-gradient(180deg, #ffffff, #f2f2f2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; backdrop-filter: blur(6px); opacity: 0.98;
         }
         .back-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25); }
     </style>
@@ -542,7 +426,7 @@
         });
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // GENERATE – Glass Tile with 8px margin, rounded & feathered photo
+        // GENERATE – Glass Tile with proper feathering & equal border
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         generateBtn.addEventListener('click', generate);
 
@@ -633,8 +517,8 @@
             const minMargin = 8;
             const padding = 20; // space between tile edge and image edge
             const tileRadius = 30;
-            // Photo radius = tileRadius - padding → equal border thickness at corners
-            const photoRadius = Math.max(tileRadius - padding, 4);
+            // 👇 CRITICAL FIX: Equal border thickness at corners
+            const photoRadius = Math.max(tileRadius - padding, 2);
 
             const maxTileW = targetW - minMargin * 2;
             const maxTileH = targetH - minMargin * 2;
@@ -673,64 +557,44 @@
             c.fill();
             c.shadowColor = 'transparent';
 
-            // ── 8. Draw photo with rounded corners & feathering ──
-            // First, create a clip for the photo with its own rounded corners
+            // ── 8. Draw photo with FEATHERED edges (20px blur) ──
+            // Step A: Draw a blurred version of the image on the main canvas
             c.save();
-            roundedRect(c, imgX, imgY, fitW, fitH, photoRadius);
-            c.clip();
-
-            // Draw the image
+            c.filter = 'blur(20px)';
             c.drawImage(img, imgX, imgY, fitW, fitH);
+            c.filter = 'none';
 
-            // ── 9. FEATHERED EDGE: Soft blur/fade at the border (20px) ──
-            // Use a combination of shadow blur + gradient overlay
-
-            // Method 1: Shadow blur on the border (creates a soft glow at edges)
-            c.shadowColor = 'rgba(180,210,255,0.35)';
-            c.shadowBlur = 22; // ~20px blur
-            c.shadowOffsetX = 0;
-            c.shadowOffsetY = 0;
-            c.strokeStyle = 'rgba(180,210,255,0)';
-            c.lineWidth = 10;
-            roundedRect(c, imgX, imgY, fitW, fitH, photoRadius);
-            c.stroke();
-            c.shadowColor = 'transparent';
-
-            // Method 2: Radial gradient overlay that fades from transparent at center
-            // to a soft blue/white at the edges (creates the feathered look)
-            const centerX = imgX + fitW / 2;
-            const centerY = imgY + fitH / 2;
-            const maxDist = Math.max(fitW, fitH) * 0.72;
-
-            const featherGrad = c.createRadialGradient(
-                centerX, centerY, Math.min(fitW, fitH) * 0.25,
-                centerX, centerY, maxDist
+            // Step B: Create a mask for the sharp image to reveal only the center
+            const maskCanvas = document.createElement('canvas');
+            maskCanvas.width = fitW;
+            maskCanvas.height = fitH;
+            const maskCtx = maskCanvas.getContext('2d');
+            
+            // Radial gradient: White (opaque) in center, Black (transparent) at edges
+            const grad = maskCtx.createRadialGradient(
+                fitW/2, fitH/2, Math.min(fitW, fitH) * 0.3,
+                fitW/2, fitH/2, Math.max(fitW, fitH) * 0.7
             );
-            featherGrad.addColorStop(0, 'rgba(255,255,255,0)');
-            featherGrad.addColorStop(0.55, 'rgba(255,255,255,0)');
-            featherGrad.addColorStop(0.78, 'rgba(220,235,255,0.04)');
-            featherGrad.addColorStop(0.90, 'rgba(200,220,255,0.12)');
-            featherGrad.addColorStop(0.97, 'rgba(180,210,255,0.22)');
-            featherGrad.addColorStop(1, 'rgba(160,200,255,0.30)');
+            grad.addColorStop(0, 'white');
+            grad.addColorStop(0.8, 'white');
+            grad.addColorStop(1, 'black');
+            maskCtx.fillStyle = grad;
+            maskCtx.fillRect(0, 0, fitW, fitH);
 
-            c.fillStyle = featherGrad;
-            roundedRect(c, imgX, imgY, fitW, fitH, photoRadius);
-            c.fill();
+            // Step C: Draw sharp image on temp canvas and apply mask
+            const sharpCanvas = document.createElement('canvas');
+            sharpCanvas.width = fitW;
+            sharpCanvas.height = fitH;
+            const sharpCtx = sharpCanvas.getContext('2d');
+            sharpCtx.drawImage(img, 0, 0, fitW, fitH);
+            sharpCtx.globalCompositeOperation = 'destination-in';
+            sharpCtx.drawImage(maskCanvas, 0, 0);
 
-            // Method 3: Additional soft inner shadow for depth
-            c.shadowColor = 'rgba(0,0,0,0.08)';
-            c.shadowBlur = 15;
-            c.shadowOffsetX = 0;
-            c.shadowOffsetY = 0;
-            c.strokeStyle = 'rgba(0,0,0,0)';
-            c.lineWidth = 6;
-            roundedRect(c, imgX + 4, imgY + 4, fitW - 8, fitH - 8, Math.max(photoRadius - 3, 2));
-            c.stroke();
-            c.shadowColor = 'transparent';
+            // Step D: Draw the masked sharp image on top of the blurred image
+            c.drawImage(sharpCanvas, imgX, imgY);
+            c.restore();
 
-            c.restore(); // remove clip
-
-            // ── 10. Glass Overlay Effects ──
+            // ── 9. Glass Overlay Effects ──
             // Inner glow / highlight
             const glassGrad = c.createLinearGradient(tileX, tileY, tileX + tileW, tileY + tileH);
             glassGrad.addColorStop(0, 'rgba(255,255,255,0.20)');
@@ -758,7 +622,7 @@
             roundedRect(c, tileX, tileY, tileW, tileH, tileRadius);
             c.stroke();
 
-            // ── 11. Faint outer glow ──
+            // Faint outer glow
             c.shadowColor = 'rgba(255,255,255,0.05)';
             c.shadowBlur = 30;
             c.shadowOffsetX = 0;
