@@ -1,1 +1,1173 @@
-1
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aspect Ratio Studio – Glowing Dot Fill</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* ── Reset & Base ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 28px 20px;
+            background: radial-gradient(ellipse at 20% 50%, #1a1a2e, #0d0d1a);
+            color: #f0f0f0;
+        }
+
+        /* ── Main Container (Glass) ── */
+        .container {
+            width: 100%;
+            max-width: 780px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 28px 30px 34px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 4px 20px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        /* ── Header ── */
+        .header {
+            text-align: center;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 22px;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #ffffff 30%, #a0b4ff 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header h1 i {
+            font-size: 28px;
+            -webkit-text-fill-color: initial;
+            color: #7b93ff;
+            filter: drop-shadow(0 0 12px rgba(91, 134, 229, 0.5));
+        }
+        .header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+            margin-top: 6px;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+        }
+
+        /* ── Upload Area ── */
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            padding: 38px 20px 32px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+            transition: all 0.35s ease;
+            position: relative;
+            margin-bottom: 18px;
+        }
+        .upload-area:hover,
+        .upload-area.active {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #7b93ff;
+            box-shadow: 0 0 40px rgba(91, 134, 229, 0.15), inset 0 0 30px rgba(91, 134, 229, 0.05);
+        }
+        .upload-area i {
+            font-size: 44px;
+            color: #7b93ff;
+            margin-bottom: 12px;
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+        .upload-area:hover i {
+            transform: scale(1.08) translateY(-2px);
+        }
+        .upload-area h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .upload-area p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .file-info {
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #b8c8ff;
+            padding: 6px 0 12px;
+            display: none;
+            word-break: break-all;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shineText 2.8s linear infinite;
+        }
+        @keyframes shineText {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* ── Aspect Ratio Section ── */
+        .ratios-section {
+            margin: 16px 0 10px;
+        }
+        .platform-group {
+            margin-bottom: 16px;
+        }
+        .platform-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 6px;
+        }
+        .platform-label i {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .ratio-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .ratio-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(4px);
+            letter-spacing: 0.2px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .ratio-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        .ratio-btn.active {
+            background: linear-gradient(135deg, #5b86e5, #36d1dc);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(91, 134, 229, 0.35);
+        }
+        .ratio-btn .badge {
+            font-size: 0.6rem;
+            opacity: 0.6;
+            font-weight: 400;
+        }
+
+        /* ── Preview Canvas ── */
+        .preview-wrap {
+            margin: 18px 0 16px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .preview-wrap canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 560px;
+            object-fit: contain;
+            background: #0b0b16;
+        }
+        .preview-placeholder {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 1rem;
+            font-weight: 400;
+            padding: 40px 20px;
+            text-align: center;
+            width: 100%;
+        }
+        .preview-placeholder i {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        /* ── Pill‑shaped Glass 3D Generate Button ── */
+        .btn-generate-wrap {
+            display: flex;
+            justify-content: center;
+            margin: 14px 0 6px;
+        }
+        .btn-generate {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 16px 48px;
+            border-radius: 9999px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow:
+                0 8px 32px rgba(91, 134, 229, 0.3),
+                0 4px 16px rgba(0, 0, 0, 0.3),
+                inset 0 2px 0 rgba(255, 255, 255, 0.2),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+            min-width: 220px;
+            justify-content: center;
+        }
+        .btn-generate::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .btn-generate:hover::before {
+            opacity: 1;
+        }
+        .btn-generate:hover {
+            transform: perspective(800px) rotateX(3deg) rotateY(4deg) scale(1.02);
+            box-shadow:
+                0 14px 48px rgba(91, 134, 229, 0.45),
+                0 6px 20px rgba(0, 0, 0, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .btn-generate:active {
+            transform: perspective(800px) rotateX(1deg) rotateY(1deg) scale(0.98);
+        }
+        .btn-generate:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .btn-generate i {
+            font-size: 1.3rem;
+            color: #7b93ff;
+            filter: drop-shadow(0 0 10px rgba(91, 134, 229, 0.4));
+            transition: transform 0.3s;
+        }
+        .btn-generate:hover i {
+            transform: rotate(-8deg) scale(1.05);
+        }
+        .btn-generate .shine {
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 120%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.8s ease;
+            pointer-events: none;
+        }
+        .btn-generate:hover .shine {
+            left: 150%;
+        }
+
+        /* ── Download button (shown after generation) ── */
+        .btn-download-wrap {
+            display: none;
+            justify-content: center;
+            margin: 8px 0 0;
+        }
+        .btn-download {
+            background: rgba(0, 200, 150, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 255, 200, 0.2);
+            padding: 12px 32px;
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #8fffd0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 200, 150, 0.15);
+        }
+        .btn-download:hover {
+            background: rgba(0, 200, 150, 0.25);
+            border-color: rgba(0, 255, 200, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 200, 150, 0.25);
+        }
+
+        /* ── Footer ── */
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.8rem;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            letter-spacing: 0.2px;
+        }
+        .footer a {
+            color: #7b93ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .footer .heart {
+            color: #ff6b6b;
+            display: inline-block;
+            animation: pulseHeart 1.8s ease-in-out infinite;
+        }
+        @keyframes pulseHeart {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .container {
+                padding: 18px 14px 22px;
+                border-radius: 24px;
+            }
+            .header h1 {
+                font-size: 22px;
+                gap: 8px;
+            }
+            .header h1 i {
+                font-size: 22px;
+            }
+            .upload-area {
+                padding: 24px 14px 20px;
+            }
+            .upload-area h3 {
+                font-size: 1.2rem;
+            }
+            .ratio-btn {
+                font-size: 0.7rem;
+                padding: 5px 12px;
+            }
+            .btn-generate {
+                padding: 14px 28px;
+                font-size: 0.95rem;
+                min-width: 160px;
+            }
+            .platform-label {
+                font-size: 0.7rem;
+            }
+            .preview-wrap canvas {
+                max-height: 340px;
+            }
+        }
+        @media (max-width: 420px) {
+            .container {
+                padding: 12px 8px 16px;
+                border-radius: 18px;
+            }
+            .ratio-btn {
+                font-size: 0.65rem;
+                padding: 4px 10px;
+            }
+            .btn-generate {
+                padding: 12px 20px;
+                font-size: 0.85rem;
+                min-width: 130px;
+                gap: 8px;
+            }
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-magic"></i> Aspect Ratio Studio</h1>
+            <p>Upload a photo &amp; fill extra space with glowing microscopic dots ✦</p>
+        </div>
+
+        <!-- Upload -->
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <h3>Upload Photo</h3>
+            <p>Click or drag &amp; drop · JPG, PNG, WebP</p>
+            <input type="file" id="fileInput" accept="image/*" />
+        </div>
+        <div class="file-info" id="fileInfo"></div>
+
+        <!-- Aspect Ratios -->
+        <div class="ratios-section" id="ratiosSection">
+
+            <!-- YouTube -->
+            <div class="platform-group">
+                <div class="platform-label"><i class="fab fa-youtube" style="color:#ff3b3b;"></i> YouTube</div>
+                <div class="ratio-buttons" data-platform="youtube">
+                    <button class="ratio-btn" data-ratio="16:9">16:9</button>
+                    <button class="ratio-btn" data-ratio="9:16">9:16</button>
+                    <button class="ratio-btn" data-ratio="4:3">4:3</button>
+                    <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                    <button class="ratio-btn" data-ratio="21:9">21:9</button>
+                </div>
+            </div>
+
+            <!-- Instagram -->
+            <div class="platform-group">
+                <div class="platform-label"><i class="fab fa-instagram" style="color:#e1306c;"></i> Instagram</div>
+                <div class="ratio-buttons" data-platform="instagram">
+                    <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                    <button class="ratio-btn" data-ratio="4:5">4:5</button>
+                    <button class="ratio-btn" data-ratio="5:4">5:4</button>
+                    <button class="ratio-btn" data-ratio="16:9">16:9</button>
+                    <button class="ratio-btn" data-ratio="9:16">9:16</button>
+                </div>
+            </div>
+
+            <!-- WhatsApp -->
+            <div class="platform-group">
+                <div class="platform-label"><i class="fab fa-whatsapp" style="color:#25d366;"></i> WhatsApp</div>
+                <div class="ratio-buttons" data-platform="whatsapp">
+                    <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                    <button class="ratio-btn" data-ratio="4:3">4:3</button>
+                    <button class="ratio-btn" data-ratio="16:9">16:9</button>
+                    <button class="ratio-btn" data-ratio="9:16">9:16</button>
+                </div>
+            </div>
+
+            <!-- Twitter / X -->
+            <div class="platform-group">
+                <div class="platform-label"><i class="fab fa-twitter" style="color:#1d9bf0;"></i> Twitter / X</div>
+                <div class="ratio-buttons" data-platform="twitter">
+                    <button class="ratio-btn" data-ratio="16:9">16:9</button>
+                    <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                    <button class="ratio-btn" data-ratio="4:3">4:3</button>
+                    <button class="ratio-btn" data-ratio="3:2">3:2</button>
+                    <button class="ratio-btn" data-ratio="9:16">9:16</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-wrap" id="previewWrap">
+            <canvas id="previewCanvas"></canvas>
+            <div class="preview-placeholder" id="placeholder">
+                <i class="fas fa-image"></i>
+                <span>Upload an image &amp; select an aspect ratio</span>
+            </div>
+        </div>
+
+        <!-- Generate Button (pill, glass 3D) -->
+        <div class="btn-generate-wrap">
+            <button class="btn-generate" id="generateBtn" disabled>
+                <span class="shine"></span>
+                <i class="fas fa-wand-sparkles"></i>
+                <span>Generate</span>
+            </button>
+        </div>
+
+        <!-- Download (hidden until generated) -->
+        <div class="btn-download-wrap" id="downloadWrap">
+            <button class="btn-download" id="downloadBtn">
+                <i class="fas fa-download"></i> Download Image
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <span>✦ Glowing Dot Fill · No stretching · Pure CSS &amp; Canvas ✦</span>
+            <br />
+            <span>Made with <span class="heart">❤️</span> by <a href="#" target="_blank">Sandeep</a></span>
+        </div>
+
+    </div>
+
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  STATE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const state = {
+            image: null, // HTMLImageElement
+            imageData: null, // ImageData (for pixel sampling)
+            fileName: '',
+            selectedRatio: null, // e.g. "16:9"
+            canvasWidth: 800,
+            canvasHeight: 800,
+            generated: false,
+        };
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  DOM REFS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInfo = document.getElementById('fileInfo');
+        const previewCanvas = document.getElementById('previewCanvas');
+        const placeholder = document.getElementById('placeholder');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadWrap = document.getElementById('downloadWrap');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const ratioBtns = document.querySelectorAll('.ratio-btn');
+
+        const ctx = previewCanvas.getContext('2d');
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  HELPERS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function parseRatio(str) {
+            const parts = str.split(':').map(Number);
+            return { w: parts[0], h: parts[1] };
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        // Clamp
+        function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  FILE UPLOAD
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        ['dragenter', 'dragover'].forEach(ev => {
+            uploadArea.addEventListener(ev, e => {
+                e.preventDefault();
+                uploadArea.classList.add('active');
+            });
+        });
+        ['dragleave', 'drop'].forEach(ev => {
+            uploadArea.addEventListener(ev, e => {
+                e.preventDefault();
+                uploadArea.classList.remove('active');
+            });
+        });
+        uploadArea.addEventListener('drop', e => {
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) handleFile(fileInput.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file (JPG, PNG, WebP, etc.)');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    state.image = img;
+                    state.fileName = file.name;
+                    fileInfo.textContent = `${file.name} · ${formatFileSize(file.size)}`;
+                    fileInfo.style.display = 'block';
+                    generateBtn.disabled = false;
+                    // Reset generated state
+                    state.generated = false;
+                    downloadWrap.style.display = 'none';
+                    // Show preview (raw image)
+                    renderRawPreview();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  RENDER RAW PREVIEW (before generation)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function renderRawPreview() {
+            if (!state.image) return;
+            const img = state.image;
+            const container = previewCanvas.parentElement;
+            const maxW = container.clientWidth || 760;
+            const maxH = 500;
+            let dispW = img.width;
+            let dispH = img.height;
+            if (dispW > maxW || dispH > maxH) {
+                const scale = Math.min(maxW / dispW, maxH / dispH);
+                dispW = Math.floor(dispW * scale);
+                dispH = Math.floor(dispH * scale);
+            }
+            previewCanvas.width = dispW;
+            previewCanvas.height = dispH;
+            previewCanvas.style.width = dispW + 'px';
+            previewCanvas.style.height = dispH + 'px';
+            ctx.clearRect(0, 0, dispW, dispH);
+            ctx.drawImage(img, 0, 0, dispW, dispH);
+            placeholder.style.display = 'none';
+            previewCanvas.style.display = 'block';
+            state.canvasWidth = dispW;
+            state.canvasHeight = dispH;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  ASPECT RATIO SELECTION
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        ratioBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Deselect all
+                ratioBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.selectedRatio = btn.dataset.ratio;
+                // If image loaded, enable generate
+                if (state.image) generateBtn.disabled = false;
+                // Reset generated state
+                state.generated = false;
+                downloadWrap.style.display = 'none';
+                // Show raw preview again if image exists
+                if (state.image) renderRawPreview();
+            });
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  GENERATE → GLOWING DOTS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        generateBtn.addEventListener('click', generateWithDots);
+
+        function generateWithDots() {
+            if (!state.image || !state.selectedRatio) {
+                alert('Please upload an image and select an aspect ratio.');
+                return;
+            }
+
+            const ratio = parseRatio(state.selectedRatio);
+            const img = state.image;
+
+            // Target canvas size (we'll use a sensible resolution)
+            // We want at least 800px on the long side, but not too huge
+            const baseSize = 1000;
+            let targetW, targetH;
+            if (ratio.w >= ratio.h) {
+                targetW = baseSize;
+                targetH = Math.floor(baseSize * (ratio.h / ratio.w));
+            } else {
+                targetH = baseSize;
+                targetW = Math.floor(baseSize * (ratio.w / ratio.h));
+            }
+            // Ensure minimum 400px
+            if (targetW < 400) targetW = 400;
+            if (targetH < 400) targetH = 400;
+
+            // Make sure it's not too large (max 2000px)
+            const maxDim = 2000;
+            if (targetW > maxDim || targetH > maxDim) {
+                const scale = Math.min(maxDim / targetW, maxDim / targetH);
+                targetW = Math.floor(targetW * scale);
+                targetH = Math.floor(targetH * scale);
+            }
+
+            // Create working canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = targetW;
+            canvas.height = targetH;
+            const c = canvas.getContext('2d');
+
+            // Clear with dark background (so dots pop)
+            c.fillStyle = '#0b0b16';
+            c.fillRect(0, 0, targetW, targetH);
+
+            // ── 1. Draw image centered, maintaining aspect ratio ──
+            const imgAspect = img.width / img.height;
+            const targetAspect = targetW / targetH;
+            let drawX, drawY, drawW, drawH;
+            if (imgAspect > targetAspect) {
+                // Image is wider → fit to width
+                drawW = targetW;
+                drawH = targetW / imgAspect;
+                drawX = 0;
+                drawY = (targetH - drawH) / 2;
+            } else {
+                // Image is taller → fit to height
+                drawH = targetH;
+                drawW = targetH * imgAspect;
+                drawX = (targetW - drawW) / 2;
+                drawY = 0;
+            }
+
+            // Draw the image (with slight rounding to avoid subpixel issues)
+            const ix = Math.round(drawX);
+            const iy = Math.round(drawY);
+            const iw = Math.round(drawW);
+            const ih = Math.round(drawH);
+            c.drawImage(img, ix, iy, iw, ih);
+
+            // ── 2. Get image data for edge sampling ──
+            const imageData = c.getImageData(0, 0, targetW, targetH);
+            const data = imageData.data;
+
+            // ── 3. Generate glowing dots in empty areas ──
+            generateDots(c, data, targetW, targetH, ix, iy, iw, ih);
+
+            // ── 4. Display on preview ──
+            previewCanvas.width = targetW;
+            previewCanvas.height = targetH;
+            previewCanvas.style.width = '100%';
+            previewCanvas.style.height = 'auto';
+            const pctx = previewCanvas.getContext('2d');
+            pctx.clearRect(0, 0, targetW, targetH);
+            pctx.drawImage(canvas, 0, 0);
+            placeholder.style.display = 'none';
+            previewCanvas.style.display = 'block';
+            state.canvasWidth = targetW;
+            state.canvasHeight = targetH;
+            state.generated = true;
+
+            // Store the canvas for download
+            state.generatedCanvas = canvas;
+
+            // Show download button
+            downloadWrap.style.display = 'flex';
+
+            // Enable download
+            downloadBtn.onclick = () => {
+                const link = document.createElement('a');
+                const baseName = state.fileName.replace(/\.[^.]+$/, '') || 'image';
+                link.download = `${baseName}_${state.selectedRatio}_glowing.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            };
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  GLOWING DOT GENERATOR
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function generateDots(ctx, imageData, w, h, photoX, photoY, photoW, photoH) {
+            // ── config ──
+            const spacing = 4; // base spacing between dots
+            const maxDotSize = 2.8;
+            const minDotSize = 0.4;
+            const fadeDist = 160; // pixels from edge where dots fade to zero
+            const jitter = 0.45; // random jitter fraction of spacing
+            const glowRadius = 6;
+            const opacityBase = 0.92;
+
+            // Helper: get pixel color from imageData (clamped to photo area)
+            function getEdgeColor(x, y) {
+                const cx = clamp(Math.round(x), photoX, photoX + photoW - 1);
+                const cy = clamp(Math.round(y), photoY, photoY + photoH - 1);
+                const idx = (cy * w + cx) * 4;
+                return {
+                    r: imageData[idx] || 0,
+                    g: imageData[idx + 1] || 0,
+                    b: imageData[idx + 2] || 0,
+                    a: imageData[idx + 3] || 255,
+                };
+            }
+
+            // Draw a single glowing dot
+            function drawDot(x, y, size, r, g, b, opacity) {
+                if (size < 0.1 || opacity < 0.02) return;
+                const rad = Math.max(size, 0.3);
+
+                // Glow via radial gradient
+                const grad = ctx.createRadialGradient(x, y, 0, x, y, rad + glowRadius);
+                const alpha = opacity * opacityBase;
+                grad.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
+                grad.addColorStop(0.4, `rgba(${r},${g},${b},${alpha * 0.7})`);
+                grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+                ctx.fillStyle = grad;
+
+                ctx.beginPath();
+                ctx.arc(x, y, rad + glowRadius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Core dot (brighter)
+                ctx.fillStyle = `rgba(${Math.min(255,r+40)},${Math.min(255,g+40)},${Math.min(255,b+40)},${alpha * 0.9})`;
+                ctx.beginPath();
+                ctx.arc(x, y, rad * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Tiny bright center
+                if (rad > 0.8) {
+                    ctx.fillStyle = `rgba(255,255,255,${alpha * 0.25})`;
+                    ctx.beginPath();
+                    ctx.arc(x - rad * 0.15, y - rad * 0.15, rad * 0.2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // Random jitter
+            function jit() { return (Math.random() - 0.5) * spacing * jitter; }
+
+            // ── TOP side (y < photoY) ──
+            if (photoY > 0) {
+                const startX = Math.max(0, photoX);
+                const endX = Math.min(w, photoX + photoW);
+                for (let x = startX; x < endX; x += spacing) {
+                    const edgeColor = getEdgeColor(x, photoY);
+                    const distFromEdge = photoY;
+                    const maxY = Math.max(0, photoY - fadeDist);
+                    for (let y = photoY - spacing; y >= maxY; y -= spacing) {
+                        const dist = photoY - y;
+                        const fade = clamp(1 - dist / fadeDist, 0, 1);
+                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
+                        const op = fade * 0.9 + 0.08;
+                        drawDot(
+                            x + jit(),
+                            y + jit(),
+                            size,
+                            edgeColor.r, edgeColor.g, edgeColor.b,
+                            op
+                        );
+                    }
+                }
+            }
+
+            // ── BOTTOM side (y > photoY + photoH) ──
+            if (photoY + photoH < h) {
+                const startX = Math.max(0, photoX);
+                const endX = Math.min(w, photoX + photoW);
+                for (let x = startX; x < endX; x += spacing) {
+                    const edgeColor = getEdgeColor(x, photoY + photoH - 1);
+                    const maxY = Math.min(h, photoY + photoH + fadeDist);
+                    for (let y = photoY + photoH + spacing; y < maxY; y += spacing) {
+                        const dist = y - (photoY + photoH);
+                        const fade = clamp(1 - dist / fadeDist, 0, 1);
+                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
+                        const op = fade * 0.9 + 0.08;
+                        drawDot(
+                            x + jit(),
+                            y + jit(),
+                            size,
+                            edgeColor.r, edgeColor.g, edgeColor.b,
+                            op
+                        );
+                    }
+                }
+            }
+
+            // ── LEFT side (x < photoX) ──
+            if (photoX > 0) {
+                const startY = Math.max(0, photoY);
+                const endY = Math.min(h, photoY + photoH);
+                for (let y = startY; y < endY; y += spacing) {
+                    const edgeColor = getEdgeColor(photoX, y);
+                    const maxX = Math.max(0, photoX - fadeDist);
+                    for (let x = photoX - spacing; x >= maxX; x -= spacing) {
+                        const dist = photoX - x;
+                        const fade = clamp(1 - dist / fadeDist, 0, 1);
+                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
+                        const op = fade * 0.9 + 0.08;
+                        drawDot(
+                            x + jit(),
+                            y + jit(),
+                            size,
+                            edgeColor.r, edgeColor.g, edgeColor.b,
+                            op
+                        );
+                    }
+                }
+            }
+
+            // ── RIGHT side (x > photoX + photoW) ──
+            if (photoX + photoW < w) {
+                const startY = Math.max(0, photoY);
+                const endY = Math.min(h, photoY + photoH);
+                for (let y = startY; y < endY; y += spacing) {
+                    const edgeColor = getEdgeColor(photoX + photoW - 1, y);
+                    const maxX = Math.min(w, photoX + photoW + fadeDist);
+                    for (let x = photoX + photoW + spacing; x < maxX; x += spacing) {
+                        const dist = x - (photoX + photoW);
+                        const fade = clamp(1 - dist / fadeDist, 0, 1);
+                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
+                        const op = fade * 0.9 + 0.08;
+                        drawDot(
+                            x + jit(),
+                            y + jit(),
+                            size,
+                            edgeColor.r, edgeColor.g, edgeColor.b,
+                            op
+                        );
+                    }
+                }
+            }
+
+            // ── CORNERS: fill remaining gaps with blended dots ──
+            // Top-left corner
+            if (photoX > 0 && photoY > 0) {
+                const maxX = Math.max(0, photoX - fadeDist);
+                const maxY = Math.max(0, photoY - fadeDist);
+                for (let x = photoX - spacing; x >= maxX; x -= spacing) {
+                    for (let y = photoY - spacing; y >= maxY; y -= spacing) {
+                        const distX = photoX - x;
+                        const distY = photoY - y;
+                        const dist = Math.sqrt(distX * distX + distY * distY);
+                        if (dist > fadeDist) continue;
+                        const fade = clamp(1 - dist / fadeDist, 0, 1);
+                        // blend colors from top and left edges
+                        const cTop = getEdgeColor(x, photoY);
+                        const cLeft = getEdgeColor(photoX, y);
+                        const blend = distX / (distX + distY + 0.001);
+                        const r = cTop.r * (1 - blend) + cLeft.r * blend;
+                        const g = cTop.g * (1 - blend) + cLeft.g * blend;
+                        const b = cTop.b * (1 - blend) + cLeft.b * blend;
+                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
+                        const op = fade * 0.85 + 0.06;
+                        drawDot(
+                            x + jit(),
+                            y + jit(),
+                            size,
+                            r, g, b,
+                            op
+                        );
+                    }
+                }
+            }
+
+            // Top-right corner
+            if (photoX + photoW < w && photoY > 0) {
+                const maxX = Math.min(w, photoX + photoW + fadeDist);
+                const maxY = Math.max(0, photoY - fadeDist);
+                for (let x = photoX + photoW + spacing; x < maxX; x += spacing) {
+                    for (let y = photoY - spacing; y >= maxY; y -= spacing) {
+                        const distX = x - (photoX + photoW);
+                        const distY = photoY - y;
+                        const dist = Math.sqrt(distX * distX + distY * distY);
+                        if (dist > fadeDist) continue;
+                        const fade = clamp(1 - dist / fadeDist, 0, 1);
+                        const cTop = getEdgeColor(x, photoY);
+                        const cRight = getEdgeColor(photoX + photoW - 1, y);
+                        const blend = distX / (distX + distY + 0.001);
+                        const r = cTop.r * (1 - blend) + cRight.r * blend;
+                        const g = cTop.g * (1 - blend) + cRight.g * blend;
+                        const b = cTop.b * (1 - blend) + cRight.b * blend;
+                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
+                        const op = fade * 0.85 + 0.06;
+                        drawDot(
+                            x + jit(),
+                            y + jit(),
+                            size,
+                            r, g, b,
+                            op
+                        );
+                    }
+                }
+            }
+
+            // Bottom-left corner
+            if (photoX > 0 && photoY + photoH < h) {
+                const maxX = Math.max(0, photoX - fadeDist);
+                const maxY = Math.min(h, photoY + photoH + fadeDist);
+                for (let x = photoX - spacing; x >= maxX; x -= spacing) {
+                    for (let y = photoY + photoH + spacing; y < maxY; y += spacing) {
+                        const distX = photoX - x;
+                        const distY = y - (photoY + photoH);
+                        const dist = Math.sqrt(distX * distX + distY * distY);
+                        if (dist > fadeDist) continue;
+                        const fade = clamp(1 - dist / fadeDist, 0, 1);
+                        const cBottom = getEdgeColor(x, photoY + photoH - 1);
+                        const cLeft = getEdgeColor(photoX, y);
+                        const blend = distX / (distX + distY + 0.001);
+                        const r = cBottom.r * (1 - blend) + cLeft.r * blend;
+                        const g = cBottom.g * (1 - blend) + cLeft.g * blend;
+                        const b = cBottom.b * (1 - blend) + cLeft.b * blend;
+                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
+                        const op = fade * 0.85 + 0.06;
+                        drawDot(
+                            x + jit(),
+                            y + jit(),
+                            size,
+                            r, g, b,
+                            op
+                        );
+                    }
+                }
+            }
+
+            // Bottom-right corner
+            if (photoX + photoW < w && photoY + photoH < h) {
+                const maxX = Math.min(w, photoX + photoW + fadeDist);
+                const maxY = Math.min(h, photoY + photoH + fadeDist);
+                for (let x = photoX + photoW + spacing; x < maxX; x += spacing) {
+                    for (let y = photoY + photoH + spacing; y < maxY; y += spacing) {
+                        const distX = x - (photoX + photoW);
+                        const distY = y - (photoY + photoH);
+                        const dist = Math.sqrt(distX * distX + distY * distY);
+                        if (dist > fadeDist) continue;
+                        const fade = clamp(1 - dist / fadeDist, 0, 1);
+                        const cBottom = getEdgeColor(x, photoY + photoH - 1);
+                        const cRight = getEdgeColor(photoX + photoW - 1, y);
+                        const blend = distX / (distX + distY + 0.001);
+                        const r = cBottom.r * (1 - blend) + cRight.r * blend;
+                        const g = cBottom.g * (1 - blend) + cRight.g * blend;
+                        const b = cBottom.b * (1 - blend) + cRight.b * blend;
+                        const size = minDotSize + (maxDotSize - minDotSize) * fade * fade;
+                        const op = fade * 0.85 + 0.06;
+                        drawDot(
+                            x + jit(),
+                            y + jit(),
+                            size,
+                            r, g, b,
+                            op
+                        );
+                    }
+                }
+            }
+
+            // ── extra pass: blend along the photo edge for smooth transition ──
+            // Add a subtle glow along the photo boundary
+            const edgeGlowWidth = 6;
+            for (let x = photoX; x < photoX + photoW; x += 1.5) {
+                // top edge glow
+                if (photoY > 0) {
+                    const c = getEdgeColor(x, photoY);
+                    for (let dy = 0; dy < edgeGlowWidth; dy += 1.5) {
+                        const fade = 1 - dy / edgeGlowWidth;
+                        const size = 0.3 + fade * 1.2;
+                        const op = fade * 0.25;
+                        drawDot(x + jit() * 0.3, photoY - dy + jit() * 0.3, size, c.r, c.g, c.b, op);
+                    }
+                }
+                // bottom edge glow
+                if (photoY + photoH < h) {
+                    const c = getEdgeColor(x, photoY + photoH - 1);
+                    for (let dy = 0; dy < edgeGlowWidth; dy += 1.5) {
+                        const fade = 1 - dy / edgeGlowWidth;
+                        const size = 0.3 + fade * 1.2;
+                        const op = fade * 0.25;
+                        drawDot(x + jit() * 0.3, photoY + photoH + dy + jit() * 0.3, size, c.r, c.g, c.b, op);
+                    }
+                }
+            }
+            for (let y = photoY; y < photoY + photoH; y += 1.5) {
+                // left edge glow
+                if (photoX > 0) {
+                    const c = getEdgeColor(photoX, y);
+                    for (let dx = 0; dx < edgeGlowWidth; dx += 1.5) {
+                        const fade = 1 - dx / edgeGlowWidth;
+                        const size = 0.3 + fade * 1.2;
+                        const op = fade * 0.25;
+                        drawDot(photoX - dx + jit() * 0.3, y + jit() * 0.3, size, c.r, c.g, c.b, op);
+                    }
+                }
+                // right edge glow
+                if (photoX + photoW < w) {
+                    const c = getEdgeColor(photoX + photoW - 1, y);
+                    for (let dx = 0; dx < edgeGlowWidth; dx += 1.5) {
+                        const fade = 1 - dx / edgeGlowWidth;
+                        const size = 0.3 + fade * 1.2;
+                        const op = fade * 0.25;
+                        drawDot(photoX + photoW + dx + jit() * 0.3, y + jit() * 0.3, size, c.r, c.g, c.b, op);
+                    }
+                }
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  WINDOW RESIZE – re-render preview if not generated
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (!state.generated && state.image) {
+                    renderRawPreview();
+                }
+            }, 300);
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  INIT
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Show placeholder
+        previewCanvas.style.display = 'none';
+        placeholder.style.display = 'block';
+        generateBtn.disabled = true;
+
+        console.log('✦ Aspect Ratio Studio loaded · Glowing Dot Fill ✦');
+        console.log('Upload a photo, pick a ratio, and hit Generate!');
+    </script>
+
+</body>
+</html>
