@@ -530,7 +530,7 @@
         <div class="header">
             <h1><i class="fas fa-glass-whiskey"></i> Glass Tile Pro</h1>
             <span class="badge"><i class="fas fa-star"></i> 4K Ultra HD</span>
-            <p>Rounded tile · Soft feathered edges · 8px margin · <strong>3840px base</strong></p>
+            <p>Rounded tile · Soft feathered edges · <strong>Proportional scaling</strong></p>
         </div>
         <div class="upload-area" id="uploadArea">
             <i class="fas fa-cloud-upload-alt"></i>
@@ -617,7 +617,7 @@
         <div class="res-info" id="resInfo"></div>
 
         <div class="footer">
-            <div class="footer-text">Tile margin 8px · 30px edge feather · Equal border thickness | Made with <span style="color: #ff4d4d;">❤️</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" style="color: #5b86e5; text-decoration: none;">Sandeep</a></div>
+            <div class="footer-text">Tile margin scales with resolution · 30px edge feather (proportional) · Equal border thickness | Made with <span style="color: #ff4d4d;">❤️</span> by <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" style="color: #5b86e5; text-decoration: none;">Sandeep</a></div>
         </div>
     </div>
 
@@ -634,7 +634,7 @@
             selectedRatio: null,
             generated: false,
             generatedCanvas: null,
-            outputSize: 3840, // 4K default
+            outputSize: 3840,
         };
 
         const fileInput = document.getElementById('fileInput');
@@ -817,7 +817,6 @@
             generateBtn.classList.add('loading');
             generateBtn.disabled = true;
 
-            // Use requestAnimationFrame + setTimeout to let UI update
             setTimeout(() => {
                 try {
                     doGenerate();
@@ -836,6 +835,21 @@
             const img = state.image;
             const baseSize = parseInt(qualitySelect.value) || 3840;
 
+            // ---- SCALE FACTOR: original design was for ~1000px ----
+            const REF = 1000;
+            const scale = baseSize / REF;
+
+            // ---- SCALED VISUAL PARAMETERS ----
+            const minMargin = Math.max(8, 8 * scale);
+            const padding = 20 * scale;
+            const tileRadius = 30 * scale;
+            const photoRadius = Math.max(tileRadius - padding, 4);
+            const featherSize = 30 * scale;
+            const shadowBlur = 40 * scale;
+            const shadowOffsetY = 15 * scale;
+            const lineWidth = Math.max(1.5, 2.5 * scale);
+
+            // ---- TARGET DIMENSIONS ----
             let targetW, targetH;
             if (ratio.w >= ratio.h) {
                 targetW = baseSize;
@@ -844,15 +858,13 @@
                 targetH = baseSize;
                 targetW = Math.floor(baseSize * (ratio.w / ratio.h));
             }
-            // Ensure minimum size
             if (targetW < 400) targetW = 400;
             if (targetH < 400) targetH = 400;
-            // Cap at 8K to avoid crashes
             const maxDim = 8192;
             if (targetW > maxDim || targetH > maxDim) {
-                const scale = Math.min(maxDim / targetW, maxDim / targetH);
-                targetW = Math.floor(targetW * scale);
-                targetH = Math.floor(targetH * scale);
+                const s = Math.min(maxDim / targetW, maxDim / targetH);
+                targetW = Math.floor(targetW * s);
+                targetH = Math.floor(targetH * s);
             }
 
             const canvas = document.createElement('canvas');
@@ -860,7 +872,7 @@
             canvas.height = targetH;
             const c = canvas.getContext('2d');
 
-            // ── 1. Cover image ──
+            // ---- 1. COVER IMAGE ----
             const imgAspect = img.width / img.height;
             const targetAspect = targetW / targetH;
             let coverW, coverH, coverX, coverY;
@@ -880,7 +892,7 @@
             coverW = Math.round(coverW);
             coverH = Math.round(coverH);
 
-            // ── 2. Blurred background ──
+            // ---- 2. BLURRED BACKGROUND ----
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = targetW;
             tempCanvas.height = targetH;
@@ -895,7 +907,7 @@
             bCtx.drawImage(tempCanvas, 0, 0);
             c.drawImage(blurCanvas, 0, 0);
 
-            // ── 3. Vignette ──
+            // ---- 3. VIGNETTE (scales with canvas) ----
             const vignette = c.createRadialGradient(
                 targetW / 2, targetH / 2, Math.min(targetW, targetH) * 0.15,
                 targetW / 2, targetH / 2, Math.max(targetW, targetH) * 0.75
@@ -907,13 +919,7 @@
             c.fillStyle = vignette;
             c.fillRect(0, 0, targetW, targetH);
 
-            // ── 4. Tile & image dimensions ──
-            const minMargin = 8;
-            const padding = 20;
-            const tileRadius = 30;
-            const photoRadius = Math.max(tileRadius - padding, 4);
-            const featherSize = 30;
-
+            // ---- 4. TILE LAYOUT ----
             const maxTileW = targetW - minMargin * 2;
             const maxTileH = targetH - minMargin * 2;
             const maxImageW = maxTileW - padding * 2;
@@ -930,55 +936,51 @@
             const imgX = tileX + (tileW - fitW) / 2;
             const imgY = tileY + (tileH - fitH) / 2;
 
-            // ── 5. Glass tile shadow ──
+            // ---- 5. TILE SHADOW (scaled) ----
             c.save();
             c.shadowColor = 'rgba(0,0,0,0.6)';
-            c.shadowBlur = 40;
+            c.shadowBlur = shadowBlur;
             c.shadowOffsetX = 0;
-            c.shadowOffsetY = 15;
+            c.shadowOffsetY = shadowOffsetY;
             roundedRect(c, tileX, tileY, tileW, tileH, tileRadius);
             c.fillStyle = 'rgba(255,255,255,0.12)';
             c.fill();
             c.shadowColor = 'transparent';
 
-            // ── 6. IMAGE WITH 30px EDGE FEATHER (4 sides) ──
+            // ---- 6. IMAGE WITH FEATHER (scaled featherSize) ----
             const photoCanvas = document.createElement('canvas');
             photoCanvas.width = Math.ceil(fitW);
             photoCanvas.height = Math.ceil(fitH);
             const pCtx = photoCanvas.getContext('2d');
 
-            // 6a. Rounded rect clip
+            // rounded clip
             pCtx.save();
             roundedRectCtx(pCtx, 0, 0, fitW, fitH, photoRadius);
             pCtx.clip();
             pCtx.drawImage(img, 0, 0, fitW, fitH);
             pCtx.restore();
 
-            // 6b. destination-out — gradient mask for feathering
+            // feather mask (destination-out)
             pCtx.globalCompositeOperation = 'destination-out';
 
-            // TOP
             const topGrad = pCtx.createLinearGradient(0, 0, 0, featherSize);
             topGrad.addColorStop(0, 'rgba(0,0,0,1)');
             topGrad.addColorStop(1, 'rgba(0,0,0,0)');
             pCtx.fillStyle = topGrad;
             pCtx.fillRect(0, 0, fitW, featherSize);
 
-            // BOTTOM
             const botGrad = pCtx.createLinearGradient(0, fitH - featherSize, 0, fitH);
             botGrad.addColorStop(0, 'rgba(0,0,0,0)');
             botGrad.addColorStop(1, 'rgba(0,0,0,1)');
             pCtx.fillStyle = botGrad;
             pCtx.fillRect(0, fitH - featherSize, fitW, featherSize);
 
-            // LEFT
             const leftGrad = pCtx.createLinearGradient(0, 0, featherSize, 0);
             leftGrad.addColorStop(0, 'rgba(0,0,0,1)');
             leftGrad.addColorStop(1, 'rgba(0,0,0,0)');
             pCtx.fillStyle = leftGrad;
             pCtx.fillRect(0, 0, featherSize, fitH);
 
-            // RIGHT
             const rightGrad = pCtx.createLinearGradient(fitW - featherSize, 0, fitW, 0);
             rightGrad.addColorStop(0, 'rgba(0,0,0,0)');
             rightGrad.addColorStop(1, 'rgba(0,0,0,1)');
@@ -987,14 +989,14 @@
 
             pCtx.globalCompositeOperation = 'source-over';
 
-            // 6c. Draw feathered photo onto main canvas
+            // draw feathered photo
             c.save();
             roundedRect(c, imgX, imgY, fitW, fitH, photoRadius);
             c.clip();
             c.drawImage(photoCanvas, imgX, imgY);
             c.restore();
 
-            // ── 7. Glass overlay effects ──
+            // ---- 7. GLASS OVERLAY (scaled) ----
             const glassGrad = c.createLinearGradient(tileX, tileY, tileX + tileW, tileY + tileH);
             glassGrad.addColorStop(0, 'rgba(255,255,255,0.20)');
             glassGrad.addColorStop(0.3, 'rgba(255,255,255,0.05)');
@@ -1004,7 +1006,7 @@
             roundedRect(c, tileX, tileY, tileW, tileH, tileRadius);
             c.fill();
 
-            // Diagonal reflection
+            // diagonal reflection
             const streak = c.createLinearGradient(tileX + tileW * 0.2, tileY, tileX + tileW * 0.8, tileY + tileH);
             streak.addColorStop(0, 'rgba(255,255,255,0)');
             streak.addColorStop(0.4, 'rgba(255,255,255,0.03)');
@@ -1015,15 +1017,15 @@
             roundedRect(c, tileX, tileY, tileW, tileH, tileRadius);
             c.fill();
 
-            // Tile border
+            // tile border (scaled lineWidth)
             c.strokeStyle = 'rgba(255,255,255,0.45)';
-            c.lineWidth = 2.5;
+            c.lineWidth = lineWidth;
             roundedRect(c, tileX, tileY, tileW, tileH, tileRadius);
             c.stroke();
 
             c.restore();
 
-            // ── 8. Preview (scaled) ──
+            // ---- 8. PREVIEW ----
             previewCanvas.width = targetW;
             previewCanvas.height = targetH;
             previewCanvas.style.width = '100%';
@@ -1036,10 +1038,9 @@
             state.generated = true;
             state.generatedCanvas = canvas;
 
-            // Update resolution info with actual dimensions
             const mp = (targetW * targetH / 1000000).toFixed(1);
             resInfo.innerHTML =
-                `⬤ <strong>${targetW}×${targetH}</strong>  ·  ${mp} MP  ·  <span style="color:rgba(255,255,255,0.3);">${state.selectedRatio}</span>  ·  <span style="color:#5b86e5;">✓ 4K ready</span>`;
+                `⬤ <strong>${targetW}×${targetH}</strong>  ·  ${mp} MP  ·  <span style="color:rgba(255,255,255,0.3);">${state.selectedRatio}</span>  ·  <span style="color:#5b86e5;">✓ scaled border & glow</span>`;
 
             downloadWrap.style.display = 'flex';
             downloadBtn.onclick = () => {
@@ -1065,7 +1066,7 @@
         generateBtn.disabled = true;
         updateResInfo();
 
-        console.log('✦ Glass Tile Pro – 4K Ultra HD (3840px base) ✦');
+        console.log('✦ Glass Tile Pro – 4K with proportional border, glow & spacing ✦');
     </script>
 </body>
 </html>
